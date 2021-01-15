@@ -55,13 +55,3 @@ loadRESTLibs:
   except:
     variables:
       - $CRONJOB
-
-addSignalNoise: 
-  type: process
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/pipeline/processes/
-    - ./addNoise.py
-  except:
-      variables:
-        - $CRONJOB
