@@ -1,0 +1,67 @@
+image: nkx1231/root6-geant4-garfield:0.4
+
+stages:
+  - pre-build
+  - build
+  - loadRESTLibs
+  - process
+
+before_script:
+    - export USER="detector"
+
+clang-format:
+    stage: pre-build
+    script:
+        - echo "**$CRONJOB**"
+        - echo "**$CI_SERVER_HOST**"
+        - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
+        - ./clangformattest.sh
+          # We execute only at a schedulled pipeline that defines CRONJOB variable
+    only:
+        variables:
+            - $CRONJOB
+
+build:
+  type: build
+  script:
+    - echo "**${CI_PROJECT_DIR}**"
+    - rm -rf ${CI_PROJECT_DIR}/install
+    - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
+    - cd framework
+    - git submodule init source/libraries/geant4
+    - git submodule update source/libraries/geant4
+    - cd source/libraries/geant4/
+    - git checkout master
+    - cd ../../../
+    - mkdir build
+    - cd build
+    - cmake ../ -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - make install -j2
+  except:
+    variables:
+      - $CRONJOB
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install
+      - ${CI_PROJECT_DIR}/framework
+      - ${CI_PROJECT_DIR}/framework/build
+    expire_in: 1 day
+
+loadRESTLibs:
+  type: loadRESTLibs
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restRoot -b -q
+  except:
+    variables:
+      - $CRONJOB
+
+addSignalNoise: 
+  type: process
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/processes/
+    - ./addNoise.py
+  except:
+      variables:
+        - $CRONJOB
