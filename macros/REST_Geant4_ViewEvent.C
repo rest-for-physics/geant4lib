@@ -11,7 +11,7 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Geant4_ViewEvent(TString fName) {
-    TRestBrowser* browser = new TRestBrowser("TRestG4EventViewer");
+    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer");
 
     TRestEvent* eve = new TRestGeant4Event();
     browser->SetInputEvent(eve);
