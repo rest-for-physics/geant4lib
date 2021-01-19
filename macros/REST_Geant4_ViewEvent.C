@@ -10,7 +10,7 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Geant4_ViewG4Event(TString fName) {
+Int_t REST_Geant4_ViewEvent(TString fName) {
     TRestBrowser* browser = new TRestBrowser("TRestG4EventViewer");
 
     TRestEvent* eve = new TRestGeant4Event();
