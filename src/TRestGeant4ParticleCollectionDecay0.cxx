@@ -14,7 +14,7 @@ void TRestGeant4ParticleCollectionDecay0::VirtualUpdate() {
     RemoveParticles();
 
     bxdecay0::event gendecay;
-    fDecay0Model.shoot(prng, gendecay);
+    fDecay0Model->shoot(prng, gendecay);
 
     auto ps = gendecay.get_particles();
     for (auto p : ps) {
@@ -98,7 +98,7 @@ void TRestGeant4ParticleCollectionDecay0::InitFromConfigFile() {
     fDecayType = GetParameter("decayMode");
     fDaugherLevel = StringToInteger(GetParameter("daughterLevel"));
 
-    fDecay0Model.set_decay_category(bxdecay0::decay0_generator::DECAY_CATEGORY_DBD);
+    fDecay0Model->set_decay_category(bxdecay0::decay0_generator::DECAY_CATEGORY_DBD);
 
     if (fParentName != "Xe136") {
         ferr << "Only Xe136 double beta decay is supported by restDecay0" << endl;
@@ -109,25 +109,25 @@ void TRestGeant4ParticleCollectionDecay0::InitFromConfigFile() {
         exit(1);
     }
 
-    fDecay0Model.set_decay_isotope(fParentName);
+    fDecay0Model->set_decay_isotope(fParentName);
 
-    fDecay0Model.set_decay_dbd_level(fDaugherLevel);
+    fDecay0Model->set_decay_dbd_level(fDaugherLevel);
 
     if (fDecayType == "2vbb") {
         if (fDaugherLevel == 0 || fDaugherLevel == 3) {
-            fDecay0Model.set_decay_dbd_mode(bxdecay0::MODEBB_4);
+            fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_0_2N);
         } else if (fDaugherLevel == 1 || fDaugherLevel == 2) {
-            fDecay0Model.set_decay_dbd_mode(bxdecay0::MODEBB_8);
+            fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_2_2N);
         }
     } else if (fDecayType == "0vbb") {
         if (fDaugherLevel == 0 || fDaugherLevel == 3) {
-            fDecay0Model.set_decay_dbd_mode(bxdecay0::MODEBB_1);
+            fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_MN_0_2N);
         } else if (fDaugherLevel == 1 || fDaugherLevel == 2) {
-            fDecay0Model.set_decay_dbd_mode(bxdecay0::MODEBB_7);
+            fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_RHC_LAMBDA_2_2N);
         }
     }
 
-    fDecay0Model.initialize(prng);
+    fDecay0Model->initialize(prng);
 
     VirtualUpdate();
 }
