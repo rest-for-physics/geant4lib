@@ -160,7 +160,10 @@ for r, d, f in os.walk(sys.argv[1]):
                 with open(os.path.join(r, file)) as fin:
                     if '::LoadDefaultConfig' in fin.read():
                         validate = 1
-            if validate == 1:
+                with open(os.path.join(r, file)) as fin:
+                    if '::Initialize' in fin.read():
+                        validate = validate + 1
+            if validate == 2:
                 files.append(os.path.join(r, file))
                 validateClass(os.path.join(r, file))
 
