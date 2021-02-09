@@ -1,3 +1,6 @@
+set( LibraryVersion "1.0" )
+add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
+
 if (${REST_DECAY0} MATCHES "ON")
     add_definitions(-DUSE_Decay0)
     # TODO Issue #6 at rest-framework
