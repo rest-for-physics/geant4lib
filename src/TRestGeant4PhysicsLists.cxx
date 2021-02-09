@@ -30,7 +30,8 @@ ClassImp(TRestGeant4PhysicsLists)
 }
 
 //______________________________________________________________________________
-TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
+TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
+    : TRestMetadata(cfgFileName) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -43,7 +44,10 @@ TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() {
     // TRestGeant4PhysicsLists destructor
 }
 
-void TRestGeant4PhysicsLists::Initialize() { SetSectionName(this->ClassName()); }
+void TRestGeant4PhysicsLists::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
+}
 
 //______________________________________________________________________________
 void TRestGeant4PhysicsLists::InitFromConfigFile() {

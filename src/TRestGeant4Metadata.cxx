@@ -725,6 +725,7 @@ TRestGeant4Metadata::~TRestGeant4Metadata() { fPrimaryGenerator.RemoveParticleCo
 ///
 void TRestGeant4Metadata::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fChance.clear();
     fActiveVolumes.clear();
@@ -941,7 +942,8 @@ void TRestGeant4Metadata::ReadGenerator() {
             ReadParticleSource(sourceDefinition);
         } else {
             info << "Load custom sources from " << use << endl;
-            TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate(use);
+            TRestGeant4ParticleCollection* particleCollection =
+                TRestGeant4ParticleCollection::instantiate(use);
             if (particleCollection != NULL) {
                 particleCollection->SetParticleModel(ElementToString(sourceDefinition));
                 fPrimaryGenerator.AddParticleCollection(particleCollection);

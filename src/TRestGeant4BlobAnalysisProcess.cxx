@@ -35,6 +35,7 @@ void TRestGeant4BlobAnalysisProcess::LoadDefaultConfig() { SetTitle("Default con
 //______________________________________________________________________________
 void TRestGeant4BlobAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fG4Event = new TRestGeant4Event();
     /// fOutputG4Event = new TRestGeant4Event();
