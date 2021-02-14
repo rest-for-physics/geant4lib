@@ -102,10 +102,7 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
 
     // CAREFUL THIS METHOD IS CALLED TWICE!
     // we need to reset these variables to zero
-    fVetoVolumeIds.clear();
-    fVetoGroupVolumeNames.clear();
-    fCaptureVolumeIds.clear();
-
+    Reset();
     // get "veto" volumes
     for (unsigned int i = 0; i < fG4Metadata->GetNumberOfActiveVolumes(); i++) {
         string volume_name = (string)fG4Metadata->GetActiveVolumeName(i);
@@ -114,6 +111,8 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
             fVetoVolumeIds.push_back(i);
         } else if (volume_name.find(clean_string(fCaptureKeyword)) != string::npos) {
             fCaptureVolumeIds.push_back(i);
+        } else if (volume_name.find(clean_string(fShieldingKeyword)) != string::npos) {
+            fShieldingVolumeIds.push_back(i);
         }
     }
 
@@ -134,6 +133,34 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
     PrintMetadata();
 }
 
+void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Reset() {
+    fVetoVolumeIds.clear();
+    fVetoGroupVolumeNames.clear();
+    fCaptureVolumeIds.clear();
+
+    fNeutronsCapturedNumber = 0;
+    fNeutronsCapturedPosX.clear();
+    fNeutronsCapturedPosY.clear();
+    fNeutronsCapturedPosZ.clear();
+    fNeutronsCapturedIsCaptureVolume.clear();
+    fNeutronsCapturedProductionE.clear();
+
+    fGammasNeutronCaptureNumber = 0;
+    fGammasNeutronCapturePosX.clear();
+    fGammasNeutronCapturePosY.clear();
+    fGammasNeutronCapturePosZ.clear();
+    fGammasNeutronCaptureIsCaptureVolume.clear();
+    fGammasNeutronCaptureProductionE.clear();
+
+    fSecondaryNeutronsShieldingNumber = 0;
+    fSecondaryNeutronsShieldingExitPosX.clear();
+    fSecondaryNeutronsShieldingExitPosY.clear();
+    fSecondaryNeutronsShieldingExitPosZ.clear();
+    fSecondaryNeutronsShieldingIsCaptured.clear();
+    fSecondaryNeutronsShieldingIsCapturedInCaptureVolume.clear();
+    fSecondaryNeutronsShieldingProductionE.clear();
+    fSecondaryNeutronsShieldingExitE.clear();
+}
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
@@ -141,6 +168,7 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
     fInputG4Event = (TRestGeant4Event*)evInput;
     *fOutputG4Event = *((TRestGeant4Event*)evInput);
 
+    Reset();
     std::map<string, Double_t> volume_energy_map;
 
     for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
@@ -241,6 +269,151 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
         }
     }
 
+    std::set<int> neutronsCaptured = {};
+    for (int i = 0; i < fOutputG4Event->GetNumberOfTracks(); i++) {
+        auto track = fOutputG4Event->GetTrack(i);
+        string particle_name = (string)track->GetParticleName();
+        if (particle_name == "neutron") {
+            auto hits = track->GetHits();
+            for (int j = 0; j < hits->GetNumberOfHits(); j++) {
+                string process_name = (string)track->GetProcessName(hits->GetProcess(j));
+                if (process_name == "nCapture") {
+                    cout << "Neutron capture!!!!!! " << particle_name << "trackId " << track->GetTrackID()
+                         << " hit " << j << endl;
+                    // track->PrintTrack();
+                    hits->PrintHits(j + 1);
+
+                    neutronsCaptured.insert(track->GetTrackID());
+
+                    fNeutronsCapturedNumber += 1;
+                    fNeutronsCapturedPosX.push_back(hits->GetX(j));
+                    fNeutronsCapturedPosY.push_back(hits->GetY(j));
+                    fNeutronsCapturedPosZ.push_back(hits->GetZ(j));
+
+                    Int_t volumeId = hits->GetVolumeId(j);
+                    Int_t isCaptureVolume = 0;
+                    for (const auto& id : fCaptureVolumeIds) {
+                        if (volumeId == id) {
+                            isCaptureVolume = 1;
+                            continue;
+                        }
+                    }
+                    fNeutronsCapturedIsCaptureVolume.push_back(isCaptureVolume);
+                    fNeutronsCapturedProductionE.push_back(track->GetKineticEnergy());
+                }
+            }
+        }
+    }
+
+    SetObservableValue("neutronsCapturedNumber", fNeutronsCapturedNumber);
+    SetObservableValue("neutronsCapturedPosX", fNeutronsCapturedPosX);
+    SetObservableValue("neutronsCapturedPosY", fNeutronsCapturedPosY);
+    SetObservableValue("neutronsCapturedPosZ", fNeutronsCapturedPosZ);
+    SetObservableValue("neutronsCapturedIsCaptureVolume", fNeutronsCapturedIsCaptureVolume);
+    SetObservableValue("neutronsCapturedProductionE", fNeutronsCapturedProductionE);
+
+    for (int i = 0; i < fOutputG4Event->GetNumberOfTracks(); i++) {
+        auto track = fOutputG4Event->GetTrack(i);
+        string particle_name = (string)track->GetParticleName();
+        if (particle_name == "gamma") {
+            // check if gamma is child of captured neutron
+            Int_t parent = track->GetParentID();
+            if (neutronsCaptured.count(parent) > 0) {
+                auto hits = track->GetHits();
+
+                fGammasNeutronCaptureNumber += 1;
+                fGammasNeutronCapturePosX.push_back(hits->GetX(0));
+                fGammasNeutronCapturePosY.push_back(hits->GetY(0));
+                fGammasNeutronCapturePosZ.push_back(hits->GetZ(0));
+
+                Int_t volumeId = hits->GetVolumeId(0);
+                Int_t isCaptureVolume = 0;
+                for (const auto& id : fCaptureVolumeIds) {
+                    if (volumeId == id) {
+                        isCaptureVolume = 1;
+                        continue;
+                    }
+                }
+                fGammasNeutronCaptureIsCaptureVolume.push_back(isCaptureVolume);
+                fGammasNeutronCaptureProductionE.push_back(track->GetKineticEnergy());
+
+                cout << "gamma capture" << endl;
+
+                hits->PrintHits(1);
+            }
+        }
+    }
+
+    SetObservableValue("gammasNeutronCaptureNumber", fGammasNeutronCaptureNumber);
+    SetObservableValue("gammasNeutronCapturePosX", fGammasNeutronCapturePosX);
+    SetObservableValue("gammasNeutronCapturePosY", fGammasNeutronCapturePosY);
+    SetObservableValue("gammasNeutronCapturePosZ", fGammasNeutronCapturePosZ);
+    SetObservableValue("gammasNeutronCaptureIsCaptureVolume", fGammasNeutronCaptureIsCaptureVolume);
+    SetObservableValue("gammasNeutronCaptureProductionE", fGammasNeutronCaptureProductionE);
+
+    std::set<int> secondaryNeutrons = {};  // avoid counting twice
+    for (int i = 0; i < fOutputG4Event->GetNumberOfTracks(); i++) {
+        auto track = fOutputG4Event->GetTrack(i);
+        string particle_name = (string)track->GetParticleName();
+        if (particle_name == "neutron" && track->GetParentID() != 0) {  // not consider primary
+            // check if neutron exits shielding
+            auto hits = track->GetHits();
+            for (int j = 0; j < hits->GetNumberOfHits(); j++) {
+                string process_name = (string)track->GetProcessName(hits->GetProcess(j));
+                if (process_name == "Transportation") {
+                    for (const auto& id : fShieldingVolumeIds) {
+                        if (hits->GetVolumeId(j) == id) {
+                            // transportation and shielding == exits shielding
+                            if (secondaryNeutrons.count(track->GetTrackID()) == 0) {
+                                // first time adding this secondary neutron
+                                secondaryNeutrons.insert(track->GetTrackID());
+                            } else {
+                                continue;
+                            }
+                            fSecondaryNeutronsShieldingNumber += 1;
+                            fSecondaryNeutronsShieldingExitPosX.push_back(hits->GetX(j));
+                            fSecondaryNeutronsShieldingExitPosY.push_back(hits->GetY(j));
+                            fSecondaryNeutronsShieldingExitPosZ.push_back(hits->GetZ(j));
+
+                            Int_t volumeId = hits->GetVolumeId(j);
+                            Int_t isCaptureVolume = 0;
+                            for (const auto& id : fCaptureVolumeIds) {
+                                if (volumeId == id) {
+                                    isCaptureVolume = 1;
+                                    continue;
+                                }
+                            }
+                            Int_t isCaptured = 0;
+                            if (neutronsCaptured.count(track->GetTrackID()) > 0) {
+                                isCaptured = 1;
+                            }
+                            fSecondaryNeutronsShieldingIsCaptured.push_back(isCaptured);
+                            if (isCaptured)
+                                fSecondaryNeutronsShieldingIsCapturedInCaptureVolume.push_back(
+                                    isCaptureVolume);
+                            else {
+                                fSecondaryNeutronsShieldingIsCapturedInCaptureVolume.push_back(0);
+                            }
+
+                            fSecondaryNeutronsShieldingProductionE.push_back(track->GetKineticEnergy());
+                            fSecondaryNeutronsShieldingExitE.push_back(hits->GetKineticEnergy(j));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    SetObservableValue("fSecondaryNeutronsShieldingNumber", fSecondaryNeutronsShieldingNumber);
+    SetObservableValue("fSecondaryNeutronsShieldingExitPosX", fSecondaryNeutronsShieldingExitPosX);
+    SetObservableValue("fSecondaryNeutronsShieldingExitPosY", fSecondaryNeutronsShieldingExitPosY);
+    SetObservableValue("fSecondaryNeutronsShieldingExitPosZ", fSecondaryNeutronsShieldingExitPosZ);
+    SetObservableValue("fSecondaryNeutronsShieldingIsCaptured", fSecondaryNeutronsShieldingIsCaptured);
+    SetObservableValue("fSecondaryNeutronsShieldingIsCapturedInCaptureVolume",
+                       fSecondaryNeutronsShieldingIsCapturedInCaptureVolume);
+    SetObservableValue("fSecondaryNeutronsShieldingProductionE", fSecondaryNeutronsShieldingProductionE);
+    SetObservableValue("fSecondaryNeutronsShieldingExitE", fSecondaryNeutronsShieldingExitE);
+
     return fOutputG4Event;
 }
 
@@ -278,6 +451,11 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitFromConfigFile() {
     // "scintillatorSheetTop1of4")
     string capture_keyword = GetParameter("captureKeyword", "sheet");
     fCaptureKeyword = clean_string(capture_keyword);
+
+    // word to identify active volume as shielding
+
+    string shielding_keyword = GetParameter("shieldingKeyword", "shielding");
+    fShieldingKeyword = clean_string(shielding_keyword);
 
     // comma separated quenching factors: "0.15, 1.00, ..."
     string quenching_factors = GetParameter("vetoQuenchingFactors", "-1");

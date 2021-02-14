@@ -37,18 +37,47 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     /// A pointer to the simulation metadata information accessible to TRestRun
     TRestGeant4Metadata* fG4Metadata;  //!
 
-    std::vector<int> fVetoVolumeIds;                              //!
-    std::vector<int> fCaptureVolumeIds;                           //!
+    std::vector<int> fVetoVolumeIds;       //!
+    std::vector<int> fCaptureVolumeIds;    //!
+    std::vector<int> fShieldingVolumeIds;  //!
+
     string fVetoKeyword = "";                                     //!
     string fCaptureKeyword = "";                                  //!
+    string fShieldingKeyword = "";                                //!
     std::vector<string> fVetoGroupKeywords;                       //!
     std::map<string, std::vector<string>> fVetoGroupVolumeNames;  //!
     std::vector<Float_t> fQuenchingFactors;                       //!
 
+    // neutrons that undergo neutron capture
+    Int_t fNeutronsCapturedNumber;                        //!
+    std::vector<Double_t> fNeutronsCapturedPosX;          //!
+    std::vector<Double_t> fNeutronsCapturedPosY;          //!
+    std::vector<Double_t> fNeutronsCapturedPosZ;          //!
+    std::vector<Int_t> fNeutronsCapturedIsCaptureVolume;  //!
+    std::vector<Double_t> fNeutronsCapturedProductionE;   //!
+
+    // gammas that are produced from neutron capture
+    Int_t fGammasNeutronCaptureNumber;                        //!
+    std::vector<Double_t> fGammasNeutronCapturePosX;          //!
+    std::vector<Double_t> fGammasNeutronCapturePosY;          //!
+    std::vector<Double_t> fGammasNeutronCapturePosZ;          //!
+    std::vector<Int_t> fGammasNeutronCaptureIsCaptureVolume;  //!
+    std::vector<Double_t> fGammasNeutronCaptureProductionE;   //!
+
+    // secondary neutrons that exit the lead shielding
+    Int_t fSecondaryNeutronsShieldingNumber;                                  //!
+    std::vector<Double_t> fSecondaryNeutronsShieldingExitPosX;                //!
+    std::vector<Double_t> fSecondaryNeutronsShieldingExitPosY;                //!
+    std::vector<Double_t> fSecondaryNeutronsShieldingExitPosZ;                //!
+    std::vector<Int_t> fSecondaryNeutronsShieldingIsCaptured;                 //!
+    std::vector<Int_t> fSecondaryNeutronsShieldingIsCapturedInCaptureVolume;  //!
+    std::vector<Double_t> fSecondaryNeutronsShieldingProductionE;             //!
+    std::vector<Double_t> fSecondaryNeutronsShieldingExitE;                   //!
+
     void InitFromConfigFile();
     void Initialize();
     void LoadDefaultConfig();
-
+    void Reset();
     // clean string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
     inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v") {
         s.erase(s.find_last_not_of(t) + 1);
@@ -109,6 +138,17 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
         debug << "Found " << fCaptureVolumeIds.size() << " Capture volumes:" << endl;
         for (unsigned int i = 0; i < fCaptureVolumeIds.size(); i++) {
             debug << "\t" << fG4Metadata->GetActiveVolumeName(fCaptureVolumeIds[i]) << endl;
+        }
+        debug << endl;
+
+        // shielding volume/s
+
+        debug << "SHIELDING KEYWORD: " << fShieldingKeyword << endl;
+        debug << endl;
+
+        debug << "Found " << fShieldingVolumeIds.size() << " Shielding volumes:" << endl;
+        for (unsigned int i = 0; i < fShieldingVolumeIds.size(); i++) {
+            debug << "\t" << fG4Metadata->GetActiveVolumeName(fShieldingVolumeIds[i]) << endl;
         }
         debug << endl;
 
