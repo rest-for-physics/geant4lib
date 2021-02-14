@@ -49,12 +49,18 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     std::vector<Float_t> fQuenchingFactors;                       //!
 
     // neutrons that undergo neutron capture
-    Int_t fNeutronsCapturedNumber;                        //!
-    std::vector<Double_t> fNeutronsCapturedPosX;          //!
-    std::vector<Double_t> fNeutronsCapturedPosY;          //!
-    std::vector<Double_t> fNeutronsCapturedPosZ;          //!
-    std::vector<Int_t> fNeutronsCapturedIsCaptureVolume;  //!
-    std::vector<Double_t> fNeutronsCapturedProductionE;   //!
+    Int_t fNeutronsCapturedNumber;                                             //!
+    std::vector<Double_t> fNeutronsCapturedPosX;                               //!
+    std::vector<Double_t> fNeutronsCapturedPosY;                               //!
+    std::vector<Double_t> fNeutronsCapturedPosZ;                               //!
+    std::vector<Int_t> fNeutronsCapturedIsCaptureVolume;                       //!
+    std::vector<Double_t> fNeutronsCapturedProductionE;                        //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutron;                      //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutronAndChildren;           //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutronInVeto;                //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutronAndChildrenInVeto;     //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutronAndChildrenInVetoMax;  //!
+    std::vector<Double_t> fNeutronsCapturedEDepByNeutronAndChildrenInVetoMin;  //!
 
     // gammas that are produced from neutron capture
     Int_t fGammasNeutronCaptureNumber;                        //!

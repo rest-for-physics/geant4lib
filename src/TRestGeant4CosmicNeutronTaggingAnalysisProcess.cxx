@@ -104,28 +104,30 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
     // we need to reset these variables to zero
     Reset();
     // get "veto" volumes
-    for (unsigned int i = 0; i < fG4Metadata->GetNumberOfActiveVolumes(); i++) {
-        string volume_name = (string)fG4Metadata->GetActiveVolumeName(i);
-        volume_name = clean_string(volume_name);
-        if (volume_name.find(clean_string(fVetoKeyword)) != string::npos) {
-            fVetoVolumeIds.push_back(i);
-        } else if (volume_name.find(clean_string(fCaptureKeyword)) != string::npos) {
-            fCaptureVolumeIds.push_back(i);
-        } else if (volume_name.find(clean_string(fShieldingKeyword)) != string::npos) {
-            fShieldingVolumeIds.push_back(i);
-        }
-    }
-
-    // veto groups (fill fVetoGroupVolumeNames)
-    for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-        string veto_group_keyword = clean_string(fVetoGroupKeywords[i]);
-        fVetoGroupVolumeNames[veto_group_keyword] = std::vector<string>{};
-        for (int& id : fVetoVolumeIds) {
-            string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
+    if (fVetoVolumeIds.empty()) {
+        for (unsigned int i = 0; i < fG4Metadata->GetNumberOfActiveVolumes(); i++) {
+            string volume_name = (string)fG4Metadata->GetActiveVolumeName(i);
             volume_name = clean_string(volume_name);
-            if (volume_name.find(veto_group_keyword) != string::npos) {
-                fVetoGroupVolumeNames[veto_group_keyword].push_back(
-                    (string)fG4Metadata->GetActiveVolumeName(id));
+            if (volume_name.find(clean_string(fVetoKeyword)) != string::npos) {
+                fVetoVolumeIds.push_back(i);
+            } else if (volume_name.find(clean_string(fCaptureKeyword)) != string::npos) {
+                fCaptureVolumeIds.push_back(i);
+            } else if (volume_name.find(clean_string(fShieldingKeyword)) != string::npos) {
+                fShieldingVolumeIds.push_back(i);
+            }
+        }
+
+        // veto groups (fill fVetoGroupVolumeNames)
+        for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
+            string veto_group_keyword = clean_string(fVetoGroupKeywords[i]);
+            fVetoGroupVolumeNames[veto_group_keyword] = std::vector<string>{};
+            for (int& id : fVetoVolumeIds) {
+                string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
+                volume_name = clean_string(volume_name);
+                if (volume_name.find(veto_group_keyword) != string::npos) {
+                    fVetoGroupVolumeNames[veto_group_keyword].push_back(
+                        (string)fG4Metadata->GetActiveVolumeName(id));
+                }
             }
         }
     }
@@ -134,16 +136,23 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
 }
 
 void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Reset() {
+    /*
     fVetoVolumeIds.clear();
     fVetoGroupVolumeNames.clear();
     fCaptureVolumeIds.clear();
-
+    */
     fNeutronsCapturedNumber = 0;
     fNeutronsCapturedPosX.clear();
     fNeutronsCapturedPosY.clear();
     fNeutronsCapturedPosZ.clear();
     fNeutronsCapturedIsCaptureVolume.clear();
     fNeutronsCapturedProductionE.clear();
+    fNeutronsCapturedEDepByNeutron.clear();
+    fNeutronsCapturedEDepByNeutronAndChildren.clear();
+    fNeutronsCapturedEDepByNeutronInVeto.clear();
+    fNeutronsCapturedEDepByNeutronAndChildrenInVeto.clear();
+    fNeutronsCapturedEDepByNeutronAndChildrenInVetoMax.clear();
+    fNeutronsCapturedEDepByNeutronAndChildrenInVetoMin.clear();
 
     fGammasNeutronCaptureNumber = 0;
     fGammasNeutronCapturePosX.clear();
@@ -278,10 +287,10 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
             for (int j = 0; j < hits->GetNumberOfHits(); j++) {
                 string process_name = (string)track->GetProcessName(hits->GetProcess(j));
                 if (process_name == "nCapture") {
-                    cout << "Neutron capture!!!!!! " << particle_name << "trackId " << track->GetTrackID()
-                         << " hit " << j << endl;
+                    // << "Neutron capture!!!!!! " << particle_name << "trackId " << track->GetTrackID()
+                    //    << " hit " << j << endl;
                     // track->PrintTrack();
-                    hits->PrintHits(j + 1);
+                    // hits->PrintHits(j + 1);
 
                     neutronsCaptured.insert(track->GetTrackID());
 
@@ -300,6 +309,55 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
                     }
                     fNeutronsCapturedIsCaptureVolume.push_back(isCaptureVolume);
                     fNeutronsCapturedProductionE.push_back(track->GetKineticEnergy());
+
+                    // get energy deposited by neutron that undergoes capture and children
+                    double neutronsCapturedEDepByNeutron = 0;
+                    double neutronsCapturedEDepByNeutronAndChildren = 0;
+                    double neutronsCapturedEDepByNeutronInVeto = 0;
+                    double neutronsCapturedEDepByNeutronAndChildrenInVeto = 0;
+
+                    std::set<int> parents = {track->GetTrackID()};
+                    std::map<int, double> energy_in_veto;
+                    for (int child = 0; child < fOutputG4Event->GetNumberOfTracks(); child++) {
+                        auto track_child = fOutputG4Event->GetTrack(child);
+                        if ((parents.count(track_child->GetParentID()) > 0) ||
+                            parents.count(track_child->GetTrackID()) > 0) {
+                            // track or parent is in list of tracks, we add to list and add energy
+                            parents.insert(track_child->GetTrackID());
+                            neutronsCapturedEDepByNeutronAndChildren += track_child->GetEnergy();
+                            if (track_child->GetTrackID() == track->GetTrackID()) {
+                                neutronsCapturedEDepByNeutron += track_child->GetEnergy();
+                            }
+                            for (const auto& vetoId : fVetoVolumeIds) {
+                                neutronsCapturedEDepByNeutronAndChildrenInVeto +=
+                                    track_child->GetEnergyInVolume(vetoId);
+                                energy_in_veto[vetoId] += track_child->GetEnergyInVolume(vetoId);
+                                if (track_child->GetTrackID() == track->GetTrackID()) {
+                                    neutronsCapturedEDepByNeutronInVeto +=
+                                        track_child->GetEnergyInVolume(vetoId);
+                                }
+                            }
+                        }
+                    }
+
+                    fNeutronsCapturedEDepByNeutron.push_back(neutronsCapturedEDepByNeutron);
+                    fNeutronsCapturedEDepByNeutronAndChildren.push_back(
+                        neutronsCapturedEDepByNeutronAndChildren);
+                    fNeutronsCapturedEDepByNeutronInVeto.push_back(neutronsCapturedEDepByNeutronInVeto);
+                    fNeutronsCapturedEDepByNeutronAndChildrenInVeto.push_back(
+                        neutronsCapturedEDepByNeutronAndChildrenInVeto);
+
+                    // get max and min energy in each veto (to compare with energy in ALL vetoes)
+                    double energyMaxVeto = 0;
+                    double energyMinVeto = -1;
+                    for (const auto& pair : energy_in_veto) {
+                        auto E = pair.second;
+                        if (E > energyMaxVeto) energyMaxVeto = E;
+                        if (E < energyMaxVeto || energyMinVeto == -1) energyMinVeto = E;
+                    }
+
+                    fNeutronsCapturedEDepByNeutronAndChildrenInVetoMax.push_back(energyMaxVeto);
+                    fNeutronsCapturedEDepByNeutronAndChildrenInVetoMin.push_back(energyMinVeto);
                 }
             }
         }
@@ -311,7 +369,15 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
     SetObservableValue("neutronsCapturedPosZ", fNeutronsCapturedPosZ);
     SetObservableValue("neutronsCapturedIsCaptureVolume", fNeutronsCapturedIsCaptureVolume);
     SetObservableValue("neutronsCapturedProductionE", fNeutronsCapturedProductionE);
-
+    SetObservableValue("neutronsCapturedEDepByNeutron", fNeutronsCapturedEDepByNeutron);
+    SetObservableValue("neutronsCapturedEDepByNeutronAndChildren", fNeutronsCapturedEDepByNeutronAndChildren);
+    SetObservableValue("neutronsCapturedEDepByNeutronInVeto", fNeutronsCapturedEDepByNeutronInVeto);
+    SetObservableValue("neutronsCapturedEDepByNeutronAndChildrenInVeto",
+                       fNeutronsCapturedEDepByNeutronAndChildrenInVeto);
+    SetObservableValue("neutronsCapturedEDepByNeutronAndChildrenInVetoMax",
+                       fNeutronsCapturedEDepByNeutronAndChildrenInVetoMax);
+    SetObservableValue("neutronsCapturedEDepByNeutronAndChildrenInVetoMin",
+                       fNeutronsCapturedEDepByNeutronAndChildrenInVetoMin);
     for (int i = 0; i < fOutputG4Event->GetNumberOfTracks(); i++) {
         auto track = fOutputG4Event->GetTrack(i);
         string particle_name = (string)track->GetParticleName();
@@ -337,9 +403,9 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
                 fGammasNeutronCaptureIsCaptureVolume.push_back(isCaptureVolume);
                 fGammasNeutronCaptureProductionE.push_back(track->GetKineticEnergy());
 
-                cout << "gamma capture" << endl;
+                // cout << "gamma capture" << endl;
 
-                hits->PrintHits(1);
+                // hits->PrintHits(1);
             }
         }
     }
@@ -404,15 +470,15 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
         }
     }
 
-    SetObservableValue("fSecondaryNeutronsShieldingNumber", fSecondaryNeutronsShieldingNumber);
-    SetObservableValue("fSecondaryNeutronsShieldingExitPosX", fSecondaryNeutronsShieldingExitPosX);
-    SetObservableValue("fSecondaryNeutronsShieldingExitPosY", fSecondaryNeutronsShieldingExitPosY);
-    SetObservableValue("fSecondaryNeutronsShieldingExitPosZ", fSecondaryNeutronsShieldingExitPosZ);
-    SetObservableValue("fSecondaryNeutronsShieldingIsCaptured", fSecondaryNeutronsShieldingIsCaptured);
-    SetObservableValue("fSecondaryNeutronsShieldingIsCapturedInCaptureVolume",
+    SetObservableValue("secondaryNeutronsShieldingNumber", fSecondaryNeutronsShieldingNumber);
+    SetObservableValue("secondaryNeutronsShieldingExitPosX", fSecondaryNeutronsShieldingExitPosX);
+    SetObservableValue("secondaryNeutronsShieldingExitPosY", fSecondaryNeutronsShieldingExitPosY);
+    SetObservableValue("secondaryNeutronsShieldingExitPosZ", fSecondaryNeutronsShieldingExitPosZ);
+    SetObservableValue("secondaryNeutronsShieldingIsCaptured", fSecondaryNeutronsShieldingIsCaptured);
+    SetObservableValue("secondaryNeutronsShieldingIsCapturedInCaptureVolume",
                        fSecondaryNeutronsShieldingIsCapturedInCaptureVolume);
-    SetObservableValue("fSecondaryNeutronsShieldingProductionE", fSecondaryNeutronsShieldingProductionE);
-    SetObservableValue("fSecondaryNeutronsShieldingExitE", fSecondaryNeutronsShieldingExitE);
+    SetObservableValue("secondaryNeutronsShieldingProductionE", fSecondaryNeutronsShieldingProductionE);
+    SetObservableValue("secondaryNeutronsShieldingExitE", fSecondaryNeutronsShieldingExitE);
 
     return fOutputG4Event;
 }
