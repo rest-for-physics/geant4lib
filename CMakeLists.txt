@@ -55,3 +55,7 @@ COMPILELIB("")
 
 file(GLOB_RECURSE MAC "${CMAKE_CURRENT_SOURCE_DIR}/macros/*")
 INSTALL(FILES ${MAC} DESTINATION ./macros/geant4)
+
+set(rest_macros ${rest_macros} "restGeant4_ViewEvent")
+set(rest_macros ${rest_macros} "restGeant4_ViewGeometry")
+set(rest_macros ${rest_macros} PARENT_SCOPE)
