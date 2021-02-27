@@ -163,6 +163,20 @@ EColor TRestGeant4Track::GetParticleColor() {
     return color;
 }
 
+///////////////////////////////////////////////
+/// \brief Function that returns the number of hit depositions found inside
+/// the TRestGeant4Track. If a specific volume id is given as argument only
+/// the hits of that specific volume will be counted.
+///
+Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) {
+    Int_t hits = 0;
+    for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+        if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
+        hits++;
+    }
+    return hits;
+}
+
 Double_t TRestGeant4Track::GetTrackLength() {
     Double_t length = 0;
 

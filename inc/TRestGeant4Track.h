@@ -58,7 +58,7 @@ class TRestGeant4Track : public TObject {
 
     Double_t GetEnergy() { return GetHits()->GetEnergy(); }
 
-    Int_t GetNumberOfHits() { return fHits.GetNumberOfHits(); }
+    Int_t GetNumberOfHits(Int_t volID = -1);
     Int_t GetTrackID() { return fTrack_ID; }
     Int_t GetParentID() { return fParent_ID; }
 
