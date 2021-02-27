@@ -121,6 +121,7 @@ Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString phName) {
     if (phName == "G4EmLivermorePhysics") return true;
     if (phName == "G4EmPenelopePhysics") return true;
     if (phName == "G4EmStandardPhysics_option3") return true;
+    if (phName == "G4EmStandardPhysics_option4") return true;
     if (phName == "G4HadronElasticPhysicsHP") return true;
     if (phName == "G4IonBinaryCascadePhysics") return true;
     if (phName == "G4HadronPhysicsQGSP_BIC_HP") return true;
