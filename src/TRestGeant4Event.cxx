@@ -192,10 +192,16 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
     return NULL;
 }
 
-Int_t TRestGeant4Event::GetNumberOfHits() {
+///////////////////////////////////////////////
+/// \brief Function that returns the total number of hits in the Geant4 event. If
+/// a specific volume is given as argument only the hits of that specific volume
+/// will be counted.
+///
+Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) {
     Int_t hits = 0;
-    for (int i = 0; i < fNTracks; i++) hits += GetTrack(i)->GetNumberOfHits();
-
+    for (int i = 0; i < fNTracks; i++) {
+        hits += GetTrack(i)->GetNumberOfHits(volID);
+    }
     return hits;
 }
 

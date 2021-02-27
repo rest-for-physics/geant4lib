@@ -206,7 +206,7 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetPrimaryEventOrigin() { return fPrimaryEventOrigin; }
     Double_t GetPrimaryEventEnergy(int n) { return fPrimaryEventEnergy[n]; }
 
-    Int_t GetNumberOfHits();
+    Int_t GetNumberOfHits(Int_t volID = -1);
     Int_t GetNumberOfTracks() { return fNTracks; }
     Int_t GetNumberOfPrimaries() { return fPrimaryEventDirection.size(); }
     Int_t GetNumberOfActiveVolumes() { return fNVolumes; }
