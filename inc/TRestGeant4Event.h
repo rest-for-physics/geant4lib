@@ -224,7 +224,7 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetFirstPositionInVolume(Int_t volID);
     TVector3 GetLastPositionInVolume(Int_t volID);
 
-    TRestHits GetHits();
+    TRestHits GetHits(Int_t volID = -1);
 
     Int_t GetNumberOfTracksForParticle(TString parName);
     Int_t GetEnergyDepositedByParticle(TString parName);

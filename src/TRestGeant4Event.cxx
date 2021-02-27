@@ -199,11 +199,18 @@ Int_t TRestGeant4Event::GetNumberOfHits() {
     return hits;
 }
 
-TRestHits TRestGeant4Event::GetHits() {
+///////////////////////////////////////////////
+/// \brief Function that returns all the hit depositions in the Geant4 event. If
+/// a specific volume is given as argument only the hits of that specific volume
+/// will be added to the TRestHits returned object.
+///
+TRestHits TRestGeant4Event::GetHits(Int_t volID) {
     TRestHits hits;
     for (int t = 0; t < fNTracks; t++) {
         TRestGeant4Hits* g4Hits = GetTrack(t)->GetHits();
         for (int n = 0; n < g4Hits->GetNumberOfHits(); n++) {
+            if (volID != -1 && g4Hits->GetVolumeId(n) != volID) continue;
+
             Double_t x = g4Hits->GetX(n);
             Double_t y = g4Hits->GetY(n);
             Double_t z = g4Hits->GetZ(n);
