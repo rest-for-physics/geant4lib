@@ -480,12 +480,9 @@
 ///
 /// The storage section defines the `sensitiveVolume`, and the active
 /// volumes where data will be stored.
-///  \code
-///  <storage sensitiveVolume="gas">
-///  \endcode
 ///
-/// The sensitive volume can be any physical volume defined on the GDML
-/// geometry. If an event did not produce an energy deposit in the
+/// The sensitive, or active, volumes can be any physical volume defined on
+/// the GDML geometry. If an event did not produce an energy deposit in the
 /// sensitiveVolume, the event will not be stored at all. Therefore, the
 /// sensitive volume will serve as a trigger volume to decide when an event
 /// should be stored. For the moment we can only define a single sensitive
@@ -539,7 +536,30 @@
 /// the event population.
 ///
 /// \note If we do not specify any *activeVolume*, then all volumes found
-/// in the GDML geometry will be marked as *activeVolume*.
+/// in the GDML geometry will be marked as *activeVolume*. If the *chance*
+/// parameter is not given, the chance will be 1 by default.
+///
+/// On top of that, each activeVolume may define a user limit on the
+/// maximum step size of particles in that particular volume specifying the
+/// *maxStepSize* parameter.
+///
+/// \code
+///      <activeVolume name="gas" chance="1" maxStepSize="2mm" />
+///      <activeVolume name="vessel" chance="0.1" maxStepSize="1cm" />
+/// \endcode
+///
+/// Smaller values will provide a higher amount of detail, but it will require
+/// additional computational time and storage.
+///
+/// \note If *maxStepSize* is not defined, the default value will be 0, and
+/// user limits will not be applied for that particular active volume.
+///
+/// We are still allowed to define a default step size for all the active
+/// volumes, using:
+///
+/// \code
+/// 	<storage sensitiveVolume="gas" maxStepSize="1mm" />
+/// \endcode
 ///
 ///
 /// ## 4. The biasing volumes section (optional)
@@ -759,7 +779,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        fSeed = (uintptr_t)dd + (uintptr_t) this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -776,9 +796,6 @@ void TRestGeant4Metadata::InitFromConfigFile() {
             fGDML_Filename = fGeometryPath + "/" + GetParameter("gdml_file");
         }
     }
-
-    Double_t defaultStep = 100 / REST_Units::um;
-    fMaxTargetStepSize = GetDblParameterWithUnits("maxTargetStepSize", defaultStep);
 
     Double_t defaultTime = 1. / REST_Units::s;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
@@ -799,6 +816,29 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     ReadStorage();
 
     ReadBiasing();
+
+    fMaxTargetStepSize = GetDblParameterWithUnits("maxTargetStepSize", -1);
+    if (fMaxTargetStepSize > 0) {
+        cout << " " << endl;
+        warning << "IMPORTANT: *maxTargetStepSize* parameter is now obsolete!" << endl;
+        warning << "The sensitive volume will not define any integration step limit" << endl;
+        cout << " " << endl;
+        warning << "In order to avoid this warning REMOVE the *maxTargetStepSize* definition," << endl;
+        warning << "and replace it by the following statement at the <storage> section" << endl;
+        cout << " " << endl;
+        warning << "<activeVolume name=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
+                << fMaxTargetStepSize << "mm\" />" << endl;
+        cout << " " << endl;
+        info << "Now, any active volume is allowed to define a maxStepSize" << endl;
+        cout << " " << endl;
+        info << "It is also possible to define a default step size for all active volumes," << endl;
+        info << "so that in case no step is defined, the default will be used." << endl;
+        cout << " " << endl;
+        info << "<storage sensitiveVolume=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
+             << fMaxTargetStepSize << "mm\" />" << endl;
+        cout << " " << endl;
+        GetChar();
+    }
 
     // should return success or fail
 }
@@ -972,7 +1012,7 @@ void TRestGeant4Metadata::ReadGenerator() {
 /// \code
 ///    <storage sensitiveVolume="gas">
 ///      <parameter name="energyRange" value="(0,5)MeV" />
-///      <activeVolume name="gas" chance="1" />
+///      <activeVolume name="gas" chance="1" maxStepSize="2mm" />
 ///    </storage>
 /// \endcode
 ///
@@ -983,6 +1023,7 @@ void TRestGeant4Metadata::ReadStorage() {
         warning << "Sensitive volume not defined. Setting it to gas!!!!" << endl;
         fSensitiveVolume = "gas";
     }
+    Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
 
     info << "Sensitive volume : " << fSensitiveVolume << endl;
 
@@ -1001,7 +1042,13 @@ void TRestGeant4Metadata::ReadStorage() {
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
     while (volumeDefinition != NULL) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
+        if (chance == -1) chance = 1;
+
+        Double_t maxStp = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
+        if (maxStp < 0) maxStp = defaultStep;
+
         TString name = GetFieldValue("name", volumeDefinition);
+
         // first we verify its in the list of valid volumes
         if (geometryVolumes.find((string)name) == geometryVolumes.end()) {
             // it is not on the container
@@ -1009,7 +1056,7 @@ void TRestGeant4Metadata::ReadStorage() {
             ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
             exit(1);
         } else {
-            SetActiveVolume(name, chance);
+            SetActiveVolume(name, chance, maxStp);
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
         volumeDefinition = GetNextElement(volumeDefinition);
@@ -1019,7 +1066,7 @@ void TRestGeant4Metadata::ReadStorage() {
     // the user wants to register all the volumes
     if (GetNumberOfActiveVolumes() == 0)
         for (auto& name : geometryVolumes) {
-            SetActiveVolume(name, 1);
+            SetActiveVolume(name, 1, defaultStep);
             info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
         }
 }
@@ -1085,6 +1132,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
         metadata << "Name : " << GetActiveVolumeName(n)
                  << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
+                 << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n))
                  << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
     }
     metadata << "++++++++++Biasing Volumes++++++++++" << endl;
@@ -1415,17 +1463,20 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
 /// \brief Adds a geometry volume to the list of active volumes.
 ///
 /// \param name The name of the volume to be added to the active volumes list
-/// for storage.
-///             Using GDML naming convention.
+/// for storage. Using GDML naming convention.
+///
 /// \param chance Probability that for a particular event the hits are stored in
 /// that volume.
-///               The aim of this parameter is to define control volumes.
-///               Usually the volume of interest will be always registered
-///               (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance) {
+/// \param maxStep It defines the maximum integration step at the active volume.
+///
+/// The aim of this parameter is to define control volumes. Usually the volume
+/// of interest will be always registered (chance=1).
+///
+void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_t maxStep) {
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
+    fMaxStepSize.push_back(maxStep);
 }
 
 ///////////////////////////////////////////////
@@ -1446,6 +1497,18 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fChance[id];
+    }
+    cout << "STORAGE VOLUME NOT FOUND" << endl;
+
+    return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief Returns the maximum step at a particular active volume
+///
+Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
+    for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
+        if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
     }
     cout << "STORAGE VOLUME NOT FOUND" << endl;
 

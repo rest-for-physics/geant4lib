@@ -156,6 +156,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// particular event.
     std::vector<Double_t> fChance;
 
+    /// \brief A vector to store the maximum step size at a particular volume.
+    std::vector<Double_t> fMaxStepSize;
+
     /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
     TRestGeant4PrimaryGenerator fPrimaryGenerator;
@@ -169,7 +172,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
     /// volume (usually the gas volume).
-    Double_t fMaxTargetStepSize;
+    Double_t fMaxTargetStepSize;  //!
 
     /// \brief A time gap, in us, determinning if an energy hit should be considered (and
     /// stored) as an independent event.
@@ -401,6 +404,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// GDML volume given its geometry name.
     Double_t GetStorageChance(TString vol);
 
+    Double_t GetMaxStepSize(TString vol);
+
     /// Returns the minimum event energy required for an event to be stored.
     Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
 
@@ -421,7 +426,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     Bool_t isVolumeStored(TString volName);
 
-    void SetActiveVolume(TString name, Double_t chance);
+    void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata();
 
@@ -430,6 +435,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 7);
+    ClassDef(TRestGeant4Metadata, 8);
 };
 #endif  // RestCore_TRestGeant4Metadata
