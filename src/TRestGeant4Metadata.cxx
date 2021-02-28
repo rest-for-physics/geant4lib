@@ -1024,6 +1024,7 @@ void TRestGeant4Metadata::ReadStorage() {
         fSensitiveVolume = "gas";
     }
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
+    if (defaultStep < 0) defaultStep = 0;
 
     info << "Sensitive volume : " << fSensitiveVolume << endl;
 
@@ -1082,7 +1083,6 @@ void TRestGeant4Metadata::PrintMetadata() {
     metadata << "Random seed : " << GetSeed() << endl;
     metadata << "GDML geometry : " << Get_GDML_Reference() << endl;
     metadata << "GDML materials reference : " << GetMaterialsReference() << endl;
-    metadata << "Max. Step size : " << GetMaxTargetStepSize() << " mm" << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
@@ -1132,7 +1132,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
         metadata << "Name : " << GetActiveVolumeName(n)
                  << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
-                 << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n))
+                 << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
                  << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
     }
     metadata << "++++++++++Biasing Volumes++++++++++" << endl;
@@ -1498,7 +1498,7 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fChance[id];
     }
-    cout << "STORAGE VOLUME NOT FOUND" << endl;
+    warning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << endl;
 
     return 0;
 }
@@ -1510,7 +1510,7 @@ Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
     for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
     }
-    cout << "STORAGE VOLUME NOT FOUND" << endl;
+    warning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << vol << " not found" << endl;
 
     return 0;
 }

@@ -171,8 +171,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
-    /// volume (usually the gas volume).
-    Double_t fMaxTargetStepSize;  //!
+    /// volume (usually the gas volume). It is obsolete now. We define it at the active
+    /// volume.
+    Double_t fMaxTargetStepSize = 0;  //!
 
     /// \brief A time gap, in us, determinning if an energy hit should be considered (and
     /// stored) as an independent event.
