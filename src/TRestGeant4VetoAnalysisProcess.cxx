@@ -21,8 +21,34 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TODO: fill documentation
+/// The TRestGeant4VetoAnalysisProcess generates observables based on veto volumes energy depositions. It was
+/// first developed as a process for the IAXO experiment but can be used in any analysis. It uses `keywords`
+/// to identify different relevant volumes (such as vetoes). The default veto keyword for IAXO is `veto` and
+/// it will tag each volume containing the keyword as a veto volume, so avoid using the keyword on volumes
+/// that do not act as vetoes.
 ///
+/// Parameters:
+/// `vetoKeyword`: keyword to identify a volume of the geometry as a veto. The condition is that the keyword
+/// is contained inside the name of the volume. Only volumes serving as veto (i.e. scintillators) should
+/// contain this vetoKeyword in their names.
+/// `vetoGroupKeywords`: comma separated keywords used to identify different groups of vetoes. This is an
+/// optional parameter that when specified will make the process return additional observables on a per group
+/// basis. The most common use case is using group names to identify the location of the vetoes (top, bottom,
+/// ...). The volumes detected as vetoes (via vetoKeyword) will also be  assigned to a group if they contain a
+/// keyword contained in this list.
+/// `vetoQuenchingFactors`: comma separated values for the quenching factors used in the analysis. The
+/// observables will be calculated for each of the quenching factors contained in this list. Values between 0
+/// and 1 only. This is useful in case the user doesn't know the exact value of the quenching factor. Also it
+/// is useful to insert `0` or `1` to study the effects of electromagnetic processes only, or no quenching at
+/// all.
+///
+/// Example usage:
+///         <addProcess type="TRestGeant4VetoAnalysisProcess" name="g4Veto" value="ON"
+///         observable="all">
+///             <parameter name="vetoKeyword" value="veto"/>
+///             <parameter name="vetoGroupKeywords" value="top, bottom, east, west, front, back"/>
+///             <parameter name="vetoQuenchingFactors" value="0, 0.15, 1"/>
+///         </addProcess>
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
