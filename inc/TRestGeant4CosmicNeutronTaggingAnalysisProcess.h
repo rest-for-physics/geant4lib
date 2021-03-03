@@ -37,6 +37,7 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     /// A pointer to the simulation metadata information accessible to TRestRun
     TRestGeant4Metadata* fG4Metadata;  //!
 
+    /// TODO these members should be documented
     std::vector<int> fVetoVolumeIds;       //!
     std::vector<int> fCaptureVolumeIds;    //!
     std::vector<int> fShieldingVolumeIds;  //!
@@ -49,10 +50,12 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     std::vector<Float_t> fQuenchingFactors;                       //!
 
     // neutrons that undergo neutron capture
-    Int_t fNeutronsCapturedNumber;                                             //!
-    std::vector<Double_t> fNeutronsCapturedPosX;                               //!
-    std::vector<Double_t> fNeutronsCapturedPosY;                               //!
-    std::vector<Double_t> fNeutronsCapturedPosZ;                               //!
+    Int_t fNeutronsCapturedNumber;  //!
+    /// TODO it might be simplified using std::vector<TVector3>
+    std::vector<Double_t> fNeutronsCapturedPosX;  //!
+    std::vector<Double_t> fNeutronsCapturedPosY;  //!
+    std::vector<Double_t> fNeutronsCapturedPosZ;  //!
+    /// If documentation is added perhaps they could be shorter names
     std::vector<Int_t> fNeutronsCapturedIsCaptureVolume;                       //!
     std::vector<Double_t> fNeutronsCapturedProductionE;                        //!
     std::vector<Double_t> fNeutronsCapturedEDepByNeutron;                      //!
