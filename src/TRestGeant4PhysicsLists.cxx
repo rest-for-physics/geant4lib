@@ -53,6 +53,8 @@ void TRestGeant4PhysicsLists::Initialize() {
 void TRestGeant4PhysicsLists::InitFromConfigFile() {
     this->Initialize();
 
+    fIonLimitStepList = Split(GetParameter("ionLimitStepList", ""), ",");
+
     fCutForGamma = GetDblParameterWithUnits("cutForGamma", 0.01);
     fCutForElectron = GetDblParameterWithUnits("cutForElectron", 1);
     fCutForPositron = GetDblParameterWithUnits("cutForPositron", 1);
@@ -152,6 +154,10 @@ void TRestGeant4PhysicsLists::PrintMetadata() {
         vector<string> optList = TRestTools::GetOptions((string)fPhysicsListOptions[n]);
         for (unsigned int m = 0; m < optList.size(); m = m + 2)
             metadata << " - Option " << m / 2 << " : " << optList[m] << " = " << optList[m + 1] << endl;
+    }
+    if (fIonLimitStepList.size() > 0) metadata << "List of ions where step limit is affecting" << endl;
+    for (unsigned int n = 0; n < fIonLimitStepList.size(); n++) {
+        metadata << "   - " << fIonLimitStepList[n] << endl;
     }
     metadata << "******************************************" << endl;
     metadata << endl;
