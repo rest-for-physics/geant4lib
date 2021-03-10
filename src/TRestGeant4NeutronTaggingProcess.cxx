@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// The TRestGeant4CosmicNeutronTaggingAnalysisProcess generates observables based on veto volumes energy
+/// The TRestGeant4NeutronTaggingProcess generates observables based on veto volumes energy
 /// depositions. It was first developed as a process for the IAXO experiment but can be used in any analysis.
 /// It uses `keywords` to identify different relevant volumes (such as vetoes). The default veto keyword for
 /// IAXO is `veto` and it will tag each volume containing the keyword as a veto volume, so avoid using the
@@ -61,7 +61,7 @@
 /// ### Example usage
 ///
 /// \code
-///         <addProcess type="TRestGeant4CosmicNeutronTaggingAnalysisProcess" name="g4Neutrons" value="ON"
+///         <addProcess type="TRestGeant4NeutronTaggingProcess" name="g4Neutrons" value="ON"
 ///         observable="all">
 ///             <parameter name="vetoKeyword" value="veto"/>
 ///             <parameter name="captureKeyword" value="sheet"/>
@@ -79,23 +79,20 @@
 ///
 /// 2021-February: Implementation.
 ///
-/// \class      TRestGeant4CosmicNeutronTaggingAnalysisProcess
+/// \class      TRestGeant4NeutronTaggingProcess
 /// \author     Luis Obis
 ///
 /// <hr>
 ///
 
-#include "TRestGeant4CosmicNeutronTaggingAnalysisProcess.h"
+#include "TRestGeant4NeutronTaggingProcess.h"
 using namespace std;
 
-ClassImp(TRestGeant4CosmicNeutronTaggingAnalysisProcess);
+ClassImp(TRestGeant4NeutronTaggingProcess);
 
-TRestGeant4CosmicNeutronTaggingAnalysisProcess::TRestGeant4CosmicNeutronTaggingAnalysisProcess() {
-    Initialize();
-}
+TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess() { Initialize(); }
 
-TRestGeant4CosmicNeutronTaggingAnalysisProcess::TRestGeant4CosmicNeutronTaggingAnalysisProcess(
-    char* cfgFileName) {
+TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(char* cfgFileName) {
     Initialize();
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
@@ -103,20 +100,18 @@ TRestGeant4CosmicNeutronTaggingAnalysisProcess::TRestGeant4CosmicNeutronTaggingA
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4CosmicNeutronTaggingAnalysisProcess::~TRestGeant4CosmicNeutronTaggingAnalysisProcess() {
-    delete fOutputG4Event;
-}
+TRestGeant4NeutronTaggingProcess::~TRestGeant4NeutronTaggingProcess() { delete fOutputG4Event; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
+void TRestGeant4NeutronTaggingProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the
 /// section name
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Initialize() {
+void TRestGeant4NeutronTaggingProcess::Initialize() {
     fG4Metadata = NULL;
 
     SetSectionName(this->ClassName());
@@ -136,16 +131,16 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Initialize() {
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4CosmicNeutronTaggingAnalysisProcess section inside the RML.
+/// correspondig TRestGeant4NeutronTaggingProcess section inside the RML.
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestGeant4NeutronTaggingProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Process initialization.
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
+void TRestGeant4NeutronTaggingProcess::InitProcess() {
     fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 
     // CAREFUL THIS METHOD IS CALLED TWICE!
@@ -155,23 +150,23 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
     if (fVetoVolumeIds.empty()) {
         for (unsigned int i = 0; i < fG4Metadata->GetNumberOfActiveVolumes(); i++) {
             string volume_name = (string)fG4Metadata->GetActiveVolumeName(i);
-            volume_name = clean_string(volume_name);
-            if (volume_name.find(clean_string(fVetoKeyword)) != string::npos) {
+            volume_name = TrimAndLower(volume_name);
+            if (volume_name.find(TrimAndLower(fVetoKeyword)) != string::npos) {
                 fVetoVolumeIds.push_back(i);
-            } else if (volume_name.find(clean_string(fCaptureKeyword)) != string::npos) {
+            } else if (volume_name.find(TrimAndLower(fCaptureKeyword)) != string::npos) {
                 fCaptureVolumeIds.push_back(i);
-            } else if (volume_name.find(clean_string(fShieldingKeyword)) != string::npos) {
+            } else if (volume_name.find(TrimAndLower(fShieldingKeyword)) != string::npos) {
                 fShieldingVolumeIds.push_back(i);
             }
         }
 
         // veto groups (fill fVetoGroupVolumeNames)
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            string veto_group_keyword = clean_string(fVetoGroupKeywords[i]);
+            string veto_group_keyword = TrimAndLower(fVetoGroupKeywords[i]);
             fVetoGroupVolumeNames[veto_group_keyword] = std::vector<string>{};
             for (int& id : fVetoVolumeIds) {
                 string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
-                volume_name = clean_string(volume_name);
+                volume_name = TrimAndLower(volume_name);
                 if (volume_name.find(veto_group_keyword) != string::npos) {
                     fVetoGroupVolumeNames[veto_group_keyword].push_back(
                         (string)fG4Metadata->GetActiveVolumeName(id));
@@ -183,7 +178,7 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitProcess() {
     PrintMetadata();
 }
 
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Reset() {
+void TRestGeant4NeutronTaggingProcess::Reset() {
     /*
     fVetoVolumeIds.clear();
     fVetoGroupVolumeNames.clear();
@@ -221,7 +216,7 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::Reset() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) {
     fInputG4Event = (TRestGeant4Event*)evInput;
     *fOutputG4Event = *((TRestGeant4Event*)evInput);
 
@@ -535,7 +530,7 @@ TRestEvent* TRestGeant4CosmicNeutronTaggingAnalysisProcess::ProcessEvent(TRestEv
 /// \brief Function to include required actions after all events have been
 /// processed.
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::EndProcess() {
+void TRestGeant4NeutronTaggingProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
 
@@ -546,30 +541,30 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::EndProcess() {
 
 ///////////////////////////////////////////////
 /// \brief Function to read input parameters from the RML
-/// TRestGeant4CosmicNeutronTaggingAnalysisProcess metadata section
+/// TRestGeant4NeutronTaggingProcess metadata section
 ///
-void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitFromConfigFile() {
+void TRestGeant4NeutronTaggingProcess::InitFromConfigFile() {
     // word to identify active volume as veto (default = "veto" e.g. "vetoTop")
     string veto_keyword = GetParameter("vetoKeyword", "veto");
-    fVetoKeyword = clean_string(veto_keyword);
+    fVetoKeyword = TrimAndLower(veto_keyword);
     // comma separated tags: "top, bottom, ..."
     string veto_group_keywords = GetParameter("vetoGroupKeywords", "");
     stringstream ss(veto_group_keywords);
     while (ss.good()) {
         string substr;
         getline(ss, substr, ',');
-        fVetoGroupKeywords.push_back(clean_string(substr));
+        fVetoGroupKeywords.push_back(TrimAndLower(substr));
     }
 
     // word to identify active volume as capture sheet (cadmium, default = "sheet" e.g.
     // "scintillatorSheetTop1of4")
     string capture_keyword = GetParameter("captureKeyword", "sheet");
-    fCaptureKeyword = clean_string(capture_keyword);
+    fCaptureKeyword = TrimAndLower(capture_keyword);
 
     // word to identify active volume as shielding
 
     string shielding_keyword = GetParameter("shieldingKeyword", "shielding");
-    fShieldingKeyword = clean_string(shielding_keyword);
+    fShieldingKeyword = TrimAndLower(shielding_keyword);
 
     // comma separated quenching factors: "0.15, 1.00, ..."
     string quenching_factors = GetParameter("vetoQuenchingFactors", "-1");
@@ -577,7 +572,7 @@ void TRestGeant4CosmicNeutronTaggingAnalysisProcess::InitFromConfigFile() {
     while (ss_qf.good()) {
         string substr;
         getline(ss_qf, substr, ',');
-        substr = clean_string(substr);
+        substr = TrimAndLower(substr);
         Float_t quenching_factor = (Float_t)std::atof(substr.c_str());
         if (quenching_factor > 1 || quenching_factor < 0) {
             cout << "ERROR: quenching factor must be between 0 and 1" << endl;

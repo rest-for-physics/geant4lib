@@ -20,15 +20,15 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestGeant4CosmicNeutronTaggingAnalysisProcess
-#define RestCore_TRestGeant4CosmicNeutronTaggingAnalysisProcess
+#ifndef RestCore_TRestGeant4NeutronTaggingProcess
+#define RestCore_TRestGeant4NeutronTaggingProcess
 
 #include <TRestGeant4Event.h>
 #include <TRestGeant4Metadata.h>
 
 #include "TRestEventProcess.h"
 
-class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess {
+class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestGeant4Event input
     TRestGeant4Event* fInputG4Event;  //!
@@ -87,25 +87,6 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     void Initialize();
     void LoadDefaultConfig();
     void Reset();
-    // clean string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
-    inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v") {
-        s.erase(s.find_last_not_of(t) + 1);
-        return s;
-    }
-    // trim from beginning of string (left)
-    inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v") {
-        s.erase(0, s.find_first_not_of(t));
-        return s;
-    }
-    // trim from both ends of string (right then left)
-    inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v") { return ltrim(rtrim(s, t), t); }
-
-    // final clean string: trim and UPPER
-    inline std::string& clean_string(std::string& s) {
-        s = trim(s);
-        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-        return s;
-    }
 
    protected:
     // add here the members of your event process
@@ -171,14 +152,14 @@ class TRestGeant4CosmicNeutronTaggingAnalysisProcess : public TRestEventProcess 
     }
 
     /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestGeant4CosmicNeutronTaggingAnalysisProcess; }
+    TRestEventProcess* Maker() { return new TRestGeant4NeutronTaggingProcess; }
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4VetoAnalysis"; }
+    TString GetProcessName() { return (TString) "geant4NeutronTagging"; }
 
-    TRestGeant4CosmicNeutronTaggingAnalysisProcess();
-    TRestGeant4CosmicNeutronTaggingAnalysisProcess(char* cfgFileName);
-    ~TRestGeant4CosmicNeutronTaggingAnalysisProcess();
+    TRestGeant4NeutronTaggingProcess();
+    TRestGeant4NeutronTaggingProcess(char* cfgFileName);
+    ~TRestGeant4NeutronTaggingProcess();
 
-    ClassDef(TRestGeant4CosmicNeutronTaggingAnalysisProcess, 1);
+    ClassDef(TRestGeant4NeutronTaggingProcess, 1);
 };
-#endif  // RestCore_TRestGeant4CosmicNeutronTaggingAnalysisProcess
+#endif  // RestCore_TRestGeant4NeutronTaggingProcess
