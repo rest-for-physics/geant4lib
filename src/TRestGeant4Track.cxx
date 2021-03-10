@@ -66,7 +66,8 @@ Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
         id = 20;
     else if (pcsName == "e+Step")
         id = 21;
-    // else if ( pcsName == "neutronStep") id = 22;
+    else if (pcsName == "ionStep")
+        id = 22;
     // else if ( pcsName == "alphaStep") id = 23;
     // else if ( pcsName == "He3Step") id = 24;
     else if (pcsName == "muBrems")
@@ -221,6 +222,8 @@ TString TRestGeant4Track::GetProcessName(Int_t id) {
         return "e-Step";
     else if (id == 21)
         return "e+Step";
+    else if (id == 22)
+        return "ionStep";
     // else if ( id == 22 ) return "neutronStep";
     // else if ( id == 23 ) return "alphaStep";
     // else if ( id == 24 ) return "He3Step";
