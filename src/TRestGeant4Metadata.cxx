@@ -671,7 +671,7 @@ using namespace std;
 namespace g4_metadata_parameters {
 string CleanString(string s) {
     // transform the string to lowercase
-    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
     // this is a temporary fix, TH1D name comparison is being done elsewhere and giving error
     if (s == "th1d") {
         s = "TH1D";
@@ -679,7 +679,7 @@ string CleanString(string s) {
     return s;
 }
 
-std::map<string, generator_types> generator_types_map = {
+map<string, generator_types> generator_types_map = {
     {CleanString("custom"), generator_types::CUSTOM},
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
@@ -691,14 +691,14 @@ std::map<string, generator_types> generator_types_map = {
     {CleanString("virtualCylinder"), generator_types::VIRTUAL_CYLINDER},
 };
 
-std::map<string, energy_dist_types> energy_dist_types_map = {
+map<string, energy_dist_types> energy_dist_types_map = {
     {CleanString("TH1D"), energy_dist_types::TH1D},
     {CleanString("mono"), energy_dist_types::MONO},
     {CleanString("flat"), energy_dist_types::FLAT},
     {CleanString("log"), energy_dist_types::LOG},
 };
 
-std::map<string, angular_dist_types> angular_dist_types_map = {
+map<string, angular_dist_types> angular_dist_types_map = {
     {CleanString("TH1D"), angular_dist_types::TH1D},
     {CleanString("isotropic"), angular_dist_types::ISOTROPIC},
     {CleanString("flux"), angular_dist_types::FLUX},
@@ -779,7 +779,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -1020,7 +1020,7 @@ void TRestGeant4Metadata::ReadStorage() {
     TiXmlElement* storageDefinition = GetElement("storage");
     fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
     if (fSensitiveVolume == "Not defined") {
-        warning << "Sensitive volume not defined. Setting it to gas!!!!" << endl;
+        warning << "Sensitive volume not defined. Setting it to 'gas'!!!!" << endl;
         fSensitiveVolume = "gas";
     }
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
@@ -1034,10 +1034,40 @@ void TRestGeant4Metadata::ReadStorage() {
     gdml->Load((string)Get_GDML_Filename());
 
     TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
-    std::set<std::string> geometryVolumes = {"World_PV"};  // we include the world volume
-    for (auto node : gGeoManager->GetTopVolume()->GetNodes()[0]) {
-        string name = node->GetName();
-        geometryVolumes.insert(name);
+
+    // recursively add all non-assembly volume names, which should be unique according to GDML definition
+    const auto addDaughters = [&](const auto& self, TGeoNode* node, set<string>* logicalVolumesSet,
+                                  set<string>* physicalVolumesSet, set<string>* assembliesSet) -> void {
+        if (node->GetVolume()->IsAssembly()) {
+            assembliesSet->insert(node->GetVolume()->GetName());
+        } else {
+            physicalVolumesSet->insert(node->GetVolume()->GetName());
+        }
+        for (size_t i = 0; i < node->GetNdaughters(); i++) {
+            TGeoNode* daughter = node->GetDaughter(i);
+            if (daughter->GetVolume()->IsAssembly()) {
+                self(self, daughter, logicalVolumesSet, physicalVolumesSet, assembliesSet);
+            } else {
+                logicalVolumesSet->insert(daughter->GetVolume()->GetName());
+                physicalVolumesSet->insert(daughter->GetName());
+            }
+        }
+    };
+
+    set<string> logicalVolumesSet;
+    set<string> physicalVolumesSet;
+    set<string> assembliesSet;
+
+    addDaughters(addDaughters, gGeoManager->GetTopNode(), &logicalVolumesSet, &physicalVolumesSet,
+                 &assembliesSet);
+
+    // debugging
+    const map<string, set<string>> m = {
+        {"Physical", physicalVolumesSet}, {"Logical", logicalVolumesSet}, {"Assembly", assembliesSet}};
+    for (auto const& kv : m) {
+        cout << kv.first << " Volumes:" << endl;
+        for (const auto& volume : kv.second) cout << "\t" << volume << endl;
+        cout << endl;
     }
 
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
@@ -1051,7 +1081,7 @@ void TRestGeant4Metadata::ReadStorage() {
         TString name = GetFieldValue("name", volumeDefinition);
 
         // first we verify its in the list of valid volumes
-        if (geometryVolumes.find((string)name) == geometryVolumes.end()) {
+        if (physicalVolumesSet.find((string)name) == physicalVolumesSet.end()) {
             // it is not on the container
             ferr << "TRestGeant4Metadata. Problem reading storage section." << endl;
             ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
@@ -1066,7 +1096,7 @@ void TRestGeant4Metadata::ReadStorage() {
     // If the user didnt add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
     if (GetNumberOfActiveVolumes() == 0)
-        for (auto& name : geometryVolumes) {
+        for (auto& name : physicalVolumesSet) {
             SetActiveVolume(name, 1, defaultStep);
             info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
         }
