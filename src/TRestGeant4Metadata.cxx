@@ -1091,6 +1091,16 @@ void TRestGeant4Metadata::ReadStorage() {
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
         volumeDefinition = GetNextElement(volumeDefinition);
+
+        // If the user didnt add explicitly any volume to the storage section we understand
+        // the user wants to register all the volumes
+        if (GetNumberOfActiveVolumes() == 0) {
+            for (auto& physicalVolumeName : physicalVolumesSet) {
+                SetActiveVolume(physicalVolumeName, 1, defaultStep);
+                info << "Automatically adding active volume: '" << physicalVolumeName
+                     << "' with chance: " << 1 << endl;
+            }
+        }
     }
 }
 
@@ -1179,7 +1189,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///
 void TRestGeant4Metadata::ReadEventDataFile(const TString& fName) {
     string fullPathName = SearchFile((string)fName);
-    if (fullPathName == "") {
+    if (fullPathName.empty()) {
         ferr << "File not found : " << fName << endl;
         ferr << "Decay0 generator file could not be found!!" << endl;
         exit(1);
@@ -1355,7 +1365,7 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(const TString& fileName) {
             Double_t x, y, z;
 
             infile >> pID >> momx >> momy >> momz >> time;
-            if (type == "file") infile >> x >> y >> z;
+            if (type == "file") infile >> x >> y >> z; // WARNING x, y, z may not be initialized yet
 
             // cout << momx << " " << momy << " " << momz << " " << endl;
 
