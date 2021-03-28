@@ -66,9 +66,12 @@ loadRESTLibs:
       - $CRONJOB
 
 trigger_restG4:
-  stage: deploy
-  script:
-    - "curl -X POST -F token=a1fda77c9aebbe589e95e8d9a2678c -F ref=master https://lfna.unizar.es/api/v4/projects/87/trigger/pipeline"
-  except:
-    variables:
-      - $CRONJOB
+    stage: deploy
+    script:
+        - "curl -k -X POST -F token=a1fda77c9aebbe589e95e8d9a2678c -F ref=master https://lfna.unizar.es/api/v4/projects/87/trigger/pipeline"
+    only:
+        variables:
+            - $CI_SERVER_HOST == "lfna.unizar.es"
+    except:
+        variables:
+            - $CRONJOB
