@@ -95,11 +95,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadStorage();
     void ReadBiasing();
 
-    void ReadEventDataFile(TString fName);
+    void ReadEventDataFile(const TString& fName);
 
-    Int_t ReadNewDecay0File(TString fileName);
+    Int_t ReadNewDecay0File(const TString& fileName);
 
-    Int_t ReadOldDecay0File(TString fileName);
+    Int_t ReadOldDecay0File(const TString& fileName);
 
     void ReadParticleSource(TiXmlElement* sourceDefinition);
 
@@ -135,11 +135,11 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief The primary length of the virtual generator. I.e. the radius of a virtual
     /// sphere, or the X-side size of a virtual wall.
-    Double_t fGenDimension1;
+    Double_t fGenDimension1{};
 
     /// \brief An additional dimension required by some virtual generators. I.e. the
     /// lenght of a virtual cylinder or the Y-side size of a virtual wall.
-    Double_t fGenDimension2;
+    Double_t fGenDimension2{};
 
     /// \brief The name of a Decay0 generated file used to produce a collection of
     /// primary sources, definning energy, momentum, particle type.
@@ -165,7 +165,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
-    Int_t fNBiasingVolumes;
+    Int_t fNBiasingVolumes{};
 
     /// A vector containning the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
@@ -177,18 +177,18 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief A time gap, in us, determinning if an energy hit should be considered (and
     /// stored) as an independent event.
-    Double_t fSubEventTimeDelay;
+    Double_t fSubEventTimeDelay{};
 
     /// \brief Defines if a radioactive isotope decay is simulated in full chain
     /// (fFullChain=true), or just a single decay (fFullChain=false).
-    Bool_t fFullChain;
+    Bool_t fFullChain{};
 
     /// \brief The volume that serves as trigger for data storage. Only events that
     /// deposit a non-zero energy on this volume will be registered.
     TString fSensitiveVolume;
 
     /// The number of events simulated, or to be simulated.
-    Int_t fNEvents;
+    Int_t fNEvents{};
 
     /// \brief The seed value used for Geant4 random event generator. If it is zero
     /// its value will be assigned using the system timestamp.
@@ -403,9 +403,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
-    Double_t GetStorageChance(TString vol);
+    Double_t GetStorageChance(const TString& vol);
 
-    Double_t GetMaxStepSize(TString vol);
+    Double_t GetMaxStepSize(const TString& vol);
 
     /// Returns the minimum event energy required for an event to be stored.
     Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
@@ -423,9 +423,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the world magnetic field in Tesla
     TVector3 GetMagneticField() { return fMagneticField; }
 
-    Int_t GetActiveVolumeID(TString name);
+    Int_t GetActiveVolumeID(const TString& name);
 
-    Bool_t isVolumeStored(TString volName);
+    Bool_t isVolumeStored(const TString& volName);
 
     void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
 

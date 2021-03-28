@@ -76,7 +76,7 @@
 ///
 /// \note The runTag inside the TRestRun class will be overwritten by the name
 /// of TRestGeant4Metadata section defined in the RML.
-///
+/// git
 /// This page describes in detail the different parameters, particle generator
 /// types, storage, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
@@ -666,6 +666,8 @@ using namespace std;
 
 #include <TGeoManager.h>
 
+#include <utility>
+
 #include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
@@ -729,9 +731,7 @@ TRestGeant4Metadata::TRestGeant4Metadata() : TRestMetadata() { Initialize(); }
 ///
 TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     Initialize();
-
-    LoadConfigFromFile(fConfigFileName, name);
-
+    LoadConfigFromFile(fConfigFileName, std::move(name));
     PrintMetadata();
 }
 
@@ -778,7 +778,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     string seedstr = GetParameter("seed", "0");
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
-        double* dd = new double();
+        auto* dd = new double();
         fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
@@ -788,7 +788,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
     if ((((string)fGDML_Filename).find_first_not_of("./~") == 0 ||
-         ((string)fGDML_Filename).find("/") == -1) &&
+         ((string)fGDML_Filename).find('/') == -1) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGDML_Filename = fGeometryPath + GetParameter("gdml_file");
@@ -863,7 +863,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 void TRestGeant4Metadata::ReadBiasing() {
     TiXmlElement* biasingDefinition = GetElement("biasing");
-    if (biasingDefinition == NULL) {
+    if (biasingDefinition == nullptr) {
         fNBiasingVolumes = 0;
         return;
     }
@@ -877,7 +877,7 @@ void TRestGeant4Metadata::ReadBiasing() {
 
         TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
-        while (biasVolumeDefinition != NULL) {
+        while (biasVolumeDefinition != nullptr) {
             TRestGeant4BiasingVolume biasVolume;
             debug << "Def : " << biasVolumeDefinition << endl;
 
@@ -939,10 +939,10 @@ void TRestGeant4Metadata::ReadGenerator() {
     fGenType = GetFieldValue("type", generatorDefinition);
     fGenFrom = GetFieldValue("from", generatorDefinition);
     string dimension1[3]{"size", "lenX", "radius"};
-    for (int i = 0; i < 3; i++) {
-        fGenDimension1 = GetDblParameterWithUnits(dimension1[i], generatorDefinition);
+    for (auto& i : dimension1) {
+        fGenDimension1 = GetDblParameterWithUnits(i, generatorDefinition);
         if (fGenDimension1 != PARAMETER_NOT_FOUND_DBL) {
-            if (dimension1[i] == "size") fGenDimension2 = fGenDimension1;
+            if (i == "size") fGenDimension2 = fGenDimension1;
             break;
         }
     }
@@ -954,8 +954,8 @@ void TRestGeant4Metadata::ReadGenerator() {
     fGenRotation = StringTo3DVector(GetParameter("rotation", generatorDefinition));
 
     string dimension2[2]{"length", "lenY"};
-    for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 = GetDblParameterWithUnits(dimension2[i], generatorDefinition);
+    for (auto& i : dimension2) {
+        Double_t tmpDim2 = GetDblParameterWithUnits(i, generatorDefinition);
         if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
             fGenDimension2 = tmpDim2;
             break;
@@ -963,7 +963,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     }
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
-    while (sourceDefinition != NULL) {
+    while (sourceDefinition != nullptr) {
         fGeneratorFile = GetFieldValue("fromFile", sourceDefinition);
 
         if (fGeneratorFile != "Not defined") {
@@ -977,14 +977,14 @@ void TRestGeant4Metadata::ReadGenerator() {
             fGeneratorFile = use;
             info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
             ReadEventDataFile(fGeneratorFile);
-        } else if (use == "geant4" || use == "" || use == "Not defined") {
+        } else if (use == "geant4" || use.empty() || use == "Not defined") {
             info << "Adding sources to geant4" << endl;
             ReadParticleSource(sourceDefinition);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestGeant4ParticleCollection* particleCollection =
                 TRestGeant4ParticleCollection::instantiate(use);
-            if (particleCollection != NULL) {
+            if (particleCollection != nullptr) {
                 particleCollection->SetParticleModel(ElementToString(sourceDefinition));
                 fPrimaryGenerator.AddParticleCollection(particleCollection);
                 fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
@@ -1030,7 +1030,7 @@ void TRestGeant4Metadata::ReadStorage() {
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
-    TRestGDMLParser* gdml = new TRestGDMLParser();
+    auto gdml = new TRestGDMLParser();
     gdml->Load((string)Get_GDML_Filename());
 
     TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
@@ -1071,7 +1071,7 @@ void TRestGeant4Metadata::ReadStorage() {
     }
 
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
-    while (volumeDefinition != NULL) {
+    while (volumeDefinition != nullptr) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1) chance = 1;
 
@@ -1092,14 +1092,6 @@ void TRestGeant4Metadata::ReadStorage() {
         }
         volumeDefinition = GetNextElement(volumeDefinition);
     }
-
-    // If the user didnt add explicitly any volume to the storage section we understand
-    // the user wants to register all the volumes
-    if (GetNumberOfActiveVolumes() == 0)
-        for (auto& name : physicalVolumesSet) {
-            SetActiveVolume(name, 1, defaultStep);
-            info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
-        }
 }
 
 ///////////////////////////////////////////////
@@ -1185,7 +1177,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 /// \param fName The Decay0 filename located at
 /// REST_PATH/data/generator/
 ///
-void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
+void TRestGeant4Metadata::ReadEventDataFile(const TString& fName) {
     string fullPathName = SearchFile((string)fName);
     if (fullPathName == "") {
         ferr << "File not found : " << fName << endl;
@@ -1205,7 +1197,7 @@ void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
 /// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
-Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
+Int_t TRestGeant4Metadata::ReadNewDecay0File(const TString& fileName) {
     ifstream infile;
     infile.open(fileName);
     if (!infile.is_open()) {
@@ -1308,7 +1300,7 @@ Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
 /// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
-Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
+Int_t TRestGeant4Metadata::ReadOldDecay0File(const TString& fileName) {
     ifstream infile;
     infile.open(fileName);
     if (!infile.is_open()) {
@@ -1481,7 +1473,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
-Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
+Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == name) return id;
@@ -1513,7 +1505,7 @@ void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_
 /// \brief Returns true if the volume named *volName* has been registered for
 /// data storage.
 ///
-Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
+Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volName) {
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
         if (GetActiveVolumeName(n) == volName) return true;
 
@@ -1523,7 +1515,7 @@ Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
+Double_t TRestGeant4Metadata::GetStorageChance(const TString& vol) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fChance[id];
@@ -1536,7 +1528,7 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
 ///////////////////////////////////////////////
 /// \brief Returns the maximum step at a particular active volume
 ///
-Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
+Double_t TRestGeant4Metadata::GetMaxStepSize(const TString& vol) {
     for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
     }
