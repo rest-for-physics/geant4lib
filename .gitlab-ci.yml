@@ -5,6 +5,7 @@ stages:
   - build
   - loadRESTLibs
   - process
+  - deploy
 
 before_script:
     - export USER="detector"
@@ -60,6 +61,14 @@ loadRESTLibs:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
+  except:
+    variables:
+      - $CRONJOB
+
+trigger_restG4:
+  stage: deploy
+  script:
+    - "curl -X POST -F token=a1fda77c9aebbe589e95e8d9a2678c -F ref=master https://lfna.unizar.es/api/v4/projects/87/trigger/pipeline"
   except:
     variables:
       - $CRONJOB
