@@ -22,22 +22,21 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+#include <TMath.h>
+#include <TRestGeant4BiasingVolume.h>
+#include <TRestGeant4PrimaryGenerator.h>
+#include <TRestMetadata.h>
+#include <TString.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include <TMath.h>
-#include <TString.h>
-#include <TVector2.h>
-#include <TVector3.h>
-
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4PrimaryGenerator.h>
-#include <TRestMetadata.h>
 
 //------------------------------------------------------------------------------------------------------------------------
 //
@@ -394,7 +393,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TString GetSensitiveVolume() { return fSensitiveVolume; }
 
     /// Sets the name of the sensitive volume
-    void SetSensitiveVolume(TString sensVol) { fSensitiveVolume = sensVol; }
+    void SetSensitiveVolume(const TString& sensVol) { fSensitiveVolume = sensVol; }
     ///////////////////////////////////////////////////////////
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
@@ -427,7 +426,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     Bool_t isVolumeStored(const TString& volName);
 
-    void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
+    void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata();
 

@@ -1071,6 +1071,7 @@ void TRestGeant4Metadata::ReadStorage() {
     }
 
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
+
     while (volumeDefinition != nullptr) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1) chance = 1;
@@ -1091,15 +1092,15 @@ void TRestGeant4Metadata::ReadStorage() {
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
         volumeDefinition = GetNextElement(volumeDefinition);
+    }
 
-        // If the user didnt add explicitly any volume to the storage section we understand
-        // the user wants to register all the volumes
-        if (GetNumberOfActiveVolumes() == 0) {
-            for (auto& physicalVolumeName : physicalVolumesSet) {
-                SetActiveVolume(physicalVolumeName, 1, defaultStep);
-                info << "Automatically adding active volume: '" << physicalVolumeName
-                     << "' with chance: " << 1 << endl;
-            }
+    // If the user didnt add explicitly any volume to the storage section we understand
+    // the user wants to register all the volumes
+    if (GetNumberOfActiveVolumes() == 0) {
+        for (auto& physicalVolumeName : physicalVolumesSet) {
+            SetActiveVolume(physicalVolumeName, 1, defaultStep);
+            cout << "Automatically adding active volume: '" << physicalVolumeName << "' with chance: " << 1
+                 << endl;
         }
     }
 }
@@ -1365,7 +1366,7 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(const TString& fileName) {
             Double_t x, y, z;
 
             infile >> pID >> momx >> momy >> momz >> time;
-            if (type == "file") infile >> x >> y >> z; // WARNING x, y, z may not be initialized yet
+            if (type == "file") infile >> x >> y >> z;  // WARNING x, y, z may not be initialized yet
 
             // cout << momx << " " << momy << " " << momz << " " << endl;
 
@@ -1505,7 +1506,7 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
 /// The aim of this parameter is to define control volumes. Usually the volume
 /// of interest will be always registered (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_t maxStep) {
+void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep) {
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
     fMaxStepSize.push_back(maxStep);
@@ -1516,9 +1517,11 @@ void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_
 /// data storage.
 ///
 Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volName) {
-    for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        if (GetActiveVolumeName(n) == volName) return true;
-
+    for (int i = 0; i < GetNumberOfActiveVolumes(); i++) {
+        if (GetActiveVolumeName(i) == volName) {
+            return true;
+        }
+    }
     return false;
 }
 
