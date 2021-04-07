@@ -779,7 +779,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        fSeed = (uintptr_t)dd + (uintptr_t) this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -1446,7 +1446,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
     source.SetAngularDistType(GetFieldValue("type", angularDefinition));
 
     if (source.GetAngularDistType() == "TH1D") {
-        source.SetAngularFilename(GetFieldValue("file", angularDefinition));
+        source.SetAngularFilename(SearchFile(GetFieldValue("file", angularDefinition)));
         source.SetAngularName(GetFieldValue("spctName", angularDefinition));
     }
 
@@ -1463,7 +1463,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
     source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
 
     if (source.GetEnergyDistType() == "TH1D") {
-        source.SetSpectrumFilename(GetFieldValue("file", energyDefinition));
+        source.SetSpectrumFilename(SearchFile(GetFieldValue("file", energyDefinition)));
         source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
     }
 
