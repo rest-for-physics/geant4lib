@@ -25,7 +25,7 @@ clang-format:
 validateLibrary:
     stage: pre-build
     script:
-        - python pipeline/validateLibrary.py .
+        - python3 pipeline/validateLibrary.py .
     except:
         variables:
             - $CRONJOB == "YES"
