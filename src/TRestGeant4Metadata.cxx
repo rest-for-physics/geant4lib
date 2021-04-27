@@ -779,7 +779,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -980,6 +980,11 @@ void TRestGeant4Metadata::ReadGenerator() {
         } else if (use == "geant4" || use == "" || use == "Not defined") {
             info << "Adding sources to geant4" << endl;
             ReadParticleSource(sourceDefinition);
+        } else if (use.find(".root") != -1) {
+            // read from ROOT TTree
+            fGeneratorFile = use;
+            info << "Reading custom sources from ROOT file : " << fGeneratorFile << endl;
+            // ReadEventDataFile(fGeneratorFile);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestGeant4ParticleCollection* particleCollection =
@@ -1170,6 +1175,90 @@ void TRestGeant4Metadata::PrintMetadata() {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
     metadata << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief Reads an input file produced by restGenerator.
+///
+///
+void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
+    debug << "TRestGeant4Metadata::ReadGeneratorTreeFile" << endl;
+
+    TFile* file;
+    file = TFile::Open(fName, "READ");
+    if (!file) {
+        ferr << "Error opening file: " << fName << endl;
+        exit(1);
+    }
+
+    TTree* generatorTree;
+    TString treeName = "GeneratorTree";
+    file->GetObject(treeName, generatorTree);
+    if (!generatorTree) {
+        ferr << "Error reading TTree named " << treeName << " from " << fName << endl;
+        file->ls();
+        exit(1);
+    }
+
+    int numberOfGeneratorEvents = generatorTree->GetEntries();
+    if (numberOfGeneratorEvents <= 0) {
+        ferr << "Generator TTree: " << treeName << " from " << fName << " has no events" << endl;
+        exit(1);
+    }
+
+    debug << "Reading generator file : " << fName << endl;
+    debug << "Total number of events : " << numberOfGeneratorEvents << endl;
+
+    vector<double> x, y, z;
+    vector<double> px, py, pz;
+    vector<double> KE, time, weight;
+    vector<TString> particleName;
+
+    generatorTree->SetBranchAddress("x", &x);
+    generatorTree->SetBranchAddress("y", &y);
+    generatorTree->SetBranchAddress("z", &z);
+    generatorTree->SetBranchAddress("px", &px);
+    generatorTree->SetBranchAddress("py", &py);
+    generatorTree->SetBranchAddress("pz", &pz);
+    generatorTree->SetBranchAddress("KE", &KE);
+    generatorTree->SetBranchAddress("time", &time);
+    generatorTree->SetBranchAddress("weight", &weight);
+    generatorTree->SetBranchAddress("particleName", &particleName);
+
+    TRestGeant4Particle particle;
+    for (int k = 0; k < numberOfGeneratorEvents; k++) {
+        generatorTree->GetEntry(k);
+
+        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
+        particleCollection->RemoveParticles();
+
+        int nParticles = x.size();
+
+        for (int i = 0; i < nParticles; i++) {
+            TString thisParticleName = particleName[i] particle.SetParticleName(thisParticleName);
+            TVector3 thisParticlePosition(x[i], y[i], z[i]);
+            TVector3 thisParticleMomentum(px[i], py[i], pz[i]);
+            double thisParticleEnergy = KE[i];  // keV
+            double thisParticleTime = time[i];
+
+            debug << " ---- New particle found --- " << endl;
+            debug << " Particle name : " << thisParticleName << endl;
+            debug << " Relative time : " << thisParticleTime << endl;
+
+            particle.SetEnergy(thisParticleEnergy);
+            particle.SetOrigin8thisParticlePosition);
+            particle.SetDirection(thisParticleMomentum);
+
+            particleCollection->AddParticle(particle);
+        }
+        fPrimaryGenerator.AddParticleCollection(particleCollection);
+    }
+
+    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
+
+    delete generatorTree;
+    file->Close();
+    delete file;
 }
 
 ///////////////////////////////////////////////
