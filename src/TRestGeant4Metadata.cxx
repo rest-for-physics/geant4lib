@@ -1211,10 +1211,10 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
     debug << "Reading generator file : " << fName << endl;
     debug << "Total number of events : " << numberOfGeneratorEvents << endl;
 
-    vector<double> x, y, z;
-    vector<double> px, py, pz;
-    vector<double> KE, time, weight;
-    vector<TString> particleName;
+    vector<double>*x, *y, *z;
+    vector<double>*px, *py, *pz;
+    vector<double>*KE, *time, *weight;
+    vector<TString>* particleName;
 
     generatorTree->SetBranchAddress("x", &x);
     generatorTree->SetBranchAddress("y", &y);
@@ -1234,14 +1234,14 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
         TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
-        int nParticles = x.size();
+        int nParticles = x->size();
 
         for (int i = 0; i < nParticles; i++) {
-            TString thisParticleName = particleName[i];
-            TVector3 thisParticlePosition(x[i], y[i], z[i]);
-            TVector3 thisParticleMomentum(px[i], py[i], pz[i]);
-            double thisParticleEnergy = KE[i];  // keV
-            double thisParticleTime = time[i];
+            TString thisParticleName = (*particleName)[i];
+            TVector3 thisParticlePosition((*x)[i], (*y)[i], (*z)[i]);
+            TVector3 thisParticleMomentum((*px)[i], (*py)[i], (*pz)[i]);
+            double thisParticleEnergy = (*KE)[i];  // keV
+            double thisParticleTime = (*time)[i];
 
             debug << " ---- New particle found --- " << endl;
             debug << " Particle name : " << thisParticleName << endl;
