@@ -22,22 +22,21 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+#include <TMath.h>
+#include <TRestGeant4BiasingVolume.h>
+#include <TRestGeant4PrimaryGenerator.h>
+#include <TRestMetadata.h>
+#include <TString.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include <TMath.h>
-#include <TString.h>
-#include <TVector2.h>
-#include <TVector3.h>
-
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4PrimaryGenerator.h>
-#include <TRestMetadata.h>
 
 //------------------------------------------------------------------------------------------------------------------------
 //
@@ -371,6 +370,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// i.e. an input Decay0 file.
     void ReadParticleCollection(Int_t n) { fPrimaryGenerator.UpdateSourcesFromParticleCollection(n); }
 
+    ///
+    void ReadGeneratorTreeFile(TString);
+
     /// Removes all the sources from fPrimaryGenerator.
     void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
 
@@ -436,6 +438,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 8);
+    ClassDef(TRestGeant4Metadata, 9);
 };
 #endif  // RestCore_TRestGeant4Metadata

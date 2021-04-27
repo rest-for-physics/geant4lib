@@ -664,7 +664,9 @@
 #include "TRestGeant4Metadata.h"
 using namespace std;
 
+#include <TFile.h>
 #include <TGeoManager.h>
+#include <TTree.h>
 
 #include "TRestGDMLParser.h"
 
@@ -984,7 +986,7 @@ void TRestGeant4Metadata::ReadGenerator() {
             // read from ROOT TTree
             fGeneratorFile = use;
             info << "Reading custom sources from ROOT file : " << fGeneratorFile << endl;
-            // ReadEventDataFile(fGeneratorFile);
+            ReadGeneratorTreeFile(fGeneratorFile);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestGeant4ParticleCollection* particleCollection =
@@ -1235,7 +1237,7 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
         int nParticles = x.size();
 
         for (int i = 0; i < nParticles; i++) {
-            TString thisParticleName = particleName[i] particle.SetParticleName(thisParticleName);
+            TString thisParticleName = particleName[i];
             TVector3 thisParticlePosition(x[i], y[i], z[i]);
             TVector3 thisParticleMomentum(px[i], py[i], pz[i]);
             double thisParticleEnergy = KE[i];  // keV
@@ -1245,8 +1247,9 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
             debug << " Particle name : " << thisParticleName << endl;
             debug << " Relative time : " << thisParticleTime << endl;
 
+            particle.SetParticleName(thisParticleName);
             particle.SetEnergy(thisParticleEnergy);
-            particle.SetOrigin8thisParticlePosition);
+            particle.SetOrigin(thisParticlePosition);
             particle.SetDirection(thisParticleMomentum);
 
             particleCollection->AddParticle(particle);
