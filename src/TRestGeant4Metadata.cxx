@@ -987,6 +987,7 @@ void TRestGeant4Metadata::ReadGenerator() {
             fGeneratorFile = use;
             info << "Reading custom sources from ROOT file : " << fGeneratorFile << endl;
             ReadGeneratorTreeFile(fGeneratorFile);
+            // exit(1);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestGeant4ParticleCollection* particleCollection =
@@ -1193,44 +1194,52 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
         exit(1);
     }
 
-    TTree* generatorTree;
+    TTree* GeneratorTree;
     TString treeName = "GeneratorTree";
-    file->GetObject(treeName, generatorTree);
-    if (!generatorTree) {
+    file->GetObject(treeName, GeneratorTree);
+    if (!GeneratorTree) {
         ferr << "Error reading TTree named " << treeName << " from " << fName << endl;
         file->ls();
         exit(1);
     }
 
-    int numberOfGeneratorEvents = generatorTree->GetEntries();
+    int numberOfGeneratorEvents = GeneratorTree->GetEntries();
     if (numberOfGeneratorEvents <= 0) {
         ferr << "Generator TTree: " << treeName << " from " << fName << " has no events" << endl;
         exit(1);
     }
 
     debug << "Reading generator file : " << fName << endl;
-    debug << "Total number of events : " << numberOfGeneratorEvents << endl;
+    debug << "Total number of events in TTree : " << numberOfGeneratorEvents << endl;
+
+    debug << "Setting up TTree" << endl;
 
     vector<double>*x, *y, *z;
     vector<double>*px, *py, *pz;
-    vector<double>*KE, *time, *weight;
+    vector<double>*KE, *timeGlobal, *weight;
     vector<TString>* particleName;
 
-    generatorTree->SetBranchAddress("x", &x);
-    generatorTree->SetBranchAddress("y", &y);
-    generatorTree->SetBranchAddress("z", &z);
-    generatorTree->SetBranchAddress("px", &px);
-    generatorTree->SetBranchAddress("py", &py);
-    generatorTree->SetBranchAddress("pz", &pz);
-    generatorTree->SetBranchAddress("KE", &KE);
-    generatorTree->SetBranchAddress("time", &time);
-    generatorTree->SetBranchAddress("weight", &weight);
-    generatorTree->SetBranchAddress("particleName", &particleName);
+    GeneratorTree->SetBranchAddress("x", &x);
+    GeneratorTree->SetBranchAddress("y", &y);
+    GeneratorTree->SetBranchAddress("z", &z);
+    GeneratorTree->SetBranchAddress("px", &px);
+    GeneratorTree->SetBranchAddress("py", &py);
+    GeneratorTree->SetBranchAddress("pz", &pz);
+    GeneratorTree->SetBranchAddress("KE", &KE);
+    GeneratorTree->SetBranchAddress("time", &timeGlobal);
+    GeneratorTree->SetBranchAddress("weight", &weight);
+    GeneratorTree->SetBranchAddress("particleName", &particleName);
+
+    debug << "Finished setting up TTree" << endl;
+
+    GeneratorTree->Show(0);
+    GeneratorTree->GetEntry(0);
 
     TRestGeant4Particle particle;
     for (int k = 0; k < numberOfGeneratorEvents; k++) {
-        generatorTree->GetEntry(k);
-
+        debug << "- Getting entry " << k << endl;
+        GeneratorTree->GetEntry(k);
+        debug << "Getting entry " << k << endl;
         TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
         particleCollection->RemoveParticles();
 
@@ -1241,7 +1250,7 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
             TVector3 thisParticlePosition((*x)[i], (*y)[i], (*z)[i]);
             TVector3 thisParticleMomentum((*px)[i], (*py)[i], (*pz)[i]);
             double thisParticleEnergy = (*KE)[i];  // keV
-            double thisParticleTime = (*time)[i];
+            double thisParticleTime = (*timeGlobal)[i];
 
             debug << " ---- New particle found --- " << endl;
             debug << " Particle name : " << thisParticleName << endl;
@@ -1259,7 +1268,7 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
 
     fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
 
-    delete generatorTree;
+    delete GeneratorTree;
     file->Close();
     delete file;
 }
