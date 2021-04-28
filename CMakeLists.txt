@@ -1,4 +1,4 @@
-set( LibraryVersion "1.2" )
+set(LibraryVersion "1.2")
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_DECAY0} MATCHES "ON")
@@ -14,28 +14,28 @@ if (${REST_DECAY0} MATCHES "ON")
     #
 
     execute_process(
-     COMMAND bxdecay0-config --version
-     OUTPUT_VARIABLE BxDecay0_VERSION
-     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    
-	execute_process(
-     COMMAND bxdecay0-config --incdir 
-     OUTPUT_VARIABLE BxDecay0_INCLUDE_DIRS
-     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  
-	execute_process(
-     COMMAND bxdecay0-config --libdir
-     OUTPUT_VARIABLE BxDecay0_LIBRARY_DIRS
-     OUTPUT_STRIP_TRAILING_WHITESPACE)
+            COMMAND bxdecay0-config --version
+            OUTPUT_VARIABLE BxDecay0_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    execute_process(
+            COMMAND bxdecay0-config --incdir
+            OUTPUT_VARIABLE BxDecay0_INCLUDE_DIRS
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    execute_process(
+            COMMAND bxdecay0-config --libdir
+            OUTPUT_VARIABLE BxDecay0_LIBRARY_DIRS
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 
-    if(NOT DEFINED BxDecay0_VERSION)
-       message(FATAL_ERROR "bxdecay0 not found! Put its binary dir to PATH!")
-    endif()
+    if (NOT DEFINED BxDecay0_VERSION)
+        message(FATAL_ERROR "bxdecay0 not found! Put its binary dir to PATH!")
+    endif ()
 
-    message (STATUS "Found BxDecay0. Version ='${BxDecay0_VERSION}'")
-    message (STATUS "Found BxDecay0. Include path ='${BxDecay0_INCLUDE_DIRS}'")
-    message (STATUS "Found BxDecay0. Library path ='${BxDecay0_LIBRARY_DIRS}'")
+    message(STATUS "Found BxDecay0. Version ='${BxDecay0_VERSION}'")
+    message(STATUS "Found BxDecay0. Include path ='${BxDecay0_INCLUDE_DIRS}'")
+    message(STATUS "Found BxDecay0. Library path ='${BxDecay0_LIBRARY_DIRS}'")
 
     set(external_include_dirs ${external_include_dirs} ${BxDecay0_INCLUDE_DIRS})
     set(external_libs "${external_libs} -L${BxDecay0_LIBRARY_DIRS} -lBxDecay0")
@@ -44,11 +44,11 @@ if (${REST_DECAY0} MATCHES "ON")
     set(feature_added ${feature_added} PARENT_SCOPE)
 else ()
     set(REST_DECAY0 OFF)
-    set(excludes ${excludes} TRestGeant4ParticleCollectionDecay0 )
+    set(excludes ${excludes} TRestGeant4ParticleCollectionDecay0)
 endif (${REST_DECAY0} MATCHES "ON")
 
 if (NOT ${REST_EVE} MATCHES "ON")
-    set(excludes ${excludes} TRestGeant4EventViewer )
+    set(excludes ${excludes} TRestGeant4EventViewer)
 endif ()
 
 COMPILELIB("")
