@@ -1210,7 +1210,11 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
 
     debug << "Reading generator file : " << fName << endl;
     debug << "Total number of events in TTree : " << numberOfGeneratorEvents << endl;
-
+    /*
+    fNEvents = numberOfGeneratorEvents;
+    warning << "Overriding NEvents parameter with value " << fNEvents << " to new value "
+            << numberOfGeneratorEvents << endl;
+    */
     debug << "Setting up TTree" << endl;
 
     vector<double>*x = 0, *y = 0, *z = 0;
