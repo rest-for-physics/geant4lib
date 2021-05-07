@@ -202,9 +202,9 @@ class TRestGeant4Event : public TRestEvent {
         return "Not defined";
     }
 
-    TVector3 GetPrimaryEventDirection(int n) { return fPrimaryEventDirection[n]; }
+    TVector3 GetPrimaryEventDirection(Int_t n = 0) { return fPrimaryEventDirection[n]; }
     TVector3 GetPrimaryEventOrigin() { return fPrimaryEventOrigin; }
-    Double_t GetPrimaryEventEnergy(int n) { return fPrimaryEventEnergy[n]; }
+    Double_t GetPrimaryEventEnergy(Int_t n = 0) { return fPrimaryEventEnergy[n]; }
 
     Int_t GetNumberOfHits(Int_t volID = -1);
     Int_t GetNumberOfTracks() { return fNTracks; }
@@ -223,8 +223,10 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetMeanPositionInVolume(Int_t volID);
     TVector3 GetFirstPositionInVolume(Int_t volID);
     TVector3 GetLastPositionInVolume(Int_t volID);
+    TVector3 GetPositionDeviationInVolume(Int_t volID);
 
     TRestHits GetHits(Int_t volID = -1);
+    TRestHits GetHitsInVolume(Int_t volID) { return GetHits(volID); }
 
     Int_t GetNumberOfTracksForParticle(TString parName);
     Int_t GetEnergyDepositedByParticle(TString parName);
