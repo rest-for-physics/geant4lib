@@ -19,7 +19,7 @@ jobs:
       
     strategy:
       matrix:
-        framework-branch: [master, development]
+        framework-branch: [development]
         
     steps:
 
