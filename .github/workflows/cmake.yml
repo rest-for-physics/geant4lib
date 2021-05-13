@@ -32,7 +32,7 @@ jobs:
 
     - name: Check Geant4Lib is in Framework souce
       run: |
-        mv /_w/geant4lib/geant4lib/framework/source/libraries/geant4/ ~/framework # cannot use ${{github.workspace}} in the docker container?        
+        mv /__w/geant4lib/geant4lib/framework/source/libraries/geant4/ ~/framework # cannot use ${{github.workspace}} in the docker container?        
         cd ~/framework/source/libraries/geant4/
         git branch
         git show
