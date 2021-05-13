@@ -30,7 +30,6 @@ ClassImp(TRestGeant4Event);
 TRestGeant4Event::TRestGeant4Event() {
     fNVolumes = 0;
     // TRestGeant4Event default constructor
-
     Initialize();
 }
 
@@ -51,27 +50,27 @@ void TRestGeant4Event::Initialize() {
     fNTracks = 0;
 
     // ClearVolumes();
-    fXZHitGraph = NULL;
-    fYZHitGraph = NULL;
-    fXYHitGraph = NULL;
+    fXZHitGraph = nullptr;
+    fYZHitGraph = nullptr;
+    fXYHitGraph = nullptr;
 
-    fXZMultiGraph = NULL;
-    fYZMultiGraph = NULL;
-    fXYMultiGraph = NULL;
+    fXZMultiGraph = nullptr;
+    fYZMultiGraph = nullptr;
+    fXYMultiGraph = nullptr;
 
-    fXYHisto = NULL;
-    fYZHisto = NULL;
-    fXZHisto = NULL;
+    fXYHisto = nullptr;
+    fYZHisto = nullptr;
+    fXZHisto = nullptr;
 
-    fXHisto = NULL;
-    fYHisto = NULL;
-    fZHisto = NULL;
+    fXHisto = nullptr;
+    fYHisto = nullptr;
+    fZHisto = nullptr;
 
-    fPad = NULL;
+    fPad = nullptr;
 
-    fLegend_XY = NULL;
-    fLegend_XZ = NULL;
-    fLegend_YZ = NULL;
+    fLegend_XY = nullptr;
+    fLegend_XZ = nullptr;
+    fLegend_YZ = nullptr;
 
     fTotalDepositedEnergy = 0;
     fSensitiveVolumeEnergy = 0;
@@ -143,7 +142,6 @@ TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) {
     }
 
     if (eDep == 0) {
-        TVector3 pos;
         Double_t nan = TMath::QuietNaN();
         return TVector3(nan, nan, nan);
     }
@@ -219,7 +217,7 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) {
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
     for (int i = 0; i < fNTracks; i++)
         if (fTrack[i].GetTrackID() == id) return &fTrack[i];
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -259,15 +257,15 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) {
     return hits;
 }
 
-Int_t TRestGeant4Event::GetNumberOfTracksForParticle(TString parName) {
-    Int_t tcks = 0;
+Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& parName) {
+    Int_t tracks = 0;
     for (Int_t t = 0; t < GetNumberOfTracks(); t++)
-        if (GetTrack(t)->GetParticleName() == parName) tcks++;
+        if (GetTrack(t)->GetParticleName() == parName) tracks++;
 
-    return tcks;
+    return tracks;
 }
 
-Int_t TRestGeant4Event::GetEnergyDepositedByParticle(TString parName) {
+Int_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& parName) {
     Double_t en = 0;
     for (Int_t t = 0; t < GetNumberOfTracks(); t++) {
         if (GetTrack(t)->GetParticleName() == parName) en += GetTrack(t)->GetEnergy();
@@ -338,17 +336,17 @@ void TRestGeant4Event::SetBoundaries() {
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
 TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fXYHitGraph != NULL) {
+    if (fXYHitGraph != nullptr) {
         delete[] fXYHitGraph;
-        fXYHitGraph = NULL;
+        fXYHitGraph = nullptr;
     }
     fXYHitGraph = new TGraph[fTotalHits];
 
     fXYMultiGraph = new TMultiGraph();
 
-    if (fLegend_XY != NULL) {
+    if (fLegend_XY != nullptr) {
         delete fLegend_XY;
-        fLegend_XY = NULL;
+        fLegend_XY = nullptr;
     }
 
     fLegend_XY = new TLegend(0.75, 0.75, 0.9, 0.85);
@@ -363,7 +361,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
         n = maxPointSize - m * fMaxEnergy;
     }
 
-    for (unsigned int n = 0; n < fXYPcsMarker.size(); n++) delete fXYPcsMarker[n];
+    for (auto& i : fXYPcsMarker) delete i;
     fXYPcsMarker.clear();
 
     legendAdded.clear();
@@ -382,7 +380,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
 
             for (unsigned int p = 0; p < pcsList.size(); p++) {
                 if (GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)) == pcsList[p]) {
-                    TGraph* pcsGraph = new TGraph(1);
+                    auto pcsGraph = new TGraph(1);
 
                     pcsGraph->SetPoint(0, xPos, yPos);
                     pcsGraph->SetMarkerColor(kBlack);
@@ -430,17 +428,17 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
 
 TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fYZHitGraph != NULL) {
+    if (fYZHitGraph != nullptr) {
         delete[] fYZHitGraph;
-        fYZHitGraph = NULL;
+        fYZHitGraph = nullptr;
     }
     fYZHitGraph = new TGraph[fTotalHits];
 
     fYZMultiGraph = new TMultiGraph();
 
-    if (fLegend_YZ != NULL) {
+    if (fLegend_YZ != nullptr) {
         delete fLegend_YZ;
-        fLegend_YZ = NULL;
+        fLegend_YZ = nullptr;
     }
 
     fLegend_YZ = new TLegend(0.75, 0.75, 0.9, 0.85);
@@ -449,7 +447,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
     sprintf(title, "Event ID %d (YZ)", this->GetID());
     fPad->cd(gridElement)->DrawFrame(fMinY - 10, fMinZ - 10, fMaxY + 10, fMaxZ + 10, title);
 
-    for (unsigned int n = 0; n < fYZPcsMarker.size(); n++) delete fYZPcsMarker[n];
+    for (auto& n : fYZPcsMarker) delete n;
     fYZPcsMarker.clear();
 
     Double_t m = 1, n = 0;
@@ -522,17 +520,17 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
 
 TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fXZHitGraph != NULL) {
+    if (fXZHitGraph != nullptr) {
         delete[] fXZHitGraph;
-        fXZHitGraph = NULL;
+        fXZHitGraph = nullptr;
     }
     fXZHitGraph = new TGraph[fTotalHits];
 
     fXZMultiGraph = new TMultiGraph();
 
-    if (fLegend_XZ != NULL) {
+    if (fLegend_XZ != nullptr) {
         delete fLegend_XZ;
-        fLegend_XZ = NULL;
+        fLegend_XZ = nullptr;
     }
 
     fLegend_XZ = new TLegend(0.75, 0.75, 0.9, 0.85);
@@ -541,7 +539,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
     sprintf(title, "Event ID %d (XZ)", this->GetID());
     fPad->cd(gridElement)->DrawFrame(fMinX - 10, fMinZ - 10, fMaxX + 10, fMaxZ + 10, title);
 
-    for (unsigned int n = 0; n < fXZPcsMarker.size(); n++) delete fXZPcsMarker[n];
+    for (auto& n : fXZPcsMarker) delete n;
     fXZPcsMarker.clear();
 
     Double_t m = 1, n = 0;
@@ -566,7 +564,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 
             for (unsigned int p = 0; p < pcsList.size(); p++) {
                 if (GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)) == pcsList[p]) {
-                    TGraph* pcsGraph = new TGraph(1);
+                    auto pcsGraph = new TGraph(1);
 
                     pcsGraph->SetPoint(0, xPos, zPos);
                     pcsGraph->SetMarkerColor(kBlack);
@@ -615,20 +613,20 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
 TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXYHisto != NULL) {
+    if (fXYHisto != nullptr) {
         delete fXYHisto;
-        fXYHisto = NULL;
+        fXYHisto = nullptr;
     }
 
     Bool_t stats = false;
     Double_t pitch = 3;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsX = (fMaxX - fMinX + 20) / pitch;
@@ -674,20 +672,20 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
 }
 
 TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXZHisto != NULL) {
+    if (fXZHisto != nullptr) {
         delete fXZHisto;
-        fXZHisto = NULL;
+        fXZHisto = nullptr;
     }
 
     Bool_t stats = false;
     Double_t pitch = 3;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsX = (fMaxX - fMinX + 20) / pitch;
@@ -733,20 +731,20 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
 }
 
 TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fYZHisto != NULL) {
+    if (fYZHisto != nullptr) {
         delete fYZHisto;
-        fYZHisto = NULL;
+        fYZHisto = nullptr;
     }
 
     Bool_t stats;
     Double_t pitch = 3;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsY = (fMaxY - fMinY + 20) / pitch;
@@ -793,20 +791,20 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
 /* }}} */
 
 TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXHisto != NULL) {
+    if (fXHisto != nullptr) {
         delete fXHisto;
-        fXHisto = NULL;
+        fXHisto = nullptr;
     }
 
     Double_t pitch = 3;
     Bool_t stats = false;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsX = (fMaxX - fMinX + 20) / pitch;
@@ -844,32 +842,32 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
 }
 
 TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fZHisto != NULL) {
+    if (fZHisto != nullptr) {
         delete fZHisto;
-        fZHisto = NULL;
+        fZHisto = nullptr;
     }
 
     Double_t pitch = 3;
     Bool_t stats = false;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsZ = (fMaxZ - fMinZ + 20) / pitch;
 
     fZHisto = new TH1D("Z", "", nBinsZ, fMinZ - 10, fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int indexTrack = 0; indexTrack < GetNumberOfTracks(); indexTrack++) {
+        TRestGeant4Hits* hits = GetTrack(indexTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t zPos = hits->GetZ(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int indexHit = 0; indexHit < hits->GetNumberOfHits(); indexHit++) {
+            Double_t zPos = hits->GetZ(indexHit);
+            Double_t energy = hits->GetEnergy(indexHit);
 
             fZHisto->Fill(zPos, energy);
         }
@@ -895,20 +893,20 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> op
 }
 
 TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fYHisto != NULL) {
+    if (fYHisto != nullptr) {
         delete fYHisto;
-        fYHisto = NULL;
+        fYHisto = nullptr;
     }
 
     Double_t pitch = 3;
     Bool_t stats = false;
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n].Contains("binSize=")) {
-            TString pitchStr = optList[n].Remove(0, 8);
+    for (auto& n : optList) {
+        if (n.Contains("binSize=")) {
+            TString pitchStr = n.Remove(0, 8);
             pitch = stod((string)pitchStr);
         }
 
-        if (optList[n].Contains("stats")) stats = true;
+        if (n.Contains("stats")) stats = true;
     }
 
     Int_t nBinsY = (fMaxY - fMinY + 20) / pitch;
@@ -945,21 +943,21 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> op
     return fYHisto;
 }
 
-TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
+TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) {
     vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
     if (autoBoundaries) SetBoundaries();
 
     // If no option is given. This is the default
-    if (optList.size() == 0) {
-        optList.push_back("graphXZ");
-        optList.push_back("graphYZ");
-        optList.push_back("histXZ(Cont0,colz)");
-        optList.push_back("histYZ(Cont0,colz)");
+    if (optList.empty()) {
+        optList.emplace_back("graphXZ");
+        optList.emplace_back("graphYZ");
+        optList.emplace_back("histXZ(Cont0,colz)");
+        optList.emplace_back("histYZ(Cont0,colz)");
     }
 
-    for (unsigned int n = 0; n < optList.size(); n++) {
-        if (optList[n] == "print") this->PrintEvent();
+    for (auto& n : optList) {
+        if (n == "print") this->PrintEvent();
     }
 
     optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
@@ -976,22 +974,22 @@ TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
         /* {{{ Retreiving drawEventType argument. The word key before we find ( or [
          * character. */
         TString drawEventType = optList[n];
-        size_t startPos = optionStr.find("(");
-        if (startPos == string::npos) startPos = optionStr.find("[");
+        size_t startPos = optionStr.find('(');
+        if (startPos == string::npos) startPos = optionStr.find('[');
 
         if (startPos != string::npos) drawEventType = optList[n](0, startPos);
         /* }}} */
 
         /* {{{ Retrieving drawOption argument. Inside normal brackets ().
          * We do not separate the different fields we take the full string. */
-        string drawOption = "";
-        size_t endPos = optionStr.find(")");
+        string drawOption;
+        size_t endPos = optionStr.find(')');
         if (endPos != string::npos) {
             TString drawOptionTmp = optList[n](startPos + 1, endPos - startPos - 1);
 
             drawOption = (string)drawOptionTmp;
             size_t pos = 0;
-            while ((pos = drawOption.find(",", pos)) != string::npos) {
+            while ((pos = drawOption.find(',', pos)) != string::npos) {
                 drawOption.replace(pos, 1, ":");
                 pos = pos + 1;
             }
@@ -1002,8 +1000,8 @@ TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
          * [Field1,Field2] */
         vector<TString> optList_2;
 
-        startPos = optionStr.find("[");
-        endPos = optionStr.find("]");
+        startPos = optionStr.find('[');
+        endPos = optionStr.find(']');
 
         if (endPos != string::npos) {
             TString tmpStr = optList[n](startPos + 1, endPos - startPos - 1);
@@ -1016,21 +1014,21 @@ TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
 
             // Markers for physical processes have been already assigned in
             // GetXYMultigraph method
-            if (fXZPcsMarker.size() > 0) fLegend_XZ->Draw("same");
+            if (!fYZPcsMarker.empty()) fLegend_XZ->Draw("same");
 
-            for (unsigned int m = 0; m < fXZPcsMarker.size(); m++) fXZPcsMarker[m]->Draw("P");
+            for (auto& m : fXZPcsMarker) m->Draw("P");
         } else if (drawEventType == "graphYZ") {
             GetYZMultiGraph(n + 1, optList_2)->Draw("P");
 
-            if (fYZPcsMarker.size() > 0) fLegend_YZ->Draw("same");
+            if (!fYZPcsMarker.empty()) fLegend_YZ->Draw("same");
 
-            for (unsigned int m = 0; m < fYZPcsMarker.size(); m++) fYZPcsMarker[m]->Draw("P");
+            for (auto& m : fYZPcsMarker) m->Draw("P");
         } else if (drawEventType == "graphXY") {
             GetXYMultiGraph(n + 1, optList_2)->Draw("P");
 
-            if (fXYPcsMarker.size() > 0) fLegend_XY->Draw("same");
+            if (!fYZPcsMarker.empty()) fLegend_XY->Draw("same");
 
-            for (unsigned int m = 0; m < fXYPcsMarker.size(); m++) fXYPcsMarker[m]->Draw("P");
+            for (auto& m : fXYPcsMarker) m->Draw("P");
         } else if (drawEventType == "histXY") {
             GetXYHistogram(n + 1, optList_2)->Draw((TString)drawOption);
         } else if (drawEventType == "histXZ") {
@@ -1094,11 +1092,11 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) {
          << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
 
-    int ntracks = GetNumberOfTracks();
+    int numberOfTracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        ntracks = min(maxTracks, GetNumberOfTracks());
-        cout << " Printing only the first " << ntracks << " tracks" << endl;
+        numberOfTracks = min(maxTracks, GetNumberOfTracks());
+        cout << " Printing only the first " << numberOfTracks << " tracks" << endl;
     }
 
-    for (int n = 0; n < ntracks; n++) GetTrack(n)->PrintTrack(maxHits);
+    for (int n = 0; n < numberOfTracks; n++) GetTrack(n)->PrintTrack(maxHits);
 }

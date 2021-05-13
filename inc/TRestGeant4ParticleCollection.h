@@ -16,11 +16,10 @@
 #ifndef RestCore_TRestGeant4ParticleCollection
 #define RestCore_TRestGeant4ParticleCollection
 
-#include <iostream>
-
-#include "TObject.h"
-
+#include <TObject.h>
 #include <TRestGeant4Particle.h>
+
+#include <iostream>
 
 class TRestGeant4ParticleCollection : public TObject {
    protected:
@@ -29,7 +28,7 @@ class TRestGeant4ParticleCollection : public TObject {
    public:
     static TRestGeant4ParticleCollection* instantiate(std::string model = "");
 
-    virtual void SetParticleModel(std::string modelstring) {
+    virtual void SetParticleModel(std::string modelString) {
         std::cout << "REST ERROR: SetParticleModel() called in base class "
                      "TRestGeant4ParticleCollection"
                   << std::endl;
@@ -41,9 +40,9 @@ class TRestGeant4ParticleCollection : public TObject {
     virtual TRestGeant4Particle GetParticle(int i) { return fParticles[i]; }
 
     virtual void RemoveParticles() { fParticles.clear(); }
-    virtual void AddParticle(TRestGeant4Particle ptcle) { fParticles.push_back(ptcle); }
+    virtual void AddParticle(TRestGeant4Particle particle) { fParticles.push_back(particle); }
 
-    // Construtor
+    // Constructor
     TRestGeant4ParticleCollection();
     // Destructor
     virtual ~TRestGeant4ParticleCollection();

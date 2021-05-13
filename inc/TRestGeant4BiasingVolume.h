@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "TObject.h"
+#include "TString.h"
 #include "TVector3.h"
 
 class TRestGeant4BiasingVolume : public TObject {

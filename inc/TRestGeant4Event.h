@@ -228,8 +228,8 @@ class TRestGeant4Event : public TRestEvent {
     TRestHits GetHits(Int_t volID = -1);
     TRestHits GetHitsInVolume(Int_t volID) { return GetHits(volID); }
 
-    Int_t GetNumberOfTracksForParticle(TString parName);
-    Int_t GetEnergyDepositedByParticle(TString parName);
+    Int_t GetNumberOfTracksForParticle(const TString& parName);
+    Int_t GetEnergyDepositedByParticle(const TString& parName);
 
     Double_t GetEnergyInSensitiveFromProcessPhoto() {
         if (!PerProcessEnergyInitFlag) {
@@ -490,7 +490,7 @@ class TRestGeant4Event : public TRestEvent {
     void PrintEvent(int maxTracks = 0, int maxHits = 0);
 
     TPad* DrawEvent(TString option = "") { return DrawEvent(option, true); }
-    TPad* DrawEvent(TString option, Bool_t autoBoundaries);
+    TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);
 
     // Construtor
     TRestGeant4Event();
