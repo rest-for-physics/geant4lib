@@ -32,11 +32,16 @@ jobs:
 
     - name: Check Geant4Lib is in Framework souce
       run: |
-        cd ${{github.workspace}}/framework/source/libraries/geant4
+        cd /__w/geant4lib/geant4lib/framework/source/libraries/geant4/ # cannot use ${{github.workspace}} in the docker container?
         pwd
         git branch
         git show
 
+    - name: Debug
+      run: |
+        pwd
+        ls -lht
+        
     - name: Configure CMake (REST Framework)
       run: cmake -B ${{github.workspace}}/framework/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/framework/
 
