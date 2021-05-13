@@ -8,6 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Debug
+  FRAMEWORK_PATH: /__w/geant4lib/geant4lib/framework
   
 jobs:
   build:
@@ -30,10 +31,9 @@ jobs:
       with:
         path: framework/source/libraries/geant4
 
-    - name: Check Geant4Lib is in Framework souce
+    - name: Check latest Geant4Lib commit is in Framework souce
       run: |
-        mv /__w/geant4lib/geant4lib/framework/source/libraries/geant4/ ~/framework # cannot use ${{github.workspace}} in the docker container?        
-        cd ~/framework/source/libraries/geant4/
+        cd ${{env.FRAMEWORK_PATH}}/source/libraries/geant4
         git branch
         git show
 
@@ -43,10 +43,10 @@ jobs:
         ls -lht
         
     - name: Configure CMake (REST Framework)
-      run: cmake -B ~/framework/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ~/framework/
+      run: cmake -B ${{env.FRAMEWORK_PATH}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{env.FRAMEWORK_PATH}}
 
     - name: Make
-      run: make --directory=~/framework/build
+      run: make --directory=${{env.FRAMEWORK_PATH}}/build
 
 
       
