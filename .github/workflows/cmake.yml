@@ -8,7 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Debug
-  REST_FRAMEWORK_SOURCE_PATH: ${{github.workspace}}/../framework
+  REST_FRAMEWORK_SOURCE_PATH: /framework
   
 jobs:
   build:
@@ -30,8 +30,8 @@ jobs:
     - name: Move geant4lib into framework
       run: |
         ls -lht ${{github.workspace}}
-        mv ${{github.workspace}} ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries/geant4
-        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source
+        mv ${{github.workspace}} ${{env.REST_FRAMEWORK_SOURCE_PATH}}
+        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}
         ls -lht
 
     - name: Configure CMake
