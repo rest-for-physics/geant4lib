@@ -8,7 +8,8 @@ on:
 
 env:
   BUILD_TYPE: Debug
-
+  REST_FRAMEWORK_SOURCE_PATH: ${{github.workspace}}/../framework
+  
 jobs:
   build:
 
@@ -16,8 +17,13 @@ jobs:
 
     steps:
     
-    - name: Debug
-      run: pwd
+    - name: Clone REST Framework
+      run: |
+        git clone git@github.com:rest-for-physics/framework.git ${{REST_FRAMEWORK_SOURCE_PATH}}
+        cd ${{REST_FRAMEWORK_SOURCE_PATH}}
+        pwd
+        ls -lht
+        git branch
       
     - uses: actions/checkout@v2
 
