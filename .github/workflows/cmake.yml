@@ -26,12 +26,12 @@ jobs:
         git branch
       
     - uses: actions/checkout@v2
-      with:
-        path: "../framework/source/libraries/geant4"
 
-    - name: Debug
+    - name: Move geant4lib into framework
       run: |
-        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}
+        ls -lht ${{github.workspace}}
+        mv ${{github.workspace}}../geant4lib ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries/geant4
+        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries
         ls -lht
 
     - name: Configure CMake
