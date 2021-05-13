@@ -8,7 +8,6 @@ on:
 
 env:
   BUILD_TYPE: Debug
-  REST_FRAMEWORK_SOURCE_PATH: /framework
   
 jobs:
   build:
@@ -16,23 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
-    - name: Clone REST Framework
-      run: |
-        git clone https://github.com/rest-for-physics/framework.git ${{env.REST_FRAMEWORK_SOURCE_PATH}}
-        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}
-        pwd
-        ls -lht
-        git branch
+
+    - name: Checkout REST Framework
+    - uses: actions/checkout@v2
+      with:
+        repository: git@github.com:rest-for-physics/framework.git
+        ref: master
+        path: framework
       
+    - name: Checkout this repository (Geant4Lib)
     - uses: actions/checkout@v2
 
-    - name: Move geant4lib into framework
+    - name: Debug
       run: |
         ls -lht ${{github.workspace}}
-        mv ${{github.workspace}} ${{env.REST_FRAMEWORK_SOURCE_PATH}}
-        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}
         ls -lht
+        ls -lht framework
+        ls -lht geant4lib
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
