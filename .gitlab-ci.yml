@@ -40,7 +40,7 @@ build:
     - git submodule init source/libraries/geant4
     - git submodule update source/libraries/geant4
     - cd source/libraries/geant4/
-    - git checkout master
+    - git checkout ${CI_COMMIT_BRANCH}
     - cd ../../../
     - mkdir build
     - cd build

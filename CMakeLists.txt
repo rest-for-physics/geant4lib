@@ -28,7 +28,6 @@ if (${REST_DECAY0} MATCHES "ON")
             OUTPUT_VARIABLE BxDecay0_LIBRARY_DIRS
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-
     if (NOT DEFINED BxDecay0_VERSION)
         message(FATAL_ERROR "bxdecay0 not found! Put its binary dir to PATH!")
     endif ()

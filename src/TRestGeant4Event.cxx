@@ -151,6 +151,36 @@ TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) {
 }
 
 ///////////////////////////////////////////////
+/// \brief A method that gets the standard deviation from the hits happening at a
+/// particular volumeId inside the geometry.
+///
+/// \param volID Int_t specifying volume ID
+///
+TVector3 TRestGeant4Event::GetPositionDeviationInVolume(Int_t volID) {
+    TVector3 meanPos = this->GetMeanPositionInVolume(volID);
+
+    Double_t nan = TMath::QuietNaN();
+    if (meanPos == TVector3(nan, nan, nan)) return TVector3(nan, nan, nan);
+
+    TRestHits hitsInVolume = GetHitsInVolume(volID);
+
+    Double_t edep = 0;
+    TVector3 deviation = TVector3(0, 0, 0);
+
+    for (int n = 0; n < hitsInVolume.GetNumberOfHits(); n++) {
+        Double_t en = hitsInVolume.GetEnergy(n);
+        TVector3 diff = meanPos - hitsInVolume.GetPosition(n);
+        diff.SetXYZ(diff.X() * diff.X(), diff.Y() * diff.Y(), diff.Z() * diff.Z());
+
+        deviation = deviation + en * diff;
+
+        edep += en;
+    }
+    deviation = (1. / edep) * deviation;
+    return deviation;
+}
+
+///////////////////////////////////////////////
 /// \brief Function to get the position (TVector3) of the first track that deposits energy in specified
 /// volume. If no hit is found for the volume, returns `TVector3(nan, nan, nan)` vector.
 ///
