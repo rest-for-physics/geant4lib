@@ -19,7 +19,7 @@ jobs:
     - name: Checkout REST Framework
       uses: actions/checkout@v2
       with:
-        repository: git@github.com:rest-for-physics/framework.git
+        repository: rest-for-physics/framework
         ref: master
         path: framework
       
