@@ -23,16 +23,17 @@ jobs:
         ref: master
         path: framework
       
-    - name: Checkout this repository (Geant4Lib)
+    - name: Checkout Geant4Lib (this repository)
       uses: actions/checkout@v2
       with:
-        path: framework/source/libraries
+        path: framework/source/libraries/geant4
 
-    - name: Debug
+    - name: Check Geant4Lib is in Framework souce
       run: |
-        ls -lht ${{github.workspace}}/framework
-        ls -lht ${{github.workspace}}/framework/source
-        ls -lht ${{github.workspace}}/framework/source/libraries
+        cd ${{github.workspace}}/framework/source/libraries/geant4
+        pwd
+        git branch
+        git show head
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
