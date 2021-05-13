@@ -284,18 +284,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
 
-    if (fPerProcessSensitiveEnergy) {
-        fObservables.push_back("PerProcessPhotoelectric");
-        fObservables.push_back("PerProcessCompton");
-        fObservables.push_back("PerProcessElectronicIoni");
-        fObservables.push_back("PerProcessAlphaIoni");
-        fObservables.push_back("PerProcessIonIoni");
-        fObservables.push_back("PerProcessHadronicIoni");
-        fObservables.push_back("PerProcessProtonIoni");
-        fObservables.push_back("PerProcessMsc");
-        fObservables.push_back("PerProcessHadronElastic");
-        fObservables.push_back("PerProcessNeutronElastic");
-    }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
@@ -363,32 +351,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << endl;
             }
         }
-        if (fObservables[i].find("Process") != string::npos) {
-            Int_t ls = 0;
-            if (fObservables[i].find("RadiactiveDecay") != string::npos) ls = 15;
-            if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
-            if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
-            if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
-            if (fObservables[i].find("NInelastic") != string::npos) ls = 10;
-            if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
-            if (fObservables[i].find("NCapture") != string::npos) ls = 8;
-            if (fObservables[i].find("Compton") != string::npos) ls = 7;
-            if (fObservables[i].find("Neutron") != string::npos) ls = 7;
-            if (fObservables[i].find("Alpha") != string::npos) ls = 5;
-            if (fObservables[i].find("Argon") != string::npos) ls = 5;
-            if (fObservables[i].find("Xenon") != string::npos) ls = 5;
-            if (fObservables[i].find("Neon") != string::npos) ls = 4;
-
-            TString processName = fObservables[i].substr(fObservables[i].length() - (ls + 7), ls).c_str();
-            TString volName3 = fObservables[i].substr(0, fObservables[i].length() - (ls + 7)).c_str();
-            Int_t volId3 = fG4Metadata->GetActiveVolumeID(volName3);
-
-            if (volId3 >= 0) {
-                fProcessObservables.push_back(fObservables[i]);
-                fVolumeID3.push_back(volId3);
-                fProcessName.push_back((string)processName);
-            }
-        }
         if (fObservables[i].find("TracksCounter") != string::npos) {
             TString partName = fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
 
@@ -445,101 +407,11 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
     SetObservableValue((string) "energyPrimary", energyPrimary);
-    /* }}} */
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
     obsName = this->GetName() + (TString) ".totalEdep";
     SetObservableValue((string) "totalEdep", energyTotal);
 
-    Int_t photo = 0;
-    if (fOutputG4Event->isPhotoElectric()) photo = 1;
-    SetObservableValue((string) "photoelectric", photo);
-
-    Int_t compton = 0;
-    if (fOutputG4Event->isCompton()) compton = 1;
-    SetObservableValue((string) "compton", compton);
-
-    Int_t bremstralung = 0;
-    if (fOutputG4Event->isBremstralung()) bremstralung = 1;
-    SetObservableValue((string) "bremstralung", bremstralung);
-
-    Int_t hadElastic = 0;
-    if (fOutputG4Event->ishadElastic()) hadElastic = 1;
-    SetObservableValue((string) "hadElastic", hadElastic);
-
-    Int_t neutronInelastic = 0;
-    if (fOutputG4Event->isneutronInelastic()) neutronInelastic = 1;
-    SetObservableValue((string) "neutronInelastic", neutronInelastic);
-
-    Int_t nCapture = 0;
-    if (fOutputG4Event->isnCapture()) nCapture = 1;
-    SetObservableValue((string) "nCapture", nCapture);
-
-    Int_t hIoni = 0;
-    if (fOutputG4Event->ishIoni()) hIoni = 1;
-    SetObservableValue((string) "hIoni", hIoni);
-
-    Int_t phoNucl = 0;
-    if (fOutputG4Event->isphotonNuclear()) phoNucl = 1;
-    SetObservableValue((string) "photonNuclear", phoNucl);
-
-    // per process energy
-    if (fPerProcessSensitiveEnergy) {
-        SetObservableValue((string) "PerProcessPhotoelectric",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessPhoto());
-        SetObservableValue((string) "PerProcessCompton",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessCompton());
-        SetObservableValue((string) "PerProcessElectronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessEIoni());
-        SetObservableValue((string) "PerProcessIonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessIonIoni());
-        SetObservableValue((string) "PerProcessAlphaIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessAlphaIoni());
-        SetObservableValue((string) "PerProcessHadronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronIoni());
-        SetObservableValue((string) "PerProcessProtonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessProtonIoni());
-        SetObservableValue((string) "PerProcessMsc", fOutputG4Event->GetEnergyInSensitiveFromProcessMsc());
-        SetObservableValue((string) "PerProcessHadronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronElastic());
-        SetObservableValue((string) "PerProcessNeutronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessNeutronElastic());
-    }
-
-    for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
-        string obsName = fProcessObservables[n];
-        TString processName = fProcessName[n];
-        if ((processName == "RadiactiveDecay") && (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Photoelectric") && (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        // else if((processName=="PhotonNuclear")&&(
-        // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
-        // SetObservableValue( obsName, 1 );
-        else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "NInelastic") && (fOutputG4Event->isNeutronInelasticInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Compton") && (fOutputG4Event->isComptonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Neutron") && (fOutputG4Event->isNeutronInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Alpha") && (fOutputG4Event->isAlphaInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Argon") && (fOutputG4Event->isArgonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Xenon") && (fOutputG4Event->isXenonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Neon") && (fOutputG4Event->isNeonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-
-        else
-            SetObservableValue(obsName, 0);
-    }
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
         string obsName = fTrackCounterObservables[n];
@@ -606,8 +478,4 @@ void TRestGeant4AnalysisProcess::EndProcess() {
 void TRestGeant4AnalysisProcess::InitFromConfigFile() {
     fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
     fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
-
-    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") fPerProcessSensitiveEnergy = true;
-    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true")
-        fPerProcessSensitiveEnergyNorm = true;
 }

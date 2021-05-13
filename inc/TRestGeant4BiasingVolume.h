@@ -63,7 +63,7 @@ class TRestGeant4BiasingVolume : public TObject {
 
     void PrintBiasingVolume();
 
-    // Construtor
+    // Constructor
     TRestGeant4BiasingVolume();
     // Destructor
     virtual ~TRestGeant4BiasingVolume();

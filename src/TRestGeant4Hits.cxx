@@ -19,15 +19,9 @@
 
 ClassImp(TRestGeant4Hits);
 
-//______________________________________________________________________________
-TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
-    // TRestGeant4Hits default constructor
-}
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {}
 
-//______________________________________________________________________________
-TRestGeant4Hits::~TRestGeant4Hits() {
-    // TRestGeant4Hits destructor
-}
+TRestGeant4Hits::~TRestGeant4Hits() = default;
 
 void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
                                Int_t volume, Double_t eKin, TVector3 momentumDirection) {
@@ -62,9 +56,7 @@ void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
     fProcessID.Set(0);
-
     fVolumeID.Set(0);
-
     fKineticEnergy.Set(0);
 }
 

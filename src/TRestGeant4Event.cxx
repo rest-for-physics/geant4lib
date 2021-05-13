@@ -26,17 +26,10 @@
 using namespace std;
 
 ClassImp(TRestGeant4Event);
-//______________________________________________________________________________
-TRestGeant4Event::TRestGeant4Event() {
-    fNVolumes = 0;
-    // TRestGeant4Event default constructor
-    Initialize();
-}
 
-//______________________________________________________________________________
-TRestGeant4Event::~TRestGeant4Event() {
-    // TRestGeant4Event destructor
-}
+TRestGeant4Event::TRestGeant4Event() : fNVolumes(0) { Initialize(); }
+
+TRestGeant4Event::~TRestGeant4Event() = default;
 
 void TRestGeant4Event::Initialize() {
     TRestEvent::Initialize();
@@ -164,7 +157,7 @@ TVector3 TRestGeant4Event::GetPositionDeviationInVolume(Int_t volID) {
 
     TRestHits hitsInVolume = GetHitsInVolume(volID);
 
-    Double_t edep = 0;
+    Double_t eDep = 0;
     TVector3 deviation = TVector3(0, 0, 0);
 
     for (int n = 0; n < hitsInVolume.GetNumberOfHits(); n++) {
@@ -174,9 +167,9 @@ TVector3 TRestGeant4Event::GetPositionDeviationInVolume(Int_t volID) {
 
         deviation = deviation + en * diff;
 
-        edep += en;
+        eDep += en;
     }
-    deviation = (1. / edep) * deviation;
+    deviation = (1. / eDep) * deviation;
     return deviation;
 }
 
@@ -253,7 +246,6 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) {
             hits.AddHit(x, y, z, en);
         }
     }
-
     return hits;
 }
 
@@ -293,16 +285,16 @@ void TRestGeant4Event::SetBoundaries() {
     Double_t minEnergy = 1e10, maxEnergy = -1e10;
 
     Int_t nTHits = 0;
-    for (int ntck = 0; ntck < this->GetNumberOfTracks(); ntck++) {
-        Int_t nHits = GetTrack(ntck)->GetNumberOfHits();
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < this->GetNumberOfTracks(); iTrack++) {
+        Int_t iHits = GetTrack(iTrack)->GetNumberOfHits();
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < nHits; nhit++) {
-            Double_t x = hits->GetX(nhit);
-            Double_t y = hits->GetY(nhit);
-            Double_t z = hits->GetZ(nhit);
+        for (int iHit = 0; iHit < iHits; iHit++) {
+            Double_t x = hits->GetX(iHit);
+            Double_t y = hits->GetY(iHit);
+            Double_t z = hits->GetZ(iHit);
 
-            Double_t en = hits->GetEnergy(nhit);
+            Double_t en = hits->GetEnergy(iHit);
 
             if (x > maxX) maxX = x;
             if (x < minX) minX = x;
@@ -368,18 +360,18 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        EColor color = GetTrack(ntck)->GetParticleColor();
+        EColor color = GetTrack(iTrack)->GetParticleColor();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t xPos = hits->GetX(nhit);
-            Double_t yPos = hits->GetY(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t xPos = hits->GetX(iHit);
+            Double_t yPos = hits->GetY(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             for (unsigned int p = 0; p < pcsList.size(); p++) {
-                if (GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)) == pcsList[p]) {
+                if (GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)) == pcsList[p]) {
                     auto pcsGraph = new TGraph(1);
 
                     pcsGraph->SetPoint(0, xPos, yPos);
@@ -390,8 +382,8 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
                     fXYPcsMarker.push_back(pcsGraph);
 
                     if (legendAdded[p] == 0) {
-                        fLegend_XY->AddEntry(pcsGraph, GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)),
-                                             "p");
+                        fLegend_XY->AddEntry(pcsGraph,
+                                             GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)), "p");
                         legendAdded[p] = 1;
                     }
                 }
@@ -460,18 +452,18 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        EColor color = GetTrack(ntck)->GetParticleColor();
+        EColor color = GetTrack(iTrack)->GetParticleColor();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t yPos = hits->GetY(nhit);
-            Double_t zPos = hits->GetZ(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t yPos = hits->GetY(iHit);
+            Double_t zPos = hits->GetZ(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             for (unsigned int p = 0; p < pcsList.size(); p++) {
-                if (GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)) == pcsList[p]) {
+                if (GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)) == pcsList[p]) {
                     TGraph* pcsGraph = new TGraph(1);
 
                     pcsGraph->SetPoint(0, yPos, zPos);
@@ -482,8 +474,8 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
                     fYZPcsMarker.push_back(pcsGraph);
 
                     if (legendAdded[p] == 0) {
-                        fLegend_YZ->AddEntry(pcsGraph, GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)),
-                                             "p");
+                        fLegend_YZ->AddEntry(pcsGraph,
+                                             GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)), "p");
                         legendAdded[p] = 1;
                     }
                 }
@@ -552,18 +544,18 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        EColor color = GetTrack(ntck)->GetParticleColor();
+        EColor color = GetTrack(iTrack)->GetParticleColor();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t xPos = hits->GetX(nhit);
-            Double_t zPos = hits->GetZ(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t xPos = hits->GetX(iHit);
+            Double_t zPos = hits->GetZ(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             for (unsigned int p = 0; p < pcsList.size(); p++) {
-                if (GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)) == pcsList[p]) {
+                if (GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)) == pcsList[p]) {
                     auto pcsGraph = new TGraph(1);
 
                     pcsGraph->SetPoint(0, xPos, zPos);
@@ -574,8 +566,8 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
                     fXZPcsMarker.push_back(pcsGraph);
 
                     if (legendAdded[p] == 0) {
-                        fLegend_XZ->AddEntry(pcsGraph, GetTrack(ntck)->GetProcessName(hits->GetProcess(nhit)),
-                                             "p");
+                        fLegend_XZ->AddEntry(pcsGraph,
+                                             GetTrack(iTrack)->GetProcessName(hits->GetProcess(iHit)), "p");
                         legendAdded[p] = 1;
                     }
                 }
@@ -635,13 +627,13 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
     fXYHisto = new TH2F("XY", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX, nBinsY, fMinY - 10,
                         fMinY + pitch * nBinsY);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t xPos = hits->GetX(nhit);
-            Double_t yPos = hits->GetY(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t xPos = hits->GetX(iHit);
+            Double_t yPos = hits->GetY(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             fXYHisto->Fill(xPos, yPos, energy);
         }
@@ -694,13 +686,13 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
     fXZHisto = new TH2F("XZ", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX, nBinsZ, fMinZ - 10,
                         fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t xPos = hits->GetX(nhit);
-            Double_t zPos = hits->GetZ(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t xPos = hits->GetX(iHit);
+            Double_t zPos = hits->GetZ(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             fXZHisto->Fill(xPos, zPos, energy);
         }
@@ -753,13 +745,13 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
     fYZHisto = new TH2F("YZ", "", nBinsY, fMinY - 10, fMinY + pitch * nBinsY, nBinsZ, fMinZ - 10,
                         fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t yPos = hits->GetY(nhit);
-            Double_t zPos = hits->GetZ(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t yPos = hits->GetY(iHit);
+            Double_t zPos = hits->GetZ(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             fYZHisto->Fill(yPos, zPos, energy);
         }
@@ -811,12 +803,12 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
 
     fXHisto = new TH1D("X", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t xPos = hits->GetX(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t xPos = hits->GetX(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             fXHisto->Fill(xPos, energy);
         }
@@ -913,12 +905,12 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> op
 
     fYHisto = new TH1D("Y", "", nBinsY, fMinY - 10, fMinY + pitch * nBinsY);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
-        TRestGeant4Hits* hits = GetTrack(ntck)->GetHits();
+    for (int iTrack = 0; iTrack < GetNumberOfTracks(); iTrack++) {
+        TRestGeant4Hits* hits = GetTrack(iTrack)->GetHits();
 
-        for (int nhit = 0; nhit < hits->GetNumberOfHits(); nhit++) {
-            Double_t yPos = hits->GetY(nhit);
-            Double_t energy = hits->GetEnergy(nhit);
+        for (int iHit = 0; iHit < hits->GetNumberOfHits(); iHit++) {
+            Double_t yPos = hits->GetY(iHit);
+            Double_t energy = hits->GetEnergy(iHit);
 
             fYHisto->Fill(yPos, energy);
         }
@@ -971,7 +963,7 @@ TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) 
 
         string optionStr = (string)optList[n];
 
-        /* {{{ Retreiving drawEventType argument. The word key before we find ( or [
+        /* {{{ Retrieving drawEventType argument. The word key before we find ( or [
          * character. */
         TString drawEventType = optList[n];
         size_t startPos = optionStr.find('(');
@@ -1087,9 +1079,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) {
                  << " has not been stored" << endl;
     }
 
-    cout << "--------------------------------------------------------------------"
-            "-------"
-         << endl;
+    cout << "--------------------------------------------------------------------" << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
 
     int numberOfTracks = GetNumberOfTracks();

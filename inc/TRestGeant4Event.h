@@ -49,82 +49,8 @@ class TRestGeant4Event : public TRestEvent {
 
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
-    Bool_t PerProcessEnergyInitFlag = false;
-    std::map<string, Double_t> PerProcessEnergyInSensitive;
-
-    void inline InitializePerProcessEnergyInSensitive() {
-        PerProcessEnergyInitFlag = true;
-        PerProcessEnergyInSensitive["photoelectric"] = 0;
-        PerProcessEnergyInSensitive["compton"] = 0;
-        PerProcessEnergyInSensitive["electron_ionization"] = 0;
-        PerProcessEnergyInSensitive["ion_ionization"] = 0;
-        PerProcessEnergyInSensitive["alpha_ionization"] = 0;
-        PerProcessEnergyInSensitive["msc"] = 0;
-        PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
-        PerProcessEnergyInSensitive["proton_ionization"] = 0;
-        PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
-        PerProcessEnergyInSensitive["neutron_elastic"] = 0;
-
-        string volume_name;
-        string process_name;
-        TRestGeant4Track* track;
-        TRestGeant4Hits* hits;
-        Double_t energy;
-
-        for (Int_t track_id = 0; track_id < GetNumberOfTracks(); track_id++) {
-            track = GetTrack(track_id);
-
-            if (track->GetEnergyInVolume(0) == 0) {
-                continue;
-            }
-
-            hits = track->GetHits();
-
-            for (Int_t hit_id = 0; hit_id < hits->GetNumberOfHits(); hit_id++) {
-                if (hits->GetVolumeId(hit_id) != 0) {
-                    continue;
-                }
-
-                process_name = (string)track->GetProcessName(hits->GetHitProcess(hit_id));
-                energy = hits->GetEnergy(hit_id);
-                if (process_name == "phot") {
-                    PerProcessEnergyInSensitive["photoelectric"] += energy;
-                } else if (process_name == "compt") {
-                    PerProcessEnergyInSensitive["compton"] += energy;
-                } else if (process_name == "eIoni" || process_name == "e-Step" || process_name == "e+Step") {
-                    PerProcessEnergyInSensitive["electron_ionization"] += energy;
-                } else if (process_name == "ionIoni") {
-                    PerProcessEnergyInSensitive["ion_ionization"] += energy;
-                    if (track->GetParticleName() == "alpha") {
-                        PerProcessEnergyInSensitive["alpha_ionization"] += energy;
-                    }
-                } else if (process_name == "msc") {
-                    PerProcessEnergyInSensitive["msc"] += energy;
-                } else if (process_name == "hIoni") {
-                    PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                    if (track->GetParticleName() == "proton") {
-                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                    }
-                } else if (process_name == "hadElastic") {
-                    PerProcessEnergyInSensitive["hadronic_elastic"] += energy;
-                    if (track->GetParticleName() == "neutron") {
-                        PerProcessEnergyInSensitive["neutron_elastic"] += energy;
-                    }
-                } else if (process_name == "Transportation") {
-                    if (track->GetParticleName() == "proton") {
-                        PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                    } else if (track->GetParticleName() == "e-" || track->GetParticleName() == "e+") {
-                        PerProcessEnergyInSensitive["electron_ionization"] += energy;
-                    }
-                }
-            }
-        }
-    }
-
    protected:
 #ifndef __CINT__
-
     // TODO These graphs should be placed in TRestTrack?
     // (following GetGraph implementation in TRestDetectorSignal)
     TGraph* fXZHitGraph;  //!
@@ -231,67 +157,6 @@ class TRestGeant4Event : public TRestEvent {
     Int_t GetNumberOfTracksForParticle(const TString& parName);
     Int_t GetEnergyDepositedByParticle(const TString& parName);
 
-    Double_t GetEnergyInSensitiveFromProcessPhoto() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["photoelectric"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessCompton() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["compton"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessEIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["electron_ionization"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessIonIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["ion_ionization"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessAlphaIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["alpha_ionization"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessMsc() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["msc"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessHadronIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["hadronic_ionization"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessProtonIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["proton_ionization"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessHadronElastic() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["hadronic_elastic"];
-    }
-    Double_t GetEnergyInSensitiveFromProcessNeutronElastic() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["neutron_elastic"];
-    }
-
     void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
     void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
     void SetPrimaryEventParticleName(TString pName) { fPrimaryParticleName.push_back(pName); }
@@ -321,168 +186,6 @@ class TRestGeant4Event : public TRestEvent {
     void SetTrackSubEventID(Int_t n, Int_t id);
     void AddTrack(TRestGeant4Track trk);
 
-    Bool_t isRadiactiveDecay() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isRadiactiveDecay()) return true;
-        return false;
-    }
-
-    Bool_t isPhotoElectric() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isPhotoElectric()) return true;
-        return false;
-    }
-    Bool_t isCompton() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isCompton()) return true;
-        return false;
-    }
-    Bool_t isBremstralung() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isBremstralung()) return true;
-        return false;
-    }
-
-    Bool_t ishadElastic() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->ishadElastic()) return true;
-        return false;
-    }
-    Bool_t isneutronInelastic() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isneutronInelastic()) return true;
-        return false;
-    }
-
-    Bool_t isnCapture() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isnCapture()) return true;
-        return false;
-    }
-
-    Bool_t ishIoni() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->ishIoni()) return true;
-        return false;
-    }
-
-    Bool_t isphotonNuclear() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isphotonNuclear()) return true;
-        return false;
-    }
-
-    Bool_t isAlpha() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->GetParticleName() == "alpha") return true;
-        return false;
-    }
-
-    Bool_t isNeutron() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->GetParticleName() == "neutron") return true;
-        return false;
-    }
-
-    Bool_t isArgon() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if ((GetTrack(n)->GetParticleName()).Contains("Ar")) return true;
-        return false;
-    }
-
-    Bool_t isXenon() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if ((GetTrack(n)->GetParticleName()).Contains("Xe")) return true;
-        return false;
-    }
-
-    Bool_t isNeon() {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if ((GetTrack(n)->GetParticleName()).Contains("Ne")) return true;
-        return false;
-    }
-    /// Processes and particles in a given volume
-
-    Bool_t isRadiactiveDecayInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isRadiactiveDecayInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isPhotoElectricInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isPhotoElectricInVolume(volID)) return true;
-        return false;
-    }
-    Bool_t isPhotonNuclearInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isPhotonNuclearInVolume(volID)) return true;
-        return false;
-    }
-    Bool_t isComptonInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isComptonInVolume(volID)) return true;
-        return false;
-    }
-    Bool_t isBremstralungInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isBremstralungInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isHadElasticInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isHadElasticInVolume(volID)) return true;
-        return false;
-    }
-    Bool_t isNeutronInelasticInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isNeutronInelasticInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isNCaptureInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isNCaptureInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t ishIoniInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isHIoniInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isAlphaInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isAlphaInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isNeutronInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isNeutronInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isArgonInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isArgonInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isXenonInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isXenonInVolume(volID)) return true;
-        return false;
-    }
-
-    Bool_t isNeonInVolume(Int_t volID) {
-        for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n)->isNeonInVolume(volID)) return true;
-        return false;
-    }
-
     void Initialize();
 
     /// maxTracks : number of tracks to print, 0 = all
@@ -492,11 +195,11 @@ class TRestGeant4Event : public TRestEvent {
     TPad* DrawEvent(TString option = "") { return DrawEvent(option, true); }
     TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);
 
-    // Construtor
+    // Constructor
     TRestGeant4Event();
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 5);  // REST event superclass
+    ClassDef(TRestGeant4Event, 6);  // REST event superclass
 };
 #endif
