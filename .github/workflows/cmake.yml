@@ -31,7 +31,7 @@ jobs:
       run: |
         ls -lht ${{github.workspace}}
         mv ${{github.workspace}} ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries/geant4
-        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries
+        cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source
         ls -lht
 
     - name: Configure CMake
