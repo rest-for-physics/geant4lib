@@ -17,14 +17,14 @@ jobs:
     steps:
 
     - name: Checkout REST Framework
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
       with:
         repository: git@github.com:rest-for-physics/framework.git
         ref: master
         path: framework
       
     - name: Checkout this repository (Geant4Lib)
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
 
     - name: Debug
       run: |
