@@ -16,11 +16,11 @@
 #ifndef RestCore_TRestGeant4Particle
 #define RestCore_TRestGeant4Particle
 
-#include <iostream>
-
+#include <TObject.h>
 #include <TString.h>
 #include <TVector3.h>
-#include "TObject.h"
+
+#include <iostream>
 
 class TRestGeant4Particle : public TObject {
    protected:
@@ -39,17 +39,17 @@ class TRestGeant4Particle : public TObject {
     Int_t GetParticleCharge() { return fCharge; }
     TVector3 GetOrigin() { return fOrigin; }
 
-    void SetParticle(TRestGeant4Particle ptcle) {
-        fExcitationLevel = ptcle.GetExcitationLevel();
-        fParticleName = ptcle.GetParticleName();
-        fEnergy = ptcle.GetEnergy();
-        fDirection = ptcle.GetMomentumDirection();
-        fOrigin = ptcle.fOrigin;
+    void SetParticle(TRestGeant4Particle particle) {
+        fExcitationLevel = particle.GetExcitationLevel();
+        fParticleName = particle.GetParticleName();
+        fEnergy = particle.GetEnergy();
+        fDirection = particle.GetMomentumDirection();
+        fOrigin = particle.fOrigin;
     }
 
-    void SetParticleName(TString ptcle) { fParticleName = ptcle; }
-    void SetExcitationLevel(Double_t eenergy) {
-        fExcitationLevel = eenergy;
+    void SetParticleName(TString particle) { fParticleName = particle; }
+    void SetExcitationLevel(Double_t eEnergy) {
+        fExcitationLevel = eEnergy;
         if (fExcitationLevel < 0) fExcitationLevel = 0;
     }
 

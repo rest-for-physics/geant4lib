@@ -370,6 +370,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// i.e. an input Decay0 file.
     void ReadParticleCollection(Int_t n) { fPrimaryGenerator.UpdateSourcesFromParticleCollection(n); }
 
+    ///
+    void ReadGeneratorTreeFile(TString);
+
     /// Removes all the sources from fPrimaryGenerator.
     void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
 
@@ -435,6 +438,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 8);
+    ClassDef(TRestGeant4Metadata, 9);
 };
 #endif  // RestCore_TRestGeant4Metadata

@@ -134,6 +134,8 @@ Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
         id = 60;
     else if (pcsName == "lambdaInelastic")
         id = 61;
+    else if (pcsName == "nFission")
+        id = 70;
     else {
         id = -1;
         cout << "WARNING : The process " << pcsName
@@ -291,7 +293,8 @@ TString TRestGeant4Track::GetProcessName(Int_t id) {
         return "kaon0SInelastic";
     else if (id == 61)
         return "lambdaInelastic";
-
+    else if (id == 70)
+        return "nFission";
     else
         cout << "WARNING : The process ID : " << id << " could not be found" << endl;
 

@@ -664,7 +664,9 @@
 #include "TRestGeant4Metadata.h"
 using namespace std;
 
+#include <TFile.h>
 #include <TGeoManager.h>
+#include <TTree.h>
 
 #include <utility>
 
@@ -950,7 +952,6 @@ void TRestGeant4Metadata::ReadGenerator() {
     // TODO : If not defined (and required to be) it just returns (0,0,0) we
     // should make a WARNING. Inside StringToVector probably
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
-
     fGenRotation = StringTo3DVector(GetParameter("rotation", generatorDefinition));
 
     string dimension2[2]{"length", "lenY"};
@@ -980,6 +981,11 @@ void TRestGeant4Metadata::ReadGenerator() {
         } else if (use == "geant4" || use.empty() || use == "Not defined") {
             info << "Adding sources to geant4" << endl;
             ReadParticleSource(sourceDefinition);
+        } else if (use.find(".root") != -1) {
+            // read from ROOT TTree
+            fGeneratorFile = use;
+            info << "Reading custom sources from ROOT file : " << fGeneratorFile << endl;
+            ReadGeneratorTreeFile(fGeneratorFile);
         } else {
             info << "Load custom sources from " << use << endl;
             TRestGeant4ParticleCollection* particleCollection =
@@ -1176,6 +1182,102 @@ void TRestGeant4Metadata::PrintMetadata() {
 }
 
 ///////////////////////////////////////////////
+/// \brief Reads an input file produced by restGenerator.
+///
+///
+void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
+    debug << "TRestGeant4Metadata::ReadGeneratorTreeFile" << endl;
+
+    TFile* file;
+    TTree* GeneratorTree;
+    TString treeName = "GeneratorTree";
+
+    file = TFile::Open(fName, "READ");
+    if (!file) {
+        ferr << "Error opening file: " << fName << endl;
+        exit(1);
+    }
+    file->GetObject(treeName, GeneratorTree);
+
+    if (!GeneratorTree) {
+        ferr << "Error reading TTree named " << treeName << " from " << fName << endl;
+        file->ls();
+        exit(1);
+    }
+
+    int numberOfGeneratorEvents = GeneratorTree->GetEntries();
+    if (numberOfGeneratorEvents <= 0) {
+        ferr << "Generator TTree: " << treeName << " from " << fName << " has no events" << endl;
+        exit(1);
+    }
+
+    debug << "Reading generator file : " << fName << endl;
+    debug << "Total number of events in TTree : " << numberOfGeneratorEvents << endl;
+    /*
+    fNEvents = numberOfGeneratorEvents;
+    warning << "Overriding NEvents parameter with value " << fNEvents << " to new value "
+            << numberOfGeneratorEvents << endl;
+    */
+    debug << "Setting up TTree" << endl;
+
+    vector<double>*x = 0, *y = 0, *z = 0;
+    vector<double>*px = 0, *py = 0, *pz = 0;
+    vector<double>*KE = 0, *timeGlobal = 0, *weight = 0;
+    vector<TString>* particleName = 0;
+
+    GeneratorTree->SetBranchAddress("x", &x);
+    GeneratorTree->SetBranchAddress("y", &y);
+    GeneratorTree->SetBranchAddress("z", &z);
+    GeneratorTree->SetBranchAddress("px", &px);
+    GeneratorTree->SetBranchAddress("py", &py);
+    GeneratorTree->SetBranchAddress("pz", &pz);
+    GeneratorTree->SetBranchAddress("KE", &KE);
+    GeneratorTree->SetBranchAddress("time", &timeGlobal);
+    GeneratorTree->SetBranchAddress("weight", &weight);
+    GeneratorTree->SetBranchAddress("particleName", &particleName);
+
+    debug << "Finished setting up TTree" << endl;
+
+    TRestGeant4Particle particle;
+    for (int k = 0; k < numberOfGeneratorEvents; k++) {
+        debug << "- Getting entry " << k << endl;
+        GeneratorTree->GetEntry(k);
+        debug << "Getting entry " << k << endl;
+        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
+        particleCollection->RemoveParticles();
+
+        int nParticles = x->size();
+        debug << "Number of particles: " << nParticles << endl;
+
+        for (int i = 0; i < nParticles; i++) {
+            TString thisParticleName = (*particleName)[i];
+            TVector3 thisParticlePosition((*x)[i], (*y)[i], (*z)[i]);
+            TVector3 thisParticleMomentum((*px)[i], (*py)[i], (*pz)[i]);
+            double thisParticleEnergy = (*KE)[i];  // keV
+            double thisParticleTime = (*timeGlobal)[i];
+
+            debug << " ---- New particle found --- " << endl;
+            debug << " Particle name : " << thisParticleName << endl;
+            debug << " Relative time : " << thisParticleTime << endl;
+
+            particle.SetParticleName(thisParticleName);
+            particle.SetEnergy(thisParticleEnergy);
+            particle.SetOrigin(thisParticlePosition);
+            particle.SetDirection(thisParticleMomentum);
+
+            particleCollection->AddParticle(particle);
+        }
+        fPrimaryGenerator.AddParticleCollection(particleCollection);
+    }
+
+    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
+
+    delete GeneratorTree;
+    file->Close();
+    delete file;
+}
+
+///////////////////////////////////////////////
 /// \brief Reads an input file produced by Decay0.
 ///
 /// The input file should contain the description of several
@@ -1205,7 +1307,7 @@ void TRestGeant4Metadata::ReadEventDataFile(const TString& fName) {
 ///////////////////////////////////////////////
 /// \brief Reads particle information using the file format from newer Decay0 versions.
 ///
-/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+/// This is an auxiliary method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
 Int_t TRestGeant4Metadata::ReadNewDecay0File(const TString& fileName) {
@@ -1308,7 +1410,7 @@ Int_t TRestGeant4Metadata::ReadNewDecay0File(const TString& fileName) {
 ///////////////////////////////////////////////
 /// \brief Reads particle information using the file format from older Decay0 versions.
 ///
-/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+/// This is an auxiliary method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
 /// produced with the newer Decay0 versions.
 ///
 Int_t TRestGeant4Metadata::ReadOldDecay0File(const TString& fileName) {
@@ -1449,7 +1551,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
     source.SetAngularDistType(GetFieldValue("type", angularDefinition));
 
     if (source.GetAngularDistType() == "TH1D") {
-        source.SetAngularFilename(GetFieldValue("file", angularDefinition));
+        source.SetAngularFilename(SearchFile(GetFieldValue("file", angularDefinition)));
         source.SetAngularName(GetFieldValue("spctName", angularDefinition));
     }
 
@@ -1466,7 +1568,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
     source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
 
     if (source.GetEnergyDistType() == "TH1D") {
-        source.SetSpectrumFilename(GetFieldValue("file", energyDefinition));
+        source.SetSpectrumFilename(SearchFile(GetFieldValue("file", energyDefinition)));
         source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
     }
 
