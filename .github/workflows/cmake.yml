@@ -30,7 +30,7 @@ jobs:
     - name: Move geant4lib into framework
       run: |
         ls -lht ${{github.workspace}}
-        mv ${{github.workspace}}../geant4lib ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries/geant4
+        mv ${{github.workspace}} ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries/geant4
         cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}/source/libraries
         ls -lht
 
