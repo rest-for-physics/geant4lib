@@ -19,7 +19,7 @@ jobs:
     
     - name: Clone REST Framework
       run: |
-        git clone git@github.com:rest-for-physics/framework.git ${{env.REST_FRAMEWORK_SOURCE_PATH}}
+        git clone https://github.com/rest-for-physics/framework.git ${{env.REST_FRAMEWORK_SOURCE_PATH}}
         cd ${{env.REST_FRAMEWORK_SOURCE_PATH}}
         pwd
         ls -lht
