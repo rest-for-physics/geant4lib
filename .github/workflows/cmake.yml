@@ -35,13 +35,11 @@ jobs:
         git branch
         git show
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/framework/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Configure CMake (REST Framework)
+      run: cmake -B ${{github.workspace}}/framework/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/framework/
 
     - name: Make
-      # Build your program with the given configuration
-      run: |
-        cd ${{github.workspace}}/framework/build
-        make
+      run: make --directory=${{github.workspace}}/framework/build
+
 
       
