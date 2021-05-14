@@ -12,7 +12,7 @@ env:
   
 defaults:
   run:
-    shell: bash
+    shell: bash -i
     
 jobs:
   build:
@@ -48,8 +48,8 @@ jobs:
     - name: Source ROOT and Geant4
       run: |
         printenv
-        source $ROOTSYS/bin/thisroot.sh
-        source /opt/geant4/install/bin/geant4.sh
+        source ~/.bashrc
+        printenv        
         
     - name: Configure CMake (REST Framework)
       run: cmake -B ${{env.FRAMEWORK_PATH}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DRESTLIB_GEANT4=ON ${{env.FRAMEWORK_PATH}}
