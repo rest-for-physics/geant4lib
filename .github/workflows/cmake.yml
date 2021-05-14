@@ -35,16 +35,16 @@ jobs:
       with:
         path: framework/source/libraries/geant4
 
-    - name: Check latest Geant4Lib commit is in Framework souce
+    - name: Debug - print latest Geant4Lib commit in Framework souce
       run: |
         cd ${{env.FRAMEWORK_PATH}}/source/libraries/geant4
         git branch
         git show
 
-    - name: Debug
+    - name: Source ROOT and Geant4
       run: |
-        pwd
-        ls -lht
+        source $ROOTSYS/bin/thisroot.sh
+        source /opt/geant4/install/bin/geant4.sh
         
     - name: Configure CMake (REST Framework)
       run: cmake -B ${{env.FRAMEWORK_PATH}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DRESTLIB_GEANT4=ON ${{env.FRAMEWORK_PATH}}
