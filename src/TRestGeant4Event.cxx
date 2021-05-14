@@ -20,6 +20,8 @@
 #include <TFrame.h>
 #include <TStyle.h>
 
+#include <vector>
+
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
 
@@ -326,7 +328,7 @@ void TRestGeant4Event::SetBoundaries() {
 }
 
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
-TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXYHitGraph != nullptr) {
         delete[] fXYHitGraph;
@@ -418,7 +420,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
     return fXYMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fYZHitGraph != nullptr) {
         delete[] fYZHitGraph;
@@ -510,7 +512,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
     return fYZMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXZHitGraph != nullptr) {
         delete[] fXZHitGraph;
@@ -604,7 +606,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 /* }}} */
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
-TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXYHisto != nullptr) {
         delete fXYHisto;
         fXYHisto = nullptr;
@@ -663,7 +665,7 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
     return fXYHisto;
 }
 
-TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXZHisto != nullptr) {
         delete fXZHisto;
         fXZHisto = nullptr;
@@ -722,7 +724,7 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
     return fXZHisto;
 }
 
-TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYZHisto != nullptr) {
         delete fYZHisto;
         fYZHisto = nullptr;
@@ -782,7 +784,7 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
 }
 /* }}} */
 
-TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXHisto != nullptr) {
         delete fXHisto;
         fXHisto = nullptr;
@@ -833,7 +835,7 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
     return fXHisto;
 }
 
-TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fZHisto != nullptr) {
         delete fZHisto;
         fZHisto = nullptr;
@@ -884,7 +886,7 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> op
     return fZHisto;
 }
 
-TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYHisto != nullptr) {
         delete fYHisto;
         fYHisto = nullptr;
@@ -952,7 +954,7 @@ TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) 
         if (n == "print") this->PrintEvent();
     }
 
-    optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
+    optList.erase(remove(optList.begin(), optList.end(), "print"), optList.end());
 
     unsigned int nPlots = optList.size();
 

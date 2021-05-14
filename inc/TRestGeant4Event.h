@@ -37,20 +37,43 @@
 #include <iostream>
 #include <map>
 
+class vector;
+
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
    private:
-#ifndef __CINT__
     Double_t fMinX, fMaxX;            //!
     Double_t fMinY, fMaxY;            //!
     Double_t fMinZ, fMaxZ;            //!
     Double_t fMinEnergy, fMaxEnergy;  //!
-#endif
 
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
    protected:
-#ifndef __CINT__
+    /*
+     * Data members should be placed here if possible
+     */
+    vector<TString> fPrimaryParticleName;
+
+    vector<TVector3> fPrimaryEventOrigin;
+    vector<TVector3> fPrimaryEventDirection;
+    vector<Double_t> fPrimaryEventEnergy;
+
+    Double_t fTotalDepositedEnergy;
+    Double_t fSensitiveVolumeEnergy;
+
+    Int_t fNVolumes;
+    vector<Int_t> fVolumeStored;
+    vector<string> fVolumeStoredNames;
+    vector<Double_t> fVolumeDepositedEnergy;
+
+    Int_t fNTracks;
+    vector<TRestGeant4Track> fTrack;
+
+    Int_t fMaxSubEventID;
+
+    /* ---------------------------------------------------------------------------------------------------- */
+
     // TODO These graphs should be placed in TRestTrack?
     // (following GetGraph implementation in TRestDetectorSignal)
     TGraph* fXZHitGraph;  //!
@@ -58,9 +81,9 @@ class TRestGeant4Event : public TRestEvent {
     TGraph* fXYHitGraph;  //!
     // TGraph2D *fXYZHitGraph; //! (TODO to implement XYZ visualization)
 
-    std::vector<TGraph*> fXYPcsMarker;  //!
-    std::vector<TGraph*> fYZPcsMarker;  //!
-    std::vector<TGraph*> fXZPcsMarker;  //!
+    vector<TGraph*> fXYPcsMarker;  //!
+    vector<TGraph*> fYZPcsMarker;  //!
+    vector<TGraph*> fXZPcsMarker;  //!
 
     TMultiGraph* fXZMultiGraph;  //!
     TMultiGraph* fYZMultiGraph;  //!
@@ -79,44 +102,24 @@ class TRestGeant4Event : public TRestEvent {
     TLegend* fLegend_XZ;  //!
     TLegend* fLegend_YZ;  //!
 
-    std::vector<Int_t> legendAdded;  //!
+    vector<Int_t> legendAdded;  //!
 
     Int_t fTotalHits;  //!
 
-    TMultiGraph* GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList, Double_t minPointSize = 0.4,
+    TMultiGraph* GetXZMultiGraph(Int_t gridElement, vector<TString> pcsList, Double_t minPointSize = 0.4,
                                  Double_t maxPointSize = 4);
-    TMultiGraph* GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList, Double_t minPointSize = 0.4,
+    TMultiGraph* GetYZMultiGraph(Int_t gridElement, vector<TString> pcsList, Double_t minPointSize = 0.4,
                                  Double_t maxPointSize = 4);
-    TMultiGraph* GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList, Double_t minPointSize = 0.4,
+    TMultiGraph* GetXYMultiGraph(Int_t gridElement, vector<TString> pcsList, Double_t minPointSize = 0.4,
                                  Double_t maxPointSize = 4);
 
-    TH2F* GetXYHistogram(Int_t gridElement, std::vector<TString> optList);
-    TH2F* GetXZHistogram(Int_t gridElement, std::vector<TString> optList);
-    TH2F* GetYZHistogram(Int_t gridElement, std::vector<TString> optList);
+    TH2F* GetXYHistogram(Int_t gridElement, vector<TString> optList);
+    TH2F* GetXZHistogram(Int_t gridElement, vector<TString> optList);
+    TH2F* GetYZHistogram(Int_t gridElement, vector<TString> optList);
 
-    TH1D* GetXHistogram(Int_t gridElement, std::vector<TString> optList);
-    TH1D* GetYHistogram(Int_t gridElement, std::vector<TString> optList);
-    TH1D* GetZHistogram(Int_t gridElement, std::vector<TString> optList);
-#endif
-
-    TVector3 fPrimaryEventOrigin;
-
-    std::vector<TString> fPrimaryParticleName;
-    std::vector<TVector3> fPrimaryEventDirection;
-    std::vector<Double_t> fPrimaryEventEnergy;
-
-    Double_t fTotalDepositedEnergy;
-    Double_t fSensitiveVolumeEnergy;
-
-    Int_t fNVolumes;
-    std::vector<Int_t> fVolumeStored;
-    std::vector<string> fVolumeStoredNames;
-    std::vector<Double_t> fVolumeDepositedEnergy;
-
-    Int_t fNTracks;
-    std::vector<TRestGeant4Track> fTrack;
-
-    Int_t fMaxSubEventID;
+    TH1D* GetXHistogram(Int_t gridElement, vector<TString> optList);
+    TH1D* GetYHistogram(Int_t gridElement, vector<TString> optList);
+    TH1D* GetZHistogram(Int_t gridElement, vector<TString> optList);
 
    public:
     void SetBoundaries();
@@ -129,7 +132,7 @@ class TRestGeant4Event : public TRestEvent {
     }
 
     TVector3 GetPrimaryEventDirection(Int_t n = 0) { return fPrimaryEventDirection[n]; }
-    TVector3 GetPrimaryEventOrigin() { return fPrimaryEventOrigin; }
+    TVector3 GetPrimaryEventOrigin(Int_t n = 0) { return fPrimaryEventOrigin[n]; }
     Double_t GetPrimaryEventEnergy(Int_t n = 0) { return fPrimaryEventEnergy[n]; }
 
     Int_t GetNumberOfHits(Int_t volID = -1);
@@ -157,10 +160,11 @@ class TRestGeant4Event : public TRestEvent {
     Int_t GetNumberOfTracksForParticle(const TString& parName);
     Int_t GetEnergyDepositedByParticle(const TString& parName);
 
-    void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
-    void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
-    void SetPrimaryEventParticleName(TString pName) { fPrimaryParticleName.push_back(pName); }
-    void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
+    inline void SetPrimaryEventOrigin(TVector3 position) { fPrimaryEventOrigin.push_back(position); }
+    inline void SetPrimaryEventDirection(TVector3 direction) { fPrimaryEventDirection.push_back(direction); }
+    inline void SetPrimaryEventParticleName(TString parName) { fPrimaryParticleName.push_back(parName); }
+    inline void SetPrimaryEventEnergy(Double_t energy) { fPrimaryEventEnergy.push_back(energy); }
+
     void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
