@@ -21,5 +21,14 @@ using namespace std;
 
 ClassImp(TRestGeant4Particle);
 
-TRestGeant4Particle::TRestGeant4Particle() = default;
+TRestGeant4Particle::TRestGeant4Particle() : fExcitationLevel(0), fCharge(0) = {};
+
 TRestGeant4Particle::~TRestGeant4Particle() = default;
+
+TRestGeant4Particle::SetParticle(TRestGeant4Particle particle) {
+    fExcitationLevel = particle.GetExcitationLevel();
+    fParticleName = particle.GetParticleName();
+    fEnergy = particle.GetEnergy();
+    fDirection = particle.GetMomentumDirection();
+    fOrigin = particle.fOrigin;
+}

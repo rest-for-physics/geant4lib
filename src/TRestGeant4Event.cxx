@@ -29,7 +29,7 @@ using namespace std;
 
 ClassImp(TRestGeant4Event);
 
-TRestGeant4Event::TRestGeant4Event() : fNVolumes(0) { Initialize(); }
+TRestGeant4Event::TRestGeant4Event() : { Initialize(); }
 
 TRestGeant4Event::~TRestGeant4Event() = default;
 
@@ -45,6 +45,8 @@ void TRestGeant4Event::Initialize() {
     fNTracks = 0;
 
     // ClearVolumes();
+    fNVolumes = 0;
+
     fXZHitGraph = nullptr;
     fYZHitGraph = nullptr;
     fXYHitGraph = nullptr;
