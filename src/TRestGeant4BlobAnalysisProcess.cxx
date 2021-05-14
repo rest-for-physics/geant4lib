@@ -15,6 +15,9 @@
 
 #include "TRestGeant4BlobAnalysisProcess.h"
 
+#include "TRestGeant4Hits.h"
+#include "TRestGeant4Track.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4BlobAnalysisProcess);

@@ -18,9 +18,6 @@
 #include "TRestGeant4Event.h"
 
 #include <TFrame.h>
-#include <TStyle.h>
-
-#include <vector>
 
 #include "TRestStringHelper.h"
 #include "TRestTools.h"
@@ -29,7 +26,7 @@ using namespace std;
 
 ClassImp(TRestGeant4Event);
 
-TRestGeant4Event::TRestGeant4Event() : { Initialize(); }
+TRestGeant4Event::TRestGeant4Event() { Initialize(); }
 
 TRestGeant4Event::~TRestGeant4Event() = default;
 
@@ -39,7 +36,7 @@ void TRestGeant4Event::Initialize() {
     fPrimaryParticleName.clear();
     fPrimaryEventDirection.clear();
     fPrimaryEventEnergy.clear();
-    fPrimaryEventOrigin.SetXYZ(0, 0, 0);
+    fPrimaryEventOrigin.clear();
 
     fTrack.clear();
     fNTracks = 0;
@@ -330,6 +327,7 @@ void TRestGeant4Event::SetBoundaries() {
 }
 
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
+/*
 TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXYHitGraph != nullptr) {
@@ -514,6 +512,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, vector<TString
     return fYZMultiGraph;
 }
 
+
 TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXZHitGraph != nullptr) {
@@ -605,9 +604,10 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString
 
     return fXZMultiGraph;
 }
-/* }}} */
+*/
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
+/*
 TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXYHisto != nullptr) {
         delete fXYHisto;
@@ -784,8 +784,9 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, vector<TString> optLis
 
     return fYZHisto;
 }
-/* }}} */
+*/
 
+/*
 TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXHisto != nullptr) {
         delete fXHisto;
@@ -939,6 +940,8 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, vector<TString> optList
     return fYHisto;
 }
 
+*/
+
 TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) {
     vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
@@ -1060,14 +1063,15 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) {
 
     cout << "Total energy : " << fTotalDepositedEnergy << " keV" << endl;
     cout << "Sensitive volume energy : " << fSensitiveVolumeEnergy << " keV" << endl;
-    cout << "Source origin : (" << fPrimaryEventOrigin.X() << "," << fPrimaryEventOrigin.Y() << ","
-         << fPrimaryEventOrigin.Z() << ") mm" << endl;
 
     for (int n = 0; n < GetNumberOfPrimaries(); n++) {
-        TVector3* dir = &fPrimaryEventDirection[n];
         cout << "Source " << n << " Particle name : " << GetPrimaryEventParticleName(n) << endl;
-        cout << "Source " << n << " direction : (" << dir->X() << "," << dir->Y() << "," << dir->Z() << ")"
-             << endl;
+        TVector3* position = &fPrimaryEventOrigin[n];
+        cout << "Source " << n << " position : (" << position->X() << "," << position->Y() << ","
+             << position->Z() << ")" << endl;
+        TVector3* direction = &fPrimaryEventDirection[n];
+        cout << "Source " << n << " direction : (" << direction->X() << "," << direction->Y() << ","
+             << direction->Z() << ")" << endl;
         cout << "Source " << n << " energy : " << fPrimaryEventEnergy[n] << " keV" << endl;
     }
 
@@ -1094,3 +1098,19 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) {
 
     for (int n = 0; n < numberOfTracks; n++) GetTrack(n)->PrintTrack(maxHits);
 }
+
+TRestHits TRestGeant4Event::GetHitsInVolume(Int_t volID) { return GetHits(volID); }
+
+Int_t TRestGeant4Event::GetLowestTrackID() {
+    Int_t lowestID = 0;
+    if (fNTracks > 0) lowestID = GetTrack(0)->GetTrackID();
+
+    for (int i = 0; i < fNTracks; i++) {
+        TRestGeant4Track* tr = GetTrack(i);
+        if (tr->GetTrackID() < lowestID) lowestID = tr->GetTrackID();
+    }
+
+    return lowestID;
+}
+
+TRestGeant4Track* TRestGeant4Event::GetTrack(int n) { return &fTrack[n]; }

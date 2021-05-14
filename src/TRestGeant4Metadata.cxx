@@ -866,7 +866,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 void TRestGeant4Metadata::ReadBiasing() {
     TiXmlElement* biasingDefinition = GetElement("biasing");
-    if (biasingDefinition == nullptr) {
+    if (!biasingDefinition) {
         fNBiasingVolumes = 0;
         return;
     }
@@ -880,7 +880,7 @@ void TRestGeant4Metadata::ReadBiasing() {
 
         TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
-        while (biasVolumeDefinition != nullptr) {
+        while (biasVolumeDefinition) {
             TRestGeant4BiasingVolume biasVolume;
             debug << "Def : " << biasVolumeDefinition << endl;
 
@@ -1264,7 +1264,7 @@ void TRestGeant4Metadata::ReadGeneratorTreeFile(TString fName) {
             particle.SetParticleName(thisParticleName);
             particle.SetEnergy(thisParticleEnergy);
             particle.SetOrigin(thisParticlePosition);
-            particle.SetDirection(thisParticleMomentum);
+            particle.SetMomentumDirection(thisParticleMomentum);
 
             particleCollection->AddParticle(particle);
         }
@@ -1395,7 +1395,7 @@ Int_t TRestGeant4Metadata::ReadNewDecay0File(const TString& fileName) {
             momDirection = momDirection.Unit();
 
             particle.SetEnergy(1000. * energy);
-            particle.SetDirection(momDirection);
+            particle.SetMomentumDirection(momDirection);
 
             particleCollection->AddParticle(particle);
         }
@@ -1504,7 +1504,7 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(const TString& fileName) {
             momDirection = momDirection.Unit();
 
             particle.SetEnergy(1000. * energy);
-            particle.SetDirection(momDirection);
+            particle.SetMomentumDirection(momDirection);
             particle.SetOrigin(TVector3(x, y, z));
 
             particleCollection->AddParticle(particle);
@@ -1561,7 +1561,7 @@ void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
         source.SetAngularDistType("isotropic");
     }
 
-    source.SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
+    source.SetMomentumDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
 
     // Energy distribution parameters
     TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);

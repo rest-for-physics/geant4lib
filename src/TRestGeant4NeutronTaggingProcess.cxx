@@ -86,6 +86,7 @@
 ///
 
 #include "TRestGeant4NeutronTaggingProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4NeutronTaggingProcess);
@@ -98,7 +99,7 @@ TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(char* cfgFile
 }
 
 ///////////////////////////////////////////////
-/// \brief Default destructor
+/// \brief Destructor
 ///
 TRestGeant4NeutronTaggingProcess::~TRestGeant4NeutronTaggingProcess() { delete fOutputG4Event; }
 
@@ -112,12 +113,12 @@ void TRestGeant4NeutronTaggingProcess::LoadDefaultConfig() { SetTitle("Default c
 /// section name
 ///
 void TRestGeant4NeutronTaggingProcess::Initialize() {
-    fG4Metadata = NULL;
+    fG4Metadata = nullptr;
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputG4Event = NULL;
+    fInputG4Event = nullptr;
     fOutputG4Event = new TRestGeant4Event();
 }
 
@@ -223,8 +224,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) 
     Reset();
     std::map<string, Double_t> volume_energy_map;
 
-    for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-        int id = fVetoVolumeIds[i];
+    for (int id : fVetoVolumeIds) {
         string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
 
         Double_t energy = fOutputG4Event->GetEnergyDepositedInVolume(id);
@@ -244,8 +244,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) 
     // veto groups
     for (const auto& pair : fVetoGroupVolumeNames) {
         Double_t energy_veto_max_group = 0;
-        for (unsigned int i = 0; i < pair.second.size(); i++) {
-            string volume_name = pair.second[i];
+        for (auto volume_name : pair.second) {
             Double_t veto_energy = volume_energy_map[volume_name];
             if (veto_energy > energy_veto_max_group) {
                 energy_veto_max_group = veto_energy;
@@ -328,7 +327,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) 
         if (particle_name == "neutron") {
             auto hits = track->GetHits();
             for (int j = 0; j < hits->GetNumberOfHits(); j++) {
-                string process_name = (string)track->GetProcessName(hits->GetProcess(j));
+                string process_name = "";  //(string)track->GetProcessName(hits->GetProcess(j));
                 if (process_name == "nCapture") {
                     // << "Neutron capture!!!!!! " << particle_name << "trackId " << track->GetTrackID()
                     //    << " hit " << j << endl;
@@ -468,7 +467,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) 
             // check if neutron exits shielding
             auto hits = track->GetHits();
             for (int j = 0; j < hits->GetNumberOfHits(); j++) {
-                string process_name = (string)track->GetProcessName(hits->GetProcess(j));
+                string process_name = "";  //(string)track->GetProcessName(hits->GetProcess(j));
                 if (process_name == "Transportation") {
                     for (const auto& id : fShieldingVolumeIds) {
                         if (hits->GetVolumeId(j) == id) {
