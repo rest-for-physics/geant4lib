@@ -47,6 +47,7 @@ jobs:
 
     - name: Source ROOT and Geant4
       run: |
+        printenv
         source $ROOTSYS/bin/thisroot.sh
         source /opt/geant4/install/bin/geant4.sh
         
