@@ -22,22 +22,21 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+#include <TMath.h>
+#include <TRestGeant4BiasingVolume.h>
+#include <TRestGeant4ParticleSource.h>
+#include <TRestMetadata.h>
+#include <TString.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include <TMath.h>
-#include <TString.h>
-#include <TVector2.h>
-#include <TVector3.h>
-
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4PrimaryGenerator.h>
-#include <TRestMetadata.h>
 
 //------------------------------------------------------------------------------------------------------------------------
 //
@@ -161,7 +160,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
-    TRestGeant4PrimaryGenerator fPrimaryGenerator;
+    std::vector<TRestGeant4ParticleSource*> fParticleSource;  //->
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
@@ -349,33 +348,16 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfSources() { return fPrimaryGenerator.GetNumberOfSources(); }
-
-    /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfPrimaries() { return GetNumberOfSources(); }
-
-    /// Returns the particle source specified with index n.
-    TRestGeant4ParticleSource GetSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    Int_t GetNumberOfSources() { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    TRestGeant4ParticleSource GetParticleSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }
 
-    /// \brief Returns the primary generator object containning information about
-    /// particle sources.
-    TRestGeant4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
+    /// Remove all the particle sources.
+    void RemoveParticleSources();
 
-    /// \brief Places in fPrimaryGenerator the source definition, with index n,
-    /// from a TRestGeant4ParticleCollection. This will be used by restG4 to pick up
-    /// randomly a primary source definition from a pre-generated sources
-    /// collection. The particle collection needs to be previously populated using
-    /// i.e. an input Decay0 file.
-    void ReadParticleCollection(Int_t n) { fPrimaryGenerator.UpdateSourcesFromParticleCollection(n); }
-
-    /// Removes all the sources from fPrimaryGenerator.
-    void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
-
-    /// Adds a new source to fPrimaryGenerator.
-    void AddSource(TRestGeant4ParticleSource src) { fPrimaryGenerator.AddSource(src); }
+    /// Adds a new particle source.
+    void AddParticleSource(TRestGeant4ParticleSource* src);
     ///////////////////////////////////////////////////////////
 
     // Direct access to biasing volumes definition
