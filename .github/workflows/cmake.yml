@@ -47,8 +47,7 @@ jobs:
 
     - name: Source ROOT and Geant4
       run: |
-        printenv
-        source ~/.bashrc
+        source /root/.bashrc
         printenv        
         
     - name: Configure CMake (REST Framework)
