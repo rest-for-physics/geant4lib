@@ -51,7 +51,7 @@ jobs:
         printenv        
         
     - name: Configure CMake (REST Framework)
-      run: cmake -B ${{env.FRAMEWORK_PATH}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DRESTLIB_GEANT4=ON ${{env.FRAMEWORK_PATH}}
+      run: cmake -B ${{env.FRAMEWORK_PATH}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DRESTLIB_GEANT4=ON -DREST_EVE=OFF ${{env.FRAMEWORK_PATH}}
 
     - name: Make
       run: make --directory=${{env.FRAMEWORK_PATH}}/build
