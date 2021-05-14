@@ -51,6 +51,7 @@ jobs:
         printenv    
         apt update
         apt-cache search libtbb
+        apt install -y libtbb-dev
         
     - name: Configure CMake (REST Framework)
       run: |
