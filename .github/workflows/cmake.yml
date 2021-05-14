@@ -12,7 +12,7 @@ env:
   
 defaults:
   run:
-    shell: bash -i
+    shell: bash -ieo pipefail {0}
     
 jobs:
   build:
