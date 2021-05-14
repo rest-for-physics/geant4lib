@@ -17,9 +17,11 @@
 
 #include "TRestGeant4Hits.h"
 
+using namespace std;
+
 ClassImp(TRestGeant4Hits);
 
-TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {}
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() = default;
 
 TRestGeant4Hits::~TRestGeant4Hits() = default;
 

@@ -662,7 +662,6 @@
 /// <hr>
 ///
 #include "TRestGeant4Metadata.h"
-using namespace std;
 
 #include <TFile.h>
 #include <TGeoManager.h>
@@ -671,6 +670,8 @@ using namespace std;
 #include <utility>
 
 #include "TRestGDMLParser.h"
+
+using namespace std;
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {

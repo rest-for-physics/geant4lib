@@ -14,14 +14,15 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestGeant4ParticleSource
-#define RestCore_TRestGeant4ParticleSource
-
-#include <iostream>
+#ifndef RestGeant4Lib_TRestGeant4ParticleSource
+#define RestGeant4Lib_TRestGeant4ParticleSource
 
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
+
+#include <iostream>
+
 #include "TObject.h"
 //
 #include <TRestGeant4Particle.h>

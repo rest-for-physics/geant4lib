@@ -16,19 +16,14 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4BiasingVolume.h"
+
 using namespace std;
 
-ClassImp(TRestGeant4BiasingVolume)
-    //______________________________________________________________________________
-    TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
-    fBiasingVolumeType = "virtualBox";
-    // TRestGeant4BiasingVolume default constructor
-}
+ClassImp(TRestGeant4BiasingVolume);
 
-//______________________________________________________________________________
-TRestGeant4BiasingVolume::~TRestGeant4BiasingVolume() {
-    // TRestGeant4BiasingVolume destructor
-}
+TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() { fBiasingVolumeType = "virtualBox"; }
+
+TRestGeant4BiasingVolume::~TRestGeant4BiasingVolume() = default;
 
 void TRestGeant4BiasingVolume::PrintBiasingVolume() {
     cout << "-----------------------------" << endl;

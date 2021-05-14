@@ -16,15 +16,10 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4Particle.h"
+
 using namespace std;
 
-ClassImp(TRestGeant4Particle)
-    //______________________________________________________________________________
-    TRestGeant4Particle::TRestGeant4Particle() {
-    // TRestGeant4Particle default constructor
-}
+ClassImp(TRestGeant4Particle);
 
-//______________________________________________________________________________
-TRestGeant4Particle::~TRestGeant4Particle() {
-    // TRestGeant4Particle destructor
-}
+TRestGeant4Particle::TRestGeant4Particle() = default;
+TRestGeant4Particle::~TRestGeant4Particle() = default;

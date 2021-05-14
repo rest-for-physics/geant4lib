@@ -16,9 +16,10 @@
 ///                 Javier Galan
 ///_______________________________________________________________________________
 
+#include "TRestGeant4PhysicsLists.h"
+
 #include "TRestTools.h"
 
-#include "TRestGeant4PhysicsLists.h"
 using namespace std;
 
 ClassImp(TRestGeant4PhysicsLists)

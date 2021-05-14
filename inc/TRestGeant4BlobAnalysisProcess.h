@@ -9,8 +9,8 @@
 ///
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestGeant4BlobAnalysisProcess
-#define RestCore_TRestGeant4BlobAnalysisProcess
+#ifndef RestGeant4Lib_TRestGeant4BlobAnalysisProcess
+#define RestGeant4Lib_TRestGeant4BlobAnalysisProcess
 
 #include <TRestGeant4Event.h>
 #include <TRestGeant4Metadata.h>

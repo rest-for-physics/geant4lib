@@ -14,20 +14,19 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestGeant4PhysicsLists
-#define RestCore_TRestGeant4PhysicsLists
+#ifndef RestGeant4Lib_TRestGeant4PhysicsLists
+#define RestGeant4Lib_TRestGeant4PhysicsLists
 
+#include <TRestMetadata.h>
+#include <TString.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include <TString.h>
-
-#include <TRestMetadata.h>
 
 class TRestGeant4PhysicsLists : public TRestMetadata {
    private:

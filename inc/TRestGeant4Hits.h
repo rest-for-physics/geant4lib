@@ -15,14 +15,12 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestGeant4Hits
-#define RestCore_TRestGeant4Hits
+#ifndef RestGeant4Lib_TRestGeant4Hits
+#define RestGeant4Lib_TRestGeant4Hits
 
 #include <TArrayF.h>
 #include <TArrayI.h>
 #include <TRestHits.h>
-
-#include <iostream>
 
 #include "TObject.h"
 

@@ -13,8 +13,8 @@
 ///
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef RestCore_TRestGeant4Particle
-#define RestCore_TRestGeant4Particle
+#ifndef RestGeant4Lib_TRestGeant4Particle
+#define RestGeant4Lib_TRestGeant4Particle
 
 #include <TObject.h>
 #include <TString.h>

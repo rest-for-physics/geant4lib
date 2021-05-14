@@ -13,8 +13,8 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestGeant4Track
-#define RestCore_TRestGeant4Track
+#ifndef RestGeant4Lib_TRestGeant4Track
+#define RestGeant4Lib_TRestGeant4Track
 
 #include <TArrayI.h>
 #include <TColor.h>
@@ -107,7 +107,7 @@ class TRestGeant4Track : public TObject {
     //    Int_t GetElement( Int_t n ) { return X.At(n); }
 
     //    Int_t GetParticleID();
-    // Construtor
+    // Constructor
     TRestGeant4Track();
     // Destructor
     virtual ~TRestGeant4Track();

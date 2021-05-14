@@ -1,11 +1,12 @@
+
 #include "TRestGeant4ParticleCollectionDecay0.h"
 
 ClassImp(TRestGeant4ParticleCollectionDecay0)
 
-    void TRestGeant4ParticleCollectionDecay0::SetParticleModel(std::string modelstring) {
+    void TRestGeant4ParticleCollectionDecay0::SetParticleModel(std::string modelString) {
     cout << "Initializing decay0 model, seed: " << (uintptr_t)this << endl;
 
-    fElement = StringToElement(modelstring);
+    fElement = StringToElement(modelString);
     fElementGlobal = NULL;
     InitFromConfigFile();
 }

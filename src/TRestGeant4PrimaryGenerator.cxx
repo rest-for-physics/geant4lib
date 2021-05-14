@@ -16,6 +16,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4PrimaryGenerator.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4PrimaryGenerator)

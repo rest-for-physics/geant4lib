@@ -22,6 +22,7 @@ using namespace std;
 ClassImp(TRestGeant4Track);
 
 TRestGeant4Track::TRestGeant4Track() = default;
+
 TRestGeant4Track::~TRestGeant4Track() = default;
 
 EColor TRestGeant4Track::GetParticleColor() {

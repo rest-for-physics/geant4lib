@@ -207,6 +207,7 @@
 /// <hr>
 ///
 #include "TRestGeant4AnalysisProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4AnalysisProcess);
@@ -215,6 +216,11 @@ ClassImp(TRestGeant4AnalysisProcess);
 /// \brief Default constructor
 ///
 TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() { delete fOutputG4Event; }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -233,11 +239,6 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* cfgFileName) {
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
-
-///////////////////////////////////////////////
-/// \brief Default destructor
-///
-TRestGeant4AnalysisProcess::~TRestGeant4AnalysisProcess() { delete fOutputG4Event; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input

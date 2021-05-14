@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestGeant4Event
-#define RestCore_TRestGeant4Event
+#ifndef RestGeant4Lib_TRestGeant4Event
+#define RestGeant4Lib_TRestGeant4Event
 
 #include <TGraph.h>
 #include <TGraph2D.h>

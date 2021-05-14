@@ -12,11 +12,10 @@
 ///                 Javier Galan/JuanAn Garcia
 ///_______________________________________________________________________________
 
-#ifndef RestCore_TRestGeant4EventViewer
-#define RestCore_TRestGeant4EventViewer
+#ifndef RestGeant4Lib_TRestGeant4EventViewer
+#define RestGeant4Lib_TRestGeant4EventViewer
 
 #include "TRestEveEventViewer.h"
-
 #include "TRestGeant4Event.h"
 
 class TRestGeant4EventViewer : public TRestEveEventViewer {

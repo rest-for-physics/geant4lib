@@ -1,5 +1,5 @@
-#ifndef RestCore_TRestGeant4ParticleCollectionD0
-#define RestCore_TRestGeant4ParticleCollectionD0
+#ifndef RestGeant4Lib_TRestGeant4ParticleCollectionD0
+#define RestGeant4Lib_TRestGeant4ParticleCollectionD0
 
 #include <TRestGeant4Particle.h>
 #include <bxdecay0/decay0_generator.h>

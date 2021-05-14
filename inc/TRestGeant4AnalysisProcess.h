@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestGeant4AnalysisProcess
-#define RestCore_TRestGeant4AnalysisProcess
+#ifndef RestGeant4Lib_TRestGeant4AnalysisProcess
+#define RestGeant4Lib_TRestGeant4AnalysisProcess
 
 #include <TRestGeant4Event.h>
 #include <TRestGeant4Metadata.h>
@@ -81,7 +81,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
 
     /// A high energy cut. Events above the threshold will be not further processed.
     Double_t fHighEnergyCut;
-    
+
     void InitFromConfigFile();
 
     void Initialize();

@@ -13,19 +13,17 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4EventViewer.h"
+
 #include "TRestStringOutput.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4EventViewer);
-//______________________________________________________________________________
+
 TRestGeant4EventViewer::TRestGeant4EventViewer() { Initialize(); }
 
-//______________________________________________________________________________
-TRestGeant4EventViewer::~TRestGeant4EventViewer() {
-    // TRestGeant4EventViewer destructor
-}
+TRestGeant4EventViewer::~TRestGeant4EventViewer() = default;
 
-//______________________________________________________________________________
 void TRestGeant4EventViewer::Initialize() {
     fG4Event = new TRestGeant4Event();
     fEvent = fG4Event;
@@ -62,9 +60,6 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
             Double_t eDep = g4Hits->GetEnergy(j);
             if (eDep > eDepMax) eDepMax = eDep;
             if (eDep < eDepMin) eDepMin = eDep;
-
-            // cout<<" track "<<i<<" hit "<<j<<" eDep "<<eDep<<endl;
-
             totalEDep += eDep;
         }
     }
@@ -135,8 +130,6 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
             }
         }
     }
-    // cout << "Updating" << endl;
-
     Update();
 }
 

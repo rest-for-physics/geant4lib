@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestGeant4NeutronTaggingProcess
-#define RestCore_TRestGeant4NeutronTaggingProcess
+#ifndef RestGeant4Lib_TRestGeant4NeutronTaggingProcess
+#define RestGeant4Lib_TRestGeant4NeutronTaggingProcess
 
 #include <TRestGeant4Event.h>
 #include <TRestGeant4Metadata.h>
@@ -162,4 +162,4 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
 
     ClassDef(TRestGeant4NeutronTaggingProcess, 1);
 };
-#endif  // RestCore_TRestGeant4NeutronTaggingProcess
+#endif  // RestGeant4Lib_TRestGeant4NeutronTaggingProcess
