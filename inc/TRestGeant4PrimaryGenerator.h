@@ -37,9 +37,8 @@ class TRestGeant4PrimaryGenerator : public TObject {
     Int_t fNCollections;
 
     // storing particle generator information
-    // each entry --> one event template��
-    // in restG4, we randomly pick the template from its entries and refresh
-    // fSources
+    // each entry --> one event template
+    // in restG4, we randomly pick the template from its entries and refresh fSources
     std::vector<TRestGeant4ParticleCollection*> fParticleCollections;  //!
 
    public:
@@ -58,7 +57,7 @@ class TRestGeant4PrimaryGenerator : public TObject {
     /// accordingly. Used in TRestGeant4Metadata::ReadParticleCollection
     void UpdateSourcesFromParticleCollection(Int_t n);
 
-    // Construtor
+    // Constructor
     TRestGeant4PrimaryGenerator();
     // Destructor
     virtual ~TRestGeant4PrimaryGenerator();
