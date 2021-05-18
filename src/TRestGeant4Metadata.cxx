@@ -684,12 +684,17 @@ map<string, generator_types> generator_types_map = {
     {CleanString("custom"), generator_types::CUSTOM},
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
-    {CleanString("point"), generator_types::POINT},
-    {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
-    {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
-    {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
-    {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
-    {CleanString("virtualCylinder"), generator_types::VIRTUAL_CYLINDER},
+
+};
+
+std::map<string, generator_shapes> generator_shapes_map = {
+    {CleanString("gdml"), generator_shapes::GDML},         
+    {CleanString("point"), generator_shapes::POINT},
+    {CleanString("wall"), generator_shapes::WALL},         
+    {CleanString("plate"), generator_shapes::PLATE},
+    {CleanString("box"), generator_shapes::BOX},           
+    {CleanString("sphere"), generator_shapes::SPHERE},
+    {CleanString("cylinder"), generator_shapes::CYLINDER},
 };
 
 map<string, energy_dist_types> energy_dist_types_map = {
@@ -752,8 +757,6 @@ void TRestGeant4Metadata::Initialize() {
     fBiasingVolumes.clear();
 
     fNBiasingVolumes = 0;
-
-    fGeneratorFile = "";
 
     RemoveParticleSources();
 
@@ -935,34 +938,19 @@ void TRestGeant4Metadata::ReadGenerator() {
     // center of the volume (i.e. gasTarget) but if i.e rotation or side are
     // defined and not relevant we should set it to -1
 
-    TiXmlElement* generatorDefinition = GetElement("generator");
+     TiXmlElement* generatorDefinition = GetElement("generator");
 
-    fGenType = GetFieldValue("type", generatorDefinition);
-    fGenFrom = GetFieldValue("from", generatorDefinition);
-    string dimension1[3]{"size", "lenX", "radius"};
-    for (int i = 0; i < 3; i++) {
-        fGenDimension1 = GetDblParameterWithUnits(dimension1[i], generatorDefinition);
-        if (fGenDimension1 != PARAMETER_NOT_FOUND_DBL) {
-            if (dimension1[i] == "size") fGenDimension2 = fGenDimension1;
-            break;
-        }
+    fGenType = GetParameter("type", generatorDefinition, "volume");
+    fGenShape = GetParameter("shape", generatorDefinition, "box");
+    fGenFrom = GetParameter("from", generatorDefinition);
+    if (fGenFrom != PARAMETER_NOT_FOUND_STR) {
+        fGenShape = "gdml";
     }
-
-    // TODO : If not defined (and required to be) it just returns (0,0,0) we
-    // should make a WARNING. Inside StringToVector probably
+    fGenSize = StringTo3DVector(GetParameter("size", generatorDefinition));
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
-
-    fGenRotation = StringTo3DVector(GetParameter("rotation", generatorDefinition));
-
-    string dimension2[2]{"length", "lenY"};
-    for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 = GetDblParameterWithUnits(dimension2[i], generatorDefinition);
-        if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
-            fGenDimension2 = tmpDim2;
-            break;
-        }
-    }
-
+    fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
+    fGenRotationDegree = StringToDouble(GetParameter("rotationDeg", generatorDefinition, "0"));
+    fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
     while (sourceDefinition != NULL) {
@@ -974,7 +962,6 @@ void TRestGeant4Metadata::ReadGenerator() {
 
         sourceDefinition = GetNextElement(sourceDefinition);
     }
-
 
     // check if the generator is valid.
     if (GetNumberOfSources() == 0) {
@@ -1179,24 +1166,36 @@ void TRestGeant4Metadata::PrintMetadata() {
     else
         metadata << "Register empty tracks was NOT enabled" << endl;
     metadata << "**********Generator**********" << endl;
-    TString generatorType = GetGeneratorType();
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
-    metadata << "Generator type : " << generatorType << endl;
-    metadata << "Generated from : " << GetGeneratedFrom() << endl;
+    metadata << "Generator type : " << fGenType << endl;
+    metadata << "Generator shape : " << fGenShape;
+    if (fGenShape == "gdml") {
+        metadata << "::" << GetGDMLGeneratorVolume() << endl;
+    } else {
+        if (fGenShape == "box") {
+            metadata << ", (length, width, height): ";
+        } else if (fGenShape == "sphere") {
+            metadata << ", (radius, , ): ";
+        } else if (fGenShape == "wall") {
+            metadata << ", (length, width, ): ";
+        } else if (fGenShape == "plate") {
+            metadata << ", (radius, , ): ";
+        } else if (fGenShape == "cylinder") {
+            metadata << ", (radius, length, ): ";
+        }
+
+        if (fGenShape != "point") {
+            TVector3 s = GetGeneratorSize();
+            metadata << s.X() << ", " << s.Y() << ", " << s.Z() << endl;
+        } else {
+            metadata << endl;
+        }
+    }
     TVector3 a = GetGeneratorPosition();
     metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
-    TVector3 b = GetGeneratorRotation();
-    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
-    if (generatorType == "virtualSphere")
-        metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
-    else if (generatorType == "virtualWall") {
-        metadata << "Generator lenX : " << GetGeneratorLenX() << " mm" << endl;
-        metadata << "Generator lenY : " << GetGeneratorLenY() << " mm" << endl;
-    } else if (generatorType == "virtualCylinder") {
-        metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
-        metadata << "Generator length : " << GetGeneratorLength() << " mm" << endl;
-    } else if (generatorType == "virtualBox")
-        metadata << "Generator size : " << GetGeneratorSize() << " mm" << endl;
+    TVector3 b = GetGeneratorRotationAxis();
+    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
+             << "), degree: " << GetGeneratorRotationDegree() << endl;
 
     for (int i = 0; i < GetNumberOfSources(); i++) {
         GetParticleSource(i)->PrintParticleSource();
