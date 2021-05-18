@@ -38,7 +38,7 @@ TRestGeant4ParticleCollection* TRestGeant4ParticleCollection::instantiate(string
         // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestGeant4ParticleCollection" + model).c_str());
-        if (!c)  // this means we have the package installed
+        if (c)  // this means we have the package installed
         {
             return (TRestGeant4ParticleCollection*)c->New();
         } else {
