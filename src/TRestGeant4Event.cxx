@@ -1,6 +1,5 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -13,7 +12,8 @@
 ///                 Created as part of the conceptualization of existing REST
 ///                 software.
 ///                 Javier Galan
-///_______________________________________________________________________________
+///
+///______________________________________________________________________________
 
 #include "TRestGeant4Event.h"
 
@@ -26,7 +26,7 @@
 using namespace std;
 
 ClassImp(TRestGeant4Event);
-//______________________________________________________________________________
+
 TRestGeant4Event::TRestGeant4Event() {
     fNVolumes = 0;
     // TRestGeant4Event default constructor
@@ -34,10 +34,7 @@ TRestGeant4Event::TRestGeant4Event() {
     Initialize();
 }
 
-//______________________________________________________________________________
-TRestGeant4Event::~TRestGeant4Event() {
-    // TRestGeant4Event destructor
-}
+TRestGeant4Event::~TRestGeant4Event() = default;
 
 void TRestGeant4Event::Initialize() {
     TRestEvent::Initialize();

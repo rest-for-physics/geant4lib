@@ -14,38 +14,33 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4BlobAnalysisProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4BlobAnalysisProcess);
-//______________________________________________________________________________
 TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess() { Initialize(); }
 
-//______________________________________________________________________________
 TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* cfgFileName) {
     Initialize();
 
     if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
 TRestGeant4BlobAnalysisProcess::~TRestGeant4BlobAnalysisProcess() { delete fG4Event; }
 
 void TRestGeant4BlobAnalysisProcess::LoadDefaultConfig() { SetTitle("Default config"); }
 
-//______________________________________________________________________________
 void TRestGeant4BlobAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
     fG4Event = new TRestGeant4Event();
-    /// fOutputG4Event = new TRestGeant4Event();
 }
 
 void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
-//______________________________________________________________________________
 void TRestGeant4BlobAnalysisProcess::InitProcess() {
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
@@ -68,7 +63,6 @@ void TRestGeant4BlobAnalysisProcess::InitProcess() {
     fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 }
 
-//______________________________________________________________________________
 TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     *fG4Event = *((TRestGeant4Event*)evInput);
 
@@ -186,7 +180,6 @@ TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     return fG4Event;
 }
 
-//______________________________________________________________________________
 void TRestGeant4BlobAnalysisProcess::EndProcess() {
     // Function to be executed once at the end of the process
     // (after all events have been processed)
@@ -196,5 +189,4 @@ void TRestGeant4BlobAnalysisProcess::EndProcess() {
     // TRestEventProcess::EndProcess();
 }
 
-//______________________________________________________________________________
 void TRestGeant4BlobAnalysisProcess::InitFromConfigFile() {}

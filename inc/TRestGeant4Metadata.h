@@ -24,7 +24,6 @@
 #define RestCore_TRestGeant4Metadata
 
 #include <TMath.h>
-#include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
@@ -39,6 +38,7 @@
 
 #include "TRestGeant4BiasingVolume.h"
 #include "TRestGeant4PrimaryGenerator.h"
+#include "TRestMetadata.h"
 
 //------------------------------------------------------------------------------------------------------------------------
 //

@@ -1,6 +1,5 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -13,21 +12,18 @@
 ///                 Created as part of the conceptualization of existing REST
 ///                 software.
 ///                 J. Galan
+///
 ///_______________________________________________________________________________
 
 #include "TRestGeant4Hits.h"
 
 ClassImp(TRestGeant4Hits);
 
-//______________________________________________________________________________
 TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
     // TRestGeant4Hits default constructor
 }
 
-//______________________________________________________________________________
-TRestGeant4Hits::~TRestGeant4Hits() {
-    // TRestGeant4Hits destructor
-}
+TRestGeant4Hits::~TRestGeant4Hits() = default;
 
 void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
                                Int_t volume, Double_t eKin, TVector3 momentumDirection) {

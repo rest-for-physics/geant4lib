@@ -207,6 +207,7 @@
 /// <hr>
 ///
 #include "TRestGeant4AnalysisProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4AnalysisProcess);

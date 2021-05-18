@@ -12,8 +12,7 @@
 #ifndef RestCore_TRestGeant4BlobAnalysisProcess
 #define RestCore_TRestGeant4BlobAnalysisProcess
 
-#include <TRestEventProcess.h>
-
+#include "TRestEventProcess.h"
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 

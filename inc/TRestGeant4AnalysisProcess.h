@@ -23,8 +23,7 @@
 #ifndef RestCore_TRestGeant4AnalysisProcess
 #define RestCore_TRestGeant4AnalysisProcess
 
-#include <TRestEventProcess.h>
-
+#include "TRestEventProcess.h"
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 

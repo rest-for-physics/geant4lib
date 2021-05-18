@@ -1,6 +1,5 @@
 ///______________________________________________________________________________
 ///______________________________________________________________________________
-///______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -10,22 +9,21 @@
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestGeant4Event
 ///                 Javier Galan/JuanAn Garcia
+///
 ///_______________________________________________________________________________
 
 #include "TRestGeant4EventViewer.h"
+
 #include "TRestStringOutput.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4EventViewer);
-//______________________________________________________________________________
+
 TRestGeant4EventViewer::TRestGeant4EventViewer() { Initialize(); }
 
-//______________________________________________________________________________
-TRestGeant4EventViewer::~TRestGeant4EventViewer() {
-    // TRestGeant4EventViewer destructor
-}
+TRestGeant4EventViewer::~TRestGeant4EventViewer() = default;
 
-//______________________________________________________________________________
 void TRestGeant4EventViewer::Initialize() {
     fG4Event = new TRestGeant4Event();
     fEvent = fG4Event;
@@ -35,7 +33,7 @@ void TRestGeant4EventViewer::Initialize() {
 }
 
 void TRestGeant4EventViewer::DeleteCurrentEvent() {
-    // cout<<"Removing event"<<endl;
+    // cout << "Removing event" << endl;
 
     TRestEveEventViewer::DeleteCurrentEvent();
 

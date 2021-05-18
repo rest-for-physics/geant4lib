@@ -15,8 +15,7 @@
 #ifndef RestCore_TRestGeant4EventViewer
 #define RestCore_TRestGeant4EventViewer
 
-#include <TRestEveEventViewer.h>
-
+#include "TRestEveEventViewer"
 #include "TRestGeant4Event.h"
 
 class TRestGeant4EventViewer : public TRestEveEventViewer {

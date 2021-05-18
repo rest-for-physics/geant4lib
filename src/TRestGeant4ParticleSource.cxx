@@ -15,30 +15,16 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-//#include "TFile.h"
-
 #include "TRestGeant4ParticleSource.h"
+
 #include "TRestStringOutput.h"
+
 using namespace std;
 
-// REST_Verbose_Level fLevel = REST_Essential;  //!
-////	TRestLeveledOutput(REST_Verbose_Level& vref, string _color =
-//// COLOR_RESET, string BorderOrHeader = "", REST_Display_Format style =
-//// kBorderedLeft)
-// TRestLeveledOutput<REST_Essential> metadata =
-//    TRestLeveledOutput<REST_Essential>(fLevel, COLOR_BOLDGREEN, "||",
-//                                       (REST_Display_Format)kBorderedMiddle);  //!
+ClassImp(TRestGeant4ParticleSource);
+TRestGeant4ParticleSource::TRestGeant4ParticleSource() = default;
 
-ClassImp(TRestGeant4ParticleSource)
-    //______________________________________________________________________________
-    TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
-    // TRestGeant4ParticleSource default constructor
-}
-
-//______________________________________________________________________________
-TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
-    // TRestGeant4ParticleSource destructor
-}
+TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 
 void TRestGeant4ParticleSource::PrintParticleSource() {
     metadata << "---------------------------------------" << endl;

@@ -23,8 +23,7 @@
 #ifndef RestCore_TRestGeant4NeutronTaggingProcess
 #define RestCore_TRestGeant4NeutronTaggingProcess
 
-#include <TRestEventProcess.h>
-
+#include "TRestEventProcess.h"
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 

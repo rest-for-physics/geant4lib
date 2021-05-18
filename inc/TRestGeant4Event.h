@@ -30,12 +30,12 @@
 #include <TLegend.h>
 #include <TMultiGraph.h>
 #include <TObject.h>
-#include <TRestEvent.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <map>
 
+#include "TRestEvent.h"
 #include "TRestGeant4Track.h"
 
 /// An event class to store geant4 generated event information

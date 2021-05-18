@@ -16,16 +16,16 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4PrimaryGenerator.h"
+
 using namespace std;
 
-ClassImp(TRestGeant4PrimaryGenerator)
-    //______________________________________________________________________________
-    TRestGeant4PrimaryGenerator::TRestGeant4PrimaryGenerator() {
+ClassImp(TRestGeant4PrimaryGenerator);
+
+TRestGeant4PrimaryGenerator::TRestGeant4PrimaryGenerator() {
     // TRestGeant4PrimaryGenerator default constructor
     Reset();
 }
 
-//______________________________________________________________________________
 TRestGeant4PrimaryGenerator::~TRestGeant4PrimaryGenerator() {}
 
 void TRestGeant4PrimaryGenerator::Reset() {

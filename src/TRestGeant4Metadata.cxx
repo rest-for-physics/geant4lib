@@ -661,12 +661,14 @@
 ///
 /// <hr>
 ///
+
 #include "TRestGeant4Metadata.h"
-using namespace std;
 
 #include <TGeoManager.h>
 
 #include "TRestGDMLParser.h"
+
+using namespace std;
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {
@@ -779,7 +781,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
