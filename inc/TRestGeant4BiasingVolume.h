@@ -16,10 +16,11 @@
 #ifndef RestCore_TRestGeant4BiasingVolume
 #define RestCore_TRestGeant4BiasingVolume
 
-#include <iostream>
+#include <TObject.h>
+#include <TString.h>
+#include <TVector3.h>
 
-#include "TObject.h"
-#include "TVector3.h"
+#include <iostream>
 
 class TRestGeant4BiasingVolume : public TObject {
    protected:

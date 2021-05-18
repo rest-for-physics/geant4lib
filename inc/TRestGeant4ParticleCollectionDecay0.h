@@ -1,14 +1,14 @@
 #ifndef RestCore_TRestGeant4ParticleCollectionD0
 #define RestCore_TRestGeant4ParticleCollectionD0
 
-#include <TRestGeant4Particle.h>
+#include <TObject.h>
 #include <bxdecay0/decay0_generator.h>
 #include <bxdecay0/event.h>
 #include <bxdecay0/std_random.h>
 
 #include <iostream>
 
-#include "TObject.h"
+#include "TRestGeant4Particle.h"
 #include "TRestGeant4ParticleCollection.h"
 #include "TRestMetadata.h"
 

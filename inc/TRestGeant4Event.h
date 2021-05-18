@@ -31,11 +31,12 @@
 #include <TMultiGraph.h>
 #include <TObject.h>
 #include <TRestEvent.h>
-#include <TRestGeant4Track.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <map>
+
+#include "TRestGeant4Track.h"
 
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
@@ -123,8 +124,6 @@ class TRestGeant4Event : public TRestEvent {
     }
 
    protected:
-#ifndef __CINT__
-
     // TODO These graphs should be placed in TRestTrack?
     // (following GetGraph implementation in TRestDetectorSignal)
     TGraph* fXZHitGraph;  //!
@@ -171,7 +170,6 @@ class TRestGeant4Event : public TRestEvent {
     TH1D* GetXHistogram(Int_t gridElement, std::vector<TString> optList);
     TH1D* GetYHistogram(Int_t gridElement, std::vector<TString> optList);
     TH1D* GetZHistogram(Int_t gridElement, std::vector<TString> optList);
-#endif
 
     TVector3 fPrimaryEventOrigin;
 

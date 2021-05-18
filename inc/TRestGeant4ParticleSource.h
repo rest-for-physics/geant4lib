@@ -17,14 +17,14 @@
 #ifndef RestCore_TRestGeant4ParticleSource
 #define RestCore_TRestGeant4ParticleSource
 
-#include <iostream>
-
+#include <TObject.h>
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
-#include "TObject.h"
-//
-#include <TRestGeant4Particle.h>
+
+#include <iostream>
+
+#include "TRestGeant4Particle.h"
 
 class TRestGeant4ParticleSource : public TRestGeant4Particle {
    protected:

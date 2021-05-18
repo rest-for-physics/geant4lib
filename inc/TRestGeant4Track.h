@@ -18,14 +18,14 @@
 
 #include <TArrayI.h>
 #include <TColor.h>
-#include <TRestGeant4Hits.h>
+#include <TObject.h>
 #include <TString.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <vector>
 
-#include "TObject.h"
+#include "TRestGeant4Hits.h"
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future
 // need)

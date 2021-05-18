@@ -23,10 +23,10 @@
 #ifndef RestCore_TRestGeant4AnalysisProcess
 #define RestCore_TRestGeant4AnalysisProcess
 
-#include <TRestGeant4Event.h>
-#include <TRestGeant4Metadata.h>
+#include <TRestEventProcess.h>
 
-#include "TRestEventProcess.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 
 //! A pure analysis process to extract information from a TRestGeant4Event
 class TRestGeant4AnalysisProcess : public TRestEventProcess {

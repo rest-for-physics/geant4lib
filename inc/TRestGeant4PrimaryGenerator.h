@@ -16,14 +16,14 @@
 #ifndef RestCore_TRestGeant4PrimaryGenerator
 #define RestCore_TRestGeant4PrimaryGenerator
 
-#include <TRestGeant4ParticleCollection.h>
-#include <TRestGeant4ParticleSource.h>
+#include <TObject.h>
 #include <TString.h>
 #include <TVector3.h>
 
 #include <iostream>
 
-#include "TObject.h"
+#include "TRestGeant4ParticleCollection.h"
+#include "TRestGeant4ParticleSource.h"
 
 class TRestGeant4PrimaryGenerator : public TObject {
    protected:
@@ -37,7 +37,7 @@ class TRestGeant4PrimaryGenerator : public TObject {
     Int_t fNCollections;
 
     // storing particle generator information
-    // each entry --> one event template¡£
+    // each entry --> one event templateï¿½ï¿½
     // in restG4, we randomly pick the template from its entries and refresh
     // fSources
     std::vector<TRestGeant4ParticleCollection*> fParticleCollections;  //!

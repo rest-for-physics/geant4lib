@@ -12,14 +12,13 @@
 #ifndef RestCore_TRestGeant4BlobAnalysisProcess
 #define RestCore_TRestGeant4BlobAnalysisProcess
 
-#include <TRestGeant4Event.h>
-#include <TRestGeant4Metadata.h>
+#include <TRestEventProcess.h>
 
-#include "TRestEventProcess.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 
 class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
    private:
-#ifndef __CINT__
     TRestGeant4Event* fG4Event;        //!
     TRestGeant4Metadata* fG4Metadata;  //!
 
@@ -28,7 +27,6 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
 
     std::vector<std::string> fQ2_Observables;  //!
     std::vector<double> fQ2_Radius;            //!
-#endif
 
     void InitFromConfigFile();
 

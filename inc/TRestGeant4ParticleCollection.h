@@ -16,11 +16,11 @@
 #ifndef RestCore_TRestGeant4ParticleCollection
 #define RestCore_TRestGeant4ParticleCollection
 
+#include <TObject.h>
+
 #include <iostream>
 
-#include "TObject.h"
-
-#include <TRestGeant4Particle.h>
+#include "TRestGeant4Particle.h"
 
 class TRestGeant4ParticleCollection : public TObject {
    protected:
@@ -43,7 +43,7 @@ class TRestGeant4ParticleCollection : public TObject {
     virtual void RemoveParticles() { fParticles.clear(); }
     virtual void AddParticle(TRestGeant4Particle ptcle) { fParticles.push_back(ptcle); }
 
-    // Construtor
+    // Constructor
     TRestGeant4ParticleCollection();
     // Destructor
     virtual ~TRestGeant4ParticleCollection();

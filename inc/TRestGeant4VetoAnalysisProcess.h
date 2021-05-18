@@ -23,10 +23,10 @@
 #ifndef RestCore_TRestGeant4VetoAnalysisProcess
 #define RestCore_TRestGeant4VetoAnalysisProcess
 
-#include <TRestGeant4Event.h>
-#include <TRestGeant4Metadata.h>
+#include <TRestEventProcess.h>
 
-#include "TRestEventProcess.h"
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 
 class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
    private:

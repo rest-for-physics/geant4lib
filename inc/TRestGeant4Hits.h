@@ -20,11 +20,10 @@
 
 #include <TArrayF.h>
 #include <TArrayI.h>
+#include <TObject.h>
 #include <TRestHits.h>
 
 #include <iostream>
-
-#include "TObject.h"
 
 class TRestGeant4Hits : public TRestHits {
    protected:
