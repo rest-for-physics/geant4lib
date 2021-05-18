@@ -90,6 +90,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void InitFromConfigFile();
 
     void ReadGenerator();
+    void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
 
     void ReadStorage();
     void ReadBiasing();

@@ -963,36 +963,18 @@ void TRestGeant4Metadata::ReadGenerator() {
         }
     }
 
+
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
     while (sourceDefinition != NULL) {
-        fGeneratorFile = GetFieldValue("fromFile", sourceDefinition);
+        string use = GetParameter("use", sourceDefinition, "");
 
-        if (fGeneratorFile != "Not defined") {
-            info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
-            ReadEventDataFile(fGeneratorFile);
-            break;
-        }
+        TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
+        ReadParticleSource(source, sourceDefinition);
+        AddParticleSource(source);
 
-        string use = GetFieldValue("use", sourceDefinition);
-        if (use.find(".dat") != -1) {
-            fGeneratorFile = use;
-            info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
-            ReadEventDataFile(fGeneratorFile);
-        } else if (use == "geant4" || use == "" || use == "Not defined") {
-            info << "Adding sources to geant4" << endl;
-            ReadParticleSource(sourceDefinition);
-        } else {
-            info << "Load custom sources from " << use << endl;
-            TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
-            //source->SetAngularDistType("flux");
-            //source->SetEnergyDistType("mono");
-            if (source != NULL) {
-                source->Config(ElementToString(sourceDefinition));
-                AddParticleSource(source);
-            }
-        }
         sourceDefinition = GetNextElement(sourceDefinition);
     }
+
 
     // check if the generator is valid.
     if (GetNumberOfSources() == 0) {
@@ -1000,6 +982,66 @@ void TRestGeant4Metadata::ReadGenerator() {
         exit(1);
     }
 }
+
+///////////////////////////////////////////////
+/// \brief It reads the <source definition given by argument
+///
+void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, TiXmlElement* definition) {
+    TiXmlElement* sourceDefinition = definition;
+
+    source->SetParticleName(GetParameter("particle", sourceDefinition));
+
+    source->SetExcitationLevel(StringToDouble(GetParameter("excitedLevel", sourceDefinition)));
+
+    Int_t charge = 0;
+    if (GetParameter("charge", sourceDefinition) == PARAMETER_NOT_FOUND_STR)
+        charge = 0;
+    else
+        charge = StringToInteger(GetParameter("charge", sourceDefinition));
+
+    source->SetParticleCharge(charge);
+
+    TString fullChain = GetParameter("fullChain", sourceDefinition);
+
+    if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN") {
+        SetFullChain(true);
+    } else {
+        SetFullChain(false);
+    }
+
+    // Angular distribution parameters
+    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
+    source->SetAngularDistType(GetParameter("type", angularDefinition, "flux"));
+    if (source->GetAngularDistType() == "TH1D") {
+        source->SetAngularFilename(SearchFile(GetParameter("file", angularDefinition)));
+        source->SetAngularName(GetParameter("spctName", angularDefinition));
+    }
+    if (GetNumberOfSources() == 0 && source->GetAngularDistType() == "backtoback") {
+        cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
+        source->SetAngularDistType("isotropic");
+    }
+    source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
+
+    // Energy distribution parameters
+    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
+    source->SetEnergyDistType(GetParameter("type", energyDefinition, "mono"));
+    if (source->GetEnergyDistType() == "TH1D") {
+        source->SetSpectrumFilename(SearchFile(GetParameter("file", energyDefinition)));
+        source->SetSpectrumName(GetParameter("spctName", energyDefinition));
+    }
+    source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+    if (source->GetEnergyDistType() == "mono") {
+        Double_t en;
+        en = GetDblParameterWithUnits("energy", energyDefinition, 0);
+        source->SetEnergyRange(TVector2(en, en));
+        source->SetEnergy(en);
+    }
+
+    // allow custom configuration from the class
+    source->LoadConfigFromElement(sourceDefinition, fElementGlobal, fVariables);
+    // AddParticleSource(source);
+}
+
 
 
 void TRestGeant4Metadata::RemoveParticleSources() {

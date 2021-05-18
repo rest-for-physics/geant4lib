@@ -7,17 +7,6 @@ ClassImp(TRestGeant4ParticleSourceDecay0)
     fDecay0Model = new bxdecay0::decay0_generator();
 }
 
-void TRestGeant4ParticleSourceDecay0::Config(std::string modelstring) {
-    cout << "Initializing decay0 model..." << endl;
-    if (modelstring == "") {
-        modelstring = "<source use=\"decay0\" particle=\"Xe136\" decayMode=\"0vbb\" daughterLevel=\"0\" />";
-    }
-    fElement = StringToElement(modelstring);
-    fElementGlobal = NULL;
-    fParticleName = ((TRestGeant4ParticleSource*)this)->ClassName();
-    InitFromConfigFile();
-}
-
 void TRestGeant4ParticleSourceDecay0::PrintParticleSource() {
     metadata << "---------------------------------------" << endl;
     metadata << "Particle Source Name: " << fParticleName << endl;
@@ -31,7 +20,7 @@ void TRestGeant4ParticleSourceDecay0::InitFromConfigFile() {
     // unsigned int seed = (uintptr_t)this;
     // std::default_random_engine generator(seed);
     // prng = bxdecay0::std_random(generator);
-
+    fParticleName = ((TRestMetadata*)this)->ClassName();
     fParentName = GetParameter("particle");
     fDecayType = GetParameter("decayMode");
     fDaugherLevel = StringToInteger(GetParameter("daughterLevel"));

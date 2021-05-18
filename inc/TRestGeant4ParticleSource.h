@@ -17,16 +17,23 @@
 #ifndef RestCore_TRestGeant4ParticleSource
 #define RestCore_TRestGeant4ParticleSource
 
-#include <iostream>
-
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
+
+#include <iostream>
+
 #include "TObject.h"
 //
-#include <TRestGeant4Particle.h>
+#include "TRestMetadata.h"
+#include "TRestGeant4Particle.h"
 
-class TRestGeant4ParticleSource : public TRestGeant4Particle {
+class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetadata {
+   private:
+    void ReadEventDataFile(TString fName);
+    bool ReadNewDecay0File(TString fileName);
+    bool ReadOldDecay0File(TString fileName);
+
    protected:
     TString fAngularDistType;
     TString fEnergyDistType;
@@ -48,7 +55,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle {
 
    public:
     virtual void Update();
-    virtual void Config(std::string configstring);
+    virtual void InitFromConfigFile();
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
     TString GetParticleName() { return fParticleName; }

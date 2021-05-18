@@ -1,5 +1,5 @@
-#ifndef RestCore_TRestGeant4ParticleSourceD0
-#define RestCore_TRestGeant4ParticleSourceD0
+#ifndef TRestParticleSourceDecay0_Class
+#define TRestParticleSourceDecay0_Class
 
 #include <bxdecay0/decay0_generator.h>
 #include <bxdecay0/event.h>
@@ -8,16 +8,16 @@
 #include <iostream>
 
 #include "TObject.h"
-#include "TRestGeant4ParticleSource.h"
 #include "TRestMetadata.h"
+#include "TRestGeant4ParticleSource.h"
 
 using namespace std;
 
-class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource, public TRestMetadata {
+class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
    protected:
     bxdecay0::decay0_generator* fDecay0Model;  //!
-    bxdecay0::std_random* prng;                 //!
-    std::default_random_engine* generator;      //!
+    bxdecay0::std_random* prng;                //!
+    std::default_random_engine* generator;     //!
 
     string fParentName;
     string fDecayType;
@@ -26,14 +26,13 @@ class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource, public
     int fDaugherLevel;
 
    public:
-    void Config(std::string modelstring);
-    void Update();
-    void InitFromConfigFile();
+    void Update() override;
+    void InitFromConfigFile() override;
     Int_t GetNumberOfParticles() { return fParticles.size(); }
-    void PrintParticleSource();
+    void PrintParticleSource() override;
 
     TRestGeant4ParticleSourceDecay0();
     ~TRestGeant4ParticleSourceDecay0() { delete fDecay0Model; }
-    ClassDef(TRestGeant4ParticleSourceDecay0, 1);
+    ClassDefOverride(TRestGeant4ParticleSourceDecay0, 1);
 };
 #endif
