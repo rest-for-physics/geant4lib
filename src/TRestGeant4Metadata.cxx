@@ -666,8 +666,8 @@ using namespace std;
 
 #include <TGeoManager.h>
 
-#include "TRestGDMLParser.h"
 #include "TRandom.h"
+#include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {
@@ -688,12 +688,9 @@ map<string, generator_types> generator_types_map = {
 };
 
 std::map<string, generator_shapes> generator_shapes_map = {
-    {CleanString("gdml"), generator_shapes::GDML},         
-    {CleanString("point"), generator_shapes::POINT},
-    {CleanString("wall"), generator_shapes::WALL},         
-    {CleanString("plate"), generator_shapes::PLATE},
-    {CleanString("box"), generator_shapes::BOX},           
-    {CleanString("sphere"), generator_shapes::SPHERE},
+    {CleanString("gdml"), generator_shapes::GDML},         {CleanString("point"), generator_shapes::POINT},
+    {CleanString("wall"), generator_shapes::WALL},         {CleanString("plate"), generator_shapes::PLATE},
+    {CleanString("box"), generator_shapes::BOX},           {CleanString("sphere"), generator_shapes::SPHERE},
     {CleanString("cylinder"), generator_shapes::CYLINDER},
 };
 
@@ -744,13 +741,14 @@ TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRest
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4Metadata::~TRestGeant4Metadata() { }
+TRestGeant4Metadata::~TRestGeant4Metadata() {}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestGeant4Metadata members
 ///
 void TRestGeant4Metadata::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fChance.clear();
     fActiveVolumes.clear();
@@ -782,7 +780,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t)this;
+        fSeed = (uintptr_t)dd + (uintptr_t) this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
@@ -938,7 +936,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     // center of the volume (i.e. gasTarget) but if i.e rotation or side are
     // defined and not relevant we should set it to -1
 
-     TiXmlElement* generatorDefinition = GetElement("generator");
+    TiXmlElement* generatorDefinition = GetElement("generator");
 
     fGenType = GetParameter("type", generatorDefinition, "volume");
     fGenShape = GetParameter("shape", generatorDefinition, "box");
@@ -1029,8 +1027,6 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     // AddParticleSource(source);
 }
 
-
-
 void TRestGeant4Metadata::RemoveParticleSources() {
     for (auto c : fParticleSource) {
         delete c;
@@ -1038,13 +1034,12 @@ void TRestGeant4Metadata::RemoveParticleSources() {
     fParticleSource.clear();
 }
 
-
-void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) { 
-    fParticleSource.push_back(src); 
+void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
+    fParticleSource.push_back(src);
 }
 
 void TRestGeant4Metadata_addDaughters(TGeoNode* node, set<string>* logicalVolumesSet,
-                              set<string>* physicalVolumesSet, set<string>* assembliesSet) {
+                                      set<string>* physicalVolumesSet, set<string>* assembliesSet) {
     if (node->GetVolume()->IsAssembly()) {
         assembliesSet->insert(node->GetVolume()->GetName());
     } else {
@@ -1094,14 +1089,13 @@ void TRestGeant4Metadata::ReadStorage() {
     TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
 
     // recursively add all non-assembly volume names, which should be unique according to GDML definition
-    
 
     set<string> logicalVolumesSet;
     set<string> physicalVolumesSet;
     set<string> assembliesSet;
 
     TRestGeant4Metadata_addDaughters(gGeoManager->GetTopNode(), &logicalVolumesSet, &physicalVolumesSet,
-                 &assembliesSet);
+                                     &assembliesSet);
 
     // debugging
     const map<string, set<string>> m = {
@@ -1217,7 +1211,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
-    metadata <<"+++++"<< endl;
+    metadata << "+++++" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -1277,16 +1271,14 @@ Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
 
     TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
     src->SetGenFilename(fileName);
-    //src->SetAngularDistType("flux");
-    //src->SetEnergyDistType("mono");
+    // src->SetAngularDistType("flux");
+    // src->SetEnergyDistType("mono");
 
     TRestGeant4Particle particle;
 
     debug << "Reading generator file : " << fileName << endl;
     debug << "Total number of events : " << generatorEvents << endl;
     for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
-
-
         int pos = -1;
         while (!infile.eof() && pos == -1) {
             getline(infile, s);
@@ -1390,8 +1382,8 @@ Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
     TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
     src->SetGenFilename(fileName);
-    //src->SetAngularDistType("flux");
-    //src->SetEnergyDistType("mono");
+    // src->SetAngularDistType("flux");
+    // src->SetEnergyDistType("mono");
 
     TRestGeant4Particle particle;
     string type = (string)GetGeneratorType();
