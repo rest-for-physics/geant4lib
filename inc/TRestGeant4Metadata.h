@@ -54,12 +54,12 @@ enum class generator_types {
     CUSTOM,
     VOLUME,
     SURFACE,
+    POINT,
 };
 extern std::map<string, generator_types> generator_types_map;
 
 enum class generator_shapes {
     GDML,
-    POINT,
     WALL,
     PLATE,
     BOX,

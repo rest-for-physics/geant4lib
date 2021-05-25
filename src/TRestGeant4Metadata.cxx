@@ -684,14 +684,13 @@ map<string, generator_types> generator_types_map = {
     {CleanString("custom"), generator_types::CUSTOM},
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
-
+    {CleanString("point"), generator_types::POINT},
 };
 
 std::map<string, generator_shapes> generator_shapes_map = {
-    {CleanString("gdml"), generator_shapes::GDML},         {CleanString("point"), generator_shapes::POINT},
-    {CleanString("wall"), generator_shapes::WALL},         {CleanString("plate"), generator_shapes::PLATE},
-    {CleanString("box"), generator_shapes::BOX},           {CleanString("sphere"), generator_shapes::SPHERE},
-    {CleanString("cylinder"), generator_shapes::CYLINDER},
+    {CleanString("gdml"), generator_shapes::GDML},     {CleanString("wall"), generator_shapes::WALL},
+    {CleanString("plate"), generator_shapes::PLATE},   {CleanString("box"), generator_shapes::BOX},
+    {CleanString("sphere"), generator_shapes::SPHERE}, {CleanString("cylinder"), generator_shapes::CYLINDER},
 };
 
 map<string, energy_dist_types> energy_dist_types_map = {
@@ -780,7 +779,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
