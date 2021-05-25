@@ -11,8 +11,6 @@
 #include "TRestMetadata.h"
 #include "TRestGeant4ParticleSource.h"
 
-using namespace std;
-
 class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
    protected:
     bxdecay0::decay0_generator* fDecay0Model;  //!
