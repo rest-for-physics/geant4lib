@@ -740,7 +740,7 @@ TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRest
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4Metadata::~TRestGeant4Metadata() {}
+TRestGeant4Metadata::~TRestGeant4Metadata() { RemoveParticleSources(); }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestGeant4Metadata members
