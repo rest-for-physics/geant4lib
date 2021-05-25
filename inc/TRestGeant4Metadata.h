@@ -100,13 +100,13 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadStorage();
     void ReadBiasing();
 
-    void ReadEventDataFile(TString fName);
+    // void ReadEventDataFile(TString fName);
 
-    Int_t ReadNewDecay0File(TString fileName);
+    //Int_t ReadNewDecay0File(TString fileName);
 
-    Int_t ReadOldDecay0File(TString fileName);
+    //Int_t ReadOldDecay0File(TString fileName);
 
-    void ReadParticleSource(TiXmlElement* sourceDefinition);
+    //void ReadParticleSource(TiXmlElement* sourceDefinition);
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
