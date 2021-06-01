@@ -111,7 +111,7 @@ void TRestGeant4ParticleSource::InitFromConfigFile() {
     }
     SetGenFilename(modelUse);
 
-    if (((string)fGenFilename).find(".dat") != -1) {
+    if (((string)fGenFilename).find(".dat") != std::string::npos) {
         if (TRestTools::fileExists((string)fGenFilename)) {
             ReadEventDataFile(fGenFilename);
         }
