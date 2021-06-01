@@ -44,7 +44,7 @@ if (${REST_DECAY0} MATCHES "ON")
     set(feature_added ${feature_added} PARENT_SCOPE)
 else ()
     set(REST_DECAY0 OFF)
-    set(excludes ${excludes} TRestGeant4ParticleCollectionDecay0 )
+    set(excludes ${excludes} TRestGeant4ParticleSourceDecay0 )
 endif (${REST_DECAY0} MATCHES "ON")
 
 if (NOT ${REST_EVE} MATCHES "ON")

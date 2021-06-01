@@ -25,17 +25,17 @@
 /// based Geant4 code distributed with REST) used to launch Geant4 based
 /// simulations, and store later on the simulation conditions as metadata
 /// information inside the output generated file. The simulations produced by
-/// *restG4* will write to disk the event data generated as a TRestGeant4Event type.
+/// *restG4* will write to disk the event data generated as a TRestG4Event type.
 /// The tutorials page includes a tutorial describing on detail how to launch a
 /// restG4 simulation and retrieve basic simulation results.
 ///
 /// There are few helper classes that aid to organize and access the information
-/// that TRestGeant4Metadata contains, TRestGeant4PrimaryGenerator, TRestGeant4BiasingVolume,
-/// TRestGeant4ParticleCollection, TRestGeant4Particle, TRestGeant4ParticleSource, and
-/// TRestGeant4PhysicsLists.
+/// that TRestGeant4Metadata contains, TRestG4PrimaryGenerator, TRestG4BiasingVolume,
+/// TRestG4ParticleCollection, TRestG4Particle, TRestG4ParticleSource, and
+/// TRestG4PhysicsLists.
 ///
 /// The full RML description to be provided to *restG4* to launch a simulation
-/// requires in addition a TRestGeant4PhysicsLists definition, providing the physics
+/// requires in addition a TRestG4PhysicsLists definition, providing the physics
 /// processes, EM, hadronic, etc, that will be active in our Geant4 simulation.
 ///
 /// In general terms, an RML file to be used with restG4 must define the
@@ -61,10 +61,10 @@
 ///     ...
 /// </TRestGeant4Metadata>
 ///
-/// //A TRestGeant4PhysicsLists section def-inning the physics processes active.
-/// <TRestGeant4PhysicsLists>
+/// //A TRestG4PhysicsLists section def-inning the physics processes active.
+/// <TRestG4PhysicsLists>
 ///     ...
-/// </TRestGeant4PhysicsLists>
+/// </TRestG4PhysicsLists>
 ///
 /// \endcode
 ///
@@ -80,7 +80,7 @@
 /// This page describes in detail the different parameters, particle generator
 /// types, storage, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
-/// required sections, as TRestRun or TRestGeant4PhysicsLists, will be found in their
+/// required sections, as TRestRun or TRestG4PhysicsLists, will be found in their
 /// respective class documentation.
 ///
 /// We can sub-divide the information provided through TRestGeant4Metadata in
@@ -654,7 +654,7 @@
 ///
 /// History of developments:
 ///
-/// 2015-July: First concept and implementation of TRestGeant4 classes.
+/// 2015-July: First concept and implementation of TRestG4 classes.
 /// \author     Javier Galan
 ///
 /// \class TRestGeant4Metadata
@@ -666,6 +666,7 @@ using namespace std;
 
 #include <TGeoManager.h>
 
+#include "TRandom.h"
 #include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
@@ -684,11 +685,12 @@ map<string, generator_types> generator_types_map = {
     {CleanString("volume"), generator_types::VOLUME},
     {CleanString("surface"), generator_types::SURFACE},
     {CleanString("point"), generator_types::POINT},
-    {CleanString("virtualWall"), generator_types::VIRTUAL_WALL},
-    {CleanString("virtualBox"), generator_types::VIRTUAL_BOX},
-    {CleanString("virtualSphere"), generator_types::VIRTUAL_SPHERE},
-    {CleanString("virtualCircleWall"), generator_types::VIRTUAL_CIRCLE_WALL},
-    {CleanString("virtualCylinder"), generator_types::VIRTUAL_CYLINDER},
+};
+
+std::map<string, generator_shapes> generator_shapes_map = {
+    {CleanString("gdml"), generator_shapes::GDML},     {CleanString("wall"), generator_shapes::WALL},
+    {CleanString("plate"), generator_shapes::PLATE},   {CleanString("box"), generator_shapes::BOX},
+    {CleanString("sphere"), generator_shapes::SPHERE}, {CleanString("cylinder"), generator_shapes::CYLINDER},
 };
 
 map<string, energy_dist_types> energy_dist_types_map = {
@@ -738,7 +740,7 @@ TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRest
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4Metadata::~TRestGeant4Metadata() { fPrimaryGenerator.RemoveParticleCollections(); }
+TRestGeant4Metadata::~TRestGeant4Metadata() { RemoveParticleSources(); }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestGeant4Metadata members
@@ -753,9 +755,7 @@ void TRestGeant4Metadata::Initialize() {
 
     fNBiasingVolumes = 0;
 
-    fGeneratorFile = "";
-
-    fPrimaryGenerator.Reset();
+    RemoveParticleSources();
 
     fSensitiveVolume = "gas";
 
@@ -779,11 +779,12 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
         seedstr == "0") {
         double* dd = new double();
-        fSeed = (uintptr_t)dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
         fSeed = (Long_t)StringToInteger(seedstr);
     }
+    gRandom->SetSeed(fSeed);
 
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
@@ -936,72 +937,123 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     TiXmlElement* generatorDefinition = GetElement("generator");
 
-    fGenType = GetFieldValue("type", generatorDefinition);
-    fGenFrom = GetFieldValue("from", generatorDefinition);
-    string dimension1[3]{"size", "lenX", "radius"};
-    for (int i = 0; i < 3; i++) {
-        fGenDimension1 = GetDblParameterWithUnits(dimension1[i], generatorDefinition);
-        if (fGenDimension1 != PARAMETER_NOT_FOUND_DBL) {
-            if (dimension1[i] == "size") fGenDimension2 = fGenDimension1;
-            break;
-        }
+    fGenType = GetParameter("type", generatorDefinition, "volume");
+    fGenShape = GetParameter("shape", generatorDefinition, "box");
+    fGenFrom = GetParameter("from", generatorDefinition);
+    if (fGenFrom != PARAMETER_NOT_FOUND_STR) {
+        fGenShape = "gdml";
     }
-
-    // TODO : If not defined (and required to be) it just returns (0,0,0) we
-    // should make a WARNING. Inside StringToVector probably
+    fGenSize = StringTo3DVector(GetParameter("size", generatorDefinition));
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
-
-    fGenRotation = StringTo3DVector(GetParameter("rotation", generatorDefinition));
-
-    string dimension2[2]{"length", "lenY"};
-    for (int i = 0; i < 2; i++) {
-        Double_t tmpDim2 = GetDblParameterWithUnits(dimension2[i], generatorDefinition);
-        if (tmpDim2 != PARAMETER_NOT_FOUND_DBL) {
-            fGenDimension2 = tmpDim2;
-            break;
-        }
-    }
+    fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
+    fGenRotationDegree = StringToDouble(GetParameter("rotationDeg", generatorDefinition, "0"));
+    fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
     while (sourceDefinition != NULL) {
-        fGeneratorFile = GetFieldValue("fromFile", sourceDefinition);
+        string use = GetParameter("use", sourceDefinition, "");
 
-        if (fGeneratorFile != "Not defined") {
-            info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
-            ReadEventDataFile(fGeneratorFile);
-            break;
-        }
+        TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
+        ReadParticleSource(source, sourceDefinition);
+        AddParticleSource(source);
 
-        string use = GetFieldValue("use", sourceDefinition);
-        if (use.find(".dat") != -1) {
-            fGeneratorFile = use;
-            info << "Reading custom sources from generator file : " << fGeneratorFile << endl;
-            ReadEventDataFile(fGeneratorFile);
-        } else if (use == "geant4" || use == "" || use == "Not defined") {
-            info << "Adding sources to geant4" << endl;
-            ReadParticleSource(sourceDefinition);
-        } else {
-            info << "Load custom sources from " << use << endl;
-            TRestGeant4ParticleCollection* particleCollection =
-                TRestGeant4ParticleCollection::instantiate(use);
-            if (particleCollection != NULL) {
-                particleCollection->SetParticleModel(ElementToString(sourceDefinition));
-                fPrimaryGenerator.AddParticleCollection(particleCollection);
-                fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
-
-                fGenType = "custom";
-            }
-        }
         sourceDefinition = GetNextElement(sourceDefinition);
     }
 
     // check if the generator is valid.
-    if (fPrimaryGenerator.GetNumberOfCollections() == 0 && fPrimaryGenerator.GetNumberOfSources() == 0) {
-        warning << "No sources are added inside geneartor!" << endl;
-        warning << generatorDefinition << endl;
-        GetChar();
+    if (GetNumberOfSources() == 0) {
+        ferr << "No sources are added inside geneartor!" << endl;
+        exit(1);
     }
 }
+
+///////////////////////////////////////////////
+/// \brief It reads the <source definition given by argument
+///
+void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, TiXmlElement* definition) {
+    TiXmlElement* sourceDefinition = definition;
+
+    source->SetParticleName(GetParameter("particle", sourceDefinition));
+
+    source->SetExcitationLevel(StringToDouble(GetParameter("excitedLevel", sourceDefinition)));
+
+    Int_t charge = 0;
+    if (GetParameter("charge", sourceDefinition) == PARAMETER_NOT_FOUND_STR)
+        charge = 0;
+    else
+        charge = StringToInteger(GetParameter("charge", sourceDefinition));
+
+    source->SetParticleCharge(charge);
+
+    TString fullChain = GetParameter("fullChain", sourceDefinition);
+
+    if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN") {
+        SetFullChain(true);
+    } else {
+        SetFullChain(false);
+    }
+
+    // Angular distribution parameters
+    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
+    source->SetAngularDistType(GetParameter("type", angularDefinition, "flux"));
+    if (source->GetAngularDistType() == "TH1D") {
+        source->SetAngularFilename(SearchFile(GetParameter("file", angularDefinition)));
+        source->SetAngularName(GetParameter("spctName", angularDefinition));
+    }
+    if (GetNumberOfSources() == 0 && source->GetAngularDistType() == "backtoback") {
+        cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
+        source->SetAngularDistType("isotropic");
+    }
+    source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
+
+    // Energy distribution parameters
+    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
+    source->SetEnergyDistType(GetParameter("type", energyDefinition, "mono"));
+    if (source->GetEnergyDistType() == "TH1D") {
+        source->SetSpectrumFilename(SearchFile(GetParameter("file", energyDefinition)));
+        source->SetSpectrumName(GetParameter("spctName", energyDefinition));
+    }
+    source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+    if (source->GetEnergyDistType() == "mono") {
+        Double_t en;
+        en = GetDblParameterWithUnits("energy", energyDefinition, 0);
+        source->SetEnergyRange(TVector2(en, en));
+        source->SetEnergy(en);
+    }
+
+    // allow custom configuration from the class
+    source->LoadConfigFromElement(sourceDefinition, fElementGlobal, fVariables);
+    // AddParticleSource(source);
+}
+
+void TRestGeant4Metadata::RemoveParticleSources() {
+    for (auto c : fParticleSource) {
+        delete c;
+    }
+    fParticleSource.clear();
+}
+
+void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
+    fParticleSource.push_back(src);
+}
+
+void TRestGeant4Metadata_addDaughters(TGeoNode* node, set<string>* logicalVolumesSet,
+                                      set<string>* physicalVolumesSet, set<string>* assembliesSet) {
+    if (node->GetVolume()->IsAssembly()) {
+        assembliesSet->insert(node->GetVolume()->GetName());
+    } else {
+        physicalVolumesSet->insert(node->GetVolume()->GetName());
+    }
+    for (size_t i = 0; i < node->GetNdaughters(); i++) {
+        TGeoNode* daughter = node->GetDaughter(i);
+        if (daughter->GetVolume()->IsAssembly()) {
+            TRestGeant4Metadata_addDaughters(daughter, logicalVolumesSet, physicalVolumesSet, assembliesSet);
+        } else {
+            logicalVolumesSet->insert(daughter->GetVolume()->GetName());
+            physicalVolumesSet->insert(daughter->GetName());
+        }
+    }
+};
 
 ///////////////////////////////////////////////
 /// \brief Reads the storage section defined inside TRestGeant4Metadata.
@@ -1036,30 +1088,13 @@ void TRestGeant4Metadata::ReadStorage() {
     TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
 
     // recursively add all non-assembly volume names, which should be unique according to GDML definition
-    const auto addDaughters = [&](const auto& self, TGeoNode* node, set<string>* logicalVolumesSet,
-                                  set<string>* physicalVolumesSet, set<string>* assembliesSet) -> void {
-        if (node->GetVolume()->IsAssembly()) {
-            assembliesSet->insert(node->GetVolume()->GetName());
-        } else {
-            physicalVolumesSet->insert(node->GetVolume()->GetName());
-        }
-        for (size_t i = 0; i < node->GetNdaughters(); i++) {
-            TGeoNode* daughter = node->GetDaughter(i);
-            if (daughter->GetVolume()->IsAssembly()) {
-                self(self, daughter, logicalVolumesSet, physicalVolumesSet, assembliesSet);
-            } else {
-                logicalVolumesSet->insert(daughter->GetVolume()->GetName());
-                physicalVolumesSet->insert(daughter->GetName());
-            }
-        }
-    };
 
     set<string> logicalVolumesSet;
     set<string> physicalVolumesSet;
     set<string> assembliesSet;
 
-    addDaughters(addDaughters, gGeoManager->GetTopNode(), &logicalVolumesSet, &physicalVolumesSet,
-                 &assembliesSet);
+    TRestGeant4Metadata_addDaughters(gGeoManager->GetTopNode(), &logicalVolumesSet, &physicalVolumesSet,
+                                     &assembliesSet);
 
     // debugging
     const map<string, set<string>> m = {
@@ -1124,36 +1159,42 @@ void TRestGeant4Metadata::PrintMetadata() {
     else
         metadata << "Register empty tracks was NOT enabled" << endl;
     metadata << "**********Generator**********" << endl;
-    TString generatorType = GetGeneratorType();
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
-    metadata << "Generator type : " << generatorType << endl;
-    metadata << "Generated from : " << GetGeneratedFrom() << endl;
+    metadata << "Generator type : " << fGenType << endl;
+    metadata << "Generator shape : " << fGenShape;
+    if (fGenShape == "gdml") {
+        metadata << "::" << GetGDMLGeneratorVolume() << endl;
+    } else {
+        if (fGenShape == "box") {
+            metadata << ", (length, width, height): ";
+        } else if (fGenShape == "sphere") {
+            metadata << ", (radius, , ): ";
+        } else if (fGenShape == "wall") {
+            metadata << ", (length, width, ): ";
+        } else if (fGenShape == "plate") {
+            metadata << ", (radius, , ): ";
+        } else if (fGenShape == "cylinder") {
+            metadata << ", (radius, length, ): ";
+        }
+
+        if (fGenShape != "point") {
+            TVector3 s = GetGeneratorSize();
+            metadata << s.X() << ", " << s.Y() << ", " << s.Z() << endl;
+        } else {
+            metadata << endl;
+        }
+    }
     TVector3 a = GetGeneratorPosition();
     metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
-    TVector3 b = GetGeneratorRotation();
-    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z() << ") mm" << endl;
-    if (generatorType == "virtualSphere")
-        metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
-    else if (generatorType == "virtualWall") {
-        metadata << "Generator lenX : " << GetGeneratorLenX() << " mm" << endl;
-        metadata << "Generator lenY : " << GetGeneratorLenY() << " mm" << endl;
-    } else if (generatorType == "virtualCylinder") {
-        metadata << "Generator radius : " << GetGeneratorRadius() << " mm" << endl;
-        metadata << "Generator length : " << GetGeneratorLength() << " mm" << endl;
-    } else if (generatorType == "virtualBox")
-        metadata << "Generator size : " << GetGeneratorSize() << " mm" << endl;
-    else if (generatorType == "file")
-        metadata << "Generator file : \"" << GetGeneratorFile() << "\"\n";
-    metadata << "++++++++++Particles++++++++++" << endl;
-    metadata << "Number of primary particles : " << GetNumberOfPrimaries() << endl;
-    metadata << "Generator file : " << GetGeneratorFile() << endl;
+    TVector3 b = GetGeneratorRotationAxis();
+    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
+             << "), degree: " << GetGeneratorRotationDegree() << endl;
 
-    for (int n = 0; n < GetNumberOfPrimaries(); n++) {
-        TRestGeant4ParticleSource src = GetParticleSource(n);
-        src.PrintParticleSource();
+    for (int i = 0; i < GetNumberOfSources(); i++) {
+        GetParticleSource(i)->PrintParticleSource();
     }
 
-    metadata << "++++++++++Storage Volumes++++++++++" << endl;
+    metadata << "**********Storage Volumes**********" << endl;
     metadata << "Energy range : Emin = " << GetMinimumEnergyStored()
              << ", Emax : " << GetMaximumEnergyStored() << endl;
     metadata << "Sensitive volume : " << GetSensitiveVolume() << endl;
@@ -1165,319 +1206,319 @@ void TRestGeant4Metadata::PrintMetadata() {
                  << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
                  << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
     }
-    metadata << "++++++++++Biasing Volumes++++++++++" << endl;
+    metadata << "**********Biasing Volumes**********" << endl;
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
-    metadata << endl;
+    metadata << "+++++" << endl;
 }
 
-///////////////////////////////////////////////
-/// \brief Reads an input file produced by Decay0.
-///
-/// The input file should contain the description of several
-/// pre-generated events, providing the names (or ids) of
-/// particles to be produced, their energy, and momentum.
-/// The particles and their properties are stored in a
-/// TRestGeant4ParticleCollection which will be randomly accessed
-/// by the restG4 package.
-///
-/// \param fName The Decay0 filename located at
-/// REST_PATH/data/generator/
-///
-void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
-    string fullPathName = SearchFile((string)fName);
-    if (fullPathName == "") {
-        ferr << "File not found : " << fName << endl;
-        ferr << "Decay0 generator file could not be found!!" << endl;
-        exit(1);
-    }
-
-    debug << "TRestGeant4Metadata::ReadGeneratorFile" << endl;
-    debug << "Full path generator file : " << fullPathName << endl;
-
-    if (!ReadOldDecay0File(fullPathName)) ReadNewDecay0File(fullPathName);
-}
-
-///////////////////////////////////////////////
-/// \brief Reads particle information using the file format from newer Decay0 versions.
-///
-/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
-/// produced with the newer Decay0 versions.
-///
-Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
-    ifstream infile;
-    infile.open(fileName);
-    if (!infile.is_open()) {
-        printf("Error when opening file %s\n", fileName.Data());
-        return 0;
-    }
-
-    int generatorEvents = 0;
-    string s;
-    // First lines are discarded.
-    for (int i = 0; i < 24; i++) {
-        getline(infile, s);
-        int pos = s.find("@nevents=");
-        if (pos != -1) generatorEvents = StringToInteger(s.substr(10, s.length() - 10));
-    }
-
-    if (generatorEvents == 0) {
-        ferr << "TRestGeant4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
-        exit(1);
-    }
-
-    TRestGeant4Particle particle;
-
-    debug << "Reading generator file : " << fileName << endl;
-    debug << "Total number of events : " << generatorEvents << endl;
-
-    for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
-        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
-        particleCollection->RemoveParticles();
-
-        int pos = -1;
-        while (!infile.eof() && pos == -1) {
-            getline(infile, s);
-            pos = s.find("@event_start");
-        }
-
-        // Time - nuclide is skipped
-        getline(infile, s);
-
-        Int_t nParticles;
-        infile >> nParticles;
-        debug << "Number of particles : " << nParticles << endl;
-
-        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
-        for (int i = 0; i < nParticles && !infile.eof(); i++) {
-            Int_t pID;
-            Double_t momx, momy, momz, mass;
-            Double_t energy = -1, momentum2;
-            TString pName;
-
-            Double_t time;
-            infile >> pID >> time >> momx >> momy >> momz >> pName;
-
-            debug << " ---- New particle found --- " << endl;
-            debug << " Particle name : " << pName << endl;
-            debug << " - pId : " << pID << endl;
-            debug << " - Relative time : " << time << endl;
-            debug << " - px: " << momx << " py: " << momy << " pz: " << momz << " " << endl;
-
-            if (pID == 3) {
-                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-                mass = 0.511;
-
-                energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
-                particle.SetParticleName("e-");
-                particle.SetParticleCharge(-1);
-                particle.SetExcitationLevel(0);
-
-            } else if (pID == 1) {
-                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-
-                energy = TMath::Sqrt(momentum2);
-                particle.SetParticleName("gamma");
-                particle.SetParticleCharge(0);
-                particle.SetExcitationLevel(0);
-            } else {
-                cout << "Particle id " << pID << " not recognized" << endl;
-            }
-
-            TVector3 momDirection(momx, momy, momz);
-            momDirection = momDirection.Unit();
-
-            particle.SetEnergy(1000. * energy);
-            particle.SetDirection(momDirection);
-
-            particleCollection->AddParticle(particle);
-        }
-
-        fPrimaryGenerator.AddParticleCollection(particleCollection);
-    }
-
-    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
-
-    return 1;
-}
-
-///////////////////////////////////////////////
-/// \brief Reads particle information using the file format from older Decay0 versions.
-///
-/// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
-/// produced with the newer Decay0 versions.
-///
-Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
-    ifstream infile;
-    infile.open(fileName);
-    if (!infile.is_open()) {
-        printf("Error when opening file %s\n", fileName.Data());
-        return 0;
-    }
-
-    string s;
-    // First lines are discarded.
-    int headerFound = 0;
-    for (int i = 0; i < 30; i++) {
-        getline(infile, s);
-        if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
-        if (s.find("First event and full number of events:") != -1) {
-            headerFound = 1;
-            break;
-        }
-    }
-    if (!headerFound) {
-        ferr
-            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
-               "full number of events:\" header.\n";
-        abort();
-    }
-    int tmpInt;
-    int fGeneratorEvents;
-    infile >> tmpInt >> fGeneratorEvents;
-
-    // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
-
-    TRestGeant4Particle particle;
-    string type = (string)GetGeneratorType();
-
-    cout << "Reading generator file : " << fileName << endl;
-    cout << "Total number of events : " << fGeneratorEvents << endl;
-
-    for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
-        TRestGeant4ParticleCollection* particleCollection = TRestGeant4ParticleCollection::instantiate();
-        particleCollection->RemoveParticles();
-
-        Int_t nParticles;
-        Int_t evID;
-        Double_t time;
-
-        infile >> evID >> time >> nParticles;
-
-        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
-        for (int i = 0; i < nParticles && !infile.eof(); i++) {
-            Int_t pID;
-            Double_t momx, momy, momz, mass;
-            Double_t energy = -1, momentum2;
-            Double_t x, y, z;
-
-            infile >> pID >> momx >> momy >> momz >> time;
-            if (type == "file") infile >> x >> y >> z;
-
-            // cout << momx << " " << momy << " " << momz << " " << endl;
-
-            bool ise = 2 <= pID && pID <= 3, ismu = 5 <= pID && pID <= 6, isp = pID == 14, isg = pID == 1;
-            if (ise || ismu || isp || isg) {
-                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
-                if (ise) {
-                    mass = 0.511;
-                    particle.SetParticleName(pID == 2 ? "e+" : "e-");
-                    particle.SetParticleCharge(pID == 2 ? 1 : -1);
-                } else if (ismu) {
-                    mass = 105.7;
-                    particle.SetParticleName(pID == 5 ? "mu+" : "mu-");
-                    particle.SetParticleCharge(pID == 5 ? 1 : -1);
-                } else if (isp) {
-                    mass = 938.3;
-                    particle.SetParticleName("proton");
-                    particle.SetParticleCharge(1);
-                } else {
-                    mass = 0;
-                    particle.SetParticleName("gamma");
-                    particle.SetParticleCharge(0);
-                }
-
-                energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
-                particle.SetExcitationLevel(0);
-            } else {
-                cout << "Particle id " << pID << " not recognized" << endl;
-            }
-
-            TVector3 momDirection(momx, momy, momz);
-            momDirection = momDirection.Unit();
-
-            particle.SetEnergy(1000. * energy);
-            particle.SetDirection(momDirection);
-            particle.SetOrigin(TVector3(x, y, z));
-
-            particleCollection->AddParticle(particle);
-        }
-
-        fPrimaryGenerator.AddParticleCollection(particleCollection);
-    }
-
-    fPrimaryGenerator.UpdateSourcesFromParticleCollection(0);
-
-    return 1;
-}
-
-///////////////////////////////////////////////
-/// \brief It reads the <source definition given by argument
-///
-void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
-    TiXmlElement* sourceDefinition = definition;
-
-    TRestGeant4ParticleSource source;
-
-    source.SetParticleName(GetFieldValue("particle", sourceDefinition));
-
-    source.SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
-
-    Int_t charge = 0;
-    if (GetFieldValue("charge", sourceDefinition) == "Not defined")
-        charge = 0;
-    else
-        charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
-
-    source.SetParticleCharge(charge);
-
-    TString fullChain = GetFieldValue("fullChain", sourceDefinition);
-
-    if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN") {
-        SetFullChain(true);
-    } else {
-        SetFullChain(false);
-    }
-
-    // Angular distribution parameters
-    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
-
-    source.SetAngularDistType(GetFieldValue("type", angularDefinition));
-
-    if (source.GetAngularDistType() == "TH1D") {
-        source.SetAngularFilename(SearchFile(GetFieldValue("file", angularDefinition)));
-        source.SetAngularName(GetFieldValue("spctName", angularDefinition));
-    }
-
-    if (fPrimaryGenerator.GetNumberOfSources() == 0 && source.GetAngularDistType() == "backtoback") {
-        cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-        source.SetAngularDistType("isotropic");
-    }
-
-    source.SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
-
-    // Energy distribution parameters
-    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
-
-    source.SetEnergyDistType(GetFieldValue("type", energyDefinition));
-
-    if (source.GetEnergyDistType() == "TH1D") {
-        source.SetSpectrumFilename(SearchFile(GetFieldValue("file", energyDefinition)));
-        source.SetSpectrumName(GetFieldValue("spctName", energyDefinition));
-    }
-
-    source.SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
-
-    if (source.GetEnergyDistType() == "mono") {
-        Double_t en;
-        en = GetDblParameterWithUnits("energy", energyDefinition);
-        source.SetEnergyRange(TVector2(en, en));
-        source.SetEnergy(en);
-    }
-
-    fPrimaryGenerator.AddSource(source);
-}
+/////////////////////////////////////////////////
+///// \brief Reads an input file produced by Decay0.
+/////
+///// The input file should contain the description of several
+///// pre-generated events, providing the names (or ids) of
+///// particles to be produced, their energy, and momentum.
+///// The particles and their properties are stored in a
+///// TRestG4ParticleCollection which will be randomly accessed
+///// by the restG4 package.
+/////
+///// \param fName The Decay0 filename located at
+///// REST_PATH/data/generator/
+/////
+//void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
+//    string fullPathName = SearchFile((string)fName);
+//    if (fullPathName == "") {
+//        ferr << "File not found : " << fName << endl;
+//        ferr << "Decay0 generator file could not be found!!" << endl;
+//        exit(1);
+//    }
+//
+//    debug << "TRestGeant4Metadata::ReadGeneratorFile" << endl;
+//    debug << "Full path generator file : " << fullPathName << endl;
+//
+//    if (!ReadOldDecay0File(fullPathName)) ReadNewDecay0File(fullPathName);
+//}
+//
+/////////////////////////////////////////////////
+///// \brief Reads particle information using the file format from newer Decay0 versions.
+/////
+///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+///// produced with the newer Decay0 versions.
+/////
+//Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
+//    ifstream infile;
+//    infile.open(fileName);
+//    if (!infile.is_open()) {
+//        printf("Error when opening file %s\n", fileName.Data());
+//        return 0;
+//    }
+//
+//    int generatorEvents = 0;
+//    string s;
+//    // First lines are discarded.
+//    for (int i = 0; i < 24; i++) {
+//        getline(infile, s);
+//        int pos = s.find("@nevents=");
+//        if (pos != -1) generatorEvents = StringToInteger(s.substr(10, s.length() - 10));
+//    }
+//
+//    if (generatorEvents == 0) {
+//        ferr << "TRestGeant4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
+//        exit(1);
+//    }
+//
+//    TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
+//    src->SetGenFilename(fileName);
+//    // src->SetAngularDistType("flux");
+//    // src->SetEnergyDistType("mono");
+//
+//    TRestGeant4Particle particle;
+//
+//    debug << "Reading generator file : " << fileName << endl;
+//    debug << "Total number of events : " << generatorEvents << endl;
+//    for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
+//        int pos = -1;
+//        while (!infile.eof() && pos == -1) {
+//            getline(infile, s);
+//            pos = s.find("@event_start");
+//        }
+//
+//        // Time - nuclide is skipped
+//        getline(infile, s);
+//
+//        Int_t nParticles;
+//        infile >> nParticles;
+//        debug << "Number of particles : " << nParticles << endl;
+//
+//        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+//        for (int i = 0; i < nParticles && !infile.eof(); i++) {
+//            Int_t pID;
+//            Double_t momx, momy, momz, mass;
+//            Double_t energy = -1, momentum2;
+//            TString pName;
+//
+//            Double_t time;
+//            infile >> pID >> time >> momx >> momy >> momz >> pName;
+//
+//            debug << " ---- New particle found --- " << endl;
+//            debug << " Particle name : " << pName << endl;
+//            debug << " - pId : " << pID << endl;
+//            debug << " - Relative time : " << time << endl;
+//            debug << " - px: " << momx << " py: " << momy << " pz: " << momz << " " << endl;
+//
+//            if (pID == 3) {
+//                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+//                mass = 0.511;
+//
+//                energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
+//                particle.SetParticleName("e-");
+//                particle.SetParticleCharge(-1);
+//                particle.SetExcitationLevel(0);
+//
+//            } else if (pID == 1) {
+//                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+//
+//                energy = TMath::Sqrt(momentum2);
+//                particle.SetParticleName("gamma");
+//                particle.SetParticleCharge(0);
+//                particle.SetExcitationLevel(0);
+//            } else {
+//                cout << "Particle id " << pID << " not recognized" << endl;
+//            }
+//
+//            TVector3 momDirection(momx, momy, momz);
+//            momDirection = momDirection.Unit();
+//
+//            particle.SetEnergy(1000. * energy);
+//            particle.SetDirection(momDirection);
+//
+//            src->AddParticle(particle);
+//        }
+//        src->FlushParticlesTemplate();
+//    }
+//
+//    AddParticleSource(src);
+//
+//    return 1;
+//}
+//
+/////////////////////////////////////////////////
+///// \brief Reads particle information using the file format from older Decay0 versions.
+/////
+///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+///// produced with the newer Decay0 versions.
+/////
+//Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
+//    ifstream infile;
+//    infile.open(fileName);
+//    if (!infile.is_open()) {
+//        printf("Error when opening file %s\n", fileName.Data());
+//        return 0;
+//    }
+//
+//    string s;
+//    // First lines are discarded.
+//    int headerFound = 0;
+//    for (int i = 0; i < 30; i++) {
+//        getline(infile, s);
+//        if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
+//        if (s.find("First event and full number of events:") != -1) {
+//            headerFound = 1;
+//            break;
+//        }
+//    }
+//    if (!headerFound) {
+//        ferr
+//            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+//               "full number of events:\" header.\n";
+//        abort();
+//    }
+//    int tmpInt;
+//    int fGeneratorEvents;
+//    infile >> tmpInt >> fGeneratorEvents;
+//
+//    // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
+//    TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
+//    src->SetGenFilename(fileName);
+//    // src->SetAngularDistType("flux");
+//    // src->SetEnergyDistType("mono");
+//
+//    TRestGeant4Particle particle;
+//    string type = (string)GetGeneratorType();
+//
+//    cout << "Reading generator file : " << fileName << endl;
+//    cout << "Total number of events : " << fGeneratorEvents << endl;
+//    for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
+//        Int_t nParticles;
+//        Int_t evID;
+//        Double_t time;
+//
+//        infile >> evID >> time >> nParticles;
+//
+//        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+//        for (int i = 0; i < nParticles && !infile.eof(); i++) {
+//            Int_t pID;
+//            Double_t momx, momy, momz, mass;
+//            Double_t energy = -1, momentum2;
+//            Double_t x, y, z;
+//
+//            infile >> pID >> momx >> momy >> momz >> time;
+//            if (type == "file") infile >> x >> y >> z;
+//
+//            // cout << momx << " " << momy << " " << momz << " " << endl;
+//
+//            bool ise = 2 <= pID && pID <= 3, ismu = 5 <= pID && pID <= 6, isp = pID == 14, isg = pID == 1;
+//            if (ise || ismu || isp || isg) {
+//                momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
+//                if (ise) {
+//                    mass = 0.511;
+//                    particle.SetParticleName(pID == 2 ? "e+" : "e-");
+//                    particle.SetParticleCharge(pID == 2 ? 1 : -1);
+//                } else if (ismu) {
+//                    mass = 105.7;
+//                    particle.SetParticleName(pID == 5 ? "mu+" : "mu-");
+//                    particle.SetParticleCharge(pID == 5 ? 1 : -1);
+//                } else if (isp) {
+//                    mass = 938.3;
+//                    particle.SetParticleName("proton");
+//                    particle.SetParticleCharge(1);
+//                } else {
+//                    mass = 0;
+//                    particle.SetParticleName("gamma");
+//                    particle.SetParticleCharge(0);
+//                }
+//
+//                energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
+//                particle.SetExcitationLevel(0);
+//            } else {
+//                cout << "Particle id " << pID << " not recognized" << endl;
+//            }
+//
+//            TVector3 momDirection(momx, momy, momz);
+//            momDirection = momDirection.Unit();
+//
+//            particle.SetEnergy(1000. * energy);
+//            particle.SetDirection(momDirection);
+//            particle.SetOrigin(TVector3(x, y, z));
+//
+//            src->AddParticle(particle);
+//        }
+//
+//        src->FlushParticlesTemplate();
+//    }
+//
+//    AddParticleSource(src);
+//
+//    return 1;
+//}
+//
+/////////////////////////////////////////////////
+///// \brief It reads the <source definition given by argument
+/////
+//void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
+//    TiXmlElement* sourceDefinition = definition;
+//
+//    TRestGeant4ParticleSource* source = new TRestGeant4ParticleSource();
+//
+//    source->SetParticleName(GetFieldValue("particle", sourceDefinition));
+//
+//    source->SetExcitationLevel(StringToDouble(GetFieldValue("excitedLevel", sourceDefinition)));
+//
+//    Int_t charge = 0;
+//    if (GetFieldValue("charge", sourceDefinition) == "Not defined")
+//        charge = 0;
+//    else
+//        charge = StringToInteger(GetFieldValue("charge", sourceDefinition));
+//
+//    source->SetParticleCharge(charge);
+//
+//    TString fullChain = GetFieldValue("fullChain", sourceDefinition);
+//
+//    if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN") {
+//        SetFullChain(true);
+//    } else {
+//        SetFullChain(false);
+//    }
+//
+//    // Angular distribution parameters
+//    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
+//
+//    source->SetAngularDistType(GetFieldValue("type", angularDefinition));
+//
+//    if (source->GetAngularDistType() == "TH1D") {
+//        source->SetAngularFilename(SearchFile(GetFieldValue("file", angularDefinition)));
+//        source->SetAngularName(GetFieldValue("spctName", angularDefinition));
+//    }
+//
+//    if (GetNumberOfSources() == 0 && source->GetAngularDistType() == "backtoback") {
+//        cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
+//        source->SetAngularDistType("isotropic");
+//    }
+//
+//    source->SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
+//
+//    // Energy distribution parameters
+//    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
+//
+//    source->SetEnergyDistType(GetFieldValue("type", energyDefinition));
+//
+//    if (source->GetEnergyDistType() == "TH1D") {
+//        source->SetSpectrumFilename(SearchFile(GetFieldValue("file", energyDefinition)));
+//        source->SetSpectrumName(GetFieldValue("spctName", energyDefinition));
+//    }
+//
+//    source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+//
+//    if (source->GetEnergyDistType() == "mono") {
+//        Double_t en;
+//        en = GetDblParameterWithUnits("energy", energyDefinition);
+//        source->SetEnergyRange(TVector2(en, en));
+//        source->SetEnergy(en);
+//    }
+//
+//    AddParticleSource(source);
+//}
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.

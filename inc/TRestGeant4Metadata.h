@@ -22,22 +22,21 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+#include <TMath.h>
+#include <TRestGeant4BiasingVolume.h>
+#include <TRestGeant4ParticleSource.h>
+#include <TRestMetadata.h>
+#include <TString.h>
+#include <TVector2.h>
+#include <TVector3.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include <TMath.h>
-#include <TString.h>
-#include <TVector2.h>
-#include <TVector3.h>
-
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4PrimaryGenerator.h>
-#include <TRestMetadata.h>
 
 //------------------------------------------------------------------------------------------------------------------------
 //
@@ -56,13 +55,18 @@ enum class generator_types {
     VOLUME,
     SURFACE,
     POINT,
-    VIRTUAL_WALL,
-    VIRTUAL_BOX,
-    VIRTUAL_SPHERE,
-    VIRTUAL_CIRCLE_WALL,
-    VIRTUAL_CYLINDER,
 };
 extern std::map<string, generator_types> generator_types_map;
+
+enum class generator_shapes {
+    GDML,
+    WALL,
+    PLATE,
+    BOX,
+    SPHERE,
+    CYLINDER,
+};
+extern std::map<string, generator_shapes> generator_shapes_map;
 
 enum class energy_dist_types {
     TH1D,
@@ -91,17 +95,18 @@ class TRestGeant4Metadata : public TRestMetadata {
     void InitFromConfigFile();
 
     void ReadGenerator();
+    void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
 
     void ReadStorage();
     void ReadBiasing();
 
-    void ReadEventDataFile(TString fName);
+    // void ReadEventDataFile(TString fName);
 
-    Int_t ReadNewDecay0File(TString fileName);
+    //Int_t ReadNewDecay0File(TString fileName);
 
-    Int_t ReadOldDecay0File(TString fileName);
+    //Int_t ReadOldDecay0File(TString fileName);
 
-    void ReadParticleSource(TiXmlElement* sourceDefinition);
+    //void ReadParticleSource(TiXmlElement* sourceDefinition);
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -118,8 +123,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
 
-    /// Type of spatial generator (surface, volume, point, virtualWall, etc)
+        /// Type of spatial generator (surface, volume, custom)
     TString fGenType;
+
+    /// Shape of spatial generator (point, wall, gdml, sphere, etc)
+    TString fGenShape;
 
     /// The volume name where the events are generated, in case of volume or
     /// surface generator types.
@@ -131,19 +139,21 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief A 3d-vector with the angles, measured in degrees, of a XYZ rotation
     /// applied to the virtual generator. This rotation is used by virtualWall,
     /// virtualCircleWall and virtualCylinder generators.
-    TVector3 fGenRotation;
+    TVector3 fGenRotationAxis;
 
-    /// \brief The primary length of the virtual generator. I.e. the radius of a virtual
-    /// sphere, or the X-side size of a virtual wall.
-    Double_t fGenDimension1;
+    /// \brief degrees of rotation for generator virtual shape along the axis
+    Double_t fGenRotationDegree;
 
-    /// \brief An additional dimension required by some virtual generators. I.e. the
-    /// lenght of a virtual cylinder or the Y-side size of a virtual wall.
-    Double_t fGenDimension2;
+    /// \brief The size of the generator. Stores up to three deminsions according to the shape
+    /// box: length, width, height
+    /// sphere: radius
+    /// wall: length, width 
+    /// plate: radius
+    /// cylinder: radius, length
+    TVector3 fGenSize;
 
-    /// \brief The name of a Decay0 generated file used to produce a collection of
-    /// primary sources, definning energy, momentum, particle type.
-    TString fGeneratorFile;
+    /// \brief Defines density distribution of the generator shape. rho=F(x,y,z), in range 0~1
+    TString fGenDensityFunction;
 
     /// \brief A 2d-vector storing the energy range, in keV, to decide if a particular
     /// event should be written to disk or not.
@@ -161,7 +171,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
-    TRestGeant4PrimaryGenerator fPrimaryGenerator;
+    std::vector<TRestGeant4ParticleSource*> fParticleSource;  //->
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
@@ -234,6 +244,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// virtualWall, etc )
     TString GetGeneratorType() { return fGenType; }
 
+    /// \brief Returns a string specifying the generator shape (point, wall, box, etc )
+    TString GetGeneratorShape() { return fGenShape; }
+
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
@@ -252,34 +265,20 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
-    TVector3 GetGeneratorRotation() { return fGenRotation; }
+    TVector3 GetGeneratorRotationAxis() { return fGenRotationAxis; }
+
+    /// \brief Returns the degree of rotation
+    Double_t GetGeneratorRotationDegree() { return fGenRotationDegree; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the size of a  virtualBox.
-    Double_t GetGeneratorSize() { return fGenDimension1; }
+    TVector3 GetGeneratorSize() { return fGenSize; }
 
-    /// \brief Returns the main spatial dimension of virtual generator.
-    /// It is the length along the x-axis of a virtualWall.
-    Double_t GetGeneratorLenX() { return fGenDimension1; }
-
-    /// \brief Returns the main spatial dimension of virtual generator.
-    /// It is the radius for virtualSphere, virtualCylinder and virtualCircleWall.
-    Double_t GetGeneratorRadius() { return fGenDimension1; }
-
-    /// \brief Returns the secondary spatial dimension of a virtual volume
-    /// generator. It is used to define the length of virtualCylinder generator.
-    Double_t GetGeneratorLength() { return fGenDimension2; }
-
-    /// \brief Returns the secondary spatial dimension of a virtual volume
-    /// generator. It is the length along the y-axis of a virtualWall.
-    Double_t GetGeneratorLenY() { return fGenDimension2; }
+    /// \brief Returns the density function of the generator
+    TString GetGeneratorSpatialDensity() { return fGenDensityFunction; }
 
     /// \brief Returns true in case full decay chain simulation is enabled.
     Bool_t isFullChainActivated() { return fFullChain; }
-
-    /// \brief Returns the filename used as manual generator. Decay0 files are can
-    /// be understood by restG4.
-    TString GetGeneratorFile() { return fGeneratorFile; }
 
     /// \brief Returns the value of the maximum Geant4 step size in mm for the
     /// target volume.
@@ -316,7 +315,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
     ///  radius of cylinder, size of wall, etc.
-    void SetGeneratorSize(Double_t size) { fGenDimension1 = size; }
+    void SetGeneratorSize(TVector3 size) { fGenSize = size; }
 
     ///  Enables/disables the full chain decay generation.
     void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
@@ -349,33 +348,16 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfSources() { return fPrimaryGenerator.GetNumberOfSources(); }
-
-    /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfPrimaries() { return GetNumberOfSources(); }
-
-    /// Returns the particle source specified with index n.
-    TRestGeant4ParticleSource GetSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    Int_t GetNumberOfSources() { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    TRestGeant4ParticleSource GetParticleSource(int n) { return fPrimaryGenerator.GetParticleSource(n); }
+    TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }
 
-    /// \brief Returns the primary generator object containning information about
-    /// particle sources.
-    TRestGeant4PrimaryGenerator GetPrimaryGenerator() { return fPrimaryGenerator; }
+    /// Remove all the particle sources.
+    void RemoveParticleSources();
 
-    /// \brief Places in fPrimaryGenerator the source definition, with index n,
-    /// from a TRestGeant4ParticleCollection. This will be used by restG4 to pick up
-    /// randomly a primary source definition from a pre-generated sources
-    /// collection. The particle collection needs to be previously populated using
-    /// i.e. an input Decay0 file.
-    void ReadParticleCollection(Int_t n) { fPrimaryGenerator.UpdateSourcesFromParticleCollection(n); }
-
-    /// Removes all the sources from fPrimaryGenerator.
-    void RemoveSources() { fPrimaryGenerator.RemoveSources(); }
-
-    /// Adds a new source to fPrimaryGenerator.
-    void AddSource(TRestGeant4ParticleSource src) { fPrimaryGenerator.AddSource(src); }
+    /// Adds a new particle source.
+    void AddParticleSource(TRestGeant4ParticleSource* src);
     ///////////////////////////////////////////////////////////
 
     // Direct access to biasing volumes definition
@@ -436,6 +418,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 8);
+    ClassDef(TRestGeant4Metadata, 9);
 };
 #endif  // RestCore_TRestGeant4Metadata
