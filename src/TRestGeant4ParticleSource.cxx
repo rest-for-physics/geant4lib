@@ -17,8 +17,8 @@
 
 //#include "TFile.h"
 
-#include "TRestGeant4Metadata.h"
 #include "TRestGeant4ParticleSource.h"
+#include "TRestGeant4Metadata.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
@@ -87,7 +87,7 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
         // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestGeant4ParticleSource" + model).c_str());
-        if (c != NULL)  // this means we have the package installed
+        if (c)  // this means we have the package installed
         {
             return (TRestGeant4ParticleSource*)c->New();
         } else {
@@ -95,7 +95,7 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
                       << "\" not found!" << std::endl;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void TRestGeant4ParticleSource::InitFromConfigFile() {
