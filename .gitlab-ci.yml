@@ -10,7 +10,7 @@ stages:
   - deploy
 
 before_script:
-  - export USER="detector"
+  - export USER="geant4"
   - pwd
   - echo $CI_SERVER_HOST
   - echo $CRONJOB
