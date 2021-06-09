@@ -10,7 +10,7 @@ stages:
   - deploy
 
 before_script:
-  - export USER="detector"
+  - export USER="geant4"
   - pwd
   - echo $CI_SERVER_HOST
   - echo $CRONJOB
@@ -52,7 +52,7 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
+    - git clone --single-branch --branch master https://github.com/rest-for-physics/framework.git framework
     - cd framework
     - git submodule init source/libraries/geant4
     - git submodule update source/libraries/geant4
