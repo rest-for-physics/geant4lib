@@ -1,6 +1,6 @@
-
-///______________________________________________________________________________
-///______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -16,20 +16,20 @@
 ///                 Javier Galan
 ///_______________________________________________________________________________
 
+#include "TRestGeant4PhysicsLists.h"
+
 #include "TRestTools.h"
 
-#include "TRestGeant4PhysicsLists.h"
 using namespace std;
 
 ClassImp(TRestGeant4PhysicsLists)
-    //______________________________________________________________________________
+
     TRestGeant4PhysicsLists::TRestGeant4PhysicsLists()
     : TRestMetadata() {
     // TRestGeant4PhysicsLists default constructor
     Initialize();
 }
 
-//______________________________________________________________________________
 TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     Initialize();
@@ -39,7 +39,6 @@ TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
     PrintMetadata();
 }
 
-//______________________________________________________________________________
 TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() {
     // TRestGeant4PhysicsLists destructor
 }
@@ -49,7 +48,6 @@ void TRestGeant4PhysicsLists::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 }
 
-//______________________________________________________________________________
 void TRestGeant4PhysicsLists::InitFromConfigFile() {
     this->Initialize();
 

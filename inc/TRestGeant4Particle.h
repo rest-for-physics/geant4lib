@@ -16,10 +16,11 @@
 #ifndef RestCore_TRestGeant4Particle
 #define RestCore_TRestGeant4Particle
 
-#include <iostream>
-
 #include <TString.h>
 #include <TVector3.h>
+
+#include <iostream>
+
 #include "TObject.h"
 
 class TRestGeant4Particle : public TObject {

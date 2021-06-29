@@ -102,11 +102,11 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     // void ReadEventDataFile(TString fName);
 
-    //Int_t ReadNewDecay0File(TString fileName);
+    // Int_t ReadNewDecay0File(TString fileName);
 
-    //Int_t ReadOldDecay0File(TString fileName);
+    // Int_t ReadOldDecay0File(TString fileName);
 
-    //void ReadParticleSource(TiXmlElement* sourceDefinition);
+    // void ReadParticleSource(TiXmlElement* sourceDefinition);
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -123,7 +123,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
 
-        /// Type of spatial generator (surface, volume, custom)
+    /// Type of spatial generator (surface, volume, custom)
     TString fGenType;
 
     /// Shape of spatial generator (point, wall, gdml, sphere, etc)
@@ -147,7 +147,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief The size of the generator. Stores up to three deminsions according to the shape
     /// box: length, width, height
     /// sphere: radius
-    /// wall: length, width 
+    /// wall: length, width
     /// plate: radius
     /// cylinder: radius, length
     TVector3 fGenSize;

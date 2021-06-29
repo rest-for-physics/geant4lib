@@ -25,8 +25,8 @@
 
 #include "TObject.h"
 //
-#include "TRestMetadata.h"
 #include "TRestGeant4Particle.h"
+#include "TRestMetadata.h"
 
 class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetadata {
    private:
