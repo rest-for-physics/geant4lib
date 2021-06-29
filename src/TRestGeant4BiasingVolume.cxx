@@ -16,6 +16,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4BiasingVolume.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4BiasingVolume)

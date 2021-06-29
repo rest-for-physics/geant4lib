@@ -864,7 +864,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 void TRestGeant4Metadata::ReadBiasing() {
     TiXmlElement* biasingDefinition = GetElement("biasing");
-    if (biasingDefinition == NULL) {
+    if (biasingDefinition == nullptr) {
         fNBiasingVolumes = 0;
         return;
     }
@@ -878,7 +878,7 @@ void TRestGeant4Metadata::ReadBiasing() {
 
         TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
-        while (biasVolumeDefinition != NULL) {
+        while (biasVolumeDefinition != nullptr) {
             TRestGeant4BiasingVolume biasVolume;
             debug << "Def : " << biasVolumeDefinition << endl;
 
@@ -950,7 +950,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
-    while (sourceDefinition != NULL) {
+    while (sourceDefinition != nullptr) {
         string use = GetParameter("use", sourceDefinition, "");
 
         TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
@@ -1106,7 +1106,7 @@ void TRestGeant4Metadata::ReadStorage() {
     }
 
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
-    while (volumeDefinition != NULL) {
+    while (volumeDefinition != nullptr) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1) chance = 1;
 

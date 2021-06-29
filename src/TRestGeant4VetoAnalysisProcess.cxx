@@ -90,12 +90,12 @@ void TRestGeant4VetoAnalysisProcess::LoadDefaultConfig() { SetTitle("Default con
 /// section name
 ///
 void TRestGeant4VetoAnalysisProcess::Initialize() {
-    fG4Metadata = NULL;
+    fG4Metadata = nullptr;
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputG4Event = NULL;
+    fInputG4Event = nullptr;
     fOutputG4Event = new TRestGeant4Event();
 }
 

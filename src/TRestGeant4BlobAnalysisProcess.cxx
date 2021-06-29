@@ -14,6 +14,7 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4BlobAnalysisProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4BlobAnalysisProcess);
