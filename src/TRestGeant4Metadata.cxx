@@ -1039,11 +1039,7 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
 
 void TRestGeant4Metadata_addDaughters(TGeoNode* node, set<string>* logicalVolumesSet,
                                       set<string>* physicalVolumesSet, set<string>* assembliesSet) {
-    if (node->GetVolume()->IsAssembly()) {
-        assembliesSet->insert(node->GetVolume()->GetName());
-    } else {
-        physicalVolumesSet->insert(node->GetVolume()->GetName());
-    }
+    assembliesSet->insert(node->GetVolume()->GetName());
     for (size_t i = 0; i < node->GetNdaughters(); i++) {
         TGeoNode* daughter = node->GetDaughter(i);
         if (daughter->GetVolume()->IsAssembly()) {

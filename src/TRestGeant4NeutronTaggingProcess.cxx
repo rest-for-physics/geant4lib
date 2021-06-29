@@ -86,6 +86,7 @@
 ///
 
 #include "TRestGeant4NeutronTaggingProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4NeutronTaggingProcess);

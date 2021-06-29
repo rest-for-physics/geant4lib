@@ -22,10 +22,9 @@
 
 using namespace std;
 
-ClassImp(TRestGeant4PhysicsLists)
+ClassImp(TRestGeant4PhysicsLists);
 
-    TRestGeant4PhysicsLists::TRestGeant4PhysicsLists()
-    : TRestMetadata() {
+TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() {
     // TRestGeant4PhysicsLists default constructor
     Initialize();
 }

@@ -64,6 +64,7 @@
 ///
 
 #include "TRestGeant4VetoAnalysisProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4VetoAnalysisProcess);

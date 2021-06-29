@@ -1,8 +1,8 @@
 #include "TRestGeant4ParticleSourceDecay0.h"
 
-ClassImp(TRestGeant4ParticleSourceDecay0)
+ClassImp(TRestGeant4ParticleSourceDecay0);
 
-    TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
+TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
 /* : generator((uintptr_t)this), prng(generator)*/ {
     fDecay0Model = new bxdecay0::decay0_generator();
 }
