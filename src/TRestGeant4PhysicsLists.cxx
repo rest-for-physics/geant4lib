@@ -61,7 +61,7 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
     fMaxEnergyRangeProductionCuts = GetDblParameterWithUnits("maxEnergyRangeProductionCuts", 1e6);
 
     TiXmlElement* physicsListDefinition = GetElement("physicsList");
-    while (physicsListDefinition != nullptr) {
+    while (physicsListDefinition) {
         // PhysicsList name
         TString phName = GetFieldValue("name", physicsListDefinition);
 
@@ -72,7 +72,7 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
 
         TString optionString = "";
         TiXmlElement* optionDefinition = GetElement("physicsList", physicsListDefinition);
-        while (optionDefinition != nullptr) {
+        while (optionDefinition) {
             TString optionName = GetFieldValue("name", optionDefinition);
             TString optionValue = GetFieldValue("value", optionDefinition);
 

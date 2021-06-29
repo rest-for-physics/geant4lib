@@ -337,7 +337,7 @@ void TRestGeant4Event::SetBoundaries() {
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
 TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fXYHitGraph != nullptr) {
+    if (fXYHitGraph) {
         delete[] fXYHitGraph;
         fXYHitGraph = nullptr;
     }
@@ -345,7 +345,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
 
     fXYMultiGraph = new TMultiGraph();
 
-    if (fLegend_XY != nullptr) {
+    if (fLegend_XY) {
         delete fLegend_XY;
         fLegend_XY = nullptr;
     }
@@ -429,7 +429,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
 
 TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fYZHitGraph != nullptr) {
+    if (fYZHitGraph) {
         delete[] fYZHitGraph;
         fYZHitGraph = nullptr;
     }
@@ -437,7 +437,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
 
     fYZMultiGraph = new TMultiGraph();
 
-    if (fLegend_YZ != nullptr) {
+    if (fLegend_YZ) {
         delete fLegend_YZ;
         fLegend_YZ = nullptr;
     }
@@ -521,7 +521,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
 
 TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
-    if (fXZHitGraph != nullptr) {
+    if (fXZHitGraph) {
         delete[] fXZHitGraph;
         fXZHitGraph = nullptr;
     }
@@ -529,7 +529,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 
     fXZMultiGraph = new TMultiGraph();
 
-    if (fLegend_XZ != nullptr) {
+    if (fLegend_XZ) {
         delete fLegend_XZ;
         fLegend_XZ = nullptr;
     }
@@ -614,7 +614,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
 TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXYHisto != nullptr) {
+    if (fXYHisto) {
         delete fXYHisto;
         fXYHisto = nullptr;
     }
@@ -673,7 +673,7 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
 }
 
 TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXZHisto != nullptr) {
+    if (fXZHisto) {
         delete fXZHisto;
         fXZHisto = nullptr;
     }
@@ -732,7 +732,7 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
 }
 
 TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fYZHisto != nullptr) {
+    if (fYZHisto) {
         delete fYZHisto;
         fYZHisto = nullptr;
     }
@@ -792,7 +792,7 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
 /* }}} */
 
 TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fXHisto != nullptr) {
+    if (fXHisto) {
         delete fXHisto;
         fXHisto = nullptr;
     }
@@ -843,7 +843,7 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
 }
 
 TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fZHisto != nullptr) {
+    if (fZHisto) {
         delete fZHisto;
         fZHisto = nullptr;
     }
@@ -894,7 +894,7 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> op
 }
 
 TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optList) {
-    if (fYHisto != nullptr) {
+    if (fYHisto) {
         delete fYHisto;
         fYHisto = nullptr;
     }

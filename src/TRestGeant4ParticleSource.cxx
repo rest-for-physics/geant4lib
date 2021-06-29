@@ -32,9 +32,9 @@ using namespace std;
 //    TRestLeveledOutput<REST_Essential>(fLevel, COLOR_BOLDGREEN, "||",
 //                                       (REST_Display_Format)kBorderedMiddle);  //!
 
-ClassImp(TRestGeant4ParticleSource)
+ClassImp(TRestGeant4ParticleSource);
 
-    TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
+TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
     // TRestGeant4ParticleSource default constructor
     fAngularDistType = "flux";
     fEnergyDistType = "mono";

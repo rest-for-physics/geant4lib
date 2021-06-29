@@ -19,9 +19,9 @@
 
 using namespace std;
 
-ClassImp(TRestGeant4BiasingVolume)
+ClassImp(TRestGeant4BiasingVolume);
 
-    TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
+TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
     fBiasingVolumeType = "virtualBox";
     // TRestGeant4BiasingVolume default constructor
 }
