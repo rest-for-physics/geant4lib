@@ -8,8 +8,8 @@
 #include <iostream>
 
 #include "TObject.h"
-#include "TRestMetadata.h"
 #include "TRestGeant4ParticleSource.h"
+#include "TRestMetadata.h"
 
 class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
    protected:
@@ -21,7 +21,7 @@ class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
     string fDecayType;
 
     int fSeed;
-    int fDaugherLevel;
+    int fDaughterLevel;
 
    public:
     void Update() override;

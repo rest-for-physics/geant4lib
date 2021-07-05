@@ -1,6 +1,6 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -16,16 +16,16 @@
 ///_______________________________________________________________________________
 
 #include "TRestGeant4BiasingVolume.h"
+
 using namespace std;
 
-ClassImp(TRestGeant4BiasingVolume)
-    //______________________________________________________________________________
-    TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
+ClassImp(TRestGeant4BiasingVolume);
+
+TRestGeant4BiasingVolume::TRestGeant4BiasingVolume() {
     fBiasingVolumeType = "virtualBox";
     // TRestGeant4BiasingVolume default constructor
 }
 
-//______________________________________________________________________________
 TRestGeant4BiasingVolume::~TRestGeant4BiasingVolume() {
     // TRestGeant4BiasingVolume destructor
 }
