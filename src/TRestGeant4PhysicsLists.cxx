@@ -29,6 +29,8 @@ TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() {
     Initialize();
 }
 
+TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() = default;
+
 TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     Initialize();
@@ -36,10 +38,6 @@ TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
     LoadConfigFromFile(fConfigFileName, name);
 
     PrintMetadata();
-}
-
-TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() {
-    // TRestGeant4PhysicsLists destructor
 }
 
 void TRestGeant4PhysicsLists::Initialize() {

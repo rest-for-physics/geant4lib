@@ -581,8 +581,8 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     }
 
     // These cuts should be in another process or eliminated?!!
-    if (energy < fLowEnergyCut) return NULL;
-    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return NULL;
+    if (energy < fLowEnergyCut) return nullptr;
+    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
 
     return fOutputG4Event;
 }

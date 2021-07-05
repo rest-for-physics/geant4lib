@@ -27,8 +27,7 @@
 
 #include "TObject.h"
 
-// Perhaps there might be need for a mother class TRestTrack (if there is future
-// need)
+// Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
     Int_t fTrack_ID;

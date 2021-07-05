@@ -22,16 +22,14 @@ ClassImp(TRestGeant4EventViewer);
 
 TRestGeant4EventViewer::TRestGeant4EventViewer() { Initialize(); }
 
-TRestGeant4EventViewer::~TRestGeant4EventViewer() {
-    // TRestGeant4EventViewer destructor
-}
+TRestGeant4EventViewer::~TRestGeant4EventViewer() = default;
 
 void TRestGeant4EventViewer::Initialize() {
     fG4Event = new TRestGeant4Event();
     fEvent = fG4Event;
 
     fHitConnectors.clear();
-    fHitConnectors.push_back(NULL);
+    fHitConnectors.push_back(nullptr);
 }
 
 void TRestGeant4EventViewer::DeleteCurrentEvent() {
@@ -40,7 +38,7 @@ void TRestGeant4EventViewer::DeleteCurrentEvent() {
     TRestEveEventViewer::DeleteCurrentEvent();
 
     fHitConnectors.clear();
-    fHitConnectors.push_back(NULL);
+    fHitConnectors.push_back(nullptr);
 }
 
 void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {

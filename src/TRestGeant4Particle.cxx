@@ -21,10 +21,6 @@ using namespace std;
 
 ClassImp(TRestGeant4Particle);
 
-TRestGeant4Particle::TRestGeant4Particle() {
-    // TRestGeant4Particle default constructor
-}
+TRestGeant4Particle::TRestGeant4Particle() = default;
 
-TRestGeant4Particle::~TRestGeant4Particle() {
-    // TRestGeant4Particle destructor
-}
+TRestGeant4Particle::~TRestGeant4Particle() = default;
