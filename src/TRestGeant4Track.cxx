@@ -21,13 +21,9 @@ using namespace std;
 
 ClassImp(TRestGeant4Track);
 
-TRestGeant4Track::TRestGeant4Track() {
-    // TRestGeant4Track default constructor
-}
+TRestGeant4Track::TRestGeant4Track() = default;
 
-TRestGeant4Track::~TRestGeant4Track() {
-    // TRestGeant4Track destructor
-}
+TRestGeant4Track::~TRestGeant4Track() = default;
 
 Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
     Int_t id = -1;

@@ -19,13 +19,9 @@
 
 ClassImp(TRestGeant4Hits);
 
-TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
-    // TRestGeant4Hits default constructor
-}
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() = default;
 
-TRestGeant4Hits::~TRestGeant4Hits() {
-    // TRestGeant4Hits destructor
-}
+TRestGeant4Hits::~TRestGeant4Hits() = default;
 
 void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
                                Int_t volume, Double_t eKin, TVector3 momentumDirection) {

@@ -216,7 +216,7 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) {
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
     for (int i = 0; i < fNTracks; i++)
         if (fTrack[i].GetTrackID() == id) return &fTrack[i];
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////
@@ -1086,9 +1086,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) {
                  << " has not been stored" << endl;
     }
 
-    cout << "--------------------------------------------------------------------"
-            "-------"
-         << endl;
+    cout << "---------------------------------------------------------------------------" << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
 
     int ntracks = GetNumberOfTracks();

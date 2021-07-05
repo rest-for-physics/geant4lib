@@ -40,9 +40,7 @@ TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
     fEnergyDistType = "mono";
 }
 
-TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
-    // TRestGeant4ParticleSource destructor
-}
+TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 
 void TRestGeant4ParticleSource::PrintParticleSource() {
     metadata << "---------------------------------------" << endl;
