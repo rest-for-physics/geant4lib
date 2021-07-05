@@ -492,11 +492,11 @@ class TRestGeant4Event : public TRestEvent {
     TPad* DrawEvent(TString option = "") { return DrawEvent(option, true); }
     TPad* DrawEvent(TString option, Bool_t autoBoundaries);
 
-    // Construtor
+    // Constructor
     TRestGeant4Event();
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 5);  // REST event superclass
+    ClassDef(TRestGeant4Event, 6);  // REST event superclass
 };
 #endif

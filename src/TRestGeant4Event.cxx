@@ -34,9 +34,7 @@ TRestGeant4Event::TRestGeant4Event() {
     Initialize();
 }
 
-TRestGeant4Event::~TRestGeant4Event() {
-    // TRestGeant4Event destructor
-}
+TRestGeant4Event::~TRestGeant4Event() = default;
 
 void TRestGeant4Event::Initialize() {
     TRestEvent::Initialize();
