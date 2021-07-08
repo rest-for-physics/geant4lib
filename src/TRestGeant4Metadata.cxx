@@ -943,7 +943,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     if (fGenFrom != PARAMETER_NOT_FOUND_STR) {
         fGenShape = "gdml";
     }
-    fGenSize = StringTo3DVector(GetParameter("size", generatorDefinition));
+    fGenSize = Get3DVectorParameterWithUnits("size", generatorDefinition);
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
     fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
     fGenRotationDegree = StringToDouble(GetParameter("rotationDeg", generatorDefinition, "0"));
@@ -1226,7 +1226,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// \param fName The Decay0 filename located at
 ///// REST_PATH/data/generator/
 /////
-//void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
+// void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
 //    string fullPathName = SearchFile((string)fName);
 //    if (fullPathName == "") {
 //        ferr << "File not found : " << fName << endl;
@@ -1243,10 +1243,11 @@ void TRestGeant4Metadata::PrintMetadata() {
 /////////////////////////////////////////////////
 ///// \brief Reads particle information using the file format from newer Decay0 versions.
 /////
-///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0
+///files
 ///// produced with the newer Decay0 versions.
 /////
-//Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
+// Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
 //    ifstream infile;
 //    infile.open(fileName);
 //    if (!infile.is_open()) {
@@ -1346,10 +1347,11 @@ void TRestGeant4Metadata::PrintMetadata() {
 /////////////////////////////////////////////////
 ///// \brief Reads particle information using the file format from older Decay0 versions.
 /////
-///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0 files
+///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0
+///files
 ///// produced with the newer Decay0 versions.
 /////
-//Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
+// Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
 //    ifstream infile;
 //    infile.open(fileName);
 //    if (!infile.is_open()) {
@@ -1370,7 +1372,8 @@ void TRestGeant4Metadata::PrintMetadata() {
 //    }
 //    if (!headerFound) {
 //        ferr
-//            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+//            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and
+//            "
 //               "full number of events:\" header.\n";
 //        abort();
 //    }
@@ -1456,7 +1459,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 /////////////////////////////////////////////////
 ///// \brief It reads the <source definition given by argument
 /////
-//void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
+// void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
 //    TiXmlElement* sourceDefinition = definition;
 //
 //    TRestGeant4ParticleSource* source = new TRestGeant4ParticleSource();
