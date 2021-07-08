@@ -86,6 +86,7 @@
 ///
 
 #include "TRestGeant4NeutronTaggingProcess.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4NeutronTaggingProcess);
@@ -112,12 +113,12 @@ void TRestGeant4NeutronTaggingProcess::LoadDefaultConfig() { SetTitle("Default c
 /// section name
 ///
 void TRestGeant4NeutronTaggingProcess::Initialize() {
-    fG4Metadata = NULL;
+    fG4Metadata = nullptr;
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputG4Event = NULL;
+    fInputG4Event = nullptr;
     fOutputG4Event = new TRestGeant4Event();
 }
 

@@ -1,6 +1,6 @@
-///______________________________________________________________________________
-///______________________________________________________________________________
-///______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
+///_______________________________________________________________________________
 ///
 ///
 ///             RESTSoft : Software for Rare Event Searches with TPCs
@@ -15,13 +15,13 @@
 ///                 J. Galan
 ///_______________________________________________________________________________
 
-//#include "TFile.h"
-
 #include "TRestGeant4ParticleSource.h"
+
 #include "TRestGeant4Metadata.h"
 #include "TRestReflector.h"
 #include "TRestStringHelper.h"
 #include "TRestStringOutput.h"
+
 using namespace std;
 
 // REST_Verbose_Level fLevel = REST_Essential;  //!
@@ -32,15 +32,14 @@ using namespace std;
 //    TRestLeveledOutput<REST_Essential>(fLevel, COLOR_BOLDGREEN, "||",
 //                                       (REST_Display_Format)kBorderedMiddle);  //!
 
-ClassImp(TRestGeant4ParticleSource)
-    //______________________________________________________________________________
-    TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
+ClassImp(TRestGeant4ParticleSource);
+
+TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
     // TRestGeant4ParticleSource default constructor
     fAngularDistType = "flux";
     fEnergyDistType = "mono";
 }
 
-//______________________________________________________________________________
 TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
     // TRestGeant4ParticleSource destructor
 }

@@ -1,8 +1,8 @@
 #include "TRestGeant4ParticleSourceDecay0.h"
 
-ClassImp(TRestGeant4ParticleSourceDecay0)
+ClassImp(TRestGeant4ParticleSourceDecay0);
 
-    TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
+TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
 /* : generator((uintptr_t)this), prng(generator)*/ {
     fDecay0Model = new bxdecay0::decay0_generator();
 }
@@ -12,7 +12,7 @@ void TRestGeant4ParticleSourceDecay0::PrintParticleSource() {
     metadata << "Particle Source Name: " << fParticleName << endl;
     metadata << "Parent Nuclide: " << fParentName << endl;
     metadata << "Decay Mode: " << fDecayType << endl;
-    metadata << "Daugher Level: " << fDaugherLevel << endl;
+    metadata << "Daughter Level: " << fDaughterLevel << endl;
     metadata << "Seed: " << fSeed << endl;
 }
 
@@ -23,7 +23,7 @@ void TRestGeant4ParticleSourceDecay0::InitFromConfigFile() {
     fParticleName = ((TRestMetadata*)this)->ClassName();
     fParentName = GetParameter("particle");
     fDecayType = GetParameter("decayMode");
-    fDaugherLevel = StringToInteger(GetParameter("daughterLevel"));
+    fDaughterLevel = StringToInteger(GetParameter("daughterLevel"));
     fSeed = StringToInteger(GetParameter("seed", "0"));
     if (fSeed != 0) {
     } else {
@@ -38,25 +38,25 @@ void TRestGeant4ParticleSourceDecay0::InitFromConfigFile() {
         ferr << "Only Xe136 double beta decay is supported by restDecay0" << endl;
         exit(1);
     }
-    if (fDaugherLevel < 0 || fDaugherLevel > 3) {
+    if (fDaughterLevel < 0 || fDaughterLevel > 3) {
         ferr << "Supported Ba136 excitation level: 0, 1, 2, 3" << endl;
         exit(1);
     }
 
     fDecay0Model->set_decay_isotope(fParentName);
 
-    fDecay0Model->set_decay_dbd_level(fDaugherLevel);
+    fDecay0Model->set_decay_dbd_level(fDaughterLevel);
 
     if (fDecayType == "2vbb") {
-        if (fDaugherLevel == 0 || fDaugherLevel == 3) {
+        if (fDaughterLevel == 0 || fDaughterLevel == 3) {
             fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_0_2N);
-        } else if (fDaugherLevel == 1 || fDaugherLevel == 2) {
+        } else if (fDaughterLevel == 1 || fDaughterLevel == 2) {
             fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_2_2N);
         }
     } else if (fDecayType == "0vbb") {
-        if (fDaugherLevel == 0 || fDaugherLevel == 3) {
+        if (fDaughterLevel == 0 || fDaughterLevel == 3) {
             fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_MN_0_2N);
-        } else if (fDaugherLevel == 1 || fDaugherLevel == 2) {
+        } else if (fDaughterLevel == 1 || fDaughterLevel == 2) {
             fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_RHC_LAMBDA_2_2N);
         }
     }
