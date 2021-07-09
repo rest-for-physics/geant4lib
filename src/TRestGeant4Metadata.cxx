@@ -943,7 +943,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     if (fGenFrom != PARAMETER_NOT_FOUND_STR) {
         fGenShape = "gdml";
     }
-    fGenSize = StringTo3DVector(GetParameter("size", generatorDefinition));
+    fGenSize = Get3DVectorParameterWithUnits("size", generatorDefinition);
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
     fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
     fGenRotationDegree = StringToDouble(GetParameter("rotationDeg", generatorDefinition, "0"));
@@ -1223,12 +1223,12 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// REST_PATH/data/generator/
 /////
 // void TRestGeant4Metadata::ReadEventDataFile(TString fName) {
-//     string fullPathName = SearchFile((string)fName);
-//     if (fullPathName == "") {
-//         ferr << "File not found : " << fName << endl;
-//         ferr << "Decay0 generator file could not be found!!" << endl;
-//         exit(1);
-//     }
+//    string fullPathName = SearchFile((string)fName);
+//    if (fullPathName == "") {
+//        ferr << "File not found : " << fName << endl;
+//        ferr << "Decay0 generator file could not be found!!" << endl;
+//        exit(1);
+//    }
 //
 //     debug << "TRestGeant4Metadata::ReadGeneratorFile" << endl;
 //     debug << "Full path generator file : " << fullPathName << endl;
@@ -1244,12 +1244,12 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// produced with the newer Decay0 versions.
 /////
 // Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
-//     ifstream infile;
-//     infile.open(fileName);
-//     if (!infile.is_open()) {
-//         printf("Error when opening file %s\n", fileName.Data());
-//         return 0;
-//     }
+//    ifstream infile;
+//    infile.open(fileName);
+//    if (!infile.is_open()) {
+//        printf("Error when opening file %s\n", fileName.Data());
+//        return 0;
+//    }
 //
 //     int generatorEvents = 0;
 //     string s;
@@ -1348,34 +1348,34 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// produced with the newer Decay0 versions.
 /////
 // Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
-//     ifstream infile;
-//     infile.open(fileName);
-//     if (!infile.is_open()) {
-//         printf("Error when opening file %s\n", fileName.Data());
-//         return 0;
-//     }
+//    ifstream infile;
+//    infile.open(fileName);
+//    if (!infile.is_open()) {
+//        printf("Error when opening file %s\n", fileName.Data());
+//        return 0;
+//    }
 //
-//     string s;
-//     // First lines are discarded.
-//     int headerFound = 0;
-//     for (int i = 0; i < 30; i++) {
-//         getline(infile, s);
-//         if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
-//         if (s.find("First event and full number of events:") != -1) {
-//             headerFound = 1;
-//             break;
-//         }
-//     }
-//     if (!headerFound) {
-//         ferr
-//             << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event
-//             and "
-//                "full number of events:\" header.\n";
-//         abort();
-//     }
-//     int tmpInt;
-//     int fGeneratorEvents;
-//     infile >> tmpInt >> fGeneratorEvents;
+//    string s;
+//    // First lines are discarded.
+//    int headerFound = 0;
+//    for (int i = 0; i < 30; i++) {
+//        getline(infile, s);
+//        if (s.find("#!bxdecay0 1.0.0") != -1) return 0;
+//        if (s.find("First event and full number of events:") != -1) {
+//            headerFound = 1;
+//            break;
+//        }
+//    }
+//    if (!headerFound) {
+//        ferr
+//            << "TRestGeant4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and
+//            "
+//               "full number of events:\" header.\n";
+//        abort();
+//    }
+//    int tmpInt;
+//    int fGeneratorEvents;
+//    infile >> tmpInt >> fGeneratorEvents;
 //
 //     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 //     TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
@@ -1456,7 +1456,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// \brief It reads the <source definition given by argument
 /////
 // void TRestGeant4Metadata::ReadParticleSource(TiXmlElement* definition) {
-//     TiXmlElement* sourceDefinition = definition;
+//    TiXmlElement* sourceDefinition = definition;
 //
 //     TRestGeant4ParticleSource* source = new TRestGeant4ParticleSource();
 //
