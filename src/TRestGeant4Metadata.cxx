@@ -25,17 +25,18 @@
 /// based Geant4 code distributed with REST) used to launch Geant4 based
 /// simulations, and store later on the simulation conditions as metadata
 /// information inside the output generated file. The simulations produced by
-/// *restG4* will write to disk the event data generated as a TRestG4Event type.
+/// *restG4* will write to disk the event data generated as a TRestGeant4Event type.
 /// The tutorials page includes a tutorial describing on detail how to launch a
 /// restG4 simulation and retrieve basic simulation results.
 ///
 /// There are few helper classes that aid to organize and access the information
-/// that TRestGeant4Metadata contains, TRestG4PrimaryGenerator, TRestG4BiasingVolume,
-/// TRestG4ParticleCollection, TRestG4Particle, TRestG4ParticleSource, and
-/// TRestG4PhysicsLists.
+/// that TRestGeant4Metadata contains, TRestGeant4Particle, TRestGeant4BiasingVolume,
+/// TRestGeant4ParticleSource.
 ///
-/// The full RML description to be provided to *restG4* to launch a simulation
-/// requires in addition a TRestG4PhysicsLists definition, providing the physics
+/// After installation of restG4, some basic working examples can be found at 
+/// `$REST_PATH/examples/`. We use this class to store restG4 rml parameters like
+/// particle type, energy, direction, gdml definition, etc. In addition, we have 
+/// a class TRestGeant4PhysicsLists in parallel to define the necessary physics
 /// processes, EM, hadronic, etc, that will be active in our Geant4 simulation.
 ///
 /// In general terms, an RML file to be used with restG4 must define the
@@ -61,18 +62,15 @@
 ///     ...
 /// </TRestGeant4Metadata>
 ///
-/// //A TRestG4PhysicsLists section def-inning the physics processes active.
-/// <TRestG4PhysicsLists>
+/// //A TRestGeant4PhysicsLists section def-inning the physics processes active.
+/// <TRestGeant4PhysicsLists>
 ///     ...
-/// </TRestG4PhysicsLists>
+/// </TRestGeant4PhysicsLists>
 ///
 /// \endcode
 ///
 /// \note Wherever 3 dots (`...`) are provided means a redundant code format, or
 /// that additional fields might be required.
-///
-/// Few basic working examples can be found at
-/// REST_PATH/config/template/restG4.rml
 ///
 /// \note The runTag inside the TRestRun class will be overwritten by the name
 /// of TRestGeant4Metadata section defined in the RML.
@@ -80,14 +78,14 @@
 /// This page describes in detail the different parameters, particle generator
 /// types, storage, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
-/// required sections, as TRestRun or TRestG4PhysicsLists, will be found in their
+/// required sections, as TRestRun or TRestGeant4PhysicsLists, will be found in their
 /// respective class documentation.
 ///
 /// We can sub-divide the information provided through TRestGeant4Metadata in
 /// different parts,
 ///
 /// 1. the main parameters related to the simulation conditions, such as number
-/// of events to be simulated, maximum step size, or GDML geometry definitions
+/// of events to be simulated, random seed, or GDML geometry definitions
 /// file,
 ///
 /// 2. the definition of the primary particle generator, using the `<generator>`
@@ -116,20 +114,14 @@
 /// different isotope decays are stored in different events.
 ///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The path and name of the main GDML file. In principle, the
+/// * **gdml_file**: The path and name of the main GDML file. Both relative and 
+/// absolute path is supported. In principle, the
 /// user has full freedom to create any detector setup geometry using a
 /// [GDML][GDML] description.
 ///
 /// \warning The only requirement is that the gas logical volume (implemented
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
-/// * **maxTargetStepSize**: This is the maximum integration step size allowed
-/// to Geant4 when approximating the interaction of particles in a medium. Lower
-/// values will provide a more accurate description of the particle tracks, but
-/// will also require an additional computation time.
-/// \note The parameter **maxTargetStepSize** has only effect on the target
-/// volume, that is the physical volume corresponding to the logical volume
-/// named `gasVolume` in the geometry.
 ///
 /// * **subEventTimeDelay**: This parameter defines the event time window. If a
 /// Geant4 energy deposit takes place after this time, those hits will be
@@ -188,107 +180,86 @@
 /// We can define any number of primary particles (sources) that will be used
 /// to construct an initial event. All primary particles that build an
 /// event will have a common position(*). The spatial origin of these sources, or
-/// primaries, is specified in the definition of the generator, through the
-/// generator *type* field.
-/// (*) This rule is exceptionally broken for generator type "file", meant to
-/// provide for fringe cases where, e.g., events prepared by an external MC
-/// generator are propagated in the TPC, including their incident particle.
+/// primaries, is specified in the definition of the generator. We have 4 major types
+/// of generator, namely:
 ///
-/// We must specify the generator type as an attribute of the generator element
-/// as follows: \code <generator type="generatorType" ... > \endcode
+/// * **custom**: Uses positions specified in the generator file of the particle 
+/// source. (NOT IMPLEMENTED)
 ///
-/// Depending on the generator type we use, we will need to add additional
-/// values to the generator definition.
-///
-/// The different types we can choose to use in *restG4*, are detailed in the
-/// following list:
-///
-/// * **volume**: This generator will launch the events from random positions
-/// inside a volume defined in the geometry. It requires to define the parameter
-/// `from="physVolume"`, where `physVolume` is a physical volume name defined in
-/// our GDML geometry description. This generator will launch homogeneously
-/// events from the internal volume of `physVolume`. If there are empty holes in
-/// this physical volumes we should take care to subtract the different internal
-/// empty volumes in the geometry definition, for this generator to work
-/// properly. \code
-///     // We launch particles from random positions inside the vessel
-///     // volume defined in our GDML geometry
-///     <generator type="volume" from="vessel" >
-/// \endcode
-///
-/// * **surface**: This generator will launch homogeneously events from the
-/// surface of a volume defined in the geometry. It also requires to define the
-/// additional parameter `from="physVolume"`, using a physical volume name
-/// defined in our GDML geometry description. \code
-///     // We launch particles from random positions at the surface of the
-///     cathode
-///     // volume defined in our GDML geometry
-///     <generator type="surface" from="cathode" >
-/// \endcode
-///
-/// * **point**: All the particles will be launched from the same position. It
-/// requires to define the additional parameter `position="(X,Y,Z)"` together
-/// with the unit values. \code
+/// * **volume**: Launch the events from random positions inside a volume of certain
+/// shape.
+/// 
+/// * **surface**: Launch the events from random positions upon the surface of certain
+/// shape.
+/// 
+/// * **point**: Launch the events from a single point of given position.
+/// \code
 ///     // We launch particles at a fix position at the XY origin and z=-15cm
 ///     <generator type="point" position="(0,0,-150)" units="mm" >
 /// \endcode
-///
-/// * **virtualSphere**: It generates the events from the surface of a virtual
-/// (not defined in the GDML geometry) sphere. It requires to define the
-/// parameters to place and dimension the sphere, `position="(X,Y,Z)"` and
-/// `radius="R"`. Where `X,Y,Z` are the coordinates of the center of the sphere
-/// and `R` is the radius of the sphere. If the angular distribution is defined
-/// as `isotropic` the events will be launched only towards the inside. NB: the
-/// generic word "size" can replace "radius". \code
-///     // We launch particles from the surface of a virtual sphere,
-///     // with center at (0,0,-100)mm, and radius 10cm.
-///     <generator type="virtualSphere" position="(0,0,-100)mm" radius="100mm" >
+/// 
+/// Together with the generator type, we need to define the shape, size and position.
+/// Both size and position are in TVector3 form. The following shapes are supported:
+/// 
+/// * **gdml**: Bound the generator to a certain gdml component. No need to define size 
+/// and position. Needs another "from" parameter. If the "from" parameter is defined,
+/// we can omit `shape="gdml"` parameter.
+///  \code
+///     // We launch particles from random positions inside the vessel
+///     // volume defined in our GDML geometry
+///     <generator type="volume" from="vessel" > ... </generator>
 /// \endcode
-///
-/// * **virtualWall**: It generates the events from a finite rectangular plane
-/// of a given length and width. It requires to define the additional parameters
-/// `position="(X,Y,Z)"`, `lenX="lX"`,`lenY="lY"` and `rotation="(rX,rY,rZ)"`.
-/// Where `X,Y,Z` is the center position of the wall, `lX` and `lY` are
-/// respectively the size of the wall along th x-axis and the y-axis, and `rX`,
-/// `rY`, `rZ` are the rotation angles applied to the wall. The wall is
-/// originally generated on the `XY` plane and then rotated by the axis angles
-/// `rX`, `rY`, `rZ`, following that order. NB: the keyword "size" can be used
-/// instead of "lenX" and "lenY", producing a square of the specified size.
+/// 
+/// * **box**: Bound the generator to a virtual box area. "position" defines the centor of the 
+/// box, while the three elements of "size" defines respectivally x, y, z length of the box.
+///  \code
+///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
+/// \endcode
+/// 
+/// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the 
+/// centor of the cylinder, while the three elements of "size" defines respectivally 
+/// radius, length, nothing of the cylinder.
+/// 
+/// * **sphere**: Bound the generator to a virtual sphere area. "position" defines the
+/// centor of the sphere, while the three elements of "size" defines respectivally
+/// radius, nothing, nothing of the sphere. In future we may implement ellipsoid 
+/// support for the sphere and uses all three elements.
+/// 
+/// * **plate**: Bound the generator to a virtual plate area. "position" defines the
+/// centor of the plate, while the three elements of "size" defines respectivally
+/// radius, nothing, nothing of the plate. "plate" shape works only for "surface"
+/// generator type. The initial direction of the plate is in parallel to x-y plane.
 /// \code
-///     // We launch particles from the surface of a virtual wall,
-///     // with center at (0,0,-100)mm, size of 10cm by 15cm, and rotate 45
-///     degrees
-///     // along x-axis.
-///    <generator type="virtualWall" position="(0,0,-100)mm" lenX="100mm"
-///    lenY="150mm" rotation="(45,0,0)" >
+///     // We launch particles from random positions on a virtual plate
+///     <generator type="surface" shape="plate" size="(10,0,0)" position="(0,0,0)" > ... </generator>
 /// \endcode
-///
-/// * **virtualCylinder**: It generates the events from the surface of a virtual
-/// (not defined in the GDML geometry) cylinder. It requires to define the
-/// additional parameters `position="(X,Y,Z)"`, `radius="R"`, `length="L"` and
-/// `rotation="(rX,rY,rZ)"`, where `X`, `Y`, `Z` is the center position of the
-/// cylinder, `R` is the radius of the cylinder, `L` is the length of the
-/// cylinder, and `rX`, `rY`, `rZ` are the rotation angles applied to the
-/// cylinder. The cylinder is originally generated with its axis along the
-/// z-axis. In the cylinder case, isotropic generator will launch events both
-/// sides, towards the inside and the outside. NB: the generic word "size" can
-/// replace "radius". \code
-///     // We launch particles from the surface of a virtual cylinder,
-///     // with center at (0,0,-100)mm, radius 10cm, length 100cm and
-///     // rotated 90 degrees along y-axis.
-///     <generator type="virtualCylinder" position="(0,0,-100)mm" radius="100mm"
-///     length="100cm" rotation="(0,90,0)" >
+/// 
+/// * **wall**: Bound the generator to a virtual rectangle area. "position" defines the
+/// centor of the rectangle, while the three elements of "size" defines respectivally
+/// x, y, nothing length the rectangle. "rectangle" shape works only for "surface"
+/// generator type. The initial direction of the rectangle is in parallel to x-y plane.
+/// 
+/// Rotation of the virtual body defined previously is also supported. We need to define
+/// parameter "rotationAxis" and "rotationDeg" to do this job. The TVector3 parameter
+/// "rotationAxis" is a virtual axis passing through the center of the virtual body, 
+/// with its three elements representing its direction. "rotationDeg" defines the degrees 
+/// of clockwise rotate in the view of the axis direction. It is in radian unit.
+/// \code
+///     // We launch particles from random positions on a virtual wall leaned to 45 deg
+///     <generator type="surface" shape="wall" size="(10,10,0)" position="(0,0,0)"
+///     rotationAxis="(1,0,0)" rotationDeg="0.78539816" > ... </generator>
 /// \endcode
-///
-/// * **virtualBox**: It generates the events from a surface of a virtual (not
-/// defined in the GDML geometry) box, a cube of size L. It requires to define
-/// the additional parameters `position="(X,Y,Z)"`, `size="L"`, where `X`, `Y`,
-/// `Z` is the center of the box, and `L` is the length of the box side. The
-/// virtualBox does not implement rotation yet. And if isotropic angular
-/// distribution is used events will be launched towards the inside. \code
-///     // We launch particles from the surface of a virtual box,
-///     // with center at (0,0,-100)mm, and size 10cm.
-///     <generator type="virtualBox" position="(0,0,-100)mm" size="100mm" >
+/// 
+/// By default all the primaries will be launched homogeneously from the volume or 
+/// the surface. We can define additional density function to customize the particle
+/// origin distribution. The function is a TF3 function with x, y, z the absolute 
+/// position(position of gdml frame instead of generator frame) of the particle in 
+/// unit mm. The returned value should be in range 0-1, indicating the relative probablity 
+/// in this position. For example, we simulate some radio isotopes plated on a chip 
+/// with doping which follows exponential density distribution near the surface:
+/// \code
+///     <generator type="volume" shape="box" size="(10,10,1)mm" position="(0,0,0.5)"
+///     densityFunc="exp(-z/0.01)" > ... </generator>
 /// \endcode
 ///
 /// ### The source definition
@@ -329,13 +300,13 @@
 /// nucleons (i.e. Rn222, Co60, U238 ). For the radioactive decays we can also
 /// define an additional field `fullchain="on/off"`. This parameter specifies if
 /// we want to simulate the full radiative chain or a single decay to the next
-/// de-excited isotope. Or, we can also use an external generator using the
-/// `fromFile=""` parameter.
+/// de-excited isotope.
 ///
-/// In summary we can use the following options inside the source definition.
+/// In summary we can use the following options inside the source definition:
 ///
 /// * **particle="G4_Particle"**: A particle name understood by Geant4 (i.e. e-,
-/// e+, gamma, etc). \code
+/// e+, gamma, etc). 
+/// \code
 ///     // We launch gammas
 ///     <source particle="gamma">
 /// \endcode
@@ -356,7 +327,8 @@
 /// `<angularDistribution>` source specifiers have no effect here. Everything
 /// will be defined through the generator file. The file `Xe136bb0n.dat` is a
 /// pre-generated `Decay0` file that can be found at `REST_PATH/data/generator`,
-/// together with other generator examples. \code
+/// together with other generator examples. 
+/// \code
 ///     // We launch pre-generated 136Xe NLDBD events
 ///     <source fromFile="Xe136bb0n.dat">
 ///         // The energyDist and angularDist
@@ -506,10 +478,19 @@
 /// We should define inside the `<storage>` definition all the physical
 /// volumes where we want hits to be stored using `<activeVolume>`
 /// definition.
-///
+/// 
 /// \code
-/// <activeVolume name="gas" chance="1" />
+/// <activeVolume name="gas" chance="1" maxTargetStepSize="1mm"/>
 /// \endcode
+/// 
+/// * **maxTargetStepSize**: This is the maximum integration step size allowed
+/// to Geant4 when approximating the interaction of particles in a medium. Lower
+/// values will provide a more accurate description of the particle tracks, but
+/// will also require an additional computation time.
+/// \note The parameter **maxTargetStepSize** has only effect on the target
+/// volume, that is the physical volume corresponding to the logical volume
+/// named `gasVolume` in the geometry.
+///
 ///
 /// In general, we will always want to store all the hits in the gas volume
 /// of the TPC. But the gas being the sensitive volume does not mean that
