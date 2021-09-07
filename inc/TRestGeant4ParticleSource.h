@@ -80,7 +80,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     void SetEnergyRange(TVector2 range) { fEnergyRange = range; }
     void SetSpectrumFilename(TString spctFilename) { fSpectrumFilename = spctFilename; }
     void SetSpectrumName(TString spctName) { fSpectrumName = spctName; }
-    void SetSpectrumEnergyUnits(TString units) { fSpectrumEnergyUnits = type; }
+    void SetSpectrumEnergyUnits(TString units) { fSpectrumEnergyUnits = units; }
     void SetAngularFilename(TString angFilename) { fAngularFilename = angFilename; }
     void SetAngularName(TString angName) { fAngularName = angName; }
     void SetGenFilename(TString name) { fGenFilename = name; }
