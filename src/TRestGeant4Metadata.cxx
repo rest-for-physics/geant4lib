@@ -405,13 +405,17 @@
 /// defined spectrum. It requires to define the parameters
 /// `file="mySpectrum.root"` `spctName="histName"` and `range="(Ei,Ef)"`. The
 /// ROOT file should contain a TH1D histogram with name `histName`. Only the
-/// region of the spectrum inside the range `Ei-Ef` will be considered. The
-/// energy units of the spectrum must be specified in the x-axis label of the
+/// region of the spectrum inside the range `Ei-Ef` will be considered. If `range`
+/// is not specified inside the RML, the full TH1D range definition will be used.
+/// The energy units of the spectrum must be specified in the x-axis label of the
 /// TH1D object. If no units are given in the x-label, the default units
-/// considered will be keV. \code
+/// considered will be keV.
+///
+/// \code
 ///     // A TH1D input spectrum to produce underground muons in the range
-///     between 150 and 400 GeV <energyDist type="TH1D" file="Muons.root"
-///     spctName="LSCMuon" range="(150,400)" units="GeV" />
+///     // between 150 and 400 GeV
+///     <energyDist type="TH1D" file="Muons.root" spctName="LSCMuon"
+///                 range="(150,400)" units="GeV" />
 /// \endcode
 ///
 /// #### The source angular distribution
@@ -1244,7 +1248,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// \brief Reads particle information using the file format from newer Decay0 versions.
 /////
 ///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0
-///files
+/// files
 ///// produced with the newer Decay0 versions.
 /////
 // Int_t TRestGeant4Metadata::ReadNewDecay0File(TString fileName) {
@@ -1348,7 +1352,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///// \brief Reads particle information using the file format from older Decay0 versions.
 /////
 ///// This is an auxiliar method used in TRestGeant4Metadata::ReadEventDataFile that will read the Decay0
-///files
+/// files
 ///// produced with the newer Decay0 versions.
 /////
 // Int_t TRestGeant4Metadata::ReadOldDecay0File(TString fileName) {
