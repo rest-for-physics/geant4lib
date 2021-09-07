@@ -41,6 +41,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
 
     TString fSpectrumFilename;
     TString fSpectrumName;
+    TString fSpectrumEnergyUnits;
 
     TString fAngularFilename;
     TString fAngularName;
@@ -67,6 +68,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
     TString GetSpectrumFilename() { return fSpectrumFilename; }
     TString GetSpectrumName() { return fSpectrumName; }
+    inline TString GetSpectrumEnergyUnits() const { return fSpectrumEnergyUnits; }
     TString GetAngularFilename() { return fAngularFilename; }
     TString GetAngularName() { return fAngularName; }
     TString GetGenFilename() { return fGenFilename; }
@@ -78,6 +80,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     void SetEnergyRange(TVector2 range) { fEnergyRange = range; }
     void SetSpectrumFilename(TString spctFilename) { fSpectrumFilename = spctFilename; }
     void SetSpectrumName(TString spctName) { fSpectrumName = spctName; }
+    void SetSpectrumEnergyUnits(TString units) { fSpectrumEnergyUnits = type; }
     void SetAngularFilename(TString angFilename) { fAngularFilename = angFilename; }
     void SetAngularName(TString angName) { fAngularName = angName; }
     void SetGenFilename(TString name) { fGenFilename = name; }
