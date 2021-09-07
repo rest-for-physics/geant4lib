@@ -59,21 +59,21 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual void InitFromConfigFile();
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
-    TString GetParticleName() { return fParticleName; }
-    TString GetAngularDistType() { return fAngularDistType; }
-    TVector3 GetDirection() { return fDirection; }
-    TString GetEnergyDistType() { return fEnergyDistType; }
-    TVector2 GetEnergyRange() { return fEnergyRange; }
-    Double_t GetMinEnergy() { return fEnergyRange.X(); }
-    Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
-    TString GetSpectrumFilename() { return fSpectrumFilename; }
-    TString GetSpectrumName() { return fSpectrumName; }
+    inline TString GetParticleName() const { return fParticleName; }
+    inline TString GetAngularDistType() const { return fAngularDistType; }
+    inline TVector3 GetDirection() const { return fDirection; }
+    inline TString GetEnergyDistType() const { return fEnergyDistType; }
+    inline TVector2 GetEnergyRange() const { return fEnergyRange; }
+    inline Double_t GetMinEnergy() const { return fEnergyRange.X(); }
+    inline Double_t GetMaxEnergy() const { return fEnergyRange.Y(); }
+    inline TString GetSpectrumFilename() const { return fSpectrumFilename; }
+    inline TString GetSpectrumName() const { return fSpectrumName; }
     inline TString GetSpectrumEnergyUnits() const { return fSpectrumEnergyUnits; }
-    TString GetAngularFilename() { return fAngularFilename; }
-    TString GetAngularName() { return fAngularName; }
-    TString GetGenFilename() { return fGenFilename; }
+    inline TString GetAngularFilename() const { return fAngularFilename; }
+    inline TString GetAngularName() const { return fAngularName; }
+    inline TString GetGenFilename() const { return fGenFilename; }
 
-    std::vector<TRestGeant4Particle> GetParticles() { return fParticles; }
+    inline std::vector<TRestGeant4Particle> GetParticles() const { return fParticles; }
 
     void SetAngularDistType(TString type) { fAngularDistType = type; }
     void SetEnergyDistType(TString type) { fEnergyDistType = type; }
@@ -97,11 +97,11 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
 
     virtual void PrintParticleSource();
 
-    // Construtor
+    // Constructor
     TRestGeant4ParticleSource();
     // Destructor
     virtual ~TRestGeant4ParticleSource();
 
-    ClassDef(TRestGeant4ParticleSource, 3);
+    ClassDef(TRestGeant4ParticleSource, 4);
 };
 #endif
