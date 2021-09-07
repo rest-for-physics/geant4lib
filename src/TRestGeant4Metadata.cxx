@@ -993,7 +993,8 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     if (source->GetEnergyDistType() == "TH1D") {
         source->SetSpectrumFilename(SearchFile(GetParameter("file", energyDefinition)));
         source->SetSpectrumName(GetParameter("spctName", energyDefinition));
-        source->SetSpectrumEnergyUnits(GetParameter("units", energyDefinition, "keV"));
+        source->SetSpectrumEnergyUnits(
+            GetParameter("units", energyDefinition));  // if not found, set to "NO_SUCH_PARA"
     }
     source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
     if (source->GetEnergyDistType() == "mono") {
