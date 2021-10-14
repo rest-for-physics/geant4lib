@@ -47,7 +47,7 @@ TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
 void TRestGeant4ParticleSource::PrintParticleSource() {
     metadata << "---------------------------------------" << endl;
     metadata << "Particle Source Name: " << GetParticleName() << endl;
-    if (fParticlesTemplate.size() > 0 || fGenFilename != "") {
+    if (fParticlesTemplate.size() > 0 || fGenFilename != "NO_SUCH_PARA") {
         metadata << "Generator file: " << GetGenFilename() << endl;
         metadata << "Stored templates: " << fParticlesTemplate.size() << endl;
         metadata << "Particles: ";
@@ -57,17 +57,18 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         metadata << "Charge : " << GetParticleCharge() << endl;
         metadata << "Angular distribution type : " << GetAngularDistType() << endl;
         if (GetAngularDistType() == "TH1D") {
-            metadata << "Angular distribution filename : " << GetAngularFilename() << endl;
+            metadata << "Angular distribution filename : "
+                     << TRestTools::GetPureFileName((string)GetAngularFilename()) << endl;
             metadata << "Angular histogram name  : " << GetAngularName() << endl;
         }
         metadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << ","
                  << GetDirection().Z() << ")" << endl;
         metadata << "Energy distribution : " << GetEnergyDistType() << endl;
         if (GetEnergyDistType() == "TH1D") {
-            metadata << "Energy distribution filename : " << GetSpectrumFilename() << endl;
+            metadata << "Energy distribution filename : "
+                     << TRestTools::GetPureFileName((string)GetSpectrumFilename()) << endl;
             metadata << "Energy histogram name  : " << GetSpectrumName() << endl;
-        }
-        if (GetEnergyRange().X() == GetEnergyRange().Y())
+        } else if (GetEnergyRange().X() == GetEnergyRange().Y())
             metadata << "Energy : " << GetEnergy() << " keV" << endl;
         else
             metadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV"

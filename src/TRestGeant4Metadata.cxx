@@ -1138,7 +1138,7 @@ void TRestGeant4Metadata::PrintMetadata() {
         metadata << "Register empty tracks was enabled" << endl;
     else
         metadata << "Register empty tracks was NOT enabled" << endl;
-    metadata << "**********Generator**********" << endl;
+    metadata << "   ++++++++++ Generator +++++++++++   " << endl;
     metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
     metadata << "Generator type : " << fGenType << endl;
     metadata << "Generator shape : " << fGenShape;
@@ -1168,13 +1168,11 @@ void TRestGeant4Metadata::PrintMetadata() {
     metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
     TVector3 b = GetGeneratorRotationAxis();
     metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
-             << "), degree: " << GetGeneratorRotationDegree() << endl;
+             << "), angle: " << GetGeneratorRotationDegree() << " rads" << endl;
 
-    for (int i = 0; i < GetNumberOfSources(); i++) {
-        GetParticleSource(i)->PrintParticleSource();
-    }
+    for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
-    metadata << "**********Storage Volumes**********" << endl;
+    metadata << "   ++++++++++ Storage volumes +++++++++++   " << endl;
     metadata << "Energy range : Emin = " << GetMinimumEnergyStored()
              << ", Emax : " << GetMaximumEnergyStored() << endl;
     metadata << "Sensitive volume : " << GetSensitiveVolume() << endl;
@@ -1186,7 +1184,6 @@ void TRestGeant4Metadata::PrintMetadata() {
                  << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
                  << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
     }
-    metadata << "**********Biasing Volumes**********" << endl;
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
