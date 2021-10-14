@@ -33,9 +33,9 @@
 /// that TRestGeant4Metadata contains, TRestGeant4Particle, TRestGeant4BiasingVolume,
 /// TRestGeant4ParticleSource.
 ///
-/// After installation of restG4, some basic working examples can be found at 
+/// After installation of restG4, some basic working examples can be found at
 /// `$REST_PATH/examples/`. We use this class to store restG4 rml parameters like
-/// particle type, energy, direction, gdml definition, etc. In addition, we have 
+/// particle type, energy, direction, gdml definition, etc. In addition, we have
 /// a class TRestGeant4PhysicsLists in parallel to define the necessary physics
 /// processes, EM, hadronic, etc, that will be active in our Geant4 simulation.
 ///
@@ -114,7 +114,7 @@
 /// different isotope decays are stored in different events.
 ///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The path and name of the main GDML file. Both relative and 
+/// * **gdml_file**: The path and name of the main GDML file. Both relative and
 /// absolute path is supported. In principle, the
 /// user has full freedom to create any detector setup geometry using a
 /// [GDML][GDML] description.
@@ -183,25 +183,25 @@
 /// primaries, is specified in the definition of the generator. We have 4 major types
 /// of generator, namely:
 ///
-/// * **custom**: Uses positions specified in the generator file of the particle 
+/// * **custom**: Uses positions specified in the generator file of the particle
 /// source. (NOT IMPLEMENTED)
 ///
 /// * **volume**: Launch the events from random positions inside a volume of certain
 /// shape.
-/// 
+///
 /// * **surface**: Launch the events from random positions upon the surface of certain
 /// shape.
-/// 
+///
 /// * **point**: Launch the events from a single point of given position.
 /// \code
 ///     // We launch particles at a fix position at the XY origin and z=-15cm
 ///     <generator type="point" position="(0,0,-150)" units="mm" >
 /// \endcode
-/// 
+///
 /// Together with the generator type, we need to define the shape, size and position.
 /// Both size and position are in TVector3 form. The following shapes are supported:
-/// 
-/// * **gdml**: Bound the generator to a certain gdml component. No need to define size 
+///
+/// * **gdml**: Bound the generator to a certain gdml component. No need to define size
 /// and position. Needs another "from" parameter. If the "from" parameter is defined,
 /// we can omit `shape="gdml"` parameter.
 ///  \code
@@ -209,22 +209,22 @@
 ///     // volume defined in our GDML geometry
 ///     <generator type="volume" from="vessel" > ... </generator>
 /// \endcode
-/// 
-/// * **box**: Bound the generator to a virtual box area. "position" defines the centor of the 
+///
+/// * **box**: Bound the generator to a virtual box area. "position" defines the centor of the
 /// box, while the three elements of "size" defines respectivally x, y, z length of the box.
 ///  \code
 ///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
 /// \endcode
-/// 
-/// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the 
-/// centor of the cylinder, while the three elements of "size" defines respectivally 
+///
+/// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the
+/// centor of the cylinder, while the three elements of "size" defines respectivally
 /// radius, length, nothing of the cylinder.
-/// 
+///
 /// * **sphere**: Bound the generator to a virtual sphere area. "position" defines the
 /// centor of the sphere, while the three elements of "size" defines respectivally
-/// radius, nothing, nothing of the sphere. In future we may implement ellipsoid 
+/// radius, nothing, nothing of the sphere. In future we may implement ellipsoid
 /// support for the sphere and uses all three elements.
-/// 
+///
 /// * **plate**: Bound the generator to a virtual plate area. "position" defines the
 /// centor of the plate, while the three elements of "size" defines respectivally
 /// radius, nothing, nothing of the plate. "plate" shape works only for "surface"
@@ -233,29 +233,29 @@
 ///     // We launch particles from random positions on a virtual plate
 ///     <generator type="surface" shape="plate" size="(10,0,0)" position="(0,0,0)" > ... </generator>
 /// \endcode
-/// 
+///
 /// * **wall**: Bound the generator to a virtual rectangle area. "position" defines the
 /// centor of the rectangle, while the three elements of "size" defines respectivally
 /// x, y, nothing length the rectangle. "rectangle" shape works only for "surface"
 /// generator type. The initial direction of the rectangle is in parallel to x-y plane.
-/// 
+///
 /// Rotation of the virtual body defined previously is also supported. We need to define
-/// parameter "rotationAxis" and "rotationDeg" to do this job. The TVector3 parameter
-/// "rotationAxis" is a virtual axis passing through the center of the virtual body, 
-/// with its three elements representing its direction. "rotationDeg" defines the degrees 
-/// of clockwise rotate in the view of the axis direction. It is in radian unit.
+/// parameter "rotationAxis" and "rotationAngle" to do this job. The TVector3 parameter
+/// "rotationAxis" is a virtual axis passing through the center of the virtual body,
+/// with its three elements representing its direction. "rotationAngle" defines the
+/// rotation angle in the view of the axis direction. It is in radian unit.
 /// \code
 ///     // We launch particles from random positions on a virtual wall leaned to 45 deg
 ///     <generator type="surface" shape="wall" size="(10,10,0)" position="(0,0,0)"
-///     rotationAxis="(1,0,0)" rotationDeg="0.78539816" > ... </generator>
+///     rotationAxis="(1,0,0)" rotationAngle="0.78539816" > ... </generator>
 /// \endcode
-/// 
-/// By default all the primaries will be launched homogeneously from the volume or 
+///
+/// By default all the primaries will be launched homogeneously from the volume or
 /// the surface. We can define additional density function to customize the particle
-/// origin distribution. The function is a TF3 function with x, y, z the absolute 
-/// position(position of gdml frame instead of generator frame) of the particle in 
-/// unit mm. The returned value should be in range 0-1, indicating the relative probablity 
-/// in this position. For example, we simulate some radio isotopes plated on a chip 
+/// origin distribution. The function is a TF3 function with x, y, z the absolute
+/// position(position of gdml frame instead of generator frame) of the particle in
+/// unit mm. The returned value should be in range 0-1, indicating the relative probablity
+/// in this position. For example, we simulate some radio isotopes plated on a chip
 /// with doping which follows exponential density distribution near the surface:
 /// \code
 ///     <generator type="volume" shape="box" size="(10,10,1)mm" position="(0,0,0.5)"
@@ -305,7 +305,7 @@
 /// In summary we can use the following options inside the source definition:
 ///
 /// * **particle="G4_Particle"**: A particle name understood by Geant4 (i.e. e-,
-/// e+, gamma, etc). 
+/// e+, gamma, etc).
 /// \code
 ///     // We launch gammas
 ///     <source particle="gamma">
@@ -327,7 +327,7 @@
 /// `<angularDistribution>` source specifiers have no effect here. Everything
 /// will be defined through the generator file. The file `Xe136bb0n.dat` is a
 /// pre-generated `Decay0` file that can be found at `REST_PATH/data/generator`,
-/// together with other generator examples. 
+/// together with other generator examples.
 /// \code
 ///     // We launch pre-generated 136Xe NLDBD events
 ///     <source fromFile="Xe136bb0n.dat">
@@ -382,7 +382,6 @@
 /// The energy units of the spectrum must be specified in the x-axis label of the
 /// TH1D object. If no units are given in the x-label, the default units
 /// considered will be keV.
-///
 /// \code
 ///     // A TH1D input spectrum to produce underground muons in the range
 ///     // between 150 and 400 GeV
@@ -482,11 +481,11 @@
 /// We should define inside the `<storage>` definition all the physical
 /// volumes where we want hits to be stored using `<activeVolume>`
 /// definition.
-/// 
+///
 /// \code
 /// <activeVolume name="gas" chance="1" maxTargetStepSize="1mm"/>
 /// \endcode
-/// 
+///
 /// * **maxTargetStepSize**: This is the maximum integration step size allowed
 /// to Geant4 when approximating the interaction of particles in a medium. Lower
 /// values will provide a more accurate description of the particle tracks, but
@@ -931,7 +930,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     fGenSize = Get3DVectorParameterWithUnits("size", generatorDefinition);
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
     fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
-    fGenRotationDegree = StringToDouble(GetParameter("rotationDeg", generatorDefinition, "0"));
+    fGenRotationDegree = StringToDouble(GetParameter("rotationAngle", generatorDefinition, "0"));
     fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
