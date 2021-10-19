@@ -62,7 +62,7 @@ build:
     - cd ../../../
     - mkdir build
     - cd build
-    - cmake ../ -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
   except:
     variables:
