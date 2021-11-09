@@ -64,25 +64,16 @@ set(rest_macros ${rest_macros} PARENT_SCOPE)
 if (${TEST} MATCHES "ON")
 
     set(TESTING_EXECUTABLE RestGeant4Test)
-
     file(GLOB TEST_SOURCES "test/*.cxx")
 
     add_executable(
             ${TESTING_EXECUTABLE}
             ${TEST_SOURCES}
-            # ${files_to_compile_cxx} # Defined via COMPILELIB macro
     )
-
-    target_include_directories(
-            ${TESTING_EXECUTABLE}
-            PUBLIC
-            # ${dirs_to_include} ${external_include_dirs}
-    )
-
     target_link_libraries(
             ${TESTING_EXECUTABLE}
             gtest_main
-            # ${libs_to_link} ${external_libs} # Defined via COMPILELIB macro
+            RestGeant4
     )
 
     include(GoogleTest)
