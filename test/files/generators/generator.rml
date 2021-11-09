@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestGeant4Metadata name="restG4 run" title="MuonsFromPoint" verboseLevel="info">
+
+    <generator type="point" position="(0,0,-50)cm">
+        <source particle="mu-" excitedLevel="0.0">
+            <energyDist type="mono" energy="100GeV"/>
+            <angularDist type="flux" direction="(0,0,1)"/>
+        </source>
+    </generator>
+
+</TRestGeant4Metadata>
+

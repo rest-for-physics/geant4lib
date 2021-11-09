@@ -62,21 +62,5 @@ set(rest_macros ${rest_macros} PARENT_SCOPE)
 
 # Testing
 if (${TEST} MATCHES "ON")
-
-    set(TESTING_EXECUTABLE RestGeant4Test)
-    file(GLOB TEST_SOURCES "test/*.cxx")
-
-    add_executable(
-            ${TESTING_EXECUTABLE}
-            ${TEST_SOURCES}
-    )
-    target_link_libraries(
-            ${TESTING_EXECUTABLE}
-            gtest_main
-            RestGeant4
-    )
-
-    include(GoogleTest)
-    gtest_discover_tests(${TESTING_EXECUTABLE})
-
+    add_subdirectory(test)
 endif ()
