@@ -1,0 +1,90 @@
+/*
+ * Created by @lobis on 15/11/2021
+ *
+ * Class used to store geometry information. A single instance of this class will be in TRestGeant4Metadata.
+ * Having a separate class is due to the current size of TRestGeant4Metadata, this will help readability.
+ */
+
+#ifndef REST_TRESTGEANT4GEOMETRY_H
+#define REST_TRESTGEANT4GEOMETRY_H
+
+#include <TRestMetadata.h>
+
+class G4VPhysicalVolume;
+
+class TRestGeant4Geometry : public TRestMetadata {
+   private:
+    TString fGdmlAbsolutePath;
+    TString fGdmlContents;
+
+    std::vector<TString> fPhysicalVolumes; /*
+                                            * Sorted list of physical volumes as they appear in the GDML!
+                                            * It is important to be sorted, to solve the naming problem
+                                            * between TGeoManager and Geant4 with assembly volumes
+                                            */
+    std::vector<TString> fActiveVolumes;
+    std::vector<TString> fLogicalVolumes;
+    std::vector<TString> fMaterials;
+
+    std::map<TString, TString>
+        fGeant4PhysicalToPhysicalMap; /*
+                                       * maps TGeoManager volume name to Geant4 physical volume name,
+                                       * only makes sense when using assembly
+                                       */
+
+    std::map<TString, TString> fPhysicalToLogicalVolumeMap;
+    std::map<TString, std::vector<TString> > fLogicalToPhysicalMap;
+    // many physical volumes can point to one single logical
+
+    std::map<TString, TString> fLogicalToMaterialMap;
+
+    std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
+
+    std::map<TString, Double_t> fPhysicalToStorageChanceMap;
+    const Double_t fDefaultStorageChance = 1.00;
+
+    std::map<TString, Double_t> fPhysicalToMaxStepSizeMap;  // units in mm
+    const Double_t fDefaultMaxStepSize = 0.05;
+
+   public:
+    Bool_t IsActiveVolume(const TString&) const;
+    Bool_t IsLogicalVolume(const TString&) const;
+    Bool_t IsPhysicalVolume(const TString&) const;
+
+    inline std::vector<TString> GetPhysicalVolumes() const { return fPhysicalVolumes; }
+    inline std::vector<TString> GetLogicalVolumes() const { return fLogicalVolumes; }
+    inline std::vector<TString> GetMaterials() const { return fMaterials; }
+
+    TVector3 GetPhysicalVolumePosition(const TString&) const;
+
+    std::vector<TString> GetAllPhysicalFromLogical(const TString&) const;
+    TString GetUniquePhysicalFromLogical(const TString&) const;
+
+    TString GetLogicalFromPhysical(const TString&) const;
+
+    TString GetMaterialFromLogical(const TString&) const;
+    TString GetMaterialFromPhysical(const TString&) const;
+
+    TString GetPhysicalFromGeant4Physical(const TString&) const;
+
+   public:
+    inline void InitFromConfigFile() override {}  // this class should not be initialized from rml
+
+    TRestGeant4Geometry() =
+        delete; /*
+                 * no default constructor, we only initialize this class from Geant4
+                 * world. This way we make sure this class is always filled with geometrical information
+                 */
+
+    TRestGeant4Geometry(const G4VPhysicalVolume*); /*
+                                                    * Initialize from Geant4 world volume, preferably in
+                                                    * `DetectorConstruction`.
+                                                    * This method is implemented in the restG4 package since
+                                                    * it requires Geant4
+                                                    */
+
+   public:
+    ClassDef(TRestGeant4Geometry, 1);
+};
+
+#endif  // REST_TRESTGEANT4GEOMETRY_H
