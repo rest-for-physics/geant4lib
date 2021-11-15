@@ -14,6 +14,8 @@ class G4VPhysicalVolume;
 
 class TRestGeant4Geometry : public TRestMetadata {
    private:
+    Bool_t fInitialized;  // flag to see if class has been initialized from Geant4
+
     TString fGdmlAbsolutePath;
     TString fGdmlContents;
 
@@ -41,10 +43,10 @@ class TRestGeant4Geometry : public TRestMetadata {
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
 
     std::map<TString, Double_t> fPhysicalToStorageChanceMap;
-    const Double_t fDefaultStorageChance = 1.00;
+    constexpr static const Double_t fDefaultStorageChance = 1.00;
 
     std::map<TString, Double_t> fPhysicalToMaxStepSizeMap;  // units in mm
-    const Double_t fDefaultMaxStepSize = 0.05;
+    constexpr static const Double_t fDefaultMaxStepSize = 0.05;
 
    public:
     Bool_t IsActiveVolume(const TString&) const;
@@ -54,6 +56,10 @@ class TRestGeant4Geometry : public TRestMetadata {
     inline std::vector<TString> GetPhysicalVolumes() const { return fPhysicalVolumes; }
     inline std::vector<TString> GetLogicalVolumes() const { return fLogicalVolumes; }
     inline std::vector<TString> GetMaterials() const { return fMaterials; }
+
+    inline size_t GetNumberOfPhysicalVolumes() const { return fPhysicalVolumes.size(); }
+    inline size_t GetNumberOfLogicalVolumes() const { return fLogicalVolumes.size(); }
+    inline size_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
     TVector3 GetPhysicalVolumePosition(const TString&) const;
 
@@ -67,21 +73,21 @@ class TRestGeant4Geometry : public TRestMetadata {
 
     TString GetPhysicalFromGeant4Physical(const TString&) const;
 
+    size_t GetActiveVolumeIndex(const TString&) const;
+    TString GetActiveVolumeFromIndex(size_t) const;
+
+    Double_t GetStorageChance(const TString&) const;
+    Double_t GetMaxStepSize(const TString&) const;
+
+   public:
+    void InsertActiveVolume(const TString& name, Double_t chance, Double_t maxStepSize);
+
    public:
     inline void InitFromConfigFile() override {}  // this class should not be initialized from rml
 
-    TRestGeant4Geometry() =
-        delete; /*
-                 * no default constructor, we only initialize this class from Geant4
-                 * world. This way we make sure this class is always filled with geometrical information
-                 */
+    TRestGeant4Geometry();
 
-    TRestGeant4Geometry(const G4VPhysicalVolume*); /*
-                                                    * Initialize from Geant4 world volume, preferably in
-                                                    * `DetectorConstruction`.
-                                                    * This method is implemented in the restG4 package since
-                                                    * it requires Geant4
-                                                    */
+    void InitializeFromGeant4World(const G4VPhysicalVolume*);  // Implemented in package that links to Geant4
 
    public:
     ClassDef(TRestGeant4Geometry, 1);

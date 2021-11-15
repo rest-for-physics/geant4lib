@@ -75,3 +75,35 @@ TString TRestGeant4Geometry::GetPhysicalFromGeant4Physical(const TString& inputG
     }
     return fGeant4PhysicalToPhysicalMap.at(inputGeant4PhysicalVolume);
 }
+
+size_t TRestGeant4Geometry::GetActiveVolumeIndex(const TString& inputActiveVolume) const {
+    if (!IsActiveVolume(inputActiveVolume)) {
+        cerr << "TRestGeant4Geometry::GetActiveVolumeIndex - " << inputActiveVolume
+             << " is not a valid active volume.";
+        exit(1);
+    }
+    for (int i = 0; i < fActiveVolumes.size(); i++) {
+        if (inputActiveVolume.EqualTo(fActiveVolumes[i])) {
+            return i;
+        }
+    }
+}
+
+Double_t TRestGeant4Geometry::GetStorageChance(const TString& inputPhysicalVolume) const {
+    return fPhysicalToStorageChanceMap.at(inputPhysicalVolume);
+}
+
+Double_t TRestGeant4Geometry::GetMaxStepSize(const TString& inputPhysicalVolume) const {
+    return fPhysicalToMaxStepSizeMap.at(inputPhysicalVolume);
+}
+
+TString TRestGeant4Geometry::GetActiveVolumeFromIndex(size_t index) const { return fActiveVolumes[index]; }
+
+void TRestGeant4Geometry::InsertActiveVolume(const TString& name, Double_t chance = fDefaultStorageChance,
+                                             Double_t maxStepSize = fDefaultMaxStepSize) {
+    fActiveVolumes.emplace_back(name);
+    fPhysicalToStorageChanceMap[name] = chance;
+    fPhysicalToMaxStepSizeMap[name] = maxStepSize;
+}
+
+TRestGeant4Geometry::TRestGeant4Geometry() : fInitialized(false) {}

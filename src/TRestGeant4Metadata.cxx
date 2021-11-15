@@ -733,8 +733,6 @@ void TRestGeant4Metadata::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fChance.clear();
-    fActiveVolumes.clear();
     fBiasingVolumes.clear();
 
     fNBiasingVolumes = 0;
@@ -1503,11 +1501,10 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
 Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
-    Int_t id;
-    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == name) return id;
+    if (!fGeometry->IsActiveVolume(name)) {
+        return -1;
     }
-    return -1;
+    return fGeometry->GetActiveVolumeIndex(name);
 }
 
 ///////////////////////////////////////////////
@@ -1524,10 +1521,8 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
 /// The aim of this parameter is to define control volumes. Usually the volume
 /// of interest will be always registered (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_t maxStep) {
-    fActiveVolumes.push_back(name);
-    fChance.push_back(chance);
-    fMaxStepSize.push_back(maxStep);
+void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep) {
+    fGeometry->InsertActiveVolume(name, chance, maxStep);
 }
 
 ///////////////////////////////////////////////
@@ -1544,24 +1539,21 @@ Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
-    Int_t id;
-    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == vol) return fChance[id];
+Double_t TRestGeant4Metadata::GetStorageChance(const TString& vol) {
+    if (!fGeometry->IsActiveVolume(vol)) {
+        warning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << endl;
+        return 0;
     }
-    warning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << endl;
-
-    return 0;
+    return fGeometry->GetStorageChance(vol);
 }
 
 ///////////////////////////////////////////////
 /// \brief Returns the maximum step at a particular active volume
 ///
-Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
-    for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
+Double_t TRestGeant4Metadata::GetMaxStepSize(const TString& vol) {
+    if (!fGeometry->IsActiveVolume(vol)) {
+        warning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << endl;
+        return 0;
     }
-    warning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << vol << " not found" << endl;
-
-    return 0;
+    return fGeometry->GetMaxStepSize(vol);
 }

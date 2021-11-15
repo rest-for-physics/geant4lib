@@ -22,9 +22,8 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+
 #include <TMath.h>
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4ParticleSource.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -37,6 +36,10 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#include "TRestGeant4BiasingVolume.h"
+#include "TRestGeant4Geometry.h"
+#include "TRestGeant4ParticleSource.h"
 
 //------------------------------------------------------------------------------------------------------------------------
 //
@@ -85,8 +88,6 @@ enum class angular_dist_types {
 extern std::map<string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
-//------------------------------------------------------------------------------------------------------------------------
-
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
@@ -110,6 +111,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
+
+    /// Class that contains geometrical information
+    TRestGeant4Geometry* fGeometry;
 
     /// The local path to the GDML geometry
     TString fGeometryPath;  //!
@@ -159,16 +163,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// event should be written to disk or not.
     TVector2 fEnergyRangeStored;
 
-    /// \brief A vector to store the names of the active volumes.
-    std::vector<TString> fActiveVolumes;
-
-    /// \brief A vector to store the probability value to write to disk the hits in a
-    /// particular event.
-    std::vector<Double_t> fChance;
-
-    /// \brief A vector to store the maximum step size at a particular volume.
-    std::vector<Double_t> fMaxStepSize;
-
     /// \brief It the defines the primary source properties, particle type, momentum,
     /// energy, etc.
     std::vector<TRestGeant4ParticleSource*> fParticleSource;  //->
@@ -206,15 +200,15 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
-    Bool_t fSaveAllEvents = 0;
+    Bool_t fSaveAllEvents = false;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
-    Bool_t fPrintProgress = 0;  //!
+    Bool_t fPrintProgress = false;  //!
 
     /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
     /// behaviour. If it is disabled then empty tracks will not be written to disk at the risk of loosing
     /// traceability, but saving disk space and likely improving computing performance for extense events.
-    Bool_t fRegisterEmptyTracks = 1;
+    Bool_t fRegisterEmptyTracks = true;
 
     /// The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
@@ -381,13 +375,15 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
-    Double_t GetStorageChance(Int_t n) { return fChance[n]; }
+    inline Double_t GetStorageChance(size_t n) const {
+        return fGeometry->GetStorageChance(fGeometry->GetActiveVolumeFromIndex(n));
+    }
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
-    Double_t GetStorageChance(TString vol);
+    Double_t GetStorageChance(const TString& vol);
 
-    Double_t GetMaxStepSize(TString vol);
+    Double_t GetMaxStepSize(const TString& vol);
 
     /// Returns the minimum event energy required for an event to be stored.
     Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
@@ -397,10 +393,10 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the number of active volumes, or geometry volumes that have been
     /// selected for data storage.
-    Int_t GetNumberOfActiveVolumes() { return fActiveVolumes.size(); }
+    size_t GetNumberOfActiveVolumes() { return fGeometry->GetNumberOfActiveVolumes(); }
 
     /// Returns a string with the name of the active volume with index n
-    TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
+    TString GetActiveVolumeName(Int_t n) { return fGeometry->GetActiveVolumeFromIndex(n); }
 
     /// Returns the world magnetic field in Tesla
     TVector3 GetMagneticField() { return fMagneticField; }
@@ -409,7 +405,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     Bool_t isVolumeStored(TString volName);
 
-    void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
+    void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata();
 
