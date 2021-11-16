@@ -113,7 +113,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TString fGeant4Version;
 
     /// Class that contains geometrical information
-    TRestGeant4Geometry* fGeometry;
+    TRestGeant4Geometry fGeometry;
 
     /// The local path to the GDML geometry
     TString fGeometryPath;  //!
@@ -224,6 +224,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Returns the local path to the GDML geometry
     TString GetGeometryPath() { return fGeometryPath; }
+
+    /// Returns a reference to the geometry object with additional methods for geometry related stuff
+    TRestGeant4Geometry* GetGeometry() { return &fGeometry; }
 
     /// Returns the main filename of the GDML geometry
     TString Get_GDML_Filename() { return fGDML_Filename; }
@@ -376,7 +379,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
     inline Double_t GetStorageChance(size_t n) const {
-        return fGeometry->GetStorageChance(fGeometry->GetActiveVolumeFromIndex(n));
+        return fGeometry.GetStorageChance(fGeometry.GetActiveVolumeFromIndex(n));
     }
 
     /// Returns the probability per event to register (write to disk) hits in a
@@ -393,17 +396,17 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the number of active volumes, or geometry volumes that have been
     /// selected for data storage.
-    size_t GetNumberOfActiveVolumes() { return fGeometry->GetNumberOfActiveVolumes(); }
+    size_t GetNumberOfActiveVolumes() { return fGeometry.GetNumberOfActiveVolumes(); }
 
     /// Returns a string with the name of the active volume with index n
-    TString GetActiveVolumeName(Int_t n) { return fGeometry->GetActiveVolumeFromIndex(n); }
+    TString GetActiveVolumeName(Int_t n) { return fGeometry.GetActiveVolumeFromIndex(n); }
 
     /// Returns the world magnetic field in Tesla
     TVector3 GetMagneticField() { return fMagneticField; }
 
-    Int_t GetActiveVolumeID(TString name);
+    Int_t GetActiveVolumeID(const TString& name);
 
-    Bool_t isVolumeStored(TString volName);
+    Bool_t isVolumeStored(const TString& volName);
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
@@ -414,6 +417,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 9);
+    ClassDef(TRestGeant4Metadata, 10);
 };
 #endif  // RestCore_TRestGeant4Metadata

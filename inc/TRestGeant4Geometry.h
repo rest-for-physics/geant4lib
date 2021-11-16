@@ -24,7 +24,9 @@ class TRestGeant4Geometry : public TRestMetadata {
                                             * It is important to be sorted, to solve the naming problem
                                             * between TGeoManager and Geant4 with assembly volumes
                                             */
+
     std::vector<TString> fActiveVolumes;
+    std::vector<TString> fSensitiveVolumes;
     std::vector<TString> fLogicalVolumes;
     std::vector<TString> fMaterials;
 
@@ -43,23 +45,27 @@ class TRestGeant4Geometry : public TRestMetadata {
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
 
     std::map<TString, Double_t> fPhysicalToStorageChanceMap;
-    constexpr static const Double_t fDefaultStorageChance = 1.00;
+    // constexpr static const Double_t fDefaultStorageChance = 1.00;
 
     std::map<TString, Double_t> fPhysicalToMaxStepSizeMap;  // units in mm
-    constexpr static const Double_t fDefaultMaxStepSize = 0.05;
+    // constexpr static const Double_t fDefaultMaxStepSize = 0.05;
 
    public:
+    Bool_t IsSensitiveVolume(const TString&) const;
     Bool_t IsActiveVolume(const TString&) const;
     Bool_t IsLogicalVolume(const TString&) const;
     Bool_t IsPhysicalVolume(const TString&) const;
 
+    inline std::vector<TString> GetSensitiveVolumes() const { return fPhysicalVolumes; }
+    inline std::vector<TString> GetActiveVolumes() const { return fPhysicalVolumes; }
     inline std::vector<TString> GetPhysicalVolumes() const { return fPhysicalVolumes; }
     inline std::vector<TString> GetLogicalVolumes() const { return fLogicalVolumes; }
     inline std::vector<TString> GetMaterials() const { return fMaterials; }
 
+    inline size_t GetNumberOfSensitiveVolumes() const { return fSensitiveVolumes.size(); }
+    inline size_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
     inline size_t GetNumberOfPhysicalVolumes() const { return fPhysicalVolumes.size(); }
     inline size_t GetNumberOfLogicalVolumes() const { return fLogicalVolumes.size(); }
-    inline size_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
     TVector3 GetPhysicalVolumePosition(const TString&) const;
 
@@ -80,6 +86,7 @@ class TRestGeant4Geometry : public TRestMetadata {
     Double_t GetMaxStepSize(const TString&) const;
 
    public:
+    // Methods related to RML initialization
     void InsertActiveVolume(const TString& name, Double_t chance, Double_t maxStepSize);
 
    public:
@@ -88,6 +95,8 @@ class TRestGeant4Geometry : public TRestMetadata {
     TRestGeant4Geometry();
 
     void InitializeFromGeant4World(const G4VPhysicalVolume*);  // Implemented in package that links to Geant4
+
+    void BuildAssemblyLookupTable(const G4VPhysicalVolume*);
 
    public:
     ClassDef(TRestGeant4Geometry, 1);

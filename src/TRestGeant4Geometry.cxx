@@ -6,6 +6,15 @@
 
 using namespace std;
 
+Bool_t TRestGeant4Geometry::IsSensitiveVolume(const TString& inputPhysicalVolume) const {
+    for (const auto& volume : fSensitiveVolumes) {
+        if (inputPhysicalVolume.EqualTo(volume)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Bool_t TRestGeant4Geometry::IsActiveVolume(const TString& inputPhysicalVolume) const {
     for (const auto& volume : fActiveVolumes) {
         if (inputPhysicalVolume.EqualTo(volume)) {
@@ -87,6 +96,7 @@ size_t TRestGeant4Geometry::GetActiveVolumeIndex(const TString& inputActiveVolum
             return i;
         }
     }
+    return -1;
 }
 
 Double_t TRestGeant4Geometry::GetStorageChance(const TString& inputPhysicalVolume) const {
@@ -99,9 +109,10 @@ Double_t TRestGeant4Geometry::GetMaxStepSize(const TString& inputPhysicalVolume)
 
 TString TRestGeant4Geometry::GetActiveVolumeFromIndex(size_t index) const { return fActiveVolumes[index]; }
 
-void TRestGeant4Geometry::InsertActiveVolume(const TString& name, Double_t chance = fDefaultStorageChance,
-                                             Double_t maxStepSize = fDefaultMaxStepSize) {
-    fActiveVolumes.emplace_back(name);
+void TRestGeant4Geometry::InsertActiveVolume(const TString& name, Double_t chance, Double_t maxStepSize) {
+    if (!IsActiveVolume(name)) {
+        fActiveVolumes.emplace_back(name);
+    }
     fPhysicalToStorageChanceMap[name] = chance;
     fPhysicalToMaxStepSizeMap[name] = maxStepSize;
 }
