@@ -130,8 +130,7 @@ void TRestGeant4Geometry::LoadGdml(const TString& gdml) {
 }
 
 void TRestGeant4Geometry::PrintGeometryInfo() const {
-    cout << "TRestGeant4Geometry::PrintGeometryInfo" << endl;
-    cout << "---> Total number of physical volumes: " << fPhysicalVolumes.size() << endl;
+    metadata << "TRestGeant4Geometry::PrintGeometryInfo ---> Total number of physical volumes: " << fPhysicalVolumes.size() << endl;
     for (const auto& volume : fPhysicalVolumes) {
         auto logicalVolumeName = fPhysicalToLogicalVolumeMap.at(volume);
         auto materialName = fLogicalToMaterialMap.at(logicalVolumeName);
