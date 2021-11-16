@@ -15,6 +15,7 @@ class G4VPhysicalVolume;
 class TRestGeant4Geometry : public TRestMetadata {
    private:
     Bool_t fInitialized;  // flag to see if class has been initialized from Geant4
+    Bool_t fAllVolumesActive = false;
 
     TString fGdmlAbsolutePath;
     TString fGdmlContents;
@@ -45,10 +46,10 @@ class TRestGeant4Geometry : public TRestMetadata {
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
 
     std::map<TString, Double_t> fPhysicalToStorageChanceMap;
-    // constexpr static const Double_t fDefaultStorageChance = 1.00;
+    constexpr static const Double_t fDefaultStorageChance = 1.00;
 
     std::map<TString, Double_t> fPhysicalToMaxStepSizeMap;  // units in mm
-    // constexpr static const Double_t fDefaultMaxStepSize = 0.05;
+    constexpr static const Double_t fDefaultMaxStepSize = 0.05;
 
    public:
     Bool_t IsSensitiveVolume(const TString&) const;
@@ -85,9 +86,13 @@ class TRestGeant4Geometry : public TRestMetadata {
     Double_t GetStorageChance(const TString&) const;
     Double_t GetMaxStepSize(const TString&) const;
 
+    void PrintGeometryInfo() const;
+    inline void Print() const { PrintGeometryInfo(); }
+
    public:
-    // Methods related to RML initialization
     void InsertActiveVolume(const TString& name, Double_t chance, Double_t maxStepSize);
+
+    void LoadGdml(const TString& gdml);
 
    public:
     inline void InitFromConfigFile() override {}  // this class should not be initialized from rml

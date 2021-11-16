@@ -1106,13 +1106,16 @@ void TRestGeant4Metadata::ReadStorage() {
         volumeDefinition = GetNextElement(volumeDefinition);
     }
 
+    /*
     // If the user didnt add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
-    if (GetNumberOfActiveVolumes() == 0)
+    if (GetNumberOfActiveVolumes() == 0) {
         for (auto& name : physicalVolumesSet) {
             SetActiveVolume(name, 1, defaultStep);
             info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
         }
+    }
+     */
 }
 
 ///////////////////////////////////////////////

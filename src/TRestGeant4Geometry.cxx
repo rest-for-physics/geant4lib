@@ -118,3 +118,24 @@ void TRestGeant4Geometry::InsertActiveVolume(const TString& name, Double_t chanc
 }
 
 TRestGeant4Geometry::TRestGeant4Geometry() : fInitialized(false) {}
+
+void TRestGeant4Geometry::LoadGdml(const TString& gdml) {
+    fGdmlAbsolutePath = gdml;
+    ifstream f(fGdmlAbsolutePath);
+    if (f) {
+        ostringstream ss;
+        ss << f.rdbuf();  // reading data
+        fGdmlContents = ss.str();
+    }
+}
+
+void TRestGeant4Geometry::PrintGeometryInfo() const {
+    cout << "TRestGeant4Geometry::PrintGeometryInfo" << endl;
+    cout << "---> Total number of physical volumes: " << fPhysicalVolumes.size() << endl;
+    for (const auto& volume : fPhysicalVolumes) {
+        auto logicalVolumeName = fPhysicalToLogicalVolumeMap.at(volume);
+        auto materialName = fLogicalToMaterialMap.at(logicalVolumeName);
+        metadata << "---> ---> physical volume: " << volume << " - logical: " << logicalVolumeName
+                 << " - material: " << materialName << endl;
+    }
+}
