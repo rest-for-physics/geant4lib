@@ -4,7 +4,41 @@
 
 #include "TRestGeant4Geometry.h"
 
+#include "TRestStringHelper.h"
+
 using namespace std;
+
+void TRestGeant4Geometry::LoadConfig(const TiXmlElement& geometryDefinition) {
+    auto allVolumesActive = GetFieldValue("allVolumesActive", const_cast<TiXmlElement*>(&geometryDefinition));
+    if (allVolumesActive != "Not defined") {
+        fAllVolumesActive = REST_StringHelper::StringToBool(allVolumesActive);
+        metadata << "Setting 'fAllVolumesActive' to " << allVolumesActive << endl;
+    }
+
+    TiXmlElement* volumeDefinition = GetElement("volume", const_cast<TiXmlElement*>(&geometryDefinition));
+    while (volumeDefinition) {
+        Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
+        if (chance == -1) chance = fDefaultStorageChance;
+
+        Double_t maxStepSize = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
+        if (maxStepSize < 0) maxStepSize = fDefaultMaxStepSize;
+
+        TString name = GetFieldValue("name", volumeDefinition);
+
+        InsertActiveVolume(name, chance, maxStepSize);
+        auto sensitive = GetParameter("sensitive", volumeDefinition, "false");
+        if (REST_StringHelper::StringToBool(sensitive)) {
+            InsertSensitiveVolume(name);
+            metadata << "Added sensitive volume: " << name << endl;
+        } else {
+            metadata << "Added active volume: " << name << endl;
+        }
+
+        volumeDefinition = GetNextElement(volumeDefinition);
+    }
+
+    exit(1);
+}
 
 Bool_t TRestGeant4Geometry::IsSensitiveVolume(const TString& inputPhysicalVolume) const {
     for (const auto& volume : fSensitiveVolumes) {
@@ -117,6 +151,8 @@ void TRestGeant4Geometry::InsertActiveVolume(const TString& name, Double_t chanc
     fPhysicalToMaxStepSizeMap[name] = maxStepSize;
 }
 
+void TRestGeant4Geometry::InsertSensitiveVolume(const TString& name) { fSensitiveVolumes.emplace_back(name); }
+
 TRestGeant4Geometry::TRestGeant4Geometry() : fInitialized(false) {}
 
 void TRestGeant4Geometry::LoadGdml(const TString& gdml) {
@@ -130,7 +166,8 @@ void TRestGeant4Geometry::LoadGdml(const TString& gdml) {
 }
 
 void TRestGeant4Geometry::PrintGeometryInfo() const {
-    metadata << "TRestGeant4Geometry::PrintGeometryInfo ---> Total number of physical volumes: " << fPhysicalVolumes.size() << endl;
+    metadata << "TRestGeant4Geometry::PrintGeometryInfo ---> Total number of physical volumes: "
+             << fPhysicalVolumes.size() << endl;
     for (const auto& volume : fPhysicalVolumes) {
         auto logicalVolumeName = fPhysicalToLogicalVolumeMap.at(volume);
         auto materialName = fLogicalToMaterialMap.at(logicalVolumeName);

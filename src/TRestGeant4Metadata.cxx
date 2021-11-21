@@ -796,7 +796,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     ReadGenerator();
 
-    ReadStorage();
+    // ReadStorage();
+    ReadGeometry();
 
     ReadBiasing();
 
@@ -1116,6 +1117,15 @@ void TRestGeant4Metadata::ReadStorage() {
         }
     }
      */
+}
+
+void TRestGeant4Metadata::ReadGeometry() {
+    TiXmlElement* geometryDefinition = GetElement("TRestGeant4Geometry");
+    if (!geometryDefinition) {
+        warning << "'TRestGeant4Geometry' section not found in 'TRestGeant4Metadata'" << endl;
+        exit(1);
+    }
+    fGeometry.LoadConfig(*geometryDefinition);
 }
 
 ///////////////////////////////////////////////

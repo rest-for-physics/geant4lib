@@ -91,17 +91,21 @@ class TRestGeant4Geometry : public TRestMetadata {
 
    public:
     void InsertActiveVolume(const TString& name, Double_t chance, Double_t maxStepSize);
+    void InsertSensitiveVolume(const TString& name);
 
     void LoadGdml(const TString& gdml);
 
    public:
-    inline void InitFromConfigFile() override {}  // this class should not be initialized from rml
-
     TRestGeant4Geometry();
 
     void InitializeFromGeant4World(const G4VPhysicalVolume*);  // Implemented in package that links to Geant4
 
     void BuildAssemblyLookupTable(const G4VPhysicalVolume*);
+
+    void LoadConfig(const TiXmlElement&);
+
+   private:
+    inline void InitFromConfigFile() override{};  // this class should not be initialized from rml
 
    public:
     ClassDef(TRestGeant4Geometry, 1);

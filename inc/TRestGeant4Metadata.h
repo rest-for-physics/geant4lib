@@ -98,7 +98,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadGenerator();
     void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
 
-    void ReadStorage();
+    void ReadStorage();  // TODO: Deprecate this
+    void ReadGeometry();
     void ReadBiasing();
 
     // void ReadEventDataFile(TString fName);
