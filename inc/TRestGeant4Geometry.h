@@ -20,6 +20,10 @@ class TRestGeant4Geometry : public TRestMetadata {
     TString fGdmlAbsolutePath;
     TString fGdmlContents;
 
+    std::set<TString> fGdmlPhysicalVolumes;  //!
+    std::set<TString> fGdmlLogicalVolumes;   //!
+    std::set<TString> fGdmlAssemblyVolumes;  //!
+
     std::vector<TString> fPhysicalVolumes; /*
                                             * Sorted list of physical volumes as they appear in the GDML!
                                             * It is important to be sorted, to solve the naming problem
@@ -102,7 +106,8 @@ class TRestGeant4Geometry : public TRestMetadata {
 
     void BuildAssemblyLookupTable(const G4VPhysicalVolume*);
 
-    void LoadConfig(const TiXmlElement&);
+    void LoadGdml(const TiXmlElement&, const TString& gdmlFilename);
+    void LoadVolumes(const TiXmlElement&);
 
    private:
     inline void InitFromConfigFile() override{};  // this class should not be initialized from rml

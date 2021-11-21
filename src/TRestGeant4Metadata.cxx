@@ -1125,7 +1125,8 @@ void TRestGeant4Metadata::ReadGeometry() {
         warning << "'TRestGeant4Geometry' section not found in 'TRestGeant4Metadata'" << endl;
         exit(1);
     }
-    fGeometry.LoadConfig(*geometryDefinition);
+    fGeometry.LoadGdml(*geometryDefinition, Get_GDML_Filename());
+    fGeometry.LoadVolumes(*geometryDefinition);
 }
 
 ///////////////////////////////////////////////

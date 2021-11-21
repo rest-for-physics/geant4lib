@@ -4,11 +4,50 @@
 
 #include "TRestGeant4Geometry.h"
 
+#include <TGeoManager.h>
+
 #include "TRestStringHelper.h"
 
 using namespace std;
 
-void TRestGeant4Geometry::LoadConfig(const TiXmlElement& geometryDefinition) {
+void addDaughter(TGeoNode* node, set<TString>* logicalVolumesSet, set<TString>* physicalVolumesSet,
+                 set<TString>* assembliesSet) {
+    assembliesSet->insert(node->GetVolume()->GetName());
+    for (size_t i = 0; i < node->GetNdaughters(); i++) {
+        TGeoNode* daughter = node->GetDaughter(i);
+        if (daughter->GetVolume()->IsAssembly()) {
+            addDaughter(daughter, logicalVolumesSet, physicalVolumesSet, assembliesSet);
+        } else {
+            logicalVolumesSet->insert(daughter->GetVolume()->GetName());
+            physicalVolumesSet->insert(daughter->GetName());
+        }
+    }
+};
+
+void TRestGeant4Geometry::LoadGdml(const TiXmlElement& geometryDefinition, const TString& gdmlFilename) {
+    LoadGdml(gdmlFilename);
+
+    TGeoManager::Import((TString)gdmlFilename);
+
+    // recursively add all non-assembly volume names, which should be unique according to GDML definition
+
+    addDaughter(gGeoManager->GetTopNode(), &fGdmlLogicalVolumes, &fGdmlPhysicalVolumes,
+                &fGdmlAssemblyVolumes);
+
+    // debugging
+    const map<TString, set<TString>> m = {{"Physical", fGdmlPhysicalVolumes},
+                                          {"Logical", fGdmlLogicalVolumes},
+                                          {"Assembly", fGdmlAssemblyVolumes}};
+    for (auto const& kv : m) {
+        cout << kv.first << " Volumes:" << endl;
+        for (const auto& volume : kv.second) {
+            cout << "\t" << volume << endl;
+        }
+        cout << endl;
+    }
+}
+
+void TRestGeant4Geometry::LoadVolumes(const TiXmlElement& geometryDefinition) {
     auto allVolumesActive = GetFieldValue("allVolumesActive", const_cast<TiXmlElement*>(&geometryDefinition));
     if (allVolumesActive != "Not defined") {
         fAllVolumesActive = REST_StringHelper::StringToBool(allVolumesActive);
