@@ -143,6 +143,9 @@
 /// * **zDirectionPrimary**: z-component defining the momentum direction
 /// of the primary event generated.
 ///
+/// * **thetaPrimary**: polar angle of the primary generated particle.
+/// * **phiPrimary**: azimuth angle of the primary generated particle.
+///
 /// * **energyPrimary**: energy of the primary event generated.
 ///
 /// The following code ilustrates the addition of a primary event
@@ -298,6 +301,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         fObservables.push_back("PerProcessNeutronElastic");
     }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
+        cout << "fObservables[" << i << "] = " << fObservables[i] << endl;
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
 
@@ -443,6 +447,10 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection(0).Z();
     SetObservableValue((string) "zDirectionPrimary", zDirection);
+
+    TVector3 v(xDirection, yDirection, zDirection);
+    SetObservableValue((string) "thetaPrimary", v.Theta());
+    SetObservableValue((string) "phiPrimary", v.Phi());
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
     SetObservableValue((string) "energyPrimary", energyPrimary);
