@@ -115,10 +115,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     TString fGeometryPath;  //!
 
     /// The filename of the GDML geometry
-    TString fGDML_Filename;  //!
+    TString fGdmlFilename;  //!
 
     /// A GDML geometry reference introduced in the header of the GDML main setup
-    TString fGDML_Reference;
+    TString fGdmlReference;
 
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
@@ -222,73 +222,73 @@ class TRestGeant4Metadata : public TRestMetadata {
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
-    Long_t GetSeed() { return fSeed; }
+    Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns a string with the version of Geant4 used on the event data
     /// simulation
-    TString GetGeant4Version() { return fGeant4Version; }
+    TString GetGeant4Version() const { return fGeant4Version; }
 
     /// Returns the local path to the GDML geometry
-    TString GetGeometryPath() { return fGeometryPath; }
+    TString GetGeometryPath() const { return fGeometryPath; }
 
     /// Returns the main filename of the GDML geometry
-    TString Get_GDML_Filename() { return fGDML_Filename; }
+    TString GetGdmlFilename() const { return fGdmlFilename; }
 
     /// Returns the reference provided at the GDML file header
-    TString Get_GDML_Reference() { return fGDML_Reference; }
+    TString GetGdmlReference() const { return fGdmlReference; }
 
     /// Returns the reference provided at the materials file header
-    TString GetMaterialsReference() { return fMaterialsReference; }
+    TString GetMaterialsReference() const { return fMaterialsReference; }
 
     /// \brief Returns a string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
-    TString GetGeneratorType() { return fGenType; }
+    TString GetGeneratorType() const { return fGenType; }
 
     /// \brief Returns a string specifying the generator shape (point, wall, box, etc )
-    TString GetGeneratorShape() { return fGenShape; }
+    TString GetGeneratorShape() const { return fGenShape; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGeneratedFrom() { return fGenFrom; }
+    TString GetGeneratedFrom() const { return fGenFrom; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGDMLGeneratorVolume() { return fGenFrom; }
+    TString GetGDMLGeneratorVolume() const { return fGenFrom; }
 
     /// \brief Returns a 3d-vector with the position of the primary event
     /// generator. This value has meaning only when using point and virtual
     /// generator types.
-    TVector3 GetGeneratorPosition() { return fGenPosition; }
+    TVector3 GetGeneratorPosition() const { return fGenPosition; }
 
     /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
-    TVector3 GetGeneratorRotationAxis() { return fGenRotationAxis; }
+    TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
 
     /// \brief Returns the degree of rotation
-    Double_t GetGeneratorRotationDegree() { return fGenRotationDegree; }
+    Double_t GetGeneratorRotationDegree() const { return fGenRotationDegree; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the size of a  virtualBox.
-    TVector3 GetGeneratorSize() { return fGenSize; }
+    TVector3 GetGeneratorSize() const { return fGenSize; }
 
     /// \brief Returns the density function of the generator
-    TString GetGeneratorSpatialDensity() { return fGenDensityFunction; }
+    TString GetGeneratorSpatialDensity() const { return fGenDensityFunction; }
 
     /// \brief Returns true in case full decay chain simulation is enabled.
-    Bool_t isFullChainActivated() { return fFullChain; }
+    Bool_t isFullChainActivated() const { return fFullChain; }
 
     /// \brief Returns the value of the maximum Geant4 step size in mm for the
     /// target volume.
-    Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+    Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
     /// new independent event. It is used to separate simulated events that in
     /// practice will appear as such in our detector. I.e. to separate multiple
     /// decay products (sometimes with years time delays) into independent events.
-    Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
+    Double_t GetSubEventTimeDelay() const { return fSubEventTimeDelay; }
 
     /// It returns true if save all events is active
     Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
@@ -333,22 +333,22 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetGeometryPath(string path) { fGeometryPath = path; }
 
     /// It sets the main filename to be used for the GDML geometry
-    void Set_GDML_Filename(string gdmlFile) { fGDML_Filename = gdmlFile; }
+    void SetGdmlFilename(string gdmlFile) { fGdmlFilename = gdmlFile; }
 
     /// Returns the reference provided at the GDML file header
-    void Set_GDML_Reference(string reference) { fGDML_Reference = reference; }
+    void SetGdmlReference(string reference) { fGdmlReference = reference; }
 
     /// Returns the reference provided at the materials file header
     void SetMaterialsReference(string reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
-    Int_t GetNumberOfEvents() { return fNEvents; }
+    Int_t GetNumberOfEvents() const { return fNEvents; }
     ///////////////////////////////////////////////////////////
 
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfSources() { return fParticleSource.size(); }
+    Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
     TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }

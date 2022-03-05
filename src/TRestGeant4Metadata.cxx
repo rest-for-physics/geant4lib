@@ -755,7 +755,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     fMagneticField = Get3DVectorParameterWithUnits("magneticField", TVector3(0, 0, 0));
 
     // Initialize the metadata members from a configfile
-    fGDML_Filename = GetParameter("gdml_file");
+    fGdmlFilename = GetParameter("gdml_file");
 
     fGeometryPath = GetParameter("geometryPath", "");
 
@@ -772,13 +772,13 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
-    if ((((string)fGDML_Filename).find_first_not_of("./~") == 0 ||
-         ((string)fGDML_Filename).find("/") == -1) &&
+    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
+         ((string)fGdmlFilename).find("/") == -1) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
-            fGDML_Filename = fGeometryPath + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + GetParameter("gdml_file");
         } else {
-            fGDML_Filename = fGeometryPath + "/" + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + "/" + GetParameter("gdml_file");
         }
     }
 
@@ -1063,7 +1063,7 @@ void TRestGeant4Metadata::ReadStorage() {
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
     TRestGDMLParser* gdml = new TRestGDMLParser();
-    gdml->Load((string)Get_GDML_Filename());
+    gdml->Load((string)GetGdmlFilename());
 
     TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
 
@@ -1126,7 +1126,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 
     metadata << "Geant 4 version : " << GetGeant4Version() << endl;
     metadata << "Random seed : " << GetSeed() << endl;
-    metadata << "GDML geometry : " << Get_GDML_Reference() << endl;
+    metadata << "GDML geometry : " << GetGdmlReference() << endl;
     metadata << "GDML materials reference : " << GetMaterialsReference() << endl;
     metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
     Double_t mx = GetMagneticField().X();
