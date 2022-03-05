@@ -22,9 +22,8 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+
 #include <TMath.h>
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4ParticleSource.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -38,6 +37,9 @@
 #include <iostream>
 #include <vector>
 
+#include "TRestGeant4BiasingVolume.h"
+#include "TRestGeant4GeometryInfo.h"
+#include "TRestGeant4ParticleSource.h"
 //------------------------------------------------------------------------------------------------------------------------
 //
 // * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
@@ -107,6 +109,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Int_t ReadOldDecay0File(TString fileName);
 
     // void ReadParticleSource(TiXmlElement* sourceDefinition);
+
+    /// Class used to store and retrieve geometry info
+    TRestGeant4GeometryInfo fGeant4GeometryInfo;
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -206,15 +211,15 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
-    Bool_t fSaveAllEvents = 0;
+    Bool_t fSaveAllEvents = false;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
-    Bool_t fPrintProgress = 0;  //!
+    Bool_t fPrintProgress = false;  //!
 
     /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
     /// behaviour. If it is disabled then empty tracks will not be written to disk at the risk of loosing
     /// traceability, but saving disk space and likely improving computing performance for extense events.
-    Bool_t fRegisterEmptyTracks = 1;
+    Bool_t fRegisterEmptyTracks = true;
 
     /// The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
@@ -223,6 +228,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
     Long_t GetSeed() const { return fSeed; }
+
+    /// \brief Returns a reference to the geometry info
+    TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
 
     /// \brief Returns a string with the version of Geant4 used on the event data
     /// simulation
@@ -315,13 +323,13 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
     ///  radius of cylinder, size of wall, etc.
-    void SetGeneratorSize(TVector3 size) { fGenSize = size; }
+    void SetGeneratorSize(const TVector3& size) { fGenSize = size; }
 
     ///  Enables/disables the full chain decay generation.
     void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
 
     ///  Sets the position of the virtual generator using a TVector3.
-    void SetGeneratorPosition(TVector3 pos) { fGenPosition = pos; }
+    void SetGeneratorPosition(const TVector3& pos) { fGenPosition = pos; }
 
     ///  Sets the position of the virtual generator using x,y,z coordinates.
     void SetGeneratorPosition(double x, double y, double z) { fGenPosition = TVector3(x, y, z); }
