@@ -156,8 +156,8 @@ void TRestGeant4GeometryInfo::Print() const {
 std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
     auto volumes = std::vector<TString>();
 
-    for (const auto& [physical, _] : fPhysicalToLogicalVolumeMap) {
-        volumes.emplace_back(physical);
+    for (const auto& kv : fPhysicalToLogicalVolumeMap) {
+        volumes.emplace_back(kv.first);
     }
 
     return volumes;
@@ -166,8 +166,8 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
 std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumes() const {
     auto volumes = std::vector<TString>();
 
-    for (const auto& [logical, _] : fLogicalToPhysicalMap) {
-        volumes.emplace_back(logical);
+    for (const auto& kv : fLogicalToPhysicalMap) {
+        volumes.emplace_back(kv.first);
     }
 
     return volumes;
