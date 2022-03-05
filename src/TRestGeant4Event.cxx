@@ -944,6 +944,69 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> op
     return fYHisto;
 }
 
+///////////////////////////////////////////////
+/// \brief This method draws the geant4 event that it is available at the moment
+/// in memory. It uses TGraph and TH2D ROOT drawing objects. This method generates
+/// a drawing TPad with enough divisions to host all the options given by argument.
+///
+/// This method receives an optional argument as string that allows to control
+/// which plots are generated. Different options can be passed to the string
+/// separated by the options using colons, as "option1:option2:option3". Each
+/// option will *generate a new independent drawing pad*.
+///
+/// The following options are allowed:
+///
+/// 1. **histX,Y,Z**: It generates a 1-dimensional TH1D histogram with the
+/// projected event hits at the corresponding axis, the bins are weighted with
+/// their correspoding energy. Histograms will accept as argument, between
+/// parenthesis, a conventional ROOT option, i.e. `histX(rootOption)`, where
+/// rootOption is any valid ROOT option as described by the
+/// [THistPainter](https://root.cern/doc/master/classTHistPainter.html) ROOT
+/// class. On top of that, we may pass additional options using the [ ] to
+/// change the default binning size, which is set to 3, or draw the stats box,
+/// i.e. `histX(Cont0,colz)[binSize=1,stats]`.
+///
+/// 2. **histXY,XZ,YZ**: It generates a bi-dimensional TH2D histogram with
+/// the projected event hits at the corresponding plane, the bins are weighted
+/// with their corresponding energy. Histograms will accept as argument, between
+/// parenthesis, a conventional ROOT option, i.e. `histX(rootOption)`, where
+/// rootOption is any valid ROOT option as described by the
+/// [THistPainter](https://root.cern/doc/master/classTHistPainter.html) ROOT
+/// class. On top of that, we may pass additional options using the [ ] to
+/// change the default binning size, which is set to 3, or draw the stats box,
+/// i.e. `histXY(Cont0,colz)[binSize=1,stats]`.
+///
+/// 3. **graphXY,XZ,YZ**: It generates a bi-dimensional TH2D histogram with
+/// the projected event hits at the corresponding plane, the bins are weighted
+/// with their corresponding energy. We may specify physical Geant4 processes
+/// such as photoeletric or Compton, existing at the Geant4 processes list, you
+/// may check the process names at the TRestGeant4Track source implementation,
+/// till we get a better way of storing the processes list or retrieve them
+/// directly from Geant4. Specifying a physical process between square brackets
+/// [ ] will mark those hits at the event drawing pad that match those given
+/// at the argument, i.e. `graphXY[eBrem,phot,compt]`.
+///
+/// 4. **print**: Prints in the screen terminal the output of the
+/// TRestGeant4Event::PrintEvent method. This option will not generate a new
+/// drawing pad.
+///
+/// Example 1:
+/// \code
+/// DrawEvent("graphXY[eBrem,phot,compt]:graphXZ[eIoni,annihil]")
+/// \endcode
+///
+/// Example 2:
+/// \code
+/// DrawEvent("histX[binSize=1]:histY[binSize=2]:histZ[binSize=3]");
+/// \endcode
+///
+/// If not argument is given, the default option list is equivalent to execute
+/// the following:
+///
+/// \code
+/// DrawEvent("graphXZ:graphYZ:histXZ(Cont0,colz):histYZ(Cont0,colz)")
+/// \endcode
+///
 TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
     vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
