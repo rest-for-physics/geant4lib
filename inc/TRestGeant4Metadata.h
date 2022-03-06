@@ -236,6 +236,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// simulation
     TString GetGeant4Version() const { return fGeant4Version; }
 
+    size_t GetGeant4VersionMajor() const;
+
     /// Returns the local path to the GDML geometry
     TString GetGeometryPath() const { return fGeometryPath; }
 
@@ -315,7 +317,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
 
     /// Sets the value of the Geant4 version
-    void SetGeant4Version(TString g4Version) { fGeant4Version = g4Version; }
+    inline void SetGeant4Version(const TString& versionString) { fGeant4Version = versionString; }
 
     ///  \brief Sets the generator type. I.e. volume, surface, point, virtualWall,
     ///  virtualCylinder, etc.

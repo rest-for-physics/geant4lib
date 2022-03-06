@@ -1533,3 +1533,15 @@ Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
 
     return 0;
 }
+
+size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
+    TString majorVersion = "";
+    for (int i = 0; i < fGeant4Version.Length(); i++) {
+        auto c = fGeant4Version[i];
+        if (c == '.') {
+            break;
+        }
+        majorVersion += c;
+    }
+    return std::stoi(majorVersion.Data());
+}
