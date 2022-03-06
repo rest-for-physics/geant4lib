@@ -68,7 +68,10 @@ class TRestGeant4GeometryInfo {
         return fLogicalToPhysicalMap.count(volume) > 0;
     }
     inline std::vector<TString> GetAllPhysicalVolumesFromLogical(const TString& logicalVolume) const {
-        return fLogicalToPhysicalMap.at(logicalVolume);
+        if (IsValidLogicalVolume(logicalVolume)) {
+            return fLogicalToPhysicalMap.at(logicalVolume);
+        }
+        return {};
     }
 
     inline bool IsAssembly() const { return fIsAssembly; }
