@@ -140,8 +140,6 @@ Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) co
 }
 
 void TRestGeant4GeometryInfo::Print() const {
-    cout << "TRestGeant4GeometryInfo::Print" << endl;
-
     cout << "Assembly Geometry: " << (fIsAssembly ? "yes" : "no") << endl;
 
     cout << "Physical volumes:" << endl;
@@ -149,7 +147,7 @@ void TRestGeant4GeometryInfo::Print() const {
         auto newName = GetAlternativeNameFromGeant4PhysicalName(physical);
         const auto logical = fPhysicalToLogicalVolumeMap.at(physical);
         cout << "\t- " << (newName == physical ? physical : newName + " (" + physical + ")")
-             << "- Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
+             << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
              << " - Material: " << fLogicalToMaterialMap.at(logical) << endl;
     }
 
