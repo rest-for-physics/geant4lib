@@ -772,8 +772,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     // if "gdml_file" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
-    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
-         ((string)fGdmlFilename).find("/") == -1) &&
+    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 || ((string)fGdmlFilename).find("/") == -1) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGdmlFilename = fGeometryPath + GetParameter("gdml_file");
@@ -1021,20 +1020,6 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
     fParticleSource.push_back(src);
 }
 
-void TRestGeant4Metadata_addDaughters(TGeoNode* node, set<string>* logicalVolumesSet,
-                                      set<string>* physicalVolumesSet, set<string>* assembliesSet) {
-    assembliesSet->insert(node->GetVolume()->GetName());
-    for (size_t i = 0; i < node->GetNdaughters(); i++) {
-        TGeoNode* daughter = node->GetDaughter(i);
-        if (daughter->GetVolume()->IsAssembly()) {
-            TRestGeant4Metadata_addDaughters(daughter, logicalVolumesSet, physicalVolumesSet, assembliesSet);
-        } else {
-            logicalVolumesSet->insert(daughter->GetVolume()->GetName());
-            physicalVolumesSet->insert(daughter->GetName());
-        }
-    }
-};
-
 ///////////////////////////////////////////////
 /// \brief Reads the storage section defined inside TRestGeant4Metadata.
 ///
@@ -1063,28 +1048,11 @@ void TRestGeant4Metadata::ReadStorage() {
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
     TRestGDMLParser* gdml = new TRestGDMLParser();
-    gdml->Load((string)GetGdmlFilename());
+    gdml->Load(GetGdmlFilename().Data());
 
-    TGeoManager::Import((TString)gdml->GetOutputGDMLFile());
+    fGeant4GeometryInfo.PopulateFromGdml(gdml->GetOutputGDMLFile());
 
-    // recursively add all non-assembly volume names, which should be unique according to GDML definition
-
-    set<string> logicalVolumesSet;
-    set<string> physicalVolumesSet;
-    set<string> assembliesSet;
-
-    TRestGeant4Metadata_addDaughters(gGeoManager->GetTopNode(), &logicalVolumesSet, &physicalVolumesSet,
-                                     &assembliesSet);
-
-    // debugging
-    const map<string, set<string>> m = {
-        {"Physical", physicalVolumesSet}, {"Logical", logicalVolumesSet}, {"Assembly", assembliesSet}};
-    for (auto const& kv : m) {
-        cout << kv.first << " Volumes:" << endl;
-        for (const auto& volume : kv.second) cout << "\t" << volume << endl;
-        cout << endl;
-    }
-
+    const auto physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
     while (volumeDefinition) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
@@ -1094,9 +1062,8 @@ void TRestGeant4Metadata::ReadStorage() {
         if (maxStp < 0) maxStp = defaultStep;
 
         TString name = GetFieldValue("name", volumeDefinition);
-
         // first we verify its in the list of valid volumes
-        if (physicalVolumesSet.find((string)name) == physicalVolumesSet.end()) {
+        if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
             // it is not on the container
             ferr << "TRestGeant4Metadata. Problem reading storage section." << endl;
             ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
@@ -1108,13 +1075,14 @@ void TRestGeant4Metadata::ReadStorage() {
         volumeDefinition = GetNextElement(volumeDefinition);
     }
 
-    // If the user didnt add explicitly any volume to the storage section we understand
+    // If the user did not add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
-    if (GetNumberOfActiveVolumes() == 0)
-        for (auto& name : physicalVolumesSet) {
+    if (GetNumberOfActiveVolumes() == 0) {
+        for (auto& name : physicalVolumes) {
             SetActiveVolume(name, 1, defaultStep);
             info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
         }
+    }
 }
 
 ///////////////////////////////////////////////

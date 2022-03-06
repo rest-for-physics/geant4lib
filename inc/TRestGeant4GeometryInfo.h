@@ -39,16 +39,27 @@ class TRestGeant4GeometryInfo {
     void PopulateFromGdml(const TString&);
 
     TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
+    TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
 
     Int_t GetIDFromVolumeName(const TString&) const;
 
     void PopulateFromGeant4World(const G4VPhysicalVolume*);
 
-    std::vector<TString> GetAllPhysicalVolumes() const;
     std::vector<TString> GetAllLogicalVolumes() const;
+    std::vector<TString> GetAllPhysicalVolumes() const;
+    std::vector<TString> GetAllAlternativePhysicalVolumes() const;
 
     std::vector<TString> GetAllLogicalVolumesMatchingExpression(const TString&) const;
     std::vector<TString> GetAllPhysicalVolumesMatchingExpression(const TString&) const;
+
+    inline bool IsValidGdmlName(const TString& volume) const {
+        for (const auto& name : fGdmlNewPhysicalNames) {
+            if (name == volume) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     inline bool IsValidPhysicalVolume(const TString& volume) const {
         return fPhysicalToLogicalVolumeMap.count(volume) > 0;

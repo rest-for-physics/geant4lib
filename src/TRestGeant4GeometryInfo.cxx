@@ -54,7 +54,7 @@ void AddVolumesRecursively(vector<TString>* container, const vector<TString>& ch
 }  // namespace myXml
 
 void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
-    cout << "TRestGeant4GeometryInfo::PopulateFromGdml" << endl;
+    cout << "TRestGeant4GeometryInfo::PopulateFromGdml - " << gdmlFilename << endl;
     // Geometry must be in GDML
     TXMLEngine xml;
     XMLDocPointer_t xmldoc = xml.ParseFile(gdmlFilename.Data());
@@ -90,8 +90,17 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
         child = xml.GetNext(child);
     }
 
+    string worldVolumeName = "world";
+    if (childrenTable.count(worldVolumeName) == 0) {
+        worldVolumeName = "World";
+        if (childrenTable.count(worldVolumeName) == 0) {
+            cout << "Could not find world volume in GDML, please name it either 'World' or 'world'";
+            exit(1);
+        }
+    }
+
     fGdmlNewPhysicalNames.clear();
-    for (const auto& topName : childrenTable["world"]) {
+    for (const auto& topName : childrenTable[worldVolumeName]) {
         auto children = childrenTable[nameTable[topName]];
         myXml::AddVolumesRecursively(&fGdmlNewPhysicalNames, children, nameTable, childrenTable, topName);
     }
@@ -120,6 +129,16 @@ TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
     return geant4PhysicalName;
 }
 
+TString TRestGeant4GeometryInfo::GetGeant4PhysicalNameFromAlternativeName(
+    const TString& alternativeName) const {
+    for (const auto& kv : fGeant4PhysicalNameToNewPhysicalNameMap) {
+        if (kv.second == alternativeName) {
+            return kv.first;
+        }
+    }
+    return "";
+}
+
 Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) const {
     for (int i = 0; i < fGdmlNewPhysicalNames.size(); i++) {
         if (volumeName.EqualTo(fGdmlNewPhysicalNames[i])) {
@@ -142,7 +161,8 @@ Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) co
 void TRestGeant4GeometryInfo::Print() const {
     cout << "Assembly Geometry: " << (fIsAssembly ? "yes" : "no") << endl;
 
-    cout << "Physical volumes:" << endl;
+    const auto physicalVolumes = GetAllPhysicalVolumes();
+    cout << "Physical volumes (" << physicalVolumes.size() << "):" << endl;
     for (const auto& physical : GetAllPhysicalVolumes()) {
         auto newName = GetAlternativeNameFromGeant4PhysicalName(physical);
         const auto logical = fPhysicalToLogicalVolumeMap.at(physical);
@@ -151,10 +171,21 @@ void TRestGeant4GeometryInfo::Print() const {
              << " - Material: " << fLogicalToMaterialMap.at(logical) << endl;
     }
 
-    cout << "Logical volumes:" << endl;
-    for (const auto& logical : GetAllLogicalVolumes()) {
+    const auto logicalVolumes = GetAllLogicalVolumes();
+    cout << "Logical volumes (" << logicalVolumes.size() << "):" << endl;
+    for (const auto& logical : logicalVolumes) {
         cout << "\t- " << logical << endl;
     }
+}
+
+std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumes() const {
+    auto volumes = std::vector<TString>();
+
+    for (const auto& kv : fLogicalToPhysicalMap) {
+        volumes.emplace_back(kv.first);
+    }
+
+    return volumes;
 }
 
 std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
@@ -167,11 +198,11 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
     return volumes;
 }
 
-std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumes() const {
+std::vector<TString> TRestGeant4GeometryInfo::GetAllAlternativePhysicalVolumes() const {
     auto volumes = std::vector<TString>();
 
-    for (const auto& kv : fLogicalToPhysicalMap) {
-        volumes.emplace_back(kv.first);
+    for (const auto& kv : fPhysicalToLogicalVolumeMap) {
+        volumes.emplace_back(GetAlternativeNameFromGeant4PhysicalName(kv.first));
     }
 
     return volumes;
