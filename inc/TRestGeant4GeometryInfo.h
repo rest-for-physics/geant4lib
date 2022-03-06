@@ -17,6 +17,9 @@ class G4VPhysicalVolume;
 class TRestGeant4GeometryInfo {
     ClassDef(TRestGeant4GeometryInfo, 1);
 
+   private:
+    bool fIsAssembly = false;
+
    public:
     std::vector<TString> fGdmlNewPhysicalNames;
     std::map<TString, TString>
@@ -56,6 +59,8 @@ class TRestGeant4GeometryInfo {
     inline std::vector<TString> GetAllPhysicalVolumesFromLogical(const TString& logicalVolume) const {
         return fLogicalToPhysicalMap.at(logicalVolume);
     }
+
+    inline bool IsAssembly() const { return fIsAssembly; }
 
     void Print() const;
 };

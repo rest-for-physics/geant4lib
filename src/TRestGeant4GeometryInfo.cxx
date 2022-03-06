@@ -142,14 +142,17 @@ Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) co
 void TRestGeant4GeometryInfo::Print() const {
     cout << "TRestGeant4GeometryInfo::Print" << endl;
 
+    cout << "Assembly Geometry: " << (fIsAssembly ? "yes" : "no") << endl;
+
     cout << "Physical volumes:" << endl;
     for (const auto& physical : GetAllPhysicalVolumes()) {
-        cout << "\t- " << physical.Data() << endl;
+        auto newName = GetAlternativeNameFromGeant4PhysicalName(physical);
+        cout << "\t- " << (newName == physical ? physical : newName + " (" + physical + ")") << endl;
     }
 
     cout << "Logical volumes:" << endl;
     for (const auto& logical : GetAllLogicalVolumes()) {
-        cout << "\t- " << logical.Data() << endl;
+        cout << "\t- " << logical << endl;
     }
 }
 
