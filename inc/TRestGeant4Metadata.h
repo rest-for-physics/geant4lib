@@ -22,9 +22,8 @@
 
 #ifndef RestCore_TRestGeant4Metadata
 #define RestCore_TRestGeant4Metadata
+
 #include <TMath.h>
-#include <TRestGeant4BiasingVolume.h>
-#include <TRestGeant4ParticleSource.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -38,6 +37,9 @@
 #include <iostream>
 #include <vector>
 
+#include "TRestGeant4BiasingVolume.h"
+#include "TRestGeant4GeometryInfo.h"
+#include "TRestGeant4ParticleSource.h"
 //------------------------------------------------------------------------------------------------------------------------
 //
 // * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
@@ -108,6 +110,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     // void ReadParticleSource(TiXmlElement* sourceDefinition);
 
+    /// Class used to store and retrieve geometry info
+    TRestGeant4GeometryInfo fGeant4GeometryInfo;
+
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
 
@@ -115,10 +120,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     TString fGeometryPath;  //!
 
     /// The filename of the GDML geometry
-    TString fGDML_Filename;  //!
+    TString fGdmlFilename;  //!
 
     /// A GDML geometry reference introduced in the header of the GDML main setup
-    TString fGDML_Reference;
+    TString fGdmlReference;
 
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
@@ -206,15 +211,15 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
-    Bool_t fSaveAllEvents = 0;
+    Bool_t fSaveAllEvents = false;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
-    Bool_t fPrintProgress = 0;  //!
+    Bool_t fPrintProgress = false;  //!
 
     /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
     /// behaviour. If it is disabled then empty tracks will not be written to disk at the risk of loosing
     /// traceability, but saving disk space and likely improving computing performance for extense events.
-    Bool_t fRegisterEmptyTracks = 1;
+    Bool_t fRegisterEmptyTracks = true;
 
     /// The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
@@ -222,73 +227,78 @@ class TRestGeant4Metadata : public TRestMetadata {
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
-    Long_t GetSeed() { return fSeed; }
+    Long_t GetSeed() const { return fSeed; }
+
+    /// \brief Returns a reference to the geometry info
+    TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
 
     /// \brief Returns a string with the version of Geant4 used on the event data
     /// simulation
-    TString GetGeant4Version() { return fGeant4Version; }
+    TString GetGeant4Version() const { return fGeant4Version; }
+
+    size_t GetGeant4VersionMajor() const;
 
     /// Returns the local path to the GDML geometry
-    TString GetGeometryPath() { return fGeometryPath; }
+    TString GetGeometryPath() const { return fGeometryPath; }
 
     /// Returns the main filename of the GDML geometry
-    TString Get_GDML_Filename() { return fGDML_Filename; }
+    TString GetGdmlFilename() const { return fGdmlFilename; }
 
     /// Returns the reference provided at the GDML file header
-    TString Get_GDML_Reference() { return fGDML_Reference; }
+    TString GetGdmlReference() const { return fGdmlReference; }
 
     /// Returns the reference provided at the materials file header
-    TString GetMaterialsReference() { return fMaterialsReference; }
+    TString GetMaterialsReference() const { return fMaterialsReference; }
 
     /// \brief Returns a string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
-    TString GetGeneratorType() { return fGenType; }
+    TString GetGeneratorType() const { return fGenType; }
 
     /// \brief Returns a string specifying the generator shape (point, wall, box, etc )
-    TString GetGeneratorShape() { return fGenShape; }
+    TString GetGeneratorShape() const { return fGenShape; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGeneratedFrom() { return fGenFrom; }
+    TString GetGeneratedFrom() const { return fGenFrom; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGDMLGeneratorVolume() { return fGenFrom; }
+    TString GetGDMLGeneratorVolume() const { return fGenFrom; }
 
     /// \brief Returns a 3d-vector with the position of the primary event
     /// generator. This value has meaning only when using point and virtual
     /// generator types.
-    TVector3 GetGeneratorPosition() { return fGenPosition; }
+    TVector3 GetGeneratorPosition() const { return fGenPosition; }
 
     /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
-    TVector3 GetGeneratorRotationAxis() { return fGenRotationAxis; }
+    TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
 
     /// \brief Returns the degree of rotation
-    Double_t GetGeneratorRotationDegree() { return fGenRotationDegree; }
+    Double_t GetGeneratorRotationDegree() const { return fGenRotationDegree; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the size of a  virtualBox.
-    TVector3 GetGeneratorSize() { return fGenSize; }
+    TVector3 GetGeneratorSize() const { return fGenSize; }
 
     /// \brief Returns the density function of the generator
-    TString GetGeneratorSpatialDensity() { return fGenDensityFunction; }
+    TString GetGeneratorSpatialDensity() const { return fGenDensityFunction; }
 
     /// \brief Returns true in case full decay chain simulation is enabled.
-    Bool_t isFullChainActivated() { return fFullChain; }
+    Bool_t isFullChainActivated() const { return fFullChain; }
 
     /// \brief Returns the value of the maximum Geant4 step size in mm for the
     /// target volume.
-    Double_t GetMaxTargetStepSize() { return fMaxTargetStepSize; }
+    Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
     /// new independent event. It is used to separate simulated events that in
     /// practice will appear as such in our detector. I.e. to separate multiple
     /// decay products (sometimes with years time delays) into independent events.
-    Double_t GetSubEventTimeDelay() { return fSubEventTimeDelay; }
+    Double_t GetSubEventTimeDelay() const { return fSubEventTimeDelay; }
 
     /// It returns true if save all events is active
     Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
@@ -307,7 +317,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
 
     /// Sets the value of the Geant4 version
-    void SetGeant4Version(TString g4Version) { fGeant4Version = g4Version; }
+    inline void SetGeant4Version(const TString& versionString) { fGeant4Version = versionString; }
 
     ///  \brief Sets the generator type. I.e. volume, surface, point, virtualWall,
     ///  virtualCylinder, etc.
@@ -315,13 +325,13 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
     ///  radius of cylinder, size of wall, etc.
-    void SetGeneratorSize(TVector3 size) { fGenSize = size; }
+    void SetGeneratorSize(const TVector3& size) { fGenSize = size; }
 
     ///  Enables/disables the full chain decay generation.
     void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
 
     ///  Sets the position of the virtual generator using a TVector3.
-    void SetGeneratorPosition(TVector3 pos) { fGenPosition = pos; }
+    void SetGeneratorPosition(const TVector3& pos) { fGenPosition = pos; }
 
     ///  Sets the position of the virtual generator using x,y,z coordinates.
     void SetGeneratorPosition(double x, double y, double z) { fGenPosition = TVector3(x, y, z); }
@@ -333,22 +343,22 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetGeometryPath(string path) { fGeometryPath = path; }
 
     /// It sets the main filename to be used for the GDML geometry
-    void Set_GDML_Filename(string gdmlFile) { fGDML_Filename = gdmlFile; }
+    void SetGdmlFilename(string gdmlFile) { fGdmlFilename = gdmlFile; }
 
     /// Returns the reference provided at the GDML file header
-    void Set_GDML_Reference(string reference) { fGDML_Reference = reference; }
+    void SetGdmlReference(string reference) { fGdmlReference = reference; }
 
     /// Returns the reference provided at the materials file header
     void SetMaterialsReference(string reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
-    Int_t GetNumberOfEvents() { return fNEvents; }
+    Int_t GetNumberOfEvents() const { return fNEvents; }
     ///////////////////////////////////////////////////////////
 
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfSources() { return fParticleSource.size(); }
+    Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
     TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }
