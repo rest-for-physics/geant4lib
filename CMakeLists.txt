@@ -60,4 +60,4 @@ set(rest_macros ${rest_macros} "restGeant4_ViewEvent")
 set(rest_macros ${rest_macros} "restGeant4_ViewGeometry")
 set(rest_macros ${rest_macros} PARENT_SCOPE)
 
-ADD_TEST()
+ADD_LIBRARY_TEST()
