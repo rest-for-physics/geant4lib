@@ -23,6 +23,30 @@ TEST(TRestGeant4Metadata, TestFiles) {
     EXPECT_TRUE(fs::exists(GEANT4_METADATA_RML));
 }
 
-TEST(TRestGeant4Metadata, Default) { TRestGeant4Metadata metadata; }
+TEST(TRestGeant4Metadata, Default) {
+    TRestGeant4Metadata restGeant4Metadata;
 
-TEST(TRestGeant4Metadata, FromRml) {}
+    restGeant4Metadata.PrintMetadata();
+
+    EXPECT_TRUE(restGeant4Metadata.GetSeed() == 0);
+    EXPECT_TRUE(restGeant4Metadata.GetSensitiveVolume() == "gas");
+}
+
+TEST(TRestGeant4Metadata, FromRml) {
+    const auto metadataConfigRml = GEANT4_METADATA_RML;
+
+    TRestGeant4Metadata restGeant4Metadata((char*)metadataConfigRml.c_str());
+
+    restGeant4Metadata.PrintMetadata();
+
+    GTEST_SKIP_("If it doesn't find the gdml, test will always return OK for some reason. TODO: fix this");
+
+    EXPECT_TRUE(restGeant4Metadata.GetSensitiveVolume() == "sensitiveVolume");
+    EXPECT_TRUE(restGeant4Metadata.GetSeed() == 17021981);
+
+    // primary generator
+    EXPECT_TRUE(restGeant4Metadata.GetNumberOfSources() == 1);
+    const auto particleSource = restGeant4Metadata.GetParticleSource(0);
+    EXPECT_TRUE(particleSource->GetParticleName() == "geantino");
+    EXPECT_TRUE(particleSource->GetEnergyDistType() == "mono");
+}
