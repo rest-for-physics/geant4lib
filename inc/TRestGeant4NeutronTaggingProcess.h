@@ -42,12 +42,12 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     std::vector<int> fCaptureVolumeIds;    //!
     std::vector<int> fShieldingVolumeIds;  //!
 
-    std::string fVetoKeyword = "";                                     //!
-    std::string fCaptureKeyword = "";                                  //!
-    std::string fShieldingKeyword = "";                                //!
-    std::vector<std::string> fVetoGroupKeywords;                       //!
+    std::string fVetoKeyword = "";                                          //!
+    std::string fCaptureKeyword = "";                                       //!
+    std::string fShieldingKeyword = "";                                     //!
+    std::vector<std::string> fVetoGroupKeywords;                            //!
     std::map<std::string, std::vector<std::string>> fVetoGroupVolumeNames;  //!
-    std::vector<Float_t> fQuenchingFactors;                       //!
+    std::vector<Float_t> fQuenchingFactors;                                 //!
 
     // neutrons that undergo neutron capture
     Int_t fNeutronsCapturedNumber;  //!
