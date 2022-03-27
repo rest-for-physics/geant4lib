@@ -17,8 +17,8 @@ class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
     bxdecay0::std_random* prng;                //!
     std::default_random_engine* generator;     //!
 
-    string fParentName;
-    string fDecayType;
+    std::string fParentName;
+    std::string fDecayType;
 
     int fSeed;
     int fDaughterLevel;

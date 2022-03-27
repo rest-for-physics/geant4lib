@@ -50,7 +50,7 @@
 //
 
 namespace g4_metadata_parameters {
-string CleanString(string);
+std::string CleanString(std::string);
 
 enum class generator_types {
     CUSTOM,
@@ -58,7 +58,7 @@ enum class generator_types {
     SURFACE,
     POINT,
 };
-extern std::map<string, generator_types> generator_types_map;
+extern std::map<std::string, generator_types> generator_types_map;
 
 enum class generator_shapes {
     GDML,
@@ -68,7 +68,7 @@ enum class generator_shapes {
     SPHERE,
     CYLINDER,
 };
-extern std::map<string, generator_shapes> generator_shapes_map;
+extern std::map<std::string, generator_shapes> generator_shapes_map;
 
 enum class energy_dist_types {
     TH1D,
@@ -76,7 +76,7 @@ enum class energy_dist_types {
     FLAT,
     LOG,
 };
-extern std::map<string, energy_dist_types> energy_dist_types_map;
+extern std::map<std::string, energy_dist_types> energy_dist_types_map;
 
 enum class angular_dist_types {
     TH1D,
@@ -84,7 +84,7 @@ enum class angular_dist_types {
     FLUX,
     BACK_TO_BACK,
 };
-extern std::map<string, angular_dist_types> angular_dist_types_map;
+extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// The position of the generator for virtual, and point, generator types.
     TVector3 fGenPosition;
 
-    /// \brief A 3d-vector with the angles, measured in degrees, of a XYZ rotation
+    /// \brief A 3d-std::vector with the angles, measured in degrees, of a XYZ rotation
     /// applied to the virtual generator. This rotation is used by virtualWall,
     /// virtualCircleWall and virtualCylinder generators.
     TVector3 fGenRotationAxis;
@@ -160,18 +160,18 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Defines density distribution of the generator shape. rho=F(x,y,z), in range 0~1
     TString fGenDensityFunction;
 
-    /// \brief A 2d-vector storing the energy range, in keV, to decide if a particular
+    /// \brief A 2d-std::vector storing the energy range, in keV, to decide if a particular
     /// event should be written to disk or not.
     TVector2 fEnergyRangeStored;
 
-    /// \brief A vector to store the names of the active volumes.
+    /// \brief A std::vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;
 
-    /// \brief A vector to store the probability value to write to disk the hits in a
+    /// \brief A std::vector to store the probability value to write to disk the hits in a
     /// particular event.
     std::vector<Double_t> fChance;
 
-    /// \brief A vector to store the maximum step size at a particular volume.
+    /// \brief A std::vector to store the maximum step size at a particular volume.
     std::vector<Double_t> fMaxStepSize;
 
     /// \brief It the defines the primary source properties, particle type, momentum,
@@ -182,7 +182,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// technique is used.
     Int_t fNBiasingVolumes;
 
-    /// A vector containning the biasing volume properties.
+    /// A std::vector containning the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
@@ -232,7 +232,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns a reference to the geometry info
     TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
 
-    /// \brief Returns a string with the version of Geant4 used on the event data
+    /// \brief Returns a std::string with the version of Geant4 used on the event data
     /// simulation
     TString GetGeant4Version() const { return fGeant4Version; }
 
@@ -250,11 +250,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the reference provided at the materials file header
     TString GetMaterialsReference() const { return fMaterialsReference; }
 
-    /// \brief Returns a string specifying the generator type (volume, surface, point,
+    /// \brief Returns a std::string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
     TString GetGeneratorType() const { return fGenType; }
 
-    /// \brief Returns a string specifying the generator shape (point, wall, box, etc )
+    /// \brief Returns a std::string specifying the generator shape (point, wall, box, etc )
     TString GetGeneratorShape() const { return fGenShape; }
 
     /// \brief Returns the name of the GDML volume where primary events are
@@ -267,12 +267,12 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// generator types.
     TString GetGDMLGeneratorVolume() const { return fGenFrom; }
 
-    /// \brief Returns a 3d-vector with the position of the primary event
+    /// \brief Returns a 3d-std::vector with the position of the primary event
     /// generator. This value has meaning only when using point and virtual
     /// generator types.
     TVector3 GetGeneratorPosition() const { return fGenPosition; }
 
-    /// \brief Returns a 3d-vector, fGenRotation, with the XYZ rotation angle
+    /// \brief Returns a 3d-std::vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
     TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
@@ -340,16 +340,16 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetNEvents(Int_t n) { fNEvents = n; }
 
     /// It sets the location of the geometry files
-    void SetGeometryPath(string path) { fGeometryPath = path; }
+    void SetGeometryPath(std::string path) { fGeometryPath = path; }
 
     /// It sets the main filename to be used for the GDML geometry
-    void SetGdmlFilename(string gdmlFile) { fGdmlFilename = gdmlFile; }
+    void SetGdmlFilename(std::string gdmlFile) { fGdmlFilename = gdmlFile; }
 
     /// Returns the reference provided at the GDML file header
-    void SetGdmlReference(string reference) { fGdmlReference = reference; }
+    void SetGdmlReference(std::string reference) { fGdmlReference = reference; }
 
     /// Returns the reference provided at the materials file header
-    void SetMaterialsReference(string reference) { fMaterialsReference = reference; }
+    void SetMaterialsReference(std::string reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
     Int_t GetNumberOfEvents() const { return fNEvents; }
@@ -382,7 +382,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// is not being used.
     Int_t isBiasingActive() { return fBiasingVolumes.size(); }
 
-    /// Returns a string with the name of the sensitive volume.
+    /// Returns a std::string with the name of the sensitive volume.
     TString GetSensitiveVolume() { return fSensitiveVolume; }
 
     /// Sets the name of the sensitive volume
@@ -409,7 +409,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// selected for data storage.
     Int_t GetNumberOfActiveVolumes() { return fActiveVolumes.size(); }
 
-    /// Returns a string with the name of the active volume with index n
+    /// Returns a std::string with the name of the active volume with index n
     TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
 
     /// Returns the world magnetic field in Tesla
