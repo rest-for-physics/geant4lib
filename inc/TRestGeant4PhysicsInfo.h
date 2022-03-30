@@ -20,7 +20,9 @@ class TRestGeant4PhysicsInfo {
 
    public:
     inline TRestGeant4PhysicsInfo() = default;
+    inline ~TRestGeant4PhysicsInfo() = default;
     ClassDef(TRestGeant4PhysicsInfo, 1);
+
     void Print() const;
 };
 #endif  // REST_TRESTGEANT4PHYSICSINFO_H
