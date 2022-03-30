@@ -10,20 +10,17 @@
 #include <map>
 #include <vector>
 
-class G4VPhysicalVolume;
-
 class TRestGeant4PhysicsInfo {
-    ClassDef(TRestGeant4PhysicsInfo, 1);
-
    private:
     std::map<Int_t, TString> fProcessNamesMap = {};
     std::map<Int_t, TString> fVolumeNamesMap = {};
 
    public:
-    inline TRestGeant4PhysicsInfo() = default;
-
     void InsertProcessName(Int_t id, const TString& name);
 
+   public:
+    inline TRestGeant4PhysicsInfo() = default;
+    ClassDef(TRestGeant4PhysicsInfo, 1);
     void Print() const;
 };
 #endif  // REST_TRESTGEANT4PHYSICSINFO_H
