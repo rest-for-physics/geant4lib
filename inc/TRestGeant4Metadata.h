@@ -40,6 +40,7 @@
 #include "TRestGeant4BiasingVolume.h"
 #include "TRestGeant4GeometryInfo.h"
 #include "TRestGeant4ParticleSource.h"
+#include "TRestGeant4PhysicsInfo.h"
 //------------------------------------------------------------------------------------------------------------------------
 //
 // * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
@@ -112,6 +113,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
+
+    /// Class used to store and retrieve physics info such as process names
+    TRestGeant4PhysicsInfo fGeant4PhysicsInfo;
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -229,8 +233,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// geant4 dataset.
     Long_t GetSeed() const { return fSeed; }
 
-    /// \brief Returns a reference to the geometry info
+    /// \brief Returns a pointer to the geometry info
     TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
+
+    /// \brief Returns a pointer to the physics info
+    TRestGeant4PhysicsInfo* GetGeant4PhysicsInfo() { return &fGeant4PhysicsInfo; }
 
     /// \brief Returns a string with the version of Geant4 used on the event data
     /// simulation
@@ -428,6 +435,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 9);
+    ClassDef(TRestGeant4Metadata, 10);
 };
 #endif  // RestCore_TRestGeant4Metadata
