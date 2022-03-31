@@ -31,7 +31,7 @@ void TRestGeant4EventViewer::Initialize() {
     fEvent = fG4Event;
 
     fHitConnectors.clear();
-    fHitConnectors.push_back(NULL);
+    fHitConnectors.push_back(nullptr);
 }
 
 void TRestGeant4EventViewer::DeleteCurrentEvent() {
@@ -40,7 +40,7 @@ void TRestGeant4EventViewer::DeleteCurrentEvent() {
     TRestEveEventViewer::DeleteCurrentEvent();
 
     fHitConnectors.clear();
-    fHitConnectors.push_back(NULL);
+    fHitConnectors.push_back(nullptr);
 }
 
 void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {

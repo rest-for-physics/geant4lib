@@ -1,5 +1,7 @@
 #include "TRestGeant4ParticleSourceDecay0.h"
 
+using namespace std;
+
 ClassImp(TRestGeant4ParticleSourceDecay0);
 
 TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()

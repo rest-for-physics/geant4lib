@@ -47,7 +47,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     Double_t fMinEnergyRangeProductionCuts;
     Double_t fMaxEnergyRangeProductionCuts;
 
-    std::vector<string> fIonLimitStepList;
+    std::vector<std::string> fIonLimitStepList;
 
    public:
     Double_t GetCutForGamma() { return fCutForGamma; }
@@ -56,7 +56,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     Double_t GetCutForMuon() { return fCutForMuon; }
     Double_t GetCutForNeutron() { return fCutForNeutron; }
 
-    std::vector<string> GetIonStepList() { return fIonLimitStepList; }
+    std::vector<std::string> GetIonStepList() { return fIonLimitStepList; }
 
     Double_t GetMinimumEnergyProductionCuts() { return fMinEnergyRangeProductionCuts; }
     Double_t GetMaximumEnergyProductionCuts() { return fMaxEnergyRangeProductionCuts; }

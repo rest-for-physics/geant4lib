@@ -25,7 +25,7 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
     } else
         run->OpenInputFile(fName);
 
-    if (run == NULL) {
+    if (run == nullptr) {
         cout << "WARNING no TRestGeant4Run class was found" << endl;
         exit(1);
     }

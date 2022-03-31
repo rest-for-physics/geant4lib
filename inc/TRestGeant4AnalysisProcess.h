@@ -43,37 +43,38 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// It stores the name of observables `xxxVolumeEDep` related to the energy deposition in volume `xxx`.
     std::vector<std::string> fEnergyInObservables;  //!
 
-    /// A vector storing the active volume ids of observables `xxxVolumeEDep`.
+    /// A std::vector storing the active volume ids of observables `xxxVolumeEDep`.
     std::vector<Int_t> fVolumeID;  //!
 
     /// It stores the name of observables (xxxMeanPosX,Y,Z) related to mean hits position in volume `xxx`.
     std::vector<std::string> fMeanPosObservables;  //!
 
-    /// A vector storing the active volume ids corresponding mean position observable `xxxMeanPosX,Y,Z`.
+    /// A std::vector storing the active volume ids corresponding mean position observable `xxxMeanPosX,Y,Z`.
     std::vector<Int_t> fVolumeID2;  //!
 
-    /// A vector storing the direction X,Y or Z from corresponding mean position observable `xxxMeanPosX,Y,Z`.
+    /// A std::vector storing the direction X,Y or Z from corresponding mean position observable
+    /// `xxxMeanPosX,Y,Z`.
     std::vector<std::string> fDirID;  //!
 
-    /// A vector storing the name of observables  related to processes in a particular active volume.
+    /// A std::vector storing the name of observables  related to processes in a particular active volume.
     std::vector<std::string> fProcessObservables;  //!
 
-    /// A vector storing the active volume ids corresponding process observable .
+    /// A std::vector storing the active volume ids corresponding process observable .
     std::vector<Int_t> fVolumeID3;  //!
 
-    /// A vector storing the name of processes.
+    /// A std::vector storing the name of processes.
     std::vector<std::string> fProcessName;  //!
 
-    /// A vector storing the observable name `xxxTracksCounter` for a given `xxx` particle.
+    /// A std::vector storing the observable name `xxxTracksCounter` for a given `xxx` particle.
     std::vector<std::string> fTrackCounterObservables;  //!
 
-    /// A vector storing the `xxx` particle name extracted from `xxxTracksCounter`.
+    /// A std::vector storing the `xxx` particle name extracted from `xxxTracksCounter`.
     std::vector<std::string> fParticleTrackCounter;  //!
 
-    /// A vector storing the observable name `xxxTracksEDep` for a given `xxx` particle.
+    /// A std::vector storing the observable name `xxxTracksEDep` for a given `xxx` particle.
     std::vector<std::string> fTracksEDepObservables;  //!
 
-    /// A vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
+    /// A std::vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
     std::vector<std::string> fParticleTrackEdep;  //!
 
     // TODO these two thresholds should become OBSOLETE. We must use now the more generic

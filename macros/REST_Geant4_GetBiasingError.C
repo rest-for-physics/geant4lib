@@ -40,11 +40,11 @@ Double_t REST_Geant4_GetBiasingError(TString fName, Int_t finalEvents = 0) {
         }
     }
 
-    if (metadata == NULL) {
+    if (metadata == nullptr) {
         cout << "WARNING no TRestGeant4Metadata class was found" << endl;
         exit(1);
     }
-    if (run == NULL) {
+    if (run == nullptr) {
         cout << "WARNING no TRestRun class was found" << endl;
         exit(1);
     }

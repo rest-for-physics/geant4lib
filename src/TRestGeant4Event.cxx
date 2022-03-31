@@ -218,7 +218,7 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) {
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
     for (int i = 0; i < fNTracks; i++)
         if (fTrack[i].GetTrackID() == id) return &fTrack[i];
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////

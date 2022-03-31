@@ -205,7 +205,7 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
         infile >> nParticles;
         debug << "Number of particles : " << nParticles << endl;
 
-        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< std::endl;
         for (int i = 0; i < nParticles && !infile.eof(); i++) {
             Int_t pID;
             Double_t momx, momy, momz, mass;
@@ -238,7 +238,7 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
                 particle.SetParticleCharge(0);
                 particle.SetExcitationLevel(0);
             } else {
-                cout << "Particle id " << pID << " not recognized" << endl;
+                cout << "Particle id " << pID << " not recognized" << std::endl;
             }
 
             TVector3 momDirection(momx, momy, momz);
@@ -289,7 +289,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
     int fGeneratorEvents;
     infile >> tmpInt >> fGeneratorEvents;
 
-    // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
+    // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << std::endl;
     // TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
     // this->SetGenFilename(fileName);
     // this->SetAngularDistType("flux");
@@ -297,8 +297,8 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
 
     TRestGeant4Particle particle;
 
-    cout << "Reading generator file : " << fileName << endl;
-    cout << "Total number of events : " << fGeneratorEvents << endl;
+    cout << "Reading generator file : " << fileName << std::endl;
+    cout << "Total number of events : " << fGeneratorEvents << std::endl;
     for (int n = 0; n < fGeneratorEvents && !infile.eof(); n++) {
         Int_t nParticles;
         Int_t evID;
@@ -306,7 +306,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
 
         infile >> evID >> time >> nParticles;
 
-        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< endl;
+        // cout << evID <<" "<< time <<" "<< nParticles <<" "<< std::endl;
         for (int i = 0; i < nParticles && !infile.eof(); i++) {
             Int_t pID;
             Double_t momx, momy, momz, mass;
@@ -316,7 +316,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
             infile >> pID >> momx >> momy >> momz >> time;
             // infile >> x >> y >> z;
 
-            // cout << momx << " " << momy << " " << momz << " " << endl;
+            // cout << momx << " " << momy << " " << momz << " " << std::endl;
 
             bool ise = 2 <= pID && pID <= 3, ismu = 5 <= pID && pID <= 6, isp = pID == 14, isg = pID == 1;
             if (ise || ismu || isp || isg) {
@@ -342,7 +342,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
                 energy = TMath::Sqrt(momentum2 + mass * mass) - mass;
                 particle.SetExcitationLevel(0);
             } else {
-                cout << "Particle id " << pID << " not recognized" << endl;
+                cout << "Particle id " << pID << " not recognized" << std::endl;
             }
 
             TVector3 momDirection(momx, momy, momz);
