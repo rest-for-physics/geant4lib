@@ -1,0 +1,27 @@
+<?xml version="4.0" encoding="UTF-8" standalone="no" ?>
+
+<test>
+
+    <TRestGeant4Metadata name="Test Simulation" title="Test Simulation Title">
+
+        <parameter name="gdml_file" value="this-geometry-does-not-exist.gdml"/>
+        <parameter name="subEventTimeDelay" value="100" units="us"/>
+        <parameter name="seed" value="17021981"/>
+        <parameter name="Nevents" value="1"/>
+
+        <generator type="point" position="(0, 0, 0)">
+            <source particle="geantino">
+                <energyDist type="mono" energy="1.0" units="MeV"/>
+                <angularDist type="isotropic"/>
+            </source>
+        </generator>
+
+        <storage sensitiveVolume="sensitiveVolume">
+            <parameter name="energyRange" value="(0,10)" units="GeV"/>
+            <activeVolume name="activeVolume1" chance="1" maxStepSize="1mm"/>
+            <activeVolume name="activeVolume2" chance="1" maxStepSize="1mm"/>
+        </storage>
+
+    </TRestGeant4Metadata>
+
+</test>
