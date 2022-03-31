@@ -28,6 +28,8 @@
 
 #include "TRestEventProcess.h"
 
+using namespace std;
+
 class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestGeant4Event input
@@ -37,30 +39,30 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     /// A pointer to the simulation metadata information accessible to TRestRun
     TRestGeant4Metadata* fG4Metadata;  //!
 
-    std::vector<int> fVetoVolumeIds;                              //!
-    string fVetoKeyword = "";                                     //!
-    std::vector<string> fVetoGroupKeywords;                       //!
-    std::map<string, std::vector<string>> fVetoGroupVolumeNames;  //!
-    std::vector<Float_t> fQuenchingFactors;                       //!
+    std::vector<int> fVetoVolumeIds;                                        //!
+    std::string fVetoKeyword = "";                                          //!
+    std::vector<std::string> fVetoGroupKeywords;                            //!
+    std::map<std::string, std::vector<std::string>> fVetoGroupVolumeNames;  //!
+    std::vector<Float_t> fQuenchingFactors;                                 //!
 
     void InitFromConfigFile();
     void Initialize();
     void LoadDefaultConfig();
 
-    // clean string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
+    // clean std::string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
     inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v") {
         s.erase(s.find_last_not_of(t) + 1);
         return s;
     }
-    // trim from beginning of string (left)
+    // trim from beginning of std::string (left)
     inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v") {
         s.erase(0, s.find_first_not_of(t));
         return s;
     }
-    // trim from both ends of string (right then left)
+    // trim from both ends of std::string (right then left)
     inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v") { return ltrim(rtrim(s, t), t); }
 
-    // final clean string: trim and UPPER
+    // final clean std::string: trim and UPPER
     inline std::string& clean_string(std::string& s) {
         s = trim(s);
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);

@@ -16,15 +16,15 @@ using namespace std;
 Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
     cout << "Filename : " << fName << endl;
 
-    TGeoManager* geo = NULL;
+    TGeoManager* geo = nullptr;
     if (TRestTools::isRootFile((string)fName)) {
         TFile* fFile = new TFile(fName);
 
         TIter nextkey(fFile->GetListOfKeys());
         TKey* key;
-        while ((key = (TKey*)nextkey()) != NULL) {
+        while ((key = (TKey*)nextkey()) != nullptr) {
             if (key->GetClassName() == (TString) "TGeoManager") {
-                if (geo == NULL)
+                if (geo == nullptr)
                     geo = (TGeoManager*)fFile->Get(key->GetName());
                 else if (key->GetName() == (TString) "Geometry")
                     geo = (TGeoManager*)fFile->Get(key->GetName());
@@ -42,7 +42,7 @@ Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
         TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestGeant4EventViewer");
-        if (view == NULL) return -1;
+        if (view == nullptr) return -1;
         view->SetGeometry(geo);
         view->AddEvent(new TRestGeant4Event());
 

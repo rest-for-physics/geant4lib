@@ -50,7 +50,7 @@ class TRestGeant4Event : public TRestEvent {
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
     Bool_t PerProcessEnergyInitFlag = false;
-    std::map<string, Double_t> PerProcessEnergyInSensitive;
+    std::map<std::string, Double_t> PerProcessEnergyInSensitive;
 
     void inline InitializePerProcessEnergyInSensitive() {
         PerProcessEnergyInitFlag = true;
@@ -65,8 +65,8 @@ class TRestGeant4Event : public TRestEvent {
         PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
         PerProcessEnergyInSensitive["neutron_elastic"] = 0;
 
-        string volume_name;
-        string process_name;
+        std::string volume_name;
+        std::string process_name;
         TRestGeant4Track* track;
         TRestGeant4Hits* hits;
         Double_t energy;
@@ -85,7 +85,7 @@ class TRestGeant4Event : public TRestEvent {
                     continue;
                 }
 
-                process_name = (string)track->GetProcessName(hits->GetHitProcess(hit_id));
+                process_name = (std::string)track->GetProcessName(hits->GetHitProcess(hit_id));
                 energy = hits->GetEnergy(hit_id);
                 if (process_name == "phot") {
                     PerProcessEnergyInSensitive["photoelectric"] += energy;
@@ -184,7 +184,7 @@ class TRestGeant4Event : public TRestEvent {
 
     Int_t fNVolumes;
     std::vector<Int_t> fVolumeStored;
-    std::vector<string> fVolumeStoredNames;
+    std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
 
     Int_t fNTracks;
@@ -299,7 +299,7 @@ class TRestGeant4Event : public TRestEvent {
     void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
-    void AddActiveVolume(const string& volumeName);
+    void AddActiveVolume(const std::string& volumeName);
     void ClearVolumes();
     void AddEnergyToSensitiveVolume(Double_t en) { fSensitiveVolumeEnergy += en; }
 

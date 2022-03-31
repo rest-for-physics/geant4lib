@@ -1,5 +1,4 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-26-00_Geant4-v10.4.3_Garfield-af4a1451
-# image: nkx1231/root6-geant4-garfield:0.6
+image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
 stages:
   - pre-build
@@ -27,27 +26,27 @@ before_script:
   - apt update && apt install -y wget
 
 clang-format:
-    stage: pre-build
-    script:
-        - echo "**$CRONJOB**"
-        - echo "**$CI_SERVER_HOST**"
-        - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
-        - ./clangformattest.sh
-          # We execute only at a schedulled pipeline that defines CRONJOB variable
-    only:
-        variables:
-            - $CRONJOB
+  stage: pre-build
+  script:
+    - echo "**$CRONJOB**"
+    - echo "**$CI_SERVER_HOST**"
+    - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
+    - ./clangformattest.sh
+    # We execute only at a scheduled pipeline that defines CRONJOB variable
+  only:
+    variables:
+      - $CRONJOB
 
-validateLibrary:
-    stage: pre-build
-    script:
-        - python3 pipeline/validateLibrary.py .
-    except:
-        variables:
-            - $CRONJOB == "YES"
+Validate Library:
+  stage: pre-build
+  script:
+    - python3 pipeline/validateLibrary.py .
+  except:
+    variables:
+      - $CRONJOB == "YES"
 
-build:
-  type: build
+Build:
+  stage: build
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
@@ -73,8 +72,8 @@ build:
       - ${CI_PROJECT_DIR}/framework/build
     expire_in: 1 day
 
-loadRESTLibs:
-  type: loadRESTLibs
+Load REST Libraries:
+  stage: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
@@ -82,13 +81,13 @@ loadRESTLibs:
     variables:
       - $CRONJOB
 
-trigger_restG4:
-    stage: deploy
-    script:
-        - "curl -k -X POST -F token=a1fda77c9aebbe589e95e8d9a2678c -F ref=master https://lfna.unizar.es/api/v4/projects/87/trigger/pipeline"
-    only:
-        variables:
-            - $CI_SERVER_HOST == "lfna.unizar.es"
-    except:
-        variables:
-            - $CRONJOB
+Trigger restG4:
+  stage: deploy
+  script:
+    - "curl -k -X POST -F token=a1fda77c9aebbe589e95e8d9a2678c -F ref=master https://lfna.unizar.es/api/v4/projects/87/trigger/pipeline"
+  only:
+    variables:
+      - $CI_SERVER_HOST == "lfna.unizar.es"
+  except:
+    variables:
+      - $CRONJOB
