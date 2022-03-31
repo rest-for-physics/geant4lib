@@ -27,16 +27,14 @@
 
 #include "TObject.h"
 
-// Perhaps there might be need for a mother class TRestTrack (if there is future
-// need)
+// Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
-    Int_t fTrack_ID;
-    Int_t fParent_ID;
+    Int_t fTrackID;
+    Int_t fParentID;
 
     Int_t fSubEventId;
 
-    // We must change this to save space! (Might be not needed afterall)
     // Int_t fParticle_ID;
     TString fParticleName;
 
@@ -59,18 +57,18 @@ class TRestGeant4Track : public TObject {
     Double_t GetEnergy() { return GetHits()->GetEnergy(); }
 
     Int_t GetNumberOfHits(Int_t volID = -1);
-    Int_t GetTrackID() { return fTrack_ID; }
-    Int_t GetParentID() { return fParent_ID; }
+    Int_t GetTrackID() const { return fTrackID; }
+    Int_t GetParentID() const { return fParentID; }
 
-    TString GetParticleName() { return fParticleName; }
+    TString GetParticleName() const { return fParticleName; }
     EColor GetParticleColor();
 
-    Double_t GetGlobalTime() { return fGlobalTimestamp; }
-    Double_t GetTrackTimeLength() { return fTrackTimestamp; }
-    Double_t GetKineticEnergy() { return fKineticEnergy; }
+    Double_t GetGlobalTime() const { return fGlobalTimestamp; }
+    Double_t GetTrackTimeLength() const { return fTrackTimestamp; }
+    Double_t GetKineticEnergy() const { return fKineticEnergy; }
     Double_t GetTotalDepositedEnergy() { return fHits.GetTotalDepositedEnergy(); }
-    TVector3 GetTrackOrigin() { return fTrackOrigin; }
-    Int_t GetSubEventID() { return fSubEventId; }
+    TVector3 GetTrackOrigin() const { return fTrackOrigin; }
+    Int_t GetSubEventID() const { return fSubEventId; }
 
     Double_t GetEnergyInVolume(Int_t volID) { return GetHits()->GetEnergyInVolume(volID); }
     TVector3 GetMeanPositionInVolume(Int_t volID) { return GetHits()->GetMeanPositionInVolume(volID); }
@@ -79,14 +77,14 @@ class TRestGeant4Track : public TObject {
 
     void SetSubEventID(Int_t id) { fSubEventId = id; }
 
-    void SetTrackID(Int_t id) { fTrack_ID = id; }
-    void SetParentID(Int_t id) { fParent_ID = id; }
+    void SetTrackID(Int_t id) { fTrackID = id; }
+    void SetParentID(Int_t id) { fParentID = id; }
     //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
-    void SetParticleName(TString ptcleName) { fParticleName = ptcleName; }
+    void SetParticleName(const TString& particleName) { fParticleName = particleName; }
     void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
     void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
     void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
-    void SetTrackOrigin(TVector3 pos) { fTrackOrigin = pos; }
+    void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
     void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
     void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol, Double_t eKin,
@@ -96,7 +94,7 @@ class TRestGeant4Track : public TObject {
 
     Double_t GetTrackLength();
 
-    Double_t GetDistance(TVector3 v1, TVector3 v2) {
+    static Double_t GetDistance(const TVector3& v1, const TVector3& v2) {
         return TMath::Sqrt((v1.X() - v2.X()) * (v1.X() - v2.X()) + (v1.Y() - v2.Y()) * (v1.Y() - v2.Y()) +
                            (v1.Z() - v2.Z()) * (v1.Z() - v2.Z()));
     }
@@ -241,15 +239,12 @@ class TRestGeant4Track : public TObject {
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(int maxHits = 0);
 
-    //    Int_t GetElement( Int_t n ) { return X.At(n); }
-
-    //    Int_t GetParticleID();
-    // Construtor
+    // Constructor
     TRestGeant4Track();
     // Destructor
     virtual ~TRestGeant4Track();
 
-    ClassDef(TRestGeant4Track, 2);  // REST event superclass
+    ClassDef(TRestGeant4Track, 3);  // REST event superclass
 };
 
 #endif

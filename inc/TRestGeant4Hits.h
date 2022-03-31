@@ -29,28 +29,28 @@
 class TRestGeant4Hits : public TRestHits {
    protected:
     TArrayI fVolumeID;
-    TArrayI fProcessID;      // [fNHits]
-    TArrayF fKineticEnergy;  // [fNHits]
+    TArrayI fProcessID;
+    TArrayF fKineticEnergy;
 
    public:
     TArrayF fMomentumDirectionX;
     TArrayF fMomentumDirectionY;
     TArrayF fMomentumDirectionZ;
 
-    TVector3 GetMomentumDirection(int n) {
-        return TVector3(fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]);
+    inline TVector3 GetMomentumDirection(int n) {
+        return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
     }
 
-    Int_t GetProcess(int n) { return fProcessID[n]; }
+    inline Int_t GetProcess(int n) { return fProcessID[n]; }
 
     void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
                   Double_t eKin, TVector3 momentumDirection);
     void RemoveG4Hits();
 
-    Int_t GetHitProcess(int n) { return fProcessID[n]; }
-    Int_t GetHitVolume(int n) { return fVolumeID[n]; }
-    Int_t GetVolumeId(int n) { return fVolumeID[n]; }
-    Double_t GetKineticEnergy(int n) { return fKineticEnergy[n]; }
+    inline Int_t GetHitProcess(int n) { return fProcessID[n]; }
+    inline Int_t GetHitVolume(int n) { return fVolumeID[n]; }
+    inline Int_t GetVolumeId(int n) { return fVolumeID[n]; }
+    inline Double_t GetKineticEnergy(int n) { return fKineticEnergy[n]; }
 
     Double_t GetEnergyInVolume(Int_t volID);
 

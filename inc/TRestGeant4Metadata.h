@@ -214,7 +214,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     Long_t fSeed = 0;
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
-    /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
+    /// sensitive volume (used for debugging purposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = false;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
@@ -226,11 +226,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     Bool_t fRegisterEmptyTracks = true;
 
     /// The world magnetic field
-    TVector3 fMagneticField = TVector3(0, 0, 0);
+    TVector3 fMagneticField = {0, 0, 0};
 
    public:
-    /// \brief Returns the random seed that was used to generate the corresponding
-    /// geant4 dataset.
+    /// \brief Returns the random seed that was used to generate the corresponding Geant4 dataset.
     Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns a pointer to the geometry info
