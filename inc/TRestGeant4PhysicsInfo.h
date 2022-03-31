@@ -13,10 +13,19 @@
 class TRestGeant4PhysicsInfo {
    private:
     std::map<Int_t, TString> fProcessNamesMap = {};
-    std::map<Int_t, TString> fVolumeNamesMap = {};
+    std::map<TString, Int_t> fProcessNamesReverseMap = {};
+
+    std::map<Int_t, TString> fParticleNamesMap = {};
+    std::map<TString, Int_t> fParticleNamesReverseMap = {};
 
    public:
-    void InsertProcessName(Int_t id, const TString& name);
+    TString GetProcessName(Int_t id) const;
+    Int_t GetProcessID(const TString& processName) const;
+    void InsertProcessName(Int_t id, const TString& processName);
+
+    TString GetParticleName(Int_t id) const;
+    Int_t GetParticleID(const TString& processName) const;
+    void InsertParticleName(Int_t id, const TString& particleName);
 
    public:
     inline TRestGeant4PhysicsInfo() = default;
