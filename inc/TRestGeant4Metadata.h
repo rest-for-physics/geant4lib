@@ -88,8 +88,6 @@ enum class angular_dist_types {
 extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
-//------------------------------------------------------------------------------------------------------------------------
-
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
@@ -232,11 +230,17 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns the random seed that was used to generate the corresponding Geant4 dataset.
     Long_t GetSeed() const { return fSeed; }
 
-    /// \brief Returns a pointer to the geometry info
-    TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
+    /// \brief Returns a reference to the geometry info
+    inline const TRestGeant4GeometryInfo& GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
 
-    /// \brief Returns a pointer to the physics info
-    TRestGeant4PhysicsInfo* GetGeant4PhysicsInfo() { return &fGeant4PhysicsInfo; }
+    /// \brief Returns a reference to the physics info
+    inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
+
+    /// \brief Returns a mutable reference to the geometry info
+    inline TRestGeant4GeometryInfo& GetMutableGeant4GeometryInfo() { return fGeant4GeometryInfo; }
+
+    /// \brief Returns a mutable reference to the physics info
+    inline TRestGeant4PhysicsInfo& GetMutableGeant4PhysicsInfo() { return fGeant4PhysicsInfo; }
 
     /// \brief Returns a string with the version of Geant4 used on the simulation event data
     TString GetGeant4Version() const { return fGeant4Version; }

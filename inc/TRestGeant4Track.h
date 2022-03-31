@@ -18,14 +18,15 @@
 
 #include <TArrayI.h>
 #include <TColor.h>
+#include <TObject.h>
 #include <TRestGeant4Hits.h>
+#include <TRestGeant4Metadata.h>
+#include <TRestGeant4PhysicsInfo.h>
 #include <TString.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <vector>
-
-#include "TObject.h"
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
@@ -101,9 +102,8 @@ class TRestGeant4Track : public TObject {
 
     void RemoveHits() { fHits.RemoveHits(); }
 
-    // TODO move this to a namespace header??
-    Int_t GetProcessID(TString pcsName);
-    TString GetProcessName(Int_t id);
+    Int_t GetProcessID(const TString& processName, const TRestGeant4Metadata& restGeant4Metadata = {}) const;
+    TString GetProcessName(Int_t id, const TRestGeant4Metadata& = {}) const;
 
     Bool_t isRadiactiveDecay() {
         for (int n = 0; n < GetHits()->GetNumberOfHits(); n++)
