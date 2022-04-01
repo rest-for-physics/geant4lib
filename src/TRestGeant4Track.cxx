@@ -145,7 +145,7 @@ Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
     return id;
 }
 
-EColor TRestGeant4Track::GetParticleColor() {
+EColor TRestGeant4Track::GetParticleColor() const {
     EColor color = kGray;
 
     if (GetParticleName() == "e-")
@@ -171,7 +171,7 @@ EColor TRestGeant4Track::GetParticleColor() {
 /// the TRestGeant4Track. If a specific volume id is given as argument only
 /// the hits of that specific volume will be counted.
 ///
-Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) {
+Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
     Int_t hits = 0;
     for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
         if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
@@ -193,7 +193,7 @@ Double_t TRestGeant4Track::GetTrackLength() {
     return length;
 }
 
-TString TRestGeant4Track::GetProcessName(Int_t id) {
+TString TRestGeant4Track::GetProcessName(Int_t id) const {
     if (id == 0)
         return "initStep";
     else if (id == 1)
@@ -301,7 +301,7 @@ TString TRestGeant4Track::GetProcessName(Int_t id) {
     return "";
 }
 
-void TRestGeant4Track::PrintTrack(int maxHits) {
+void TRestGeant4Track::PrintTrack(int maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
             "++++++++++++"
          << endl;
@@ -324,13 +324,12 @@ void TRestGeant4Track::PrintTrack(int maxHits) {
         cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 
-    TRestGeant4Hits* hits = GetHits();
     for (int i = 0; i < nHits; i++) {
-        cout << " # Hit " << i << " # process : " << GetProcessName(hits->GetHitProcess(i))
-             << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
-             << " Z : " << hits->GetZ(i) << " mm" << endl;
-        cout << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
-             << " Global time : " << hits->GetTime(i) << " us" << endl;
+        cout << " # Hit " << i << " # process : " << GetProcessName(fHits.GetHitProcess(i))
+             << " volume : " << fHits.GetHitVolume(i) << " X : " << fHits.GetX(i) << " Y : " << fHits.GetY(i)
+             << " Z : " << fHits.GetZ(i) << " mm" << endl;
+        cout << " Edep : " << fHits.GetEnergy(i) << " keV Ekin : " << fHits.GetKineticEnergy(i) << " keV"
+             << " Global time : " << fHits.GetTime(i) << " us" << endl;
     }
     cout << endl;
     cout.precision(2);

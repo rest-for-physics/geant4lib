@@ -212,16 +212,16 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         volume_energy_map.clear();
         for (int i = 0; i < fOutputG4Event->GetNumberOfTracks(); i++) {
             auto track = fOutputG4Event->GetTrack(i);
-            string particle_name = (string)track->GetParticleName();
+            string particle_name = (string)track.GetParticleName();
             for (const auto& id : fVetoVolumeIds) {
                 string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
 
                 if (particle_name == "e-" || particle_name == "e+" || particle_name == "gamma") {
                     // no quenching factor
-                    volume_energy_map[volume_name] += track->GetEnergyInVolume(id);
+                    volume_energy_map[volume_name] += track.GetEnergyInVolume(id);
                 } else {
                     // apply quenching factor
-                    volume_energy_map[volume_name] += quenching_factor * track->GetEnergyInVolume(id);
+                    volume_energy_map[volume_name] += quenching_factor * track.GetEnergyInVolume(id);
                 }
             }
         }

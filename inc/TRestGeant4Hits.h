@@ -37,26 +37,26 @@ class TRestGeant4Hits : public TRestHits {
     TArrayF fMomentumDirectionY;
     TArrayF fMomentumDirectionZ;
 
-    TVector3 GetMomentumDirection(int n) {
-        return TVector3(fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]);
+    TVector3 GetMomentumDirection(int n) const {
+        return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
     }
 
-    Int_t GetProcess(int n) { return fProcessID[n]; }
+    Int_t GetProcess(int n) const { return fProcessID[n]; }
 
     void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
                   Double_t eKin, TVector3 momentumDirection);
     void RemoveG4Hits();
 
-    Int_t GetHitProcess(int n) { return fProcessID[n]; }
-    Int_t GetHitVolume(int n) { return fVolumeID[n]; }
-    Int_t GetVolumeId(int n) { return fVolumeID[n]; }
-    Double_t GetKineticEnergy(int n) { return fKineticEnergy[n]; }
+    Int_t GetHitProcess(int n) const { return fProcessID[n]; }
+    Int_t GetHitVolume(int n) const { return fVolumeID[n]; }
+    Int_t GetVolumeId(int n) const { return fVolumeID[n]; }
+    Double_t GetKineticEnergy(int n) const { return fKineticEnergy[n]; }
 
-    Double_t GetEnergyInVolume(Int_t volID);
+    Double_t GetEnergyInVolume(Int_t volID) const;
 
-    TVector3 GetMeanPositionInVolume(Int_t volID);
-    TVector3 GetFirstPositionInVolume(Int_t volID);
-    TVector3 GetLastPositionInVolume(Int_t volID);
+    TVector3 GetMeanPositionInVolume(Int_t volID) const;
+    TVector3 GetFirstPositionInVolume(Int_t volID) const;
+    TVector3 GetLastPositionInVolume(Int_t volID) const;
 
     // Constructor
     TRestGeant4Hits();
