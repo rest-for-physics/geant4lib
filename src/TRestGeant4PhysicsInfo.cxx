@@ -34,7 +34,7 @@ void TRestGeant4PhysicsInfo::InsertParticleName(Int_t id, const TString& particl
 }
 
 template <typename T, typename U>
-U GetMapValueFromKeyIfExistsOtherwiseGetDefault(const map<T, U>* pMap, const T& key) {
+U GetOrDefaultMapValueFromKey(const map<T, U>* pMap, const T& key) {
     if (pMap->count(key) > 0) {
         return pMap->at(key);
     }
@@ -42,19 +42,17 @@ U GetMapValueFromKeyIfExistsOtherwiseGetDefault(const map<T, U>* pMap, const T& 
 }
 
 TString TRestGeant4PhysicsInfo::GetProcessName(Int_t id) const {
-    return GetMapValueFromKeyIfExistsOtherwiseGetDefault<Int_t, TString>(&fProcessNamesMap, id);
+    return GetOrDefaultMapValueFromKey<Int_t, TString>(&fProcessNamesMap, id);
 }
 
 Int_t TRestGeant4PhysicsInfo::GetProcessID(const TString& processName) const {
-    return GetMapValueFromKeyIfExistsOtherwiseGetDefault<TString, Int_t>(&fProcessNamesReverseMap,
-                                                                         processName);
+    return GetOrDefaultMapValueFromKey<TString, Int_t>(&fProcessNamesReverseMap, processName);
 }
 
 TString TRestGeant4PhysicsInfo::GetParticleName(Int_t id) const {
-    return GetMapValueFromKeyIfExistsOtherwiseGetDefault<Int_t, TString>(&fProcessNamesMap, id);
+    return GetOrDefaultMapValueFromKey<Int_t, TString>(&fProcessNamesMap, id);
 }
 
 Int_t TRestGeant4PhysicsInfo::GetParticleID(const TString& processName) const {
-    return GetMapValueFromKeyIfExistsOtherwiseGetDefault<TString, Int_t>(&fProcessNamesReverseMap,
-                                                                         processName);
+    return GetOrDefaultMapValueFromKey<TString, Int_t>(&fProcessNamesReverseMap, processName);
 }
