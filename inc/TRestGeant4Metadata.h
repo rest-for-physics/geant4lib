@@ -236,12 +236,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns a reference to the physics info
     inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
 
-    /// \brief Returns a mutable reference to the geometry info
-    inline TRestGeant4GeometryInfo& GetMutableGeant4GeometryInfo() { return fGeant4GeometryInfo; }
-
-    /// \brief Returns a mutable reference to the physics info
-    inline TRestGeant4PhysicsInfo& GetMutableGeant4PhysicsInfo() { return fGeant4PhysicsInfo; }
-
     /// \brief Returns a string with the version of Geant4 used on the simulation event data
     TString GetGeant4Version() const { return fGeant4Version; }
 
@@ -438,5 +432,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     ~TRestGeant4Metadata();
 
     ClassDef(TRestGeant4Metadata, 10);
+
+    // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
+    friend class SteppingAction;
+    friend class DetectorConstruction;
 };
 #endif  // RestCore_TRestGeant4Metadata
