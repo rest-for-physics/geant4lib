@@ -149,6 +149,7 @@ class TRestGeant4Event : public TRestEvent {
 
     Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
     inline const TRestGeant4Track& GetTrack(int n) const { return fTrack[n]; }
+    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTrack[n]; }
     TRestGeant4Track* GetTrackByID(int id);
     Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
