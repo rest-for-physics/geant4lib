@@ -52,75 +52,8 @@ class TRestGeant4Event : public TRestEvent {
     Bool_t PerProcessEnergyInitFlag = false;
     std::map<std::string, Double_t> PerProcessEnergyInSensitive;
 
-    void inline InitializePerProcessEnergyInSensitive() {
-        PerProcessEnergyInitFlag = true;
-        PerProcessEnergyInSensitive["photoelectric"] = 0;
-        PerProcessEnergyInSensitive["compton"] = 0;
-        PerProcessEnergyInSensitive["electron_ionization"] = 0;
-        PerProcessEnergyInSensitive["ion_ionization"] = 0;
-        PerProcessEnergyInSensitive["alpha_ionization"] = 0;
-        PerProcessEnergyInSensitive["msc"] = 0;
-        PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
-        PerProcessEnergyInSensitive["proton_ionization"] = 0;
-        PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
-        PerProcessEnergyInSensitive["neutron_elastic"] = 0;
-
-        std::string volume_name;
-        std::string process_name;
-        TRestGeant4Track* track;
-        TRestGeant4Hits* hits;
-        Double_t energy;
-
-        for (Int_t track_id = 0; track_id < GetNumberOfTracks(); track_id++) {
-            track = GetTrack(track_id);
-
-            if (track->GetEnergyInVolume(0) == 0) {
-                continue;
-            }
-
-            hits = track->GetHits();
-
-            for (Int_t hit_id = 0; hit_id < hits->GetNumberOfHits(); hit_id++) {
-                if (hits->GetVolumeId(hit_id) != 0) {
-                    continue;
-                }
-
-                process_name = (std::string)track->GetProcessName(hits->GetHitProcess(hit_id));
-                energy = hits->GetEnergy(hit_id);
-                if (process_name == "phot") {
-                    PerProcessEnergyInSensitive["photoelectric"] += energy;
-                } else if (process_name == "compt") {
-                    PerProcessEnergyInSensitive["compton"] += energy;
-                } else if (process_name == "eIoni" || process_name == "e-Step" || process_name == "e+Step") {
-                    PerProcessEnergyInSensitive["electron_ionization"] += energy;
-                } else if (process_name == "ionIoni") {
-                    PerProcessEnergyInSensitive["ion_ionization"] += energy;
-                    if (track->GetParticleName() == "alpha") {
-                        PerProcessEnergyInSensitive["alpha_ionization"] += energy;
-                    }
-                } else if (process_name == "msc") {
-                    PerProcessEnergyInSensitive["msc"] += energy;
-                } else if (process_name == "hIoni") {
-                    PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                    if (track->GetParticleName() == "proton") {
-                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                    }
-                } else if (process_name == "hadElastic") {
-                    PerProcessEnergyInSensitive["hadronic_elastic"] += energy;
-                    if (track->GetParticleName() == "neutron") {
-                        PerProcessEnergyInSensitive["neutron_elastic"] += energy;
-                    }
-                } else if (process_name == "Transportation") {
-                    if (track->GetParticleName() == "proton") {
-                        PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                        PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                    } else if (track->GetParticleName() == "e-" || track->GetParticleName() == "e+") {
-                        PerProcessEnergyInSensitive["electron_ionization"] += energy;
-                    }
-                }
-            }
-        }
-    }
+    // TODO: review this method
+    void InitializePerProcessEnergyInSensitive();
 
    protected:
 #ifndef __CINT__
