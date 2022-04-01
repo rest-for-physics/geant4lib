@@ -143,105 +143,107 @@ class TRestGeant4Event : public TRestEvent {
     Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
 
     Int_t GetNumberOfHits(Int_t volID = -1) const;
-    Int_t GetNumberOfTracks() const { return fNTracks; }
-    Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
-    Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
+    inline Int_t GetNumberOfTracks() const { return fNTracks; }
+    inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
+    inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
-    Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
+    inline Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
     inline const TRestGeant4Track& GetTrack(int n) const { return fTrack[n]; }
     inline TRestGeant4Track* GetTrackPointer(int n) { return &fTrack[n]; }
     TRestGeant4Track* GetTrackByID(int id);
-    Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
+    inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
-    Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
+    inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
     Double_t GetTotalDepositedEnergyFromTracks() const;
-    Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }
-    Double_t GetSensitiveVolumeEnergy() const { return fSensitiveVolumeEnergy; }
+    inline Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }
+    inline Double_t GetSensitiveVolumeEnergy() const { return fSensitiveVolumeEnergy; }
     TVector3 GetMeanPositionInVolume(Int_t volID) const;
     TVector3 GetFirstPositionInVolume(Int_t volID) const;
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
     TRestHits GetHits(Int_t volID = -1) const;
-    TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
+    inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
     Int_t GetNumberOfTracksForParticle(TString parName) const;
     Int_t GetEnergyDepositedByParticle(TString parName) const;
 
-    Double_t GetEnergyInSensitiveFromProcessPhoto() {
+    inline Double_t GetEnergyInSensitiveFromProcessPhoto() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["photoelectric"];
     }
-    Double_t GetEnergyInSensitiveFromProcessCompton() {
+    inline Double_t GetEnergyInSensitiveFromProcessCompton() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["compton"];
     }
-    Double_t GetEnergyInSensitiveFromProcessEIoni() {
+    inline Double_t GetEnergyInSensitiveFromProcessEIoni() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["electron_ionization"];
     }
-    Double_t GetEnergyInSensitiveFromProcessIonIoni() {
+    inline Double_t GetEnergyInSensitiveFromProcessIonIoni() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["ion_ionization"];
     }
-    Double_t GetEnergyInSensitiveFromProcessAlphaIoni() {
+    inline Double_t GetEnergyInSensitiveFromProcessAlphaIoni() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["alpha_ionization"];
     }
-    Double_t GetEnergyInSensitiveFromProcessMsc() {
+    inline Double_t GetEnergyInSensitiveFromProcessMsc() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["msc"];
     }
-    Double_t GetEnergyInSensitiveFromProcessHadronIoni() {
+    inline Double_t GetEnergyInSensitiveFromProcessHadronIoni() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["hadronic_ionization"];
     }
-    Double_t GetEnergyInSensitiveFromProcessProtonIoni() {
+    inline Double_t GetEnergyInSensitiveFromProcessProtonIoni() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["proton_ionization"];
     }
-    Double_t GetEnergyInSensitiveFromProcessHadronElastic() {
+    inline Double_t GetEnergyInSensitiveFromProcessHadronElastic() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["hadronic_elastic"];
     }
-    Double_t GetEnergyInSensitiveFromProcessNeutronElastic() {
+    inline Double_t GetEnergyInSensitiveFromProcessNeutronElastic() {
         if (!PerProcessEnergyInitFlag) {
             InitializePerProcessEnergyInSensitive();
         }
         return PerProcessEnergyInSensitive["neutron_elastic"];
     }
 
-    void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
-    void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
-    void SetPrimaryEventParticleName(TString pName) { fPrimaryParticleName.push_back(pName); }
-    void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
-    void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
-    void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
+    inline void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
+    inline void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
+    inline void SetPrimaryEventParticleName(TString pName) { fPrimaryParticleName.push_back(pName); }
+    inline void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
+    inline void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
+    inline void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
     void AddActiveVolume(const std::string& volumeName);
     void ClearVolumes();
-    void AddEnergyToSensitiveVolume(Double_t en) { fSensitiveVolumeEnergy += en; }
+    inline void AddEnergyToSensitiveVolume(Double_t en) { fSensitiveVolumeEnergy += en; }
 
-    void SetEnergyDepositedInVolume(Int_t volID, Double_t eDep) { fVolumeDepositedEnergy[volID] = eDep; }
-    void SetSensitiveVolumeEnergy(Double_t en) { fSensitiveVolumeEnergy = en; }
+    inline void SetEnergyDepositedInVolume(Int_t volID, Double_t eDep) {
+        fVolumeDepositedEnergy[volID] = eDep;
+    }
+    inline void SetSensitiveVolumeEnergy(Double_t en) { fSensitiveVolumeEnergy = en; }
 
     inline Int_t GetLowestTrackID() const {
         Int_t lowestID = 0;
@@ -428,7 +430,7 @@ class TRestGeant4Event : public TRestEvent {
     void PrintActiveVolumes() const;
     void PrintEvent(int maxTracks = 0, int maxHits = 0) const;
 
-    TPad* DrawEvent(TString option = "") { return DrawEvent(std::move(option), true); }
+    inline TPad* DrawEvent(TString option = "") { return DrawEvent(std::move(option), true); }
     TPad* DrawEvent(TString option, Bool_t autoBoundaries);
 
     // Constructor
