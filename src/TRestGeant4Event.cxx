@@ -257,7 +257,7 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     return hits;
 }
 
-Int_t TRestGeant4Event::GetNumberOfTracksForParticle(TString parName) const {
+Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& parName) const {
     Int_t tcks = 0;
     for (Int_t t = 0; t < GetNumberOfTracks(); t++)
         if (GetTrack(t).GetParticleName() == parName) tcks++;
@@ -265,7 +265,7 @@ Int_t TRestGeant4Event::GetNumberOfTracksForParticle(TString parName) const {
     return tcks;
 }
 
-Int_t TRestGeant4Event::GetEnergyDepositedByParticle(TString parName) const {
+Int_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& parName) const {
     Double_t en = 0;
     for (Int_t t = 0; t < GetNumberOfTracks(); t++) {
         if (GetTrack(t).GetParticleName() == parName) en += GetTrack(t).GetEnergy();
@@ -1006,7 +1006,7 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> op
 /// DrawEvent("graphXZ:graphYZ:histXZ(Cont0,colz):histYZ(Cont0,colz)")
 /// \endcode
 ///
-TPad* TRestGeant4Event::DrawEvent(TString option, Bool_t autoBoundaries) {
+TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) {
     vector<TString> optList = Vector_cast<string, TString>(TRestTools::GetOptions((string)option));
 
     if (autoBoundaries) SetBoundaries();

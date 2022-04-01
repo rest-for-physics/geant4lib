@@ -165,8 +165,8 @@ class TRestGeant4Event : public TRestEvent {
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
-    Int_t GetNumberOfTracksForParticle(TString parName) const;
-    Int_t GetEnergyDepositedByParticle(TString parName) const;
+    Int_t GetNumberOfTracksForParticle(const TString& parName) const;
+    Int_t GetEnergyDepositedByParticle(const TString& parName) const;
 
     inline Double_t GetEnergyInSensitiveFromProcessPhoto() {
         if (!PerProcessEnergyInitFlag) {
@@ -229,9 +229,9 @@ class TRestGeant4Event : public TRestEvent {
         return PerProcessEnergyInSensitive["neutron_elastic"];
     }
 
-    inline void SetPrimaryEventOrigin(TVector3 pos) { fPrimaryEventOrigin = pos; }
-    inline void SetPrimaryEventDirection(TVector3 dir) { fPrimaryEventDirection.push_back(dir); }
-    inline void SetPrimaryEventParticleName(TString pName) { fPrimaryParticleName.push_back(pName); }
+    inline void SetPrimaryEventOrigin(const TVector3& pos) { fPrimaryEventOrigin = pos; }
+    inline void SetPrimaryEventDirection(const TVector3& dir) { fPrimaryEventDirection.push_back(dir); }
+    inline void SetPrimaryEventParticleName(const TString& pName) { fPrimaryParticleName.push_back(pName); }
     inline void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
     inline void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     inline void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
@@ -430,8 +430,8 @@ class TRestGeant4Event : public TRestEvent {
     void PrintActiveVolumes() const;
     void PrintEvent(int maxTracks = 0, int maxHits = 0) const;
 
-    inline TPad* DrawEvent(TString option = "") { return DrawEvent(std::move(option), true); }
-    TPad* DrawEvent(TString option, Bool_t autoBoundaries);
+    inline TPad* DrawEvent(const TString& option = "") { return DrawEvent(option, true); }
+    TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);
 
     // Constructor
     TRestGeant4Event();
