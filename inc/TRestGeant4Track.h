@@ -36,7 +36,7 @@ class TRestGeant4Track : public TObject {
 
     Int_t fSubEventId;
 
-    // We must change this to save space! (Might be not needed afterall)
+    // We must change this to save space! (Might be not needed after all)
     // Int_t fParticle_ID;
     TString fParticleName;
 
@@ -49,7 +49,7 @@ class TRestGeant4Track : public TObject {
     TVector3 fTrackOrigin;
 
    public:
-    void Initialize() {
+    inline void Initialize() {
         RemoveHits();
         fSubEventId = 0.;
     }
@@ -72,140 +72,145 @@ class TRestGeant4Track : public TObject {
     inline TVector3 GetTrackOrigin() const { return fTrackOrigin; }
     inline Int_t GetSubEventID() const { return fSubEventId; }
 
-    Double_t GetEnergyInVolume(Int_t volID) const { return fHits.GetEnergyInVolume(volID); }
-    TVector3 GetMeanPositionInVolume(Int_t volID) const { return fHits.GetMeanPositionInVolume(volID); }
-    TVector3 GetFirstPositionInVolume(Int_t volID) const { return fHits.GetFirstPositionInVolume(volID); }
-    TVector3 GetLastPositionInVolume(Int_t volID) const { return fHits.GetLastPositionInVolume(volID); }
+    inline Double_t GetEnergyInVolume(Int_t volID) const { return fHits.GetEnergyInVolume(volID); }
+    inline TVector3 GetMeanPositionInVolume(Int_t volID) const {
+        return fHits.GetMeanPositionInVolume(volID);
+    }
+    inline TVector3 GetFirstPositionInVolume(Int_t volID) const {
+        return fHits.GetFirstPositionInVolume(volID);
+    }
+    inline TVector3 GetLastPositionInVolume(Int_t volID) const {
+        return fHits.GetLastPositionInVolume(volID);
+    }
 
     void SetSubEventID(Int_t id) { fSubEventId = id; }
-
     void SetTrackID(Int_t id) { fTrack_ID = id; }
     void SetParentID(Int_t id) { fParent_ID = id; }
     //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
-    void SetParticleName(TString ptcleName) { fParticleName = ptcleName; }
+    void SetParticleName(const TString& particleName) { fParticleName = particleName; }
     void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
     void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
     void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
-    void SetTrackOrigin(TVector3 pos) { fTrackOrigin = pos; }
+    void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
     void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol, Double_t eKin,
-                  TVector3 momentumDirection) {
+    void AddG4Hit(const TVector3& pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol,
+                  Double_t eKin, const TVector3& momentumDirection) {
         fHits.AddG4Hit(pos, en, hit_global_time, pcs, vol, eKin, momentumDirection);
     }
 
-    Double_t GetTrackLength();
+    Double_t GetTrackLength() const;
 
-    Double_t GetDistance(TVector3 v1, TVector3 v2) {
+    inline static Double_t GetDistance(const TVector3& v1, const TVector3& v2) {
         return TMath::Sqrt((v1.X() - v2.X()) * (v1.X() - v2.X()) + (v1.Y() - v2.Y()) * (v1.Y() - v2.Y()) +
                            (v1.Z() - v2.Z()) * (v1.Z() - v2.Z()));
     }
 
-    void RemoveHits() { fHits.RemoveHits(); }
+    inline void RemoveHits() { fHits.RemoveHits(); }
 
     // TODO move this to a namespace header??
-    Int_t GetProcessID(TString pcsName);
+    Int_t GetProcessID(const TString& pcsName);
     TString GetProcessName(Int_t id) const;
 
-    Bool_t isRadiactiveDecay() const {
+    inline Bool_t isRadiactiveDecay() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 11) return true;
         return false;
     }
-    Bool_t isPhotoElectric() const {
+    inline Bool_t isPhotoElectric() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 3) return true;
         return false;
     }
-    Bool_t isCompton() const {
+    inline Bool_t isCompton() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 7) return true;
         return false;
     }
-    Bool_t isBremstralung() const {
+    inline Bool_t isBremstralung() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 5) return true;
         return false;
     }
 
-    Bool_t ishadElastic() const {
+    inline Bool_t ishadElastic() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 36) return true;
         return false;
     }
-    Bool_t isneutronInelastic() const {
+    inline Bool_t isneutronInelastic() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 37) return true;
         return false;
     }
-    Bool_t isnCapture() const {
+    inline Bool_t isnCapture() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 38) return true;
         return false;
     }
 
-    Bool_t ishIoni() const {
+    inline Bool_t ishIoni() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 33) return true;
         return false;
     }
-    Bool_t isphotonNuclear() const {
+    inline Bool_t isphotonNuclear() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 42) return true;
         return false;
     }
     // Processes in active volume
-    Bool_t isRadiactiveDecayInVolume(Int_t volID) const {
+    inline Bool_t isRadiactiveDecayInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 11) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    Bool_t isPhotoElectricInVolume(Int_t volID) const {
+    inline Bool_t isPhotoElectricInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 3) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    Bool_t isPhotonNuclearInVolume(Int_t volID) const {
+    inline Bool_t isPhotonNuclearInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 42) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
 
-    Bool_t isComptonInVolume(Int_t volID) const {
+    inline Bool_t isComptonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 7) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    Bool_t isBremstralungInVolume(Int_t volID) const {
+    inline Bool_t isBremstralungInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 5) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
 
-    Bool_t isHadElasticInVolume(Int_t volID) const {
+    inline Bool_t isHadElasticInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 36) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    Bool_t isNeutronInelasticInVolume(Int_t volID) const {
+    inline Bool_t isNeutronInelasticInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 37) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
 
-    Bool_t isNCaptureInVolume(Int_t volID) const {
+    inline Bool_t isNCaptureInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 38) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
 
-    Bool_t isHIoniInVolume(Int_t volID) const {
+    inline Bool_t isHIoniInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 33) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
 
-    Bool_t isAlphaInVolume(Int_t volID) const {
+    inline Bool_t isAlphaInVolume(Int_t volID) const {
         if (GetParticleName() == "alpha") {
             for (int n = 0; n < fHits.GetNumberOfHits(); n++)
                 if ((fHits.GetHitVolume(n)) == volID) return true;
@@ -213,25 +218,25 @@ class TRestGeant4Track : public TObject {
         return false;
     }
 
-    Bool_t isNeutronInVolume(Int_t volID) const {
+    inline Bool_t isNeutronInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName() == "neutron")) return true;
         return false;
     }
 
-    Bool_t isArgonInVolume(Int_t volID) const {
+    inline Bool_t isArgonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Ar"))) return true;
         return false;
     }
 
-    Bool_t isNeonInVolume(Int_t volID) const {
+    inline Bool_t isNeonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Ne"))) return true;
         return false;
     }
 
-    Bool_t isXenonInVolume(Int_t volID) const {
+    inline Bool_t isXenonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Xe"))) return true;
         return false;

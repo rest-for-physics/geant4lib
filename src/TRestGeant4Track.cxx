@@ -29,7 +29,7 @@ TRestGeant4Track::~TRestGeant4Track() {
     // TRestGeant4Track destructor
 }
 
-Int_t TRestGeant4Track::GetProcessID(TString pcsName) {
+Int_t TRestGeant4Track::GetProcessID(const TString& pcsName) {
     Int_t id = -1;
 
     // TODO We register the process manually. Not good if we add new processes to
@@ -180,7 +180,7 @@ Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
     return hits;
 }
 
-Double_t TRestGeant4Track::GetTrackLength() {
+Double_t TRestGeant4Track::GetTrackLength() const {
     Double_t length = 0;
 
     length = GetDistance(fHits.GetPosition(0), GetTrackOrigin());
