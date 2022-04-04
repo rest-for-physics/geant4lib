@@ -27,6 +27,7 @@
 
 #include "TObject.h"
 
+class G4Step;
 // Perhaps there might be need for a mother class TRestTrack (if there is future
 // need)
 class TRestGeant4Track : public TObject {
@@ -250,6 +251,10 @@ class TRestGeant4Track : public TObject {
     virtual ~TRestGeant4Track();
 
     ClassDef(TRestGeant4Track, 3);  // REST event superclass
+
+   public:
+    /* these methods should only be called from a package linking Geant4, and so they can't be defined here */
+    void InsertStep(const G4Step*);  //!
 };
 
 #endif

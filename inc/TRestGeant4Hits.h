@@ -26,6 +26,8 @@
 
 #include "TObject.h"
 
+class G4Step;
+
 class TRestGeant4Hits : public TRestHits {
    protected:
     TArrayI fVolumeID;
@@ -60,5 +62,9 @@ class TRestGeant4Hits : public TRestHits {
     virtual ~TRestGeant4Hits();
 
     ClassDef(TRestGeant4Hits, 6);  // REST event superclass
+
+   public:
+    /* these methods should only be called from a package linking Geant4, and so they can't be defined here */
+    void InsertStep(const G4Step*);  //!
 };
 #endif
