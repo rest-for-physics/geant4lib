@@ -94,11 +94,6 @@ class TRestGeant4Track : public TObject {
     void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
     void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
-    void AddG4Hit(const TVector3& pos, Double_t en, Double_t hit_global_time, Int_t pcs, Int_t vol,
-                  Double_t eKin, const TVector3& momentumDirection) {
-        fHits.AddG4Hit(pos, en, hit_global_time, pcs, vol, eKin, momentumDirection);
-    }
-
     Double_t GetTrackLength() const;
 
     inline static Double_t GetDistance(const TVector3& v1, const TVector3& v2) {

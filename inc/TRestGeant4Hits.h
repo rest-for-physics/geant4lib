@@ -43,10 +43,6 @@ class TRestGeant4Hits : public TRestHits {
 
     Int_t GetProcess(int n) const { return fProcessID[n]; }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                  Double_t eKin, TVector3 momentumDirection);
-    void RemoveG4Hits();
-
     Int_t GetHitProcess(int n) const { return fProcessID[n]; }
     Int_t GetHitVolume(int n) const { return fVolumeID[n]; }
     Int_t GetVolumeId(int n) const { return fVolumeID[n]; }
