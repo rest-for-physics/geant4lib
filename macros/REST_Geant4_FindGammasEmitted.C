@@ -71,8 +71,8 @@ Int_t REST_Geant4_FindGammasEmitted(TString fName) {
 
         for (int i = 0; i < ev->GetNumberOfTracks(); i++) {
             tracks++;
-            pName = ev->GetTrack(i)->GetParticleName();
-            Ek = ev->GetTrack(i)->GetKineticEnergy();
+            pName = ev->GetTrack(i).GetParticleName();
+            Ek = ev->GetTrack(i).GetKineticEnergy();
             if (pName == "gamma" && Ek > 3000 && Ek < 3500) {
                 h->Fill(Ek);
                 //               cout << "Is a gamma. Energy : " << Ek << " keV" << endl;
