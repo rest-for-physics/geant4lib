@@ -48,18 +48,16 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
 
     fG4Event = (TRestGeant4Event*)ev;
 
-    TRestGeant4Track* g4Track;
-
     Double_t eDepMin = 1.e6;
     Double_t eDepMax = 0;
     Double_t totalEDep = 0;
 
     for (int i = 0; i < fG4Event->GetNumberOfTracks(); i++) {
-        g4Track = fG4Event->GetTrack(i);
-        TRestGeant4Hits* g4Hits = g4Track->GetHits();
-        Int_t nHits = g4Track->GetNumberOfHits();
+        const auto& g4Track = fG4Event->GetTrack(i);
+        const auto& g4Hits = g4Track.GetHits();
+        Int_t nHits = g4Track.GetNumberOfHits();
         for (int j = 0; j < nHits; j++) {
-            Double_t eDep = g4Hits->GetEnergy(j);
+            Double_t eDep = g4Hits.GetEnergy(j);
             if (eDep > eDepMax) eDepMax = eDep;
             if (eDep < eDepMin) eDepMin = eDep;
 
@@ -76,7 +74,7 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
 
     Int_t textAdded = 0;
     for (int trkID = 1; trkID < fG4Event->GetNumberOfTracks() + 1; trkID++) {
-        g4Track = fG4Event->GetTrackByID(trkID);
+        const auto& g4Track = fG4Event->GetTrackByID(trkID);
 
         Int_t parentID = g4Track->GetParentID();
         TVector3 origin = g4Track->GetTrackOrigin();
@@ -116,18 +114,18 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
         // cout << "Adding marker" << endl;
         this->AddMarker(trkID, origin, markerStr);
 
-        TRestGeant4Hits* g4Hits = g4Track->GetHits();
+        const auto& g4Hits = g4Track->GetHits();
         Int_t nHits = g4Track->GetNumberOfHits();
 
         // cout << "Adding hits" << endl;
         for (int i = 0; i < nHits; i++) {
-            Double_t x = g4Hits->GetX(i);
-            Double_t y = g4Hits->GetY(i);
-            Double_t z = g4Hits->GetZ(i);
+            Double_t x = g4Hits.GetX(i);
+            Double_t y = g4Hits.GetY(i);
+            Double_t z = g4Hits.GetZ(i);
 
             this->NextTrackVertex(trkID, TVector3(x, y, z));
 
-            Double_t eDep = g4Hits->GetEnergy(i);
+            Double_t eDep = g4Hits.GetEnergy(i);
 
             if (eDep > 0) {
                 Double_t radius = slope * eDep + bias;

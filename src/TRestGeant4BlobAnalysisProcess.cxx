@@ -77,9 +77,9 @@ TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     Double_t xBlob2 = 0, yBlob2 = 0, zBlob2 = 0;
 
     for (int tck = 0; tck < fG4Event->GetNumberOfTracks(); tck++) {
-        TRestGeant4Track* track = fG4Event->GetTrack(tck);
-        if (track->GetParentID() == 0) {
-            if (track->GetParticleName() != "e-") {
+        const auto& track = fG4Event->GetTrack(tck);
+        if (track.GetParentID() == 0) {
+            if (track.GetParticleName() != "e-") {
                 cout << "TRestGeant4BlobAnalysis Warning. Primary particle is not an "
                         "electron!!"
                      << endl;
@@ -87,7 +87,7 @@ TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 continue;
             }
 
-            if (track->GetNumberOfHits() == 0) {
+            if (track.GetNumberOfHits() == 0) {
                 cout << "REST. FindG4Blobs WARNING. A primary electron with no hits "
                         "was found!!"
                      << endl;
@@ -102,16 +102,16 @@ TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
                 continue;
             }
 
-            Int_t nHits = track->GetNumberOfHits();
+            Int_t nHits = track.GetNumberOfHits();
 
             if (nBlobs == 0) {
-                xBlob1 = track->GetHits()->GetX(nHits - 1);
-                yBlob1 = track->GetHits()->GetY(nHits - 1);
-                zBlob1 = track->GetHits()->GetZ(nHits - 1);
+                xBlob1 = track.GetHits().GetX(nHits - 1);
+                yBlob1 = track.GetHits().GetY(nHits - 1);
+                zBlob1 = track.GetHits().GetZ(nHits - 1);
             } else {
-                xBlob2 = track->GetHits()->GetX(nHits - 1);
-                yBlob2 = track->GetHits()->GetY(nHits - 1);
-                zBlob2 = track->GetHits()->GetZ(nHits - 1);
+                xBlob2 = track.GetHits().GetX(nHits - 1);
+                yBlob2 = track.GetHits().GetY(nHits - 1);
+                zBlob2 = track.GetHits().GetZ(nHits - 1);
             }
 
             nBlobs++;
