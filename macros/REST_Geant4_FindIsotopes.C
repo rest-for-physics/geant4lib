@@ -54,15 +54,15 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
             run->GetEntry(n);
             // cout<<" Event "<<n<<" has "<<ev->GetNumberOfTracks()<<" tracks"<<endl;
             for (int i = 0; i < ev->GetNumberOfTracks(); i++) {
-                TString pName = ev->GetTrack(i)->GetParticleName();
+                TString pName = ev->GetTrack(i).GetParticleName();
 
-                if ((ev->GetTrack(i)->GetParticleName() != "gamma") &&
-                    (ev->GetTrack(i)->GetParticleName() != "e+") &&
-                    (ev->GetTrack(i)->GetParticleName() != "e-")) {
-                    if (ev->GetTrack(i)->GetParticleName() != "neutron")
-                        cout << "Track : " << i << " --> " << ev->GetTrack(i)->GetParticleName() << "  "
-                             << ev->GetTrack(i)->GetHits()->GetNumberOfHits() + 1 << " hits in volume "
-                             << ev->GetTrack(i)->GetHits()->GetHitVolume(0) << endl;
+                if ((ev->GetTrack(i).GetParticleName() != "gamma") &&
+                    (ev->GetTrack(i).GetParticleName() != "e+") &&
+                    (ev->GetTrack(i).GetParticleName() != "e-")) {
+                    if (ev->GetTrack(i).GetParticleName() != "neutron")
+                        cout << "Track : " << i << " --> " << ev->GetTrack(i).GetParticleName() << "  "
+                             << ev->GetTrack(i).GetHits().GetNumberOfHits() + 1 << " hits in volume "
+                             << ev->GetTrack(i).GetHits().GetHitVolume(0) << endl;
 
                     if (pName.Contains(fIsotope)) j++;
                 }

@@ -61,23 +61,23 @@ Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
             for (int i = 0; i < ev->GetNumberOfTracks(); i++) {
                 kaux = 0;
 
-                if ((ev->GetTrack(i)->GetParticleName() != "e+") &&
-                    (ev->GetTrack(i)->GetParticleName() != "e-")) {
-                    if (ev->GetTrack(i)->GetParticleName() != "gamma") {
+                if ((ev->GetTrack(i).GetParticleName() != "e+") &&
+                    (ev->GetTrack(i).GetParticleName() != "e-")) {
+                    if (ev->GetTrack(i).GetParticleName() != "gamma") {
                         for (int j = 0; j < k + 1; j++) {
                             // cout<<"i "<<i<<" j "<<j<<" "<<isotope[j]<<"
-                            // "<<ev->GetTrack(i)->GetParticleName()<<" k"<<k<<endl;
+                            // "<<ev->GetTrack(i).GetParticleName()<<" k"<<k<<endl;
 
-                            if (ev->GetTrack(i)->GetParticleName() == isotope[j]) {
+                            if (ev->GetTrack(i).GetParticleName() == isotope[j]) {
                                 ni[j]++;
 
                                 kaux = 1;
                             }
                         }
                         if (kaux != 1) {
-                            // cout<<"new isotope "<<ev->GetTrack(i)->GetParticleName()<<" in track "<<i<<"and
+                            // cout<<"new isotope "<<ev->GetTrack(i).GetParticleName()<<" in track "<<i<<"and
                             // entry"<<n<<endl;
-                            isotope[k] = ev->GetTrack(i)->GetParticleName();
+                            isotope[k] = ev->GetTrack(i).GetParticleName();
                             ni[k] = 1;
                             // cout<<"k "<<k<<" isotope "<<isotope[k]<<endl;
                             k++;

@@ -29,23 +29,24 @@ TRestGeant4Track::~TRestGeant4Track() {
     // TRestGeant4Track destructor
 }
 
-EColor TRestGeant4Track::GetParticleColor() {
+EColor TRestGeant4Track::GetParticleColor() const {
     EColor color = kGray;
 
-    if (GetParticleName() == "e-")
+    if (GetParticleName() == "e-") {
         color = kRed;
-    else if (GetParticleName() == "e+")
+    } else if (GetParticleName() == "e+") {
         color = kBlue;
-    else if (GetParticleName() == "alpha")
+    } else if (GetParticleName() == "alpha") {
         color = kOrange;
-    else if (GetParticleName() == "mu-")
+    } else if (GetParticleName() == "mu-") {
         color = kViolet;
-    else if (GetParticleName() == "gamma")
+    } else if (GetParticleName() == "gamma") {
         color = kGreen;
-    else
+    } else {
         cout << "TRestGeant4Track::GetParticleColor. Particle NOT found! Returning "
                 "gray color."
              << endl;
+    }
 
     return color;
 }
@@ -55,7 +56,7 @@ EColor TRestGeant4Track::GetParticleColor() {
 /// the TRestGeant4Track. If a specific volume id is given as argument only
 /// the hits of that specific volume will be counted.
 ///
-Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) {
+Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
     Int_t hits = 0;
     for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
         if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
@@ -64,7 +65,7 @@ Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) {
     return hits;
 }
 
-Double_t TRestGeant4Track::GetTrackLength() {
+Double_t TRestGeant4Track::GetTrackLength() const {
     Double_t length = 0;
 
     length = GetDistance(fHits.GetPosition(0), GetTrackOrigin());
@@ -86,12 +87,12 @@ TString TRestGeant4Track::GetProcessName(Int_t id, const TRestGeant4Metadata& re
     return restGeant4Metadata.GetGeant4PhysicsInfo().GetProcessName(id);
 }
 
-void TRestGeant4Track::PrintTrack(int maxHits) {
+void TRestGeant4Track::PrintTrack(int maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
             "++++++++++++"
          << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
+    cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
     cout.precision(5);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
@@ -109,13 +110,12 @@ void TRestGeant4Track::PrintTrack(int maxHits) {
         cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 
-    TRestGeant4Hits* hits = GetHits();
     for (int i = 0; i < nHits; i++) {
-        cout << " # Hit " << i << " # process : " << GetProcessName(hits->GetHitProcess(i))
-             << " volume : " << hits->GetHitVolume(i) << " X : " << hits->GetX(i) << " Y : " << hits->GetY(i)
-             << " Z : " << hits->GetZ(i) << " mm" << endl;
-        cout << " Edep : " << hits->GetEnergy(i) << " keV Ekin : " << hits->GetKineticEnergy(i) << " keV"
-             << " Global time : " << hits->GetTime(i) << " us" << endl;
+        cout << " # Hit " << i << " # process : " << GetProcessName(fHits.GetHitProcess(i))
+             << " volume : " << fHits.GetHitVolume(i) << " X : " << fHits.GetX(i) << " Y : " << fHits.GetY(i)
+             << " Z : " << fHits.GetZ(i) << " mm" << endl;
+        cout << " Edep : " << fHits.GetEnergy(i) << " keV Ekin : " << fHits.GetKineticEnergy(i) << " keV"
+             << " Global time : " << fHits.GetTime(i) << " us" << endl;
     }
     cout << endl;
     cout.precision(2);

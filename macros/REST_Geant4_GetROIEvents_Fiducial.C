@@ -47,16 +47,16 @@ Double_t REST_Geant4_GetROIEventsFiducial(TString fName, Double_t zMin, Double_t
 
         Double_t eDep = 0;
         for (int j = 0; j < ev->GetNumberOfTracks(); j++) {
-            for (int k = 0; k < ev->GetTrack(j)->GetNumberOfHits(); k++) {
-                if (ev->GetTrack(j)->GetHits()->GetEnergy(k) > 0) {
-                    Double_t z = ev->GetTrack(j)->GetHits()->GetZ(k);
+            for (int k = 0; k < ev->GetTrack(j).GetNumberOfHits(); k++) {
+                if (ev->GetTrack(j).GetHits().GetEnergy(k) > 0) {
+                    Double_t z = ev->GetTrack(j).GetHits().GetZ(k);
                     if (z > zMin && z < zMax) {
-                        Double_t x = ev->GetTrack(j)->GetHits()->GetX(k);
-                        Double_t y = ev->GetTrack(j)->GetHits()->GetY(k);
+                        Double_t x = ev->GetTrack(j).GetHits().GetX(k);
+                        Double_t y = ev->GetTrack(j).GetHits().GetY(k);
 
                         Double_t r = TMath::Sqrt(x * x + y * y);
 
-                        if (r < radius) eDep += ev->GetTrack(j)->GetHits()->GetEnergy(k);
+                        if (r < radius) eDep += ev->GetTrack(j).GetHits().GetEnergy(k);
                         //           if( r > radius - 50 ) veto = true;
                     }
                 }
