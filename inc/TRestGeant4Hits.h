@@ -27,12 +27,13 @@
 
 class TRestGeant4Hits : public TRestHits {
    protected:
-    std::vector<Int_t> fVolumeID;              // [fNHits]
-    std::vector<Int_t> fProcessID;             // [fNHits]
-    std::vector<Float_t> fKineticEnergy;       // [fNHits]
-    std::vector<Float_t> fMomentumDirectionX;  // [fNHits]
-    std::vector<Float_t> fMomentumDirectionY;  // [fNHits]
-    std::vector<Float_t> fMomentumDirectionZ;  // [fNHits]
+    std::vector<Int_t> fVolumeID;
+    std::vector<Int_t> fProcessID;
+    std::vector<Float_t> fKineticEnergy;
+
+    std::vector<Float_t> fMomentumDirectionX;
+    std::vector<Float_t> fMomentumDirectionY;
+    std::vector<Float_t> fMomentumDirectionZ;
 
    public:
     inline TVector3 GetMomentumDirection(int n) const {
