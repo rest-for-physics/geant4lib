@@ -36,14 +36,14 @@ class TRestGeant4Hits : public TRestHits {
     std::vector<Float_t> fMomentumDirectionZ;
 
    public:
-    inline TVector3 GetMomentumDirection(int n) const {
+    inline TVector3 GetMomentumDirection(size_t n) const {
         return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
     }
-    inline Int_t GetProcess(int n) const { return fProcessID[n]; }
-    inline Int_t GetHitProcess(int n) const { return fProcessID[n]; }
-    inline Int_t GetHitVolume(int n) const { return fVolumeID[n]; }
-    inline Int_t GetVolumeId(int n) const { return fVolumeID[n]; }
-    inline Double_t GetKineticEnergy(int n) const { return fKineticEnergy[n]; }
+    inline Int_t GetProcess(size_t n) const { return fProcessID[n]; }
+    inline Int_t GetHitProcess(size_t n) const { return fProcessID[n]; }
+    inline Int_t GetHitVolume(size_t n) const { return fVolumeID[n]; }
+    inline Int_t GetVolumeId(size_t n) const { return fVolumeID[n]; }
+    inline Double_t GetKineticEnergy(size_t n) const { return fKineticEnergy[n]; }
 
     Double_t GetEnergyInVolume(Int_t volID) const;
 
