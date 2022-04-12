@@ -27,14 +27,14 @@
 
 class TRestGeant4Hits : public TRestHits {
    protected:
-    TArrayI fVolumeID;
-    TArrayI fProcessID;
-    TArrayF fKineticEnergy;
+    TArrayI fVolumeID;       // [fNHits]
+    TArrayI fProcessID;      // [fNHits]
+    TArrayF fKineticEnergy;  // [fNHits]
 
    public:
-    TArrayF fMomentumDirectionX;
-    TArrayF fMomentumDirectionY;
-    TArrayF fMomentumDirectionZ;
+    TArrayF fMomentumDirectionX;  // [fNHits]
+    TArrayF fMomentumDirectionY;  // [fNHits]
+    TArrayF fMomentumDirectionZ;  // [fNHits]
 
     inline TVector3 GetMomentumDirection(int n) const {
         return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
