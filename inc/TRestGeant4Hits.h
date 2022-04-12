@@ -27,15 +27,14 @@
 
 class TRestGeant4Hits : public TRestHits {
    protected:
-    TArrayI fVolumeID;       // [fNHits]
-    TArrayI fProcessID;      // [fNHits]
-    TArrayF fKineticEnergy;  // [fNHits]
+    std::vector<Int_t> fVolumeID;              // [fNHits]
+    std::vector<Int_t> fProcessID;             // [fNHits]
+    std::vector<Float_t> fKineticEnergy;       // [fNHits]
+    std::vector<Float_t> fMomentumDirectionX;  // [fNHits]
+    std::vector<Float_t> fMomentumDirectionY;  // [fNHits]
+    std::vector<Float_t> fMomentumDirectionZ;  // [fNHits]
 
    public:
-    TArrayF fMomentumDirectionX;  // [fNHits]
-    TArrayF fMomentumDirectionY;  // [fNHits]
-    TArrayF fMomentumDirectionZ;  // [fNHits]
-
     inline TVector3 GetMomentumDirection(int n) const {
         return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
     }
@@ -51,8 +50,8 @@ class TRestGeant4Hits : public TRestHits {
     TVector3 GetFirstPositionInVolume(Int_t volID) const;
     TVector3 GetLastPositionInVolume(Int_t volID) const;
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                  Double_t eKin, TVector3 momentumDirection);
+    void AddG4Hit(const TVector3& pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
+                  Double_t eKin, const TVector3& momentumDirection);
     void RemoveG4Hits();
     // Constructor
     TRestGeant4Hits();

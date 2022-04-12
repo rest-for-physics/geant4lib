@@ -29,43 +29,31 @@ TRestGeant4Hits::~TRestGeant4Hits() {
     // TRestGeant4Hits destructor
 }
 
-void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
-                               Int_t volume, Double_t eKin, TVector3 momentumDirection) {
+void TRestGeant4Hits::AddG4Hit(const TVector3& pos, Double_t en, Double_t hit_global_time, Int_t process,
+                               Int_t volume, Double_t eKin, const TVector3& momentumDirection) {
     AddHit(pos, en, hit_global_time);
 
-    fProcessID.Set(fNHits);
-    fProcessID[fNHits - 1] = process;
+    fProcessID.push_back(process);
+    fVolumeID.push_back(volume);
+    fKineticEnergy.push_back(eKin);
 
-    fVolumeID.Set(fNHits);
-    fVolumeID[fNHits - 1] = volume;
+    const auto momentumDirectionUnit = momentumDirection.Unit();
 
-    fKineticEnergy.Set(fNHits);
-    fKineticEnergy[fNHits - 1] = eKin;
-
-    momentumDirection = momentumDirection.Unit();
-
-    Float_t x = momentumDirection.X();
-    Float_t y = momentumDirection.Y();
-    Float_t z = momentumDirection.Z();
-
-    fMomentumDirectionX.Set(fNHits);
-    fMomentumDirectionX[fNHits - 1] = x;
-
-    fMomentumDirectionY.Set(fNHits);
-    fMomentumDirectionY[fNHits - 1] = y;
-
-    fMomentumDirectionZ.Set(fNHits);
-    fMomentumDirectionZ[fNHits - 1] = z;
+    fMomentumDirectionX.push_back(momentumDirectionUnit.X());
+    fMomentumDirectionY.push_back(momentumDirectionUnit.Y());
+    fMomentumDirectionZ.push_back(momentumDirectionUnit.Z());
 }
 
 void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
-    fProcessID.Set(0);
+    fProcessID.clear();
+    fVolumeID.clear();
+    fKineticEnergy.clear();
 
-    fVolumeID.Set(0);
-
-    fKineticEnergy.Set(0);
+    fMomentumDirectionX.clear();
+    fMomentumDirectionY.clear();
+    fMomentumDirectionZ.clear();
 }
 
 Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volID) const {
