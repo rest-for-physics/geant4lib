@@ -16,17 +16,13 @@
 #ifndef RestCore_TRestGeant4Track
 #define RestCore_TRestGeant4Track
 
-#include <TArrayI.h>
 #include <TColor.h>
-#include <TObject.h>
-#include <TRestGeant4Hits.h>
-#include <TRestGeant4Metadata.h>
-#include <TRestGeant4PhysicsInfo.h>
-#include <TString.h>
-#include <TVector3.h>
 
 #include <iostream>
-#include <vector>
+
+#include "TRestGeant4Hits.h"
+#include "TRestGeant4Metadata.h"
+#include "TRestGeant4PhysicsInfo.h"
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {

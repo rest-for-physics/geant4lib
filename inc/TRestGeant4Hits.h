@@ -18,9 +18,6 @@
 #ifndef RestCore_TRestGeant4Hits
 #define RestCore_TRestGeant4Hits
 
-#include <TArrayF.h>
-#include <TArrayI.h>
-#include <TObject.h>
 #include <TRestHits.h>
 
 #include <iostream>
