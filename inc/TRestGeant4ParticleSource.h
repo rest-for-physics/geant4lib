@@ -58,10 +58,10 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual void InitFromConfigFile();
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
-    TString GetParticleName() { return fParticleName; }
-    TString GetAngularDistType() { return fAngularDistType; }
-    TVector3 GetDirection() { return fDirection; }
-    TString GetEnergyDistType() { return fEnergyDistType; }
+   inline TString GetParticleName() const { return fParticleName; }
+   inline TString GetAngularDistType() const { return fAngularDistType; }
+   inline TVector3 GetDirection() const { return fDirection; }
+   inline TString GetEnergyDistType() const { return fEnergyDistType; }
     TVector2 GetEnergyRange() { return fEnergyRange; }
     Double_t GetMinEnergy() { return fEnergyRange.X(); }
     Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
