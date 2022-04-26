@@ -29,8 +29,8 @@ TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() {
     Initialize();
 }
 
-TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* cfgFileName, string name)
-    : TRestMetadata(cfgFileName) {
+TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* configFilename, string name)
+    : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);

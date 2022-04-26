@@ -47,7 +47,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string configFilename, std::string name = "");
 
     void PrintMetadata() {
         BeginPrintProcess();
@@ -55,11 +55,11 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    TString GetProcessName() { return (TString) "findG4BlobAnalysis"; }
+    inline TString GetProcessName() const { return (TString) "findG4BlobAnalysis"; }
 
     // Constructor
     TRestGeant4BlobAnalysisProcess();
-    TRestGeant4BlobAnalysisProcess(char* cfgFileName);
+    TRestGeant4BlobAnalysisProcess(char* configFilename);
     // Destructor
     ~TRestGeant4BlobAnalysisProcess();
 

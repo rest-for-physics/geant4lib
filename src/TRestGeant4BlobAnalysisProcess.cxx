@@ -22,10 +22,10 @@ using namespace std;
 
 TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess() { Initialize(); }
 
-TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* cfgFileName) {
+TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 TRestGeant4BlobAnalysisProcess::~TRestGeant4BlobAnalysisProcess() { delete fG4Event; }
@@ -40,8 +40,8 @@ void TRestGeant4BlobAnalysisProcess::Initialize() {
     /// fOutputG4Event = new TRestGeant4Event();
 }
 
-void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string configFilename, std::string name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 void TRestGeant4BlobAnalysisProcess::InitProcess() {

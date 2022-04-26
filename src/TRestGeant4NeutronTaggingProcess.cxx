@@ -93,9 +93,9 @@ ClassImp(TRestGeant4NeutronTaggingProcess);
 
 TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess() { Initialize(); }
 
-TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(char* cfgFileName) {
+TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(char* configFilename) {
     Initialize();
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -130,12 +130,12 @@ void TRestGeant4NeutronTaggingProcess::Initialize() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4NeutronTaggingProcess section inside the RML.
 ///
-void TRestGeant4NeutronTaggingProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4NeutronTaggingProcess::LoadConfig(std::string configFilename, std::string name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////

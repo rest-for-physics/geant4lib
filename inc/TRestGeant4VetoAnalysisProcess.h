@@ -80,7 +80,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
     void EndProcess();
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(std::string configFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
     void PrintMetadata() {
@@ -122,10 +122,10 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4VetoAnalysisProcess; }
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4VetoAnalysis"; }
+    inline TString GetProcessName() const { return (TString) "geant4VetoAnalysis"; }
 
     TRestGeant4VetoAnalysisProcess();
-    TRestGeant4VetoAnalysisProcess(char* cfgFileName);
+    TRestGeant4VetoAnalysisProcess(char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
     ClassDef(TRestGeant4VetoAnalysisProcess, 1);
