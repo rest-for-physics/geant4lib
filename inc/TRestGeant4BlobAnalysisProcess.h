@@ -40,8 +40,8 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-   inline any GetInputEvent() const { return fG4Event; }
-   inline any GetOutputEvent() const { return fG4Event; }
+    inline any GetInputEvent() const { return fG4Event; }
+    inline any GetOutputEvent() const { return fG4Event; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

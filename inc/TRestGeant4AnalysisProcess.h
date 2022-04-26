@@ -99,8 +99,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-   inline any GetInputEvent() const { return fInputG4Event; }
-   inline any GetOutputEvent() const { return fOutputG4Event; }
+    inline any GetInputEvent() const { return fInputG4Event; }
+    inline any GetOutputEvent() const { return fOutputG4Event; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);

@@ -50,16 +50,16 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     std::vector<std::string> fIonLimitStepList;
 
    public:
-   inline Double_t GetCutForGamma() const { return fCutForGamma; }
-   inline Double_t GetCutForElectron() const { return fCutForElectron; }
-   inline Double_t GetCutForPositron() const { return fCutForPositron; }
-   inline Double_t GetCutForMuon() const { return fCutForMuon; }
-   inline Double_t GetCutForNeutron() const { return fCutForNeutron; }
+    inline Double_t GetCutForGamma() const { return fCutForGamma; }
+    inline Double_t GetCutForElectron() const { return fCutForElectron; }
+    inline Double_t GetCutForPositron() const { return fCutForPositron; }
+    inline Double_t GetCutForMuon() const { return fCutForMuon; }
+    inline Double_t GetCutForNeutron() const { return fCutForNeutron; }
 
     std::vector<std::string> GetIonStepList() { return fIonLimitStepList; }
 
-   inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
-   inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
+    inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
+    inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
 
     Int_t FindPhysicsList(TString phName);
     Bool_t PhysicsListExists(TString phName);

@@ -26,7 +26,7 @@ class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
    public:
     void Update() override;
     void InitFromConfigFile() override;
-   inline Int_t GetNumberOfParticles() const { return fParticles.size(); }
+    inline Int_t GetNumberOfParticles() const { return fParticles.size(); }
     void PrintParticleSource() override;
 
     TRestGeant4ParticleSourceDecay0();

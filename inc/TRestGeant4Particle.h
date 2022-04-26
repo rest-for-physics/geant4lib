@@ -33,12 +33,12 @@ class TRestGeant4Particle : public TObject {
     TVector3 fOrigin;
 
    public:
-   inline TString GetParticleName() const { return fParticleName; }
-   inline Double_t GetExcitationLevel() const { return fExcitationLevel; }
-   inline Double_t GetEnergy() const { return fEnergy; }
-   inline TVector3 GetMomentumDirection() const { return fDirection; }
-   inline Int_t GetParticleCharge() const { return fCharge; }
-   inline TVector3 GetOrigin() const { return fOrigin; }
+    inline TString GetParticleName() const { return fParticleName; }
+    inline Double_t GetExcitationLevel() const { return fExcitationLevel; }
+    inline Double_t GetEnergy() const { return fEnergy; }
+    inline TVector3 GetMomentumDirection() const { return fDirection; }
+    inline Int_t GetParticleCharge() const { return fCharge; }
+    inline TVector3 GetOrigin() const { return fOrigin; }
 
     void SetParticle(TRestGeant4Particle ptcle) {
         fExcitationLevel = ptcle.GetExcitationLevel();
