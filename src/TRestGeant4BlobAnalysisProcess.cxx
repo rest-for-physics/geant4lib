@@ -66,8 +66,8 @@ void TRestGeant4BlobAnalysisProcess::InitProcess() {
     fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 }
 
-TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    *fG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    *fG4Event = *((TRestGeant4Event*)inputEvent);
 
     TString obsName;
 

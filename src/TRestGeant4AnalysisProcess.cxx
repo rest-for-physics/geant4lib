@@ -413,9 +413,9 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestGeant4Event*)evInput;
-    *fOutputG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fInputG4Event = (TRestGeant4Event*)inputEvent;
+    *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
     TString obsName;
 

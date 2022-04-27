@@ -217,9 +217,9 @@ void TRestGeant4NeutronTaggingProcess::Reset() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestGeant4Event*)evInput;
-    *fOutputG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fInputG4Event = (TRestGeant4Event*)inputEvent;
+    *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
     Reset();
     std::map<string, Double_t> volume_energy_map;

@@ -103,7 +103,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     any GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent);
     void EndProcess();
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
