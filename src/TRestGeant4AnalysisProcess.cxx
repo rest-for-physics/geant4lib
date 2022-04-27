@@ -273,7 +273,7 @@ void TRestGeant4AnalysisProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestGeant4AnalysisProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestGeant4AnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 

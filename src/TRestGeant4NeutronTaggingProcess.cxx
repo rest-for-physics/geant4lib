@@ -134,7 +134,7 @@ void TRestGeant4NeutronTaggingProcess::Initialize() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4NeutronTaggingProcess section inside the RML.
 ///
-void TRestGeant4NeutronTaggingProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestGeant4NeutronTaggingProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 

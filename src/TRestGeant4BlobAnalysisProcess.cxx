@@ -40,7 +40,7 @@ void TRestGeant4BlobAnalysisProcess::Initialize() {
     /// fOutputG4Event = new TRestGeant4Event();
 }
 
-void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string configFilename, std::string name) {
+void TRestGeant4BlobAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
