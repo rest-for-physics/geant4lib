@@ -71,7 +71,7 @@ ClassImp(TRestGeant4VetoAnalysisProcess);
 
 TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess() { Initialize(); }
 
-TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess(char* configFilename) {
+TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess(const char* configFilename) {
     Initialize();
     if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }

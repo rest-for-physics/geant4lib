@@ -125,7 +125,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     inline const char* GetProcessName() const { return "geant4VetoAnalysis"; }
 
     TRestGeant4VetoAnalysisProcess();
-    TRestGeant4VetoAnalysisProcess(char* configFilename);
+    TRestGeant4VetoAnalysisProcess(const char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
     ClassDef(TRestGeant4VetoAnalysisProcess, 1);

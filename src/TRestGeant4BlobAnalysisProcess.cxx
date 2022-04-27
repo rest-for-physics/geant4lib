@@ -22,7 +22,7 @@ using namespace std;
 
 TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess() { Initialize(); }
 
-TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* configFilename) {
+TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(const char* configFilename) {
     Initialize();
 
     if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();

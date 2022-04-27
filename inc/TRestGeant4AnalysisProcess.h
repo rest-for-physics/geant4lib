@@ -125,7 +125,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     inline const char* GetProcessName() const { return "Geant4Analysis"; }
 
     TRestGeant4AnalysisProcess();
-    TRestGeant4AnalysisProcess(char* configFilename);
+    TRestGeant4AnalysisProcess(const char* configFilename);
     ~TRestGeant4AnalysisProcess();
 
     ClassDef(TRestGeant4AnalysisProcess, 2);

@@ -70,7 +70,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     // Constructors
     TRestGeant4PhysicsLists();
-    TRestGeant4PhysicsLists(char* configFilename, std::string name = "");
+    TRestGeant4PhysicsLists(const char* configFilename, std::string name = "");
     // Destructor
     ~TRestGeant4PhysicsLists();
 

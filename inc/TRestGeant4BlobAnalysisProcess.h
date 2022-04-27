@@ -59,7 +59,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
 
     // Constructor
     TRestGeant4BlobAnalysisProcess();
-    TRestGeant4BlobAnalysisProcess(char* configFilename);
+    TRestGeant4BlobAnalysisProcess(const char* configFilename);
     // Destructor
     ~TRestGeant4BlobAnalysisProcess();
 

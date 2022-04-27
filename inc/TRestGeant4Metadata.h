@@ -424,7 +424,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void PrintMetadata();
 
     TRestGeant4Metadata();
-    TRestGeant4Metadata(char* configFilename, std::string name = "");
+    TRestGeant4Metadata(const char* configFilename, std::string name = "");
 
     ~TRestGeant4Metadata();
 

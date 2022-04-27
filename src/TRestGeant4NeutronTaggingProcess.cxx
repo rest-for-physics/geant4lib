@@ -93,7 +93,7 @@ ClassImp(TRestGeant4NeutronTaggingProcess);
 
 TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess() { Initialize(); }
 
-TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(char* configFilename) {
+TRestGeant4NeutronTaggingProcess::TRestGeant4NeutronTaggingProcess(const char* configFilename) {
     Initialize();
     if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }

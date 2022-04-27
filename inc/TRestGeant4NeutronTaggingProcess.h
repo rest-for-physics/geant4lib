@@ -157,7 +157,7 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     inline const char* GetProcessName() const { return "geant4NeutronTagging"; }
 
     TRestGeant4NeutronTaggingProcess();
-    TRestGeant4NeutronTaggingProcess(char* configFilename);
+    TRestGeant4NeutronTaggingProcess(const char* configFilename);
     ~TRestGeant4NeutronTaggingProcess();
 
     ClassDef(TRestGeant4NeutronTaggingProcess, 1);

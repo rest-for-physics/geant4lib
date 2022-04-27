@@ -232,7 +232,7 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() { Initialize(); }
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* configFilename) {
+TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(const char* configFilename) {
     Initialize();
 
     if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();

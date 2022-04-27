@@ -29,7 +29,7 @@ TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() {
     Initialize();
 }
 
-TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(char* configFilename, string name)
+TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(const char* configFilename, string name)
     : TRestMetadata(configFilename) {
     Initialize();
 
