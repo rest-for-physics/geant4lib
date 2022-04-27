@@ -94,7 +94,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
 
     virtual void PrintParticleSource();
 
-    // Construtor
+    // Constructor
     TRestGeant4ParticleSource();
     // Destructor
     virtual ~TRestGeant4ParticleSource();
