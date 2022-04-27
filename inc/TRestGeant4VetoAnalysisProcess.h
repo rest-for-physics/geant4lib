@@ -73,8 +73,8 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    inline any GetInputEvent() const { return fInputG4Event; }
-    inline any GetOutputEvent() const { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputG4Event; }
+    any GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess();
     TRestEvent* ProcessEvent(TRestEvent* eventInput);
