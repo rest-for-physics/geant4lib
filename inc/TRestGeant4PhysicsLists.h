@@ -32,7 +32,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
    private:
     void Initialize();
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     TString GetPhysicsListOptionString(TString phName);
 
@@ -66,7 +66,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     TString GetPhysicsListOptionValue(TString phName, TString option);
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructors
     TRestGeant4PhysicsLists();

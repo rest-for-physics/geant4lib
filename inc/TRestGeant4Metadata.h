@@ -94,7 +94,7 @@ class TRestGeant4Metadata : public TRestMetadata {
    private:
     void Initialize();
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void ReadGenerator();
     void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
@@ -421,7 +421,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, std::string name = "");

@@ -83,7 +83,7 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     std::vector<Double_t> fSecondaryNeutronsShieldingProductionE;             //!
     std::vector<Double_t> fSecondaryNeutronsShieldingExitE;                   //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
     void Initialize();
     void LoadDefaultConfig();
     void Reset();
@@ -95,9 +95,9 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fInputG4Event; }
     any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* inputEvent);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 

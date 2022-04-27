@@ -45,7 +45,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     std::map<std::string, std::vector<std::string>> fVetoGroupVolumeNames;  //!
     std::vector<Float_t> fQuenchingFactors;                                 //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
     void Initialize();
     void LoadDefaultConfig();
 
@@ -76,9 +76,9 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fInputG4Event; }
     any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* inputEvent);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 

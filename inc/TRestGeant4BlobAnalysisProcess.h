@@ -30,7 +30,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     std::vector<double> fQ2_Radius;            //!
 #endif
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void Initialize();
 
@@ -43,9 +43,9 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fG4Event; }
     any GetOutputEvent() const override { return fG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* inputEvent);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
