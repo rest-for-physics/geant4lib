@@ -154,7 +154,7 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4NeutronTaggingProcess; }
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "geant4NeutronTagging"; }
+    const char* GetProcessName() const override { return "geant4NeutronTagging"; }
 
     TRestGeant4NeutronTaggingProcess();
     TRestGeant4NeutronTaggingProcess(const char* configFilename);

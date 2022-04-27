@@ -122,7 +122,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4VetoAnalysisProcess; }
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "geant4VetoAnalysis"; }
+    const char* GetProcessName() const override { return "geant4VetoAnalysis"; }
 
     TRestGeant4VetoAnalysisProcess();
     TRestGeant4VetoAnalysisProcess(const char* configFilename);

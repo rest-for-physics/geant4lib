@@ -55,7 +55,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    inline const char* GetProcessName() const { return "findG4BlobAnalysis"; }
+    const char* GetProcessName() const override { return "findG4BlobAnalysis"; }
 
     // Constructor
     TRestGeant4BlobAnalysisProcess();

@@ -122,7 +122,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestGeant4AnalysisProcess; }
 
     /// Returns the name of this process
-    inline const char* GetProcessName() const { return "Geant4Analysis"; }
+    const char* GetProcessName() const override { return "Geant4Analysis"; }
 
     TRestGeant4AnalysisProcess();
     TRestGeant4AnalysisProcess(const char* configFilename);
