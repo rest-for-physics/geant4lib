@@ -110,7 +110,7 @@ void TRestGeant4VetoAnalysisProcess::Initialize() {
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4VetoAnalysisProcess section inside the RML.
+/// corresponding TRestGeant4VetoAnalysisProcess section inside the RML.
 ///
 void TRestGeant4VetoAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();

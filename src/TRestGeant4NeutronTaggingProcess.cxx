@@ -132,7 +132,7 @@ void TRestGeant4NeutronTaggingProcess::Initialize() {
 ///
 /// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4NeutronTaggingProcess section inside the RML.
+/// corresponding TRestGeant4NeutronTaggingProcess section inside the RML.
 ///
 void TRestGeant4NeutronTaggingProcess::LoadConfig(const string& configFilename, const string& name) {
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
