@@ -92,7 +92,7 @@ extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
-    void Initialize();
+    void Initialize() override;
 
     void InitFromConfigFile() override;
 
@@ -428,6 +428,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 9);
+    ClassDefOverride(TRestGeant4Metadata, 9);
 };
 #endif  // RestCore_TRestGeant4Metadata

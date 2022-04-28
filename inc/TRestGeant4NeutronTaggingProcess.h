@@ -84,7 +84,7 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     std::vector<Double_t> fSecondaryNeutronsShieldingExitE;                   //!
 
     void InitFromConfigFile() override;
-    void Initialize();
+    void Initialize() override;
     void LoadDefaultConfig();
     void Reset();
 
@@ -102,7 +102,7 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         debug << "VETO KEYWORD: " << fVetoKeyword << endl;
@@ -160,6 +160,6 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     TRestGeant4NeutronTaggingProcess(const char* configFilename);
     ~TRestGeant4NeutronTaggingProcess();
 
-    ClassDef(TRestGeant4NeutronTaggingProcess, 1);
+    ClassDefOverride(TRestGeant4NeutronTaggingProcess, 1);
 };
 #endif  // RestCore_TRestGeant4NeutronTaggingProcess

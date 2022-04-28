@@ -30,7 +30,7 @@
 
 class TRestGeant4PhysicsLists : public TRestMetadata {
    private:
-    void Initialize();
+    void Initialize() override;
 
     void InitFromConfigFile() override;
 
@@ -74,6 +74,6 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     // Destructor
     ~TRestGeant4PhysicsLists();
 
-    ClassDef(TRestGeant4PhysicsLists, 2);
+    ClassDefOverride(TRestGeant4PhysicsLists, 2);
 };
 #endif
