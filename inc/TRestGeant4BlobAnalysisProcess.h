@@ -32,7 +32,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
 
     void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -49,7 +49,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         EndPrintProcess();
@@ -63,7 +63,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestGeant4BlobAnalysisProcess();
 
-    ClassDef(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
+    ClassDefOverride(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
                                                   // TRestEventProcess
 };
 #endif

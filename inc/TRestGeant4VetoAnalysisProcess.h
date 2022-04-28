@@ -46,7 +46,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     std::vector<Float_t> fQuenchingFactors;                                 //!
 
     void InitFromConfigFile() override;
-    void Initialize();
+    void Initialize() override;
     void LoadDefaultConfig();
 
     // clean std::string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
@@ -83,7 +83,7 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         debug << "VETO KEYWORD: " << fVetoKeyword << endl;
@@ -128,6 +128,6 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     TRestGeant4VetoAnalysisProcess(const char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
-    ClassDef(TRestGeant4VetoAnalysisProcess, 1);
+    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 1);
 };
 #endif  // RestCore_TRestGeant4VetoAnalysisProcess

@@ -91,7 +91,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
 
     void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -109,7 +109,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         metadata << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
@@ -128,6 +128,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestGeant4AnalysisProcess(const char* configFilename);
     ~TRestGeant4AnalysisProcess();
 
-    ClassDef(TRestGeant4AnalysisProcess, 2);
+    ClassDefOverride(TRestGeant4AnalysisProcess, 2);
 };
 #endif
