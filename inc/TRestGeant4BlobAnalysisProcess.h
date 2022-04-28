@@ -63,7 +63,7 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestGeant4BlobAnalysisProcess();
 
-    ClassDefOverride(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
-                                                  // TRestEventProcess
+    ClassDefOverride(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class
+                                                          // inherited from TRestEventProcess
 };
 #endif
