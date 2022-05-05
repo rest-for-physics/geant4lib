@@ -182,7 +182,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// technique is used.
     Int_t fNBiasingVolumes;
 
-    /// A std::vector containning the biasing volume properties.
+    /// A std::vector containing the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
