@@ -1069,9 +1069,9 @@ void TRestGeant4Metadata::ReadStorage() {
                 if (fGeant4GeometryInfo.fGdmlLogicalNames[i] == name) {
                     isValidLogical = true;
                     const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
-                    SetActiveVolume(gdmlName, chance, maxStep);
                     info << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
                          << name << "' with chance: " << chance << endl;
+                    SetActiveVolume(gdmlName, chance, maxStep);
                 }
             }
             if (!isValidLogical) {
@@ -1080,8 +1080,8 @@ void TRestGeant4Metadata::ReadStorage() {
                 exit(1);
             }
         } else {
-            SetActiveVolume(name, chance, maxStep);
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
+            SetActiveVolume(name, chance, maxStep);
         }
         volumeDefinition = GetNextElement(volumeDefinition);
     }
@@ -1503,7 +1503,15 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
 /// The aim of this parameter is to define control volumes. Usually the volume
 /// of interest will be always registered (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_t maxStep) {
+void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep) {
+    for (size_t i = 0; i < fActiveVolumes.size(); i++) {
+        const auto activeVolumeName = fActiveVolumes[i];
+        if (name == activeVolumeName) {
+            fChance[i] = chance;
+            fMaxStepSize[i] = maxStep;
+            return;
+        }
+    }
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
     fMaxStepSize.push_back(maxStep);

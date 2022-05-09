@@ -380,18 +380,17 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique
     /// is not being used.
-    Int_t isBiasingActive() { return fBiasingVolumes.size(); }
+    inline Int_t isBiasingActive() const { return fBiasingVolumes.size(); }
 
     /// Returns a std::string with the name of the sensitive volume.
     TString GetSensitiveVolume() { return fSensitiveVolume; }
 
     /// Sets the name of the sensitive volume
-    void SetSensitiveVolume(TString sensVol) { fSensitiveVolume = sensVol; }
-    ///////////////////////////////////////////////////////////
+    inline void SetSensitiveVolume(const TString& sensitiveVolume) { fSensitiveVolume = sensitiveVolume; }
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
-    Double_t GetStorageChance(Int_t n) { return fChance[n]; }
+    inline Double_t GetStorageChance(Int_t n) { return fChance[n]; }
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
@@ -400,26 +399,26 @@ class TRestGeant4Metadata : public TRestMetadata {
     Double_t GetMaxStepSize(TString vol);
 
     /// Returns the minimum event energy required for an event to be stored.
-    Double_t GetMinimumEnergyStored() { return fEnergyRangeStored.X(); }
+    inline Double_t GetMinimumEnergyStored() const { return fEnergyRangeStored.X(); }
 
     /// Returns the maximum event energy required for an event to be stored.
-    Double_t GetMaximumEnergyStored() { return fEnergyRangeStored.Y(); }
+    inline Double_t GetMaximumEnergyStored() const { return fEnergyRangeStored.Y(); }
 
     /// \brief Returns the number of active volumes, or geometry volumes that have been
     /// selected for data storage.
-    Int_t GetNumberOfActiveVolumes() { return fActiveVolumes.size(); }
+    inline Int_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
     /// Returns a std::string with the name of the active volume with index n
-    TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
+    inline TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
 
     /// Returns the world magnetic field in Tesla
-    TVector3 GetMagneticField() { return fMagneticField; }
+    inline TVector3 GetMagneticField() const { return fMagneticField; }
 
     Int_t GetActiveVolumeID(TString name);
 
     Bool_t isVolumeStored(TString volName);
 
-    void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
+    void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata();
 
