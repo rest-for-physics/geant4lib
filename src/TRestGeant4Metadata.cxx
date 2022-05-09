@@ -114,7 +114,7 @@
 /// different isotope decays are stored in different events.
 ///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The path and name of the main GDML file. Both relative and
+/// * **gdmlFile**: The path and name of the main GDML file. Both relative and
 /// absolute path is supported. In principle, the
 /// user has full freedom to create any detector setup geometry using a
 /// [GDML][GDML] description.
@@ -140,7 +140,7 @@
 ///
 /// \code
 ///		<parameter name="nEvents" value="100" />
-///		<parameter name="gdml_file" value="/path/to/mySetupTemplate.gdml"/>
+///		<parameter name="gdmlFile" value="/path/to/mySetupTemplate.gdml"/>
 ///		<parameter name="maxTargetStepSize" value="200" units="um" />
 ///		<parameter name="subEventTimeDelay" value="100" units="us" />
 /// \endcode
@@ -755,7 +755,15 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     fMagneticField = Get3DVectorParameterWithUnits("magneticField", TVector3(0, 0, 0));
 
     // Initialize the metadata members from a configfile
-    fGdmlFilename = GetParameter("gdml_file");
+    fGdmlFilename = GetParameter("gdmlFile");
+    if (fGdmlFilename == PARAMETER_NOT_FOUND_STR) {
+        fGdmlFilename = GetParameter("gdml_file");  // old name
+    }
+    if (fGdmlFilename == PARAMETER_NOT_FOUND_STR) {
+        cout << "\"gdmlFile\" parameter is not defined!" << endl;
+        exit(1);
+    }
+
     fGeometryPath = GetParameter("geometryPath", "");
 
     string seedString = GetParameter("seed", "0");
@@ -769,14 +777,14 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
     gRandom->SetSeed(fSeed);
 
-    // if "gdml_file" is purely a file (without any path) and "geometryPath" is
+    // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
     if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 || ((string)fGdmlFilename).find("/") == -1) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
-            fGdmlFilename = fGeometryPath + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
         } else {
-            fGdmlFilename = fGeometryPath + "/" + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + "/" + GetParameter("gdmlFile");
         }
     }
 
