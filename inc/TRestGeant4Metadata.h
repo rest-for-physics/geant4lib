@@ -63,7 +63,7 @@ extern std::map<std::string, generator_types> generator_types_map;
 enum class generator_shapes {
     GDML,
     WALL,
-    PLATE,
+    CIRCLE,
     BOX,
     SPHERE,
     CYLINDER,
@@ -153,7 +153,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// box: length, width, height
     /// sphere: radius
     /// wall: length, width
-    /// plate: radius
+    /// circle: radius
     /// cylinder: radius, length
     TVector3 fGenSize;
 
