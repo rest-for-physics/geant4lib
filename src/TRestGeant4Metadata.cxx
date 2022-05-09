@@ -139,7 +139,7 @@
 /// parameters.
 ///
 /// \code
-///		<parameter name="Nevents" value="100" />
+///		<parameter name="nEvents" value="100" />
 ///		<parameter name="gdml_file" value="/path/to/mySetupTemplate.gdml"/>
 ///		<parameter name="maxTargetStepSize" value="200" units="um" />
 ///		<parameter name="subEventTimeDelay" value="100" units="us" />
@@ -756,17 +756,16 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     // Initialize the metadata members from a configfile
     fGdmlFilename = GetParameter("gdml_file");
-
     fGeometryPath = GetParameter("geometryPath", "");
 
-    string seedstr = GetParameter("seed", "0");
-    if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
-        seedstr == "0") {
-        double* dd = new double();
+    string seedString = GetParameter("seed", "0");
+    if (ToUpper(seedString) == "RANDOM" || ToUpper(seedString) == "RAND" || ToUpper(seedString) == "AUTO" ||
+        seedString == "0") {
+        auto dd = new double();
         fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
-        fSeed = (Long_t)StringToInteger(seedstr);
+        fSeed = (Long_t)StringToInteger(seedString);
     }
     gRandom->SetSeed(fSeed);
 
@@ -784,7 +783,15 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     Double_t defaultTime = 1. / REST_Units::s;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
 
-    fNEvents = StringToInteger(GetParameter("Nevents"));
+    auto nEventsString = GetParameter("nEvents");
+    if (nEventsString == PARAMETER_NOT_FOUND_STR) {
+        nEventsString = GetParameter("Nevents");  // old name
+    }
+    if (nEventsString == PARAMETER_NOT_FOUND_STR) {
+        cout << "\"nEvents\" parameter is not defined!" << endl;
+        exit(1);
+    }
+    fNEvents = StringToInteger(nEventsString);
 
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
