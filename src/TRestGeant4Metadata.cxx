@@ -1037,39 +1037,46 @@ void TRestGeant4Metadata::ReadStorage() {
     TiXmlElement* storageDefinition = GetElement("storage");
     fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
     if (fSensitiveVolume == "Not defined") {
-        warning << "Sensitive volume not defined. Setting it to 'gas'!!!!" << endl;
+        warning << "Sensitive volume not defined. Setting it to 'gas'!" << endl;
         fSensitiveVolume = "gas";
     }
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
     if (defaultStep < 0) defaultStep = 0;
 
-    info << "Sensitive volume : " << fSensitiveVolume << endl;
+    info << "Sensitive volume: " << fSensitiveVolume << endl;
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
-    TRestGDMLParser* gdml = new TRestGDMLParser();
+    auto gdml = new TRestGDMLParser();
     gdml->Load(GetGdmlFilename().Data());
 
     fGeant4GeometryInfo.PopulateFromGdml(gdml->GetOutputGDMLFile());
 
-    const auto physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
+    const auto& physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
     while (volumeDefinition) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1) chance = 1;
 
-        Double_t maxStp = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
-        if (maxStp < 0) maxStp = defaultStep;
+        Double_t maxStep = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
+        if (maxStep < 0) maxStep = defaultStep;
 
-        TString name = GetFieldValue("name", volumeDefinition);
-        // first we verify its in the list of valid volumes
+        const TString& name = GetFieldValue("name", volumeDefinition);
+        // first we verify it's in the list of valid volumes
         if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
-            // it is not on the container
-            ferr << "TRestGeant4Metadata. Problem reading storage section." << endl;
-            ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
-            exit(1);
+            if (fGeant4GeometryInfo.IsValidLogicalVolume(name)) {
+                for (const auto& gdmlName : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
+                    SetActiveVolume(gdmlName, chance, maxStep);
+                    info << "Adding active volume from RML: '" << gdmlName << "' with chance: " << chance
+                         << endl;
+                }
+            } else {
+                ferr << "TRestGeant4Metadata: Problem reading storage section." << endl;
+                ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
+                exit(1);
+            }
         } else {
-            SetActiveVolume(name, chance, maxStp);
+            SetActiveVolume(name, chance, maxStep);
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
         }
         volumeDefinition = GetNextElement(volumeDefinition);

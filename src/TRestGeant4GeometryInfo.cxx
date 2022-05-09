@@ -37,13 +37,13 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
 void AddVolumesRecursively(vector<TString>* container, const vector<TString>& children,
                            map<TString, TString>& nameTable, map<TString, vector<TString>>& childrenTable,
                            const TString& name = "") {
-    // G4cout << "called AddVolumesRecursively with name: " << name << endl;
+    // cout << "called AddVolumesRecursively with name: " << name << endl;
     for (const auto& child : children) {
-        // G4cout << "\t" << child << endl;
+        // cout << "\t" << child << endl;
     }
     if (children.empty()) {
         container->push_back(name);
-        // G4cout << "ADDED: " << name << endl;
+        // cout << "ADDED: " << name << endl;
         return;
     }
     for (const auto& childName : children) {
@@ -54,6 +54,9 @@ void AddVolumesRecursively(vector<TString>* container, const vector<TString>& ch
 }  // namespace myXml
 
 void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
+    /*
+     * Fills 'fGdmlNewPhysicalNames' with physical volume names generated from GDML
+     */
     cout << "TRestGeant4GeometryInfo::PopulateFromGdml - " << gdmlFilename << endl;
     // Geometry must be in GDML
     TXMLEngine xml;
