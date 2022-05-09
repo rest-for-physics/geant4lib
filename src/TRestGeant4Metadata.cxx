@@ -1064,13 +1064,17 @@ void TRestGeant4Metadata::ReadStorage() {
         const TString& name = GetFieldValue("name", volumeDefinition);
         // first we verify it's in the list of valid volumes
         if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
-            if (fGeant4GeometryInfo.IsValidLogicalVolume(name)) {
-                for (const auto& gdmlName : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
+            bool isValidLogical = false;
+            for (size_t i = 0; i < fGeant4GeometryInfo.fGdmlNewPhysicalNames.size(); i++) {
+                if (fGeant4GeometryInfo.fGdmlLogicalNames[i] == name) {
+                    isValidLogical = true;
+                    const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
                     SetActiveVolume(gdmlName, chance, maxStep);
-                    info << "Adding active volume from RML: '" << gdmlName << "' with chance: " << chance
-                         << endl;
+                    info << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
+                         << name << "' with chance: " << chance << endl;
                 }
-            } else {
+            }
+            if (!isValidLogical) {
                 ferr << "TRestGeant4Metadata: Problem reading storage section." << endl;
                 ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
                 exit(1);

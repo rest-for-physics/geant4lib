@@ -15,13 +15,16 @@
 class G4VPhysicalVolume;
 
 class TRestGeant4GeometryInfo {
-    ClassDef(TRestGeant4GeometryInfo, 1);
+    ClassDef(TRestGeant4GeometryInfo, 2);
 
    private:
     bool fIsAssembly = false;
 
    public:
+    // Insertion order is important for GDML containers. These containers are filled from GDML only not Geant4
     std::vector<TString> fGdmlNewPhysicalNames;
+    std::vector<TString> fGdmlLogicalNames;
+
     std::map<TString, TString>
         fGeant4PhysicalNameToNewPhysicalNameMap; /*
                                                   * only makes sense when using assembly
