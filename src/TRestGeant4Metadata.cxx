@@ -114,7 +114,7 @@
 /// different isotope decays are stored in different events.
 ///
 /// [GDML]: https://gdml.web.cern.ch/GDML/
-/// * **gdml_file**: The path and name of the main GDML file. Both relative and
+/// * **gdmlFile**: The path and name of the main GDML file. Both relative and
 /// absolute path is supported. In principle, the
 /// user has full freedom to create any detector setup geometry using a
 /// [GDML][GDML] description.
@@ -139,8 +139,8 @@
 /// parameters.
 ///
 /// \code
-///		<parameter name="Nevents" value="100" />
-///		<parameter name="gdml_file" value="/path/to/mySetupTemplate.gdml"/>
+///		<parameter name="nEvents" value="100" />
+///		<parameter name="gdmlFile" value="/path/to/mySetupTemplate.gdml"/>
 ///		<parameter name="maxTargetStepSize" value="200" units="um" />
 ///		<parameter name="subEventTimeDelay" value="100" units="us" />
 /// \endcode
@@ -210,32 +210,32 @@
 ///     <generator type="volume" from="vessel" > ... </generator>
 /// \endcode
 ///
-/// * **box**: Bound the generator to a virtual box area. "position" defines the centor of the
-/// box, while the three elements of "size" defines respectivally x, y, z length of the box.
+/// * **box**: Bound the generator to a virtual box area. "position" defines the center of the
+/// box, while the three elements of "size" defines respectively x, y, z length of the box.
 ///  \code
 ///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
 /// \endcode
 ///
 /// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the
-/// centor of the cylinder, while the three elements of "size" defines respectivally
+/// center of the cylinder, while the three elements of "size" defines respectively
 /// radius, length, nothing of the cylinder.
 ///
 /// * **sphere**: Bound the generator to a virtual sphere area. "position" defines the
-/// centor of the sphere, while the three elements of "size" defines respectivally
+/// center of the sphere, while the three elements of "size" defines respectively
 /// radius, nothing, nothing of the sphere. In future we may implement ellipsoid
 /// support for the sphere and uses all three elements.
 ///
-/// * **plate**: Bound the generator to a virtual plate area. "position" defines the
-/// centor of the plate, while the three elements of "size" defines respectivally
-/// radius, nothing, nothing of the plate. "plate" shape works only for "surface"
-/// generator type. The initial direction of the plate is in parallel to x-y plane.
+/// * **circle**: Bound the generator to a virtual circle area. "position" defines the
+/// center of the circle, while the three elements of "size" defines respectively
+/// radius, nothing, nothing of the circle. "circle" shape works only for "surface"
+/// generator type. The initial direction of the circle is in parallel to x-y plane.
 /// \code
-///     // We launch particles from random positions on a virtual plate
-///     <generator type="surface" shape="plate" size="(10,0,0)" position="(0,0,0)" > ... </generator>
+///     // We launch particles from random positions on a virtual circle
+///     <generator type="surface" shape="circle" size="(10,0,0)" position="(0,0,0)" > ... </generator>
 /// \endcode
 ///
 /// * **wall**: Bound the generator to a virtual rectangle area. "position" defines the
-/// centor of the rectangle, while the three elements of "size" defines respectivally
+/// center of the rectangle, while the three elements of "size" defines respectively
 /// x, y, nothing length the rectangle. "rectangle" shape works only for "surface"
 /// generator type. The initial direction of the rectangle is in parallel to x-y plane.
 ///
@@ -254,8 +254,8 @@
 /// the surface. We can define additional density function to customize the particle
 /// origin distribution. The function is a TF3 function with x, y, z the absolute
 /// position(position of gdml frame instead of generator frame) of the particle in
-/// unit mm. The returned value should be in range 0-1, indicating the relative probablity
-/// in this position. For example, we simulate some radio isotopes plated on a chip
+/// unit mm. The returned value should be in range 0-1, indicating the relative probability
+/// in this position. For example, we simulate some radio isotopes placed on a chip
 /// with doping which follows exponential density distribution near the surface:
 /// \code
 ///     <generator type="volume" shape="box" size="(10,10,1)mm" position="(0,0,0.5)"
@@ -645,12 +645,14 @@
 ///
 /// <hr>
 ///
+
 #include "TRestGeant4Metadata.h"
+
 using namespace std;
 
 #include <TGeoManager.h>
+#include <TRandom.h>
 
-#include "TRandom.h"
 #include "TRestGDMLParser.h"
 
 namespace g4_metadata_parameters {
@@ -673,7 +675,7 @@ map<string, generator_types> generator_types_map = {
 
 std::map<string, generator_shapes> generator_shapes_map = {
     {CleanString("gdml"), generator_shapes::GDML},     {CleanString("wall"), generator_shapes::WALL},
-    {CleanString("plate"), generator_shapes::PLATE},   {CleanString("box"), generator_shapes::BOX},
+    {CleanString("circle"), generator_shapes::CIRCLE}, {CleanString("box"), generator_shapes::BOX},
     {CleanString("sphere"), generator_shapes::SPHERE}, {CleanString("cylinder"), generator_shapes::CYLINDER},
 };
 
@@ -713,7 +715,8 @@ TRestGeant4Metadata::TRestGeant4Metadata() : TRestMetadata() { Initialize(); }
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestGeant4Metadata::TRestGeant4Metadata(char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
+TRestGeant4Metadata::TRestGeant4Metadata(const char* cfgFileName, const string& name)
+    : TRestMetadata(cfgFileName) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -755,36 +758,51 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     fMagneticField = Get3DVectorParameterWithUnits("magneticField", TVector3(0, 0, 0));
 
     // Initialize the metadata members from a configfile
-    fGdmlFilename = GetParameter("gdml_file");
+    fGdmlFilename = GetParameter("gdmlFile");
+    if (fGdmlFilename == PARAMETER_NOT_FOUND_STR) {
+        fGdmlFilename = GetParameter("gdml_file");  // old name
+    }
+    if (fGdmlFilename == PARAMETER_NOT_FOUND_STR) {
+        cout << "\"gdmlFile\" parameter is not defined!" << endl;
+        exit(1);
+    }
 
     fGeometryPath = GetParameter("geometryPath", "");
 
-    string seedstr = GetParameter("seed", "0");
-    if (ToUpper(seedstr) == "RANDOM" || ToUpper(seedstr) == "RAND" || ToUpper(seedstr) == "AUTO" ||
-        seedstr == "0") {
-        double* dd = new double();
+    string seedString = GetParameter("seed", "0");
+    if (ToUpper(seedString) == "RANDOM" || ToUpper(seedString) == "RAND" || ToUpper(seedString) == "AUTO" ||
+        seedString == "0") {
+        auto dd = new double();
         fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
-        fSeed = (Long_t)StringToInteger(seedstr);
+        fSeed = (Long_t)StringToInteger(seedString);
     }
     gRandom->SetSeed(fSeed);
 
-    // if "gdml_file" is purely a file (without any path) and "geometryPath" is
+    // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
     if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 || ((string)fGdmlFilename).find("/") == -1) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
-            fGdmlFilename = fGeometryPath + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
         } else {
-            fGdmlFilename = fGeometryPath + "/" + GetParameter("gdml_file");
+            fGdmlFilename = fGeometryPath + "/" + GetParameter("gdmlFile");
         }
     }
 
     Double_t defaultTime = 1. / REST_Units::s;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
 
-    fNEvents = StringToInteger(GetParameter("Nevents"));
+    auto nEventsString = GetParameter("nEvents");
+    if (nEventsString == PARAMETER_NOT_FOUND_STR) {
+        nEventsString = GetParameter("Nevents");  // old name
+    }
+    if (nEventsString == PARAMETER_NOT_FOUND_STR) {
+        cout << "\"nEvents\" parameter is not defined!" << endl;
+        exit(1);
+    }
+    fNEvents = StringToInteger(nEventsString);
 
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
@@ -1037,40 +1055,51 @@ void TRestGeant4Metadata::ReadStorage() {
     TiXmlElement* storageDefinition = GetElement("storage");
     fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
     if (fSensitiveVolume == "Not defined") {
-        warning << "Sensitive volume not defined. Setting it to 'gas'!!!!" << endl;
+        warning << "Sensitive volume not defined. Setting it to 'gas'!" << endl;
         fSensitiveVolume = "gas";
     }
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
     if (defaultStep < 0) defaultStep = 0;
 
-    info << "Sensitive volume : " << fSensitiveVolume << endl;
+    info << "Sensitive volume: " << fSensitiveVolume << endl;
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
-    TRestGDMLParser* gdml = new TRestGDMLParser();
+    auto gdml = new TRestGDMLParser();
     gdml->Load(GetGdmlFilename().Data());
 
     fGeant4GeometryInfo.PopulateFromGdml(gdml->GetOutputGDMLFile());
 
-    const auto physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
+    const auto& physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
     TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
     while (volumeDefinition) {
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1) chance = 1;
 
-        Double_t maxStp = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
-        if (maxStp < 0) maxStp = defaultStep;
+        Double_t maxStep = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
+        if (maxStep < 0) maxStep = defaultStep;
 
-        TString name = GetFieldValue("name", volumeDefinition);
-        // first we verify its in the list of valid volumes
+        const TString& name = GetFieldValue("name", volumeDefinition);
+        // first we verify it's in the list of valid volumes
         if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
-            // it is not on the container
-            ferr << "TRestGeant4Metadata. Problem reading storage section." << endl;
-            ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
-            exit(1);
+            bool isValidLogical = false;
+            for (size_t i = 0; i < fGeant4GeometryInfo.fGdmlNewPhysicalNames.size(); i++) {
+                if (fGeant4GeometryInfo.fGdmlLogicalNames[i] == name) {
+                    isValidLogical = true;
+                    const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
+                    info << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
+                         << name << "' with chance: " << chance << endl;
+                    SetActiveVolume(gdmlName, chance, maxStep);
+                }
+            }
+            if (!isValidLogical) {
+                ferr << "TRestGeant4Metadata: Problem reading storage section." << endl;
+                ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
+                exit(1);
+            }
         } else {
-            SetActiveVolume(name, chance, maxStp);
             info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
+            SetActiveVolume(name, chance, maxStep);
         }
         volumeDefinition = GetNextElement(volumeDefinition);
     }
@@ -1119,7 +1148,7 @@ void TRestGeant4Metadata::PrintMetadata() {
             metadata << ", (radius, , ): ";
         } else if (fGenShape == "wall") {
             metadata << ", (length, width, ): ";
-        } else if (fGenShape == "plate") {
+        } else if (fGenShape == "circle") {
             metadata << ", (radius, , ): ";
         } else if (fGenShape == "cylinder") {
             metadata << ", (radius, length, ): ";
@@ -1492,7 +1521,15 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
 /// The aim of this parameter is to define control volumes. Usually the volume
 /// of interest will be always registered (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(TString name, Double_t chance, Double_t maxStep) {
+void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep) {
+    for (size_t i = 0; i < fActiveVolumes.size(); i++) {
+        const auto activeVolumeName = fActiveVolumes[i];
+        if (name == activeVolumeName) {
+            fChance[i] = chance;
+            fMaxStepSize[i] = maxStep;
+            return;
+        }
+    }
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
     fMaxStepSize.push_back(maxStep);
