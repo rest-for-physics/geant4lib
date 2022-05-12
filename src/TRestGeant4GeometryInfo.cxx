@@ -34,26 +34,34 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
     }
     return {};
 }
-void AddVolumesRecursively(vector<TString>* container, const vector<TString>& children,
-                           map<TString, TString>& nameTable, map<TString, vector<TString>>& childrenTable,
-                           const TString& name = "") {
-    // G4cout << "called AddVolumesRecursively with name: " << name << endl;
+void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logicalNames,
+                           const vector<TString>& children, map<TString, TString>& nameTable,
+                           map<TString, vector<TString>>& childrenTable, const TString& name = "") {
+    /*
+    cout << "called AddVolumesRecursively with name: " << name << endl;
     for (const auto& child : children) {
-        // G4cout << "\t" << child << endl;
+        cout << "\t" << child << endl;
     }
+     */
     if (children.empty()) {
-        container->push_back(name);
-        // G4cout << "ADDED: " << name << endl;
+        physicalNames->push_back(name);
+        const auto logicalVolumeName = nameTable[name];
+        logicalNames->push_back(logicalVolumeName);
         return;
     }
     for (const auto& childName : children) {
-        AddVolumesRecursively(container, childrenTable[nameTable[childName]], nameTable, childrenTable,
-                              name + "_" + childName);
+        const auto newName = name + "_" + childName;
+        nameTable[newName] = nameTable[childName];  // needed to retrieve logical volume name
+        AddVolumesRecursively(physicalNames, logicalNames, childrenTable[nameTable[childName]], nameTable,
+                              childrenTable, newName);
     }
 }
 }  // namespace myXml
 
 void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
+    /*
+     * Fills 'fGdmlNewPhysicalNames' with physical volume names generated from GDML
+     */
     cout << "TRestGeant4GeometryInfo::PopulateFromGdml - " << gdmlFilename << endl;
     // Geometry must be in GDML
     TXMLEngine xml;
@@ -100,9 +108,11 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     }
 
     fGdmlNewPhysicalNames.clear();
+    fGdmlLogicalNames.clear();
     for (const auto& topName : childrenTable[worldVolumeName]) {
         auto children = childrenTable[nameTable[topName]];
-        myXml::AddVolumesRecursively(&fGdmlNewPhysicalNames, children, nameTable, childrenTable, topName);
+        myXml::AddVolumesRecursively(&fGdmlNewPhysicalNames, &fGdmlLogicalNames, children, nameTable,
+                                     childrenTable, topName);
     }
 
     xml.FreeDoc(xmldoc);

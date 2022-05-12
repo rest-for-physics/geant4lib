@@ -4,10 +4,10 @@
 
     <TRestGeant4Metadata name="Test Simulation" title="Test Simulation Title">
 
-        <parameter name="gdml_file" value="this-geometry-does-not-exist.gdml"/>
+        <parameter name="gdmlFile" value="this-geometry-does-not-exist.gdml"/>
         <parameter name="subEventTimeDelay" value="100" units="us"/>
         <parameter name="seed" value="17021981"/>
-        <parameter name="Nevents" value="1"/>
+        <parameter name="nEvents" value="1"/>
 
         <generator type="point" position="(0, 0, 0)">
             <source particle="geantino">

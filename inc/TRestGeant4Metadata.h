@@ -63,7 +63,7 @@ extern std::map<std::string, generator_types> generator_types_map;
 enum class generator_shapes {
     GDML,
     WALL,
-    PLATE,
+    CIRCLE,
     BOX,
     SPHERE,
     CYLINDER,
@@ -101,14 +101,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void ReadStorage();
     void ReadBiasing();
-
-    // void ReadEventDataFile(TString fName);
-
-    // Int_t ReadNewDecay0File(TString fileName);
-
-    // Int_t ReadOldDecay0File(TString fileName);
-
-    // void ReadParticleSource(TiXmlElement* sourceDefinition);
 
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
@@ -153,7 +145,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// box: length, width, height
     /// sphere: radius
     /// wall: length, width
-    /// plate: radius
+    /// circle: radius
     /// cylinder: radius, length
     TVector3 fGenSize;
 
@@ -227,141 +219,141 @@ class TRestGeant4Metadata : public TRestMetadata {
    public:
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
-    Long_t GetSeed() const { return fSeed; }
+    inline Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns a reference to the geometry info
-    TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
+    inline TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
 
     /// \brief Returns a std::string with the version of Geant4 used on the event data
     /// simulation
-    TString GetGeant4Version() const { return fGeant4Version; }
+    inline TString GetGeant4Version() const { return fGeant4Version; }
 
     size_t GetGeant4VersionMajor() const;
 
     /// Returns the local path to the GDML geometry
-    TString GetGeometryPath() const { return fGeometryPath; }
+    inline TString GetGeometryPath() const { return fGeometryPath; }
 
     /// Returns the main filename of the GDML geometry
-    TString GetGdmlFilename() const { return fGdmlFilename; }
+    inline TString GetGdmlFilename() const { return fGdmlFilename; }
 
     /// Returns the reference provided at the GDML file header
-    TString GetGdmlReference() const { return fGdmlReference; }
+    inline TString GetGdmlReference() const { return fGdmlReference; }
 
     /// Returns the reference provided at the materials file header
-    TString GetMaterialsReference() const { return fMaterialsReference; }
+    inline TString GetMaterialsReference() const { return fMaterialsReference; }
 
     /// \brief Returns a std::string specifying the generator type (volume, surface, point,
     /// virtualWall, etc )
-    TString GetGeneratorType() const { return fGenType; }
+    inline TString GetGeneratorType() const { return fGenType; }
 
     /// \brief Returns a std::string specifying the generator shape (point, wall, box, etc )
-    TString GetGeneratorShape() const { return fGenShape; }
+    inline TString GetGeneratorShape() const { return fGenShape; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGeneratedFrom() const { return fGenFrom; }
+    inline TString GetGeneratedFrom() const { return fGenFrom; }
 
     /// \brief Returns the name of the GDML volume where primary events are
     /// produced. This value has meaning only when using volume or surface
     /// generator types.
-    TString GetGDMLGeneratorVolume() const { return fGenFrom; }
+    inline TString GetGDMLGeneratorVolume() const { return fGenFrom; }
 
     /// \brief Returns a 3d-std::vector with the position of the primary event
     /// generator. This value has meaning only when using point and virtual
     /// generator types.
-    TVector3 GetGeneratorPosition() const { return fGenPosition; }
+    inline TVector3 GetGeneratorPosition() const { return fGenPosition; }
 
     /// \brief Returns a 3d-std::vector, fGenRotation, with the XYZ rotation angle
     /// values in degrees. This value is used by virtualWall, virtualCircleWall
     /// and virtualCylinder generator types.
-    TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
+    inline TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
 
     /// \brief Returns the degree of rotation
-    Double_t GetGeneratorRotationDegree() const { return fGenRotationDegree; }
+    inline Double_t GetGeneratorRotationDegree() const { return fGenRotationDegree; }
 
     /// \brief Returns the main spatial dimension of virtual generator.
     /// It is the size of a  virtualBox.
-    TVector3 GetGeneratorSize() const { return fGenSize; }
+    inline TVector3 GetGeneratorSize() const { return fGenSize; }
 
     /// \brief Returns the density function of the generator
-    TString GetGeneratorSpatialDensity() const { return fGenDensityFunction; }
+    inline TString GetGeneratorSpatialDensity() const { return fGenDensityFunction; }
 
     /// \brief Returns true in case full decay chain simulation is enabled.
-    Bool_t isFullChainActivated() const { return fFullChain; }
+    inline Bool_t isFullChainActivated() const { return fFullChain; }
 
     /// \brief Returns the value of the maximum Geant4 step size in mm for the
     /// target volume.
-    Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
+    inline Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
     /// new independent event. It is used to separate simulated events that in
     /// practice will appear as such in our detector. I.e. to separate multiple
     /// decay products (sometimes with years time delays) into independent events.
-    Double_t GetSubEventTimeDelay() const { return fSubEventTimeDelay; }
+    inline Double_t GetSubEventTimeDelay() const { return fSubEventTimeDelay; }
 
     /// It returns true if save all events is active
-    Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
+    inline Bool_t GetSaveAllEvents() const { return fSaveAllEvents; }
 
     /// It returns true if `printProgress` parameter was set to true
-    Bool_t PrintProgress() const { return fPrintProgress; }
+    inline Bool_t PrintProgress() const { return fPrintProgress; }
 
     /// It returns false if `registerEmptyTracks` parameter was set to false.
-    Bool_t RegisterEmptyTracks() const { return fRegisterEmptyTracks; }
+    inline Bool_t RegisterEmptyTracks() const { return fRegisterEmptyTracks; }
 
     /// \brief Used exclusively by restG4 to set the value of the random seed used on
     /// Geant4 simulation.
-    void SetSeed(Long_t seed) { fSeed = seed; }
+    inline void SetSeed(Long_t seed) { fSeed = seed; }
 
     /// Enables or disables the save all events feature
-    void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
+    inline void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
 
     /// Sets the value of the Geant4 version
     inline void SetGeant4Version(const TString& versionString) { fGeant4Version = versionString; }
 
     ///  \brief Sets the generator type. I.e. volume, surface, point, virtualWall,
     ///  virtualCylinder, etc.
-    void SetGeneratorType(TString type) { fGenType = type; }
+    inline void SetGeneratorType(TString type) { fGenType = type; }
 
     ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
     ///  radius of cylinder, size of wall, etc.
-    void SetGeneratorSize(const TVector3& size) { fGenSize = size; }
+    inline void SetGeneratorSize(const TVector3& size) { fGenSize = size; }
 
     ///  Enables/disables the full chain decay generation.
-    void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
+    inline void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
 
     ///  Sets the position of the virtual generator using a TVector3.
-    void SetGeneratorPosition(const TVector3& pos) { fGenPosition = pos; }
+    inline void SetGeneratorPosition(const TVector3& pos) { fGenPosition = pos; }
 
     ///  Sets the position of the virtual generator using x,y,z coordinates.
-    void SetGeneratorPosition(double x, double y, double z) { fGenPosition = TVector3(x, y, z); }
+    inline void SetGeneratorPosition(double x, double y, double z) { fGenPosition = TVector3(x, y, z); }
 
     /// Sets the number of events to be simulated.
-    void SetNEvents(Int_t n) { fNEvents = n; }
+    inline void SetNEvents(Int_t n) { fNEvents = n; }
 
     /// It sets the location of the geometry files
-    void SetGeometryPath(std::string path) { fGeometryPath = path; }
+    inline void SetGeometryPath(std::string path) { fGeometryPath = path; }
 
     /// It sets the main filename to be used for the GDML geometry
-    void SetGdmlFilename(std::string gdmlFile) { fGdmlFilename = gdmlFile; }
+    inline void SetGdmlFilename(std::string gdmlFile) { fGdmlFilename = gdmlFile; }
 
     /// Returns the reference provided at the GDML file header
-    void SetGdmlReference(std::string reference) { fGdmlReference = reference; }
+    inline void SetGdmlReference(std::string reference) { fGdmlReference = reference; }
 
     /// Returns the reference provided at the materials file header
-    void SetMaterialsReference(std::string reference) { fMaterialsReference = reference; }
+    inline void SetMaterialsReference(std::string reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
-    Int_t GetNumberOfEvents() const { return fNEvents; }
+    inline Int_t GetNumberOfEvents() const { return fNEvents; }
     ///////////////////////////////////////////////////////////
 
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
-    Int_t GetNumberOfSources() const { return fParticleSource.size(); }
+    inline Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }
+    inline TRestGeant4ParticleSource* GetParticleSource(int n) { return fParticleSource[n]; }
 
     /// Remove all the particle sources.
     void RemoveParticleSources();
@@ -373,25 +365,25 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Direct access to biasing volumes definition
     //////////////////////////////////////////////
     /// Returns the number of biasing volumes defined
-    inline Int_t GetNumberOfBiasingVolumes() const { return fBiasingVolumes.size(); }
+
+    inline size_t GetNumberOfBiasingVolumes() const { return fBiasingVolumes.size(); }
 
     /// Return the biasing volume with index n
-    TRestGeant4BiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
+    inline TRestGeant4BiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
 
     /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique
     /// is not being used.
-    Int_t isBiasingActive() { return fBiasingVolumes.size(); }
+    inline Int_t isBiasingActive() const { return fBiasingVolumes.size(); }
 
     /// Returns a std::string with the name of the sensitive volume.
     inline TString GetSensitiveVolume() const { return fSensitiveVolume; }
 
     /// Sets the name of the sensitive volume
-    void SetSensitiveVolume(TString sensVol) { fSensitiveVolume = sensVol; }
-    ///////////////////////////////////////////////////////////
+    inline void SetSensitiveVolume(const TString& sensitiveVolume) { fSensitiveVolume = sensitiveVolume; }
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
-    Double_t GetStorageChance(Int_t n) { return fChance[n]; }
+    inline Double_t GetStorageChance(Int_t n) { return fChance[n]; }
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
@@ -410,7 +402,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline Int_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
     /// Returns a std::string with the name of the active volume with index n
-    TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
+    inline TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
 
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
@@ -419,12 +411,12 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     Bool_t isVolumeStored(TString volName);
 
-    void SetActiveVolume(TString name, Double_t chance, Double_t maxStep = 0);
+    void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata() override;
 
     TRestGeant4Metadata();
-    TRestGeant4Metadata(const char* configFilename, std::string name = "");
+    TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
 
     ~TRestGeant4Metadata();
 
