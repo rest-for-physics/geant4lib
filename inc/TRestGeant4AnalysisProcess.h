@@ -89,9 +89,9 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -99,17 +99,17 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fInputG4Event; }
-    any GetOutputEvent() { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputG4Event; }
+    any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         metadata << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
@@ -122,12 +122,12 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestEventProcess* Maker() { return new TRestGeant4AnalysisProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4Analysis"; }
+    const char* GetProcessName() const override { return "Geant4Analysis"; }
 
     TRestGeant4AnalysisProcess();
-    TRestGeant4AnalysisProcess(char* cfgFileName);
+    TRestGeant4AnalysisProcess(const char* configFilename);
     ~TRestGeant4AnalysisProcess();
 
-    ClassDef(TRestGeant4AnalysisProcess, 2);
+    ClassDefOverride(TRestGeant4AnalysisProcess, 2);
 };
 #endif

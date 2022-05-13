@@ -2,6 +2,8 @@
 
 #include "TRestBrowser.h"
 #include "TRestTask.h"
+#include "TRestGeant4Event.h"
+
 using namespace std;
 
 #ifndef RestTask_ViewGeometry

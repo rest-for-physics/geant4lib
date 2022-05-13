@@ -92,9 +92,9 @@ extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
-    void Initialize();
+    void Initialize() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     void ReadGenerator();
     void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
@@ -174,7 +174,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// technique is used.
     Int_t fNBiasingVolumes;
 
-    /// A std::vector containning the biasing volume properties.
+    /// A std::vector containing the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
@@ -365,6 +365,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Direct access to biasing volumes definition
     //////////////////////////////////////////////
     /// Returns the number of biasing volumes defined
+
     inline size_t GetNumberOfBiasingVolumes() const { return fBiasingVolumes.size(); }
 
     /// Return the biasing volume with index n
@@ -412,13 +413,13 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     TRestGeant4Metadata();
-    TRestGeant4Metadata(const char* cfgFileName, const std::string& name = "");
+    TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
 
     ~TRestGeant4Metadata();
 
-    ClassDef(TRestGeant4Metadata, 9);
+    ClassDefOverride(TRestGeant4Metadata, 9);
 };
 #endif  // RestCore_TRestGeant4Metadata

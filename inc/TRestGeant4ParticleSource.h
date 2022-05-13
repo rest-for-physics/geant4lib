@@ -58,43 +58,42 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual void InitFromConfigFile();
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
-    TString GetParticleName() { return fParticleName; }
-    TString GetAngularDistType() { return fAngularDistType; }
-    TVector3 GetDirection() { return fDirection; }
-    TString GetEnergyDistType() { return fEnergyDistType; }
-    TVector2 GetEnergyRange() { return fEnergyRange; }
-    Double_t GetMinEnergy() { return fEnergyRange.X(); }
-    Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
-    TString GetSpectrumFilename() { return fSpectrumFilename; }
-    TString GetSpectrumName() { return fSpectrumName; }
-    TString GetAngularFilename() { return fAngularFilename; }
-    TString GetAngularName() { return fAngularName; }
-    TString GetGenFilename() { return fGenFilename; }
+    inline TString GetParticleName() const { return fParticleName; }
+    inline TString GetAngularDistType() const { return fAngularDistType; }
+    inline TVector3 GetDirection() const { return fDirection; }
+    inline TString GetEnergyDistType() const { return fEnergyDistType; }
+    inline TVector2 GetEnergyRange() const { return fEnergyRange; }
+    inline Double_t GetMinEnergy() const { return fEnergyRange.X(); }
+    inline Double_t GetMaxEnergy() const { return fEnergyRange.Y(); }
+    inline TString GetSpectrumFilename() const { return fSpectrumFilename; }
+    inline TString GetSpectrumName() const { return fSpectrumName; }
+    inline TString GetAngularFilename() const { return fAngularFilename; }
+    inline TString GetAngularName() const { return fAngularName; }
+    inline TString GetGenFilename() const { return fGenFilename; }
 
-    std::vector<TRestGeant4Particle> GetParticles() { return fParticles; }
+    inline std::vector<TRestGeant4Particle> GetParticles() const { return fParticles; }
 
-    void SetAngularDistType(TString type) { fAngularDistType = type; }
-    void SetEnergyDistType(TString type) { fEnergyDistType = type; }
-    void SetEnergyRange(TVector2 range) { fEnergyRange = range; }
-    void SetSpectrumFilename(TString spctFilename) { fSpectrumFilename = spctFilename; }
-    void SetSpectrumName(TString spctName) { fSpectrumName = spctName; }
-    void SetAngularFilename(TString angFilename) { fAngularFilename = angFilename; }
-    void SetAngularName(TString angName) { fAngularName = angName; }
-    void SetGenFilename(TString name) { fGenFilename = name; }
+    inline void SetAngularDistType(const TString& type) { fAngularDistType = type; }
+    inline void SetEnergyDistType(const TString& type) { fEnergyDistType = type; }
+    inline void SetEnergyRange(const TVector2& range) { fEnergyRange = range; }
+    inline void SetSpectrumFilename(const TString& spectrumFilename) { fSpectrumFilename = spectrumFilename; }
+    inline void SetSpectrumName(const TString& spectrumName) { fSpectrumName = spectrumName; }
+    inline void SetAngularFilename(const TString& angFilename) { fAngularFilename = angFilename; }
+    inline void SetAngularName(const TString& angularName) { fAngularName = angularName; }
+    inline void SetGenFilename(const TString& name) { fGenFilename = name; }
+    inline void SetRndmMethod(double (*method)()) { fRndmMethod = method; }
 
-    void SetRndmMethod(double (*method)()) { fRndmMethod = method; }
-
-    void AddParticle(TRestGeant4Particle p) { fParticles.push_back(p); }
-    void RemoveParticles() { fParticles.clear(); }
-    void FlushParticlesTemplate() {
+    inline void AddParticle(const TRestGeant4Particle& particle) { fParticles.push_back(particle); }
+    inline void RemoveParticles() { fParticles.clear(); }
+    inline void FlushParticlesTemplate() {
         fParticlesTemplate.push_back(fParticles);
         fParticles.clear();
     }
-    void RemoveTemplates() { fParticlesTemplate.clear(); }
+    inline void RemoveTemplates() { fParticlesTemplate.clear(); }
 
     virtual void PrintParticleSource();
 
-    // Construtor
+    // Constructor
     TRestGeant4ParticleSource();
     // Destructor
     virtual ~TRestGeant4ParticleSource();

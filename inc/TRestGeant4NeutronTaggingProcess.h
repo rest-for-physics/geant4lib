@@ -83,8 +83,8 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     std::vector<Double_t> fSecondaryNeutronsShieldingProductionE;             //!
     std::vector<Double_t> fSecondaryNeutronsShieldingExitE;                   //!
 
-    void InitFromConfigFile();
-    void Initialize();
+    void InitFromConfigFile() override;
+    void Initialize() override;
     void LoadDefaultConfig();
     void Reset();
 
@@ -92,17 +92,17 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fInputG4Event; }
-    any GetOutputEvent() { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputG4Event; }
+    any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         debug << "VETO KEYWORD: " << fVetoKeyword << endl;
@@ -154,12 +154,12 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4NeutronTaggingProcess; }
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4NeutronTagging"; }
+    const char* GetProcessName() const override { return "geant4NeutronTagging"; }
 
     TRestGeant4NeutronTaggingProcess();
-    TRestGeant4NeutronTaggingProcess(char* cfgFileName);
+    TRestGeant4NeutronTaggingProcess(const char* configFilename);
     ~TRestGeant4NeutronTaggingProcess();
 
-    ClassDef(TRestGeant4NeutronTaggingProcess, 1);
+    ClassDefOverride(TRestGeant4NeutronTaggingProcess, 1);
 };
 #endif  // RestCore_TRestGeant4NeutronTaggingProcess
