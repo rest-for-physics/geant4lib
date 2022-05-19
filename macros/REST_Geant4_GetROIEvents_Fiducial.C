@@ -30,9 +30,9 @@ Double_t REST_Geant4_GetROIEventsFiducial(TString fName, Double_t zMin, Double_t
 
     double sigma = 0.425 * fwhm;
 
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
 
-    run->SetInputEvent(ev);
+    run->SetInputEvent(event);
 
     cout << "Total number of entries : " << run->GetEntries() << endl;
 
@@ -46,17 +46,17 @@ Double_t REST_Geant4_GetROIEventsFiducial(TString fName, Double_t zMin, Double_t
         run->GetEntry(i);
 
         Double_t eDep = 0;
-        for (int j = 0; j < ev->GetNumberOfTracks(); j++) {
-            for (int k = 0; k < ev->GetTrack(j).GetNumberOfHits(); k++) {
-                if (ev->GetTrack(j).GetHits().GetEnergy(k) > 0) {
-                    Double_t z = ev->GetTrack(j).GetHits().GetZ(k);
+        for (int j = 0; j < event->GetNumberOfTracks(); j++) {
+            for (int k = 0; k < event->GetTrack(j).GetNumberOfHits(); k++) {
+                if (event->GetTrack(j).GetHits().GetEnergy(k) > 0) {
+                    Double_t z = event->GetTrack(j).GetHits().GetZ(k);
                     if (z > zMin && z < zMax) {
-                        Double_t x = ev->GetTrack(j).GetHits().GetX(k);
-                        Double_t y = ev->GetTrack(j).GetHits().GetY(k);
+                        Double_t x = event->GetTrack(j).GetHits().GetX(k);
+                        Double_t y = event->GetTrack(j).GetHits().GetY(k);
 
                         Double_t r = TMath::Sqrt(x * x + y * y);
 
-                        if (r < radius) eDep += ev->GetTrack(j).GetHits().GetEnergy(k);
+                        if (r < radius) eDep += event->GetTrack(j).GetHits().GetEnergy(k);
                         //           if( r > radius - 50 ) veto = true;
                     }
                 }

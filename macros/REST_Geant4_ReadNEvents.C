@@ -26,17 +26,17 @@ Int_t REST_Geant4_ReadNEvents(TString fName, int n1, int n2) {
     run->PrintMetadata();
 
     // Reading events
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
 
-    run->SetInputEvent(ev);
+    run->SetInputEvent(event);
     for (int i = n1; i < n2 + 1; i++) {
         run->GetEntry(i);
 
         // Do what ever you want with g4Event
-        ev->PrintEvent();
+        event->PrintEvent();
     }
 
-    delete ev;
+    delete event;
 
     delete run;
 
