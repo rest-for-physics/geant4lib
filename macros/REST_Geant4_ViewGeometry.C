@@ -35,7 +35,7 @@ Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
     } else if (((string)fName).find(".gdml") != string::npos) {
         TRestGDMLParser* p = new TRestGDMLParser();
         p->Load((string)fName);
-        geo = p->CreateGeoM();
+        geo = p->CreateGeoManager();
     } else {
         cout << "File is not supported!" << endl;
     }
