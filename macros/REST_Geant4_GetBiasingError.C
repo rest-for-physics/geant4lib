@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -49,10 +49,8 @@ Double_t REST_Geant4_GetBiasingError(TString fName, Int_t finalEvents = 0) {
         exit(1);
     }
 
-    /////////////////////////////
     run->PrintMetadata();
     metadata->PrintMetadata();
-    /////////////////////////////
 
     // Reading event
     TRestGeant4Event* ev = new TRestGeant4Event();

@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "TRestBrowser.h"
-#include "TRestTask.h"
 #include "TRestGeant4Event.h"
+#include "TRestTask.h"
 
 using namespace std;
 
@@ -11,7 +11,7 @@ using namespace std;
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************

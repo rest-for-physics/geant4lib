@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -25,11 +25,7 @@ Int_t REST_Geant4_ReadNEvents(TString fName, int n1, int n2) {
 
     run->PrintMetadata();
 
-    /////////////////////////////
-
-    /////////////////////////////
     // Reading events
-
     TRestGeant4Event* ev = new TRestGeant4Event();
 
     run->SetInputEvent(ev);
@@ -41,8 +37,6 @@ Int_t REST_Geant4_ReadNEvents(TString fName, int n1, int n2) {
     }
 
     delete ev;
-
-    /////////////////////////////
 
     delete run;
 

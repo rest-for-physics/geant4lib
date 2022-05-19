@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -34,11 +34,6 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
 
     run->PrintMetadata();
 
-    /////////////////////////////
-
-    /////////////////////////////
-
-    /////////////////////////////
     // Reading event
     TRestGeant4Event* ev = new TRestGeant4Event();
 
@@ -73,7 +68,6 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
 
         cout << "Number of " << fIsotope << " nuclei activated = " << j << endl;
     }
-    /////////////////////////////
 
     delete run;
     delete ev;

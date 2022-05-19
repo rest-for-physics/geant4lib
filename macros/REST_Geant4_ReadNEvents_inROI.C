@@ -35,12 +35,8 @@ Int_t REST_Geant4_ReadNEvents_inROI(string fName, int n1, int n2, double en1, do
     }
 
     delete ev;
-
-    // Do what ever you want with g4Event
-
-    /////////////////////////////
-
     delete run;
+
     return 0;
 }
 #endif

@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -35,11 +35,6 @@ Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
 
     run->PrintMetadata();
 
-    /////////////////////////////
-
-    /////////////////////////////
-
-    /////////////////////////////
     // Reading event
     TRestGeant4Event* ev = new TRestGeant4Event();
 
@@ -91,7 +86,6 @@ Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
 
     for (int m = 0; m < k; m++) fOut << isotope[m] << " " << ni[m] << endl;
 
-    /////////////////////////////
     fOut.close();
     cout << "closing file" << endl;
 
