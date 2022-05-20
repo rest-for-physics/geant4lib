@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -52,13 +52,13 @@ Int_t REST_Geant4_FindGammasEmitted(TString fName) {
 
     metadata->PrintMetadata();
 
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
 
     TTree* tr = (TTree*)f->Get("TRestGeant4Event Tree");
 
     TBranch* br = tr->GetBranch("eventBranch");
 
-    br->SetAddress(&ev);
+    br->SetAddress(&event);
 
     TH1D* h = new TH1D("Gammas", "Gammas emitted", 500, 3000, 3500);
     Double_t Ek = 0;
@@ -69,10 +69,10 @@ Int_t REST_Geant4_FindGammasEmitted(TString fName) {
 
         if (evID % 50000 == 0) cout << "Event : " << evID << endl;
 
-        for (int i = 0; i < ev->GetNumberOfTracks(); i++) {
+        for (int i = 0; i < event->GetNumberOfTracks(); i++) {
             tracks++;
-            pName = ev->GetTrack(i).GetParticleName();
-            Ek = ev->GetTrack(i).GetKineticEnergy();
+            pName = event->GetTrack(i).GetParticleName();
+            Ek = event->GetTrack(i).GetKineticEnergy();
             if (pName == "gamma" && Ek > 3000 && Ek < 3500) {
                 h->Fill(Ek);
                 //               cout << "Is a gamma. Energy : " << Ek << " keV" << endl;
