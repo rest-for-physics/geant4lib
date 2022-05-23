@@ -947,7 +947,7 @@ void TRestGeant4Metadata::ReadGenerator() {
     fGenSize = Get3DVectorParameterWithUnits("size", generatorDefinition);
     fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
     fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
-    fGenRotationDegree = StringToDouble(GetParameter("rotationAngle", generatorDefinition, "0"));
+    fGenRotationDegree = GetDblParameterWithUnits("rotationAngle", generatorDefinition);
     fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
@@ -1164,8 +1164,8 @@ void TRestGeant4Metadata::PrintMetadata() {
     TVector3 a = GetGeneratorPosition();
     metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
     TVector3 b = GetGeneratorRotationAxis();
-    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
-             << "), angle: " << GetGeneratorRotationDegree() << " rads" << endl;
+    metadata << "Generator rotation axis: (" << b.X() << "," << b.Y() << "," << b.Z()
+             << "), angle: " << GetGeneratorRotationDegree() * TMath::RadToDeg() << "º" << endl;
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
