@@ -822,22 +822,22 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     fMaxTargetStepSize = GetDblParameterWithUnits("maxTargetStepSize", -1);
     if (fMaxTargetStepSize > 0) {
         cout << " " << endl;
-        warning << "IMPORTANT: *maxTargetStepSize* parameter is now obsolete!" << endl;
-        warning << "The sensitive volume will not define any integration step limit" << endl;
+        RESTWarning << "IMPORTANT: *maxTargetStepSize* parameter is now obsolete!" << RESTendl;
+        RESTWarning << "The sensitive volume will not define any integration step limit" << RESTendl;
         cout << " " << endl;
-        warning << "In order to avoid this warning REMOVE the *maxTargetStepSize* definition," << endl;
-        warning << "and replace it by the following statement at the <storage> section" << endl;
+        RESTWarning << "In order to avoid this warning REMOVE the *maxTargetStepSize* definition," << RESTendl;
+        RESTWarning << "and replace it by the following statement at the <storage> section" << RESTendl;
         cout << " " << endl;
-        warning << "<activeVolume name=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
-                << fMaxTargetStepSize << "mm\" />" << endl;
+        RESTWarning << "<activeVolume name=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
+                << fMaxTargetStepSize << "mm\" />" << RESTendl;
         cout << " " << endl;
-        info << "Now, any active volume is allowed to define a maxStepSize" << endl;
+        RESTInfo << "Now, any active volume is allowed to define a maxStepSize" << RESTendl;
         cout << " " << endl;
-        info << "It is also possible to define a default step size for all active volumes," << endl;
-        info << "so that in case no step is defined, the default will be used." << endl;
+        RESTInfo << "It is also possible to define a default step size for all active volumes," << RESTendl;
+        RESTInfo << "so that in case no step is defined, the default will be used." << RESTendl;
         cout << " " << endl;
-        info << "<storage sensitiveVolume=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
-             << fMaxTargetStepSize << "mm\" />" << endl;
+        RESTInfo << "<storage sensitiveVolume=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
+             << fMaxTargetStepSize << "mm\" />" << RESTendl;
         cout << " " << endl;
         GetChar();
     }
@@ -872,16 +872,16 @@ void TRestGeant4Metadata::ReadBiasing() {
     TString biasEnabled = GetFieldValue("value", biasingDefinition);
     TString biasType = GetFieldValue("type", biasingDefinition);
 
-    debug << "Bias : " << biasEnabled << endl;
+    RESTDebug << "Bias : " << biasEnabled << RESTendl;
 
     if (biasEnabled == "on" || biasEnabled == "ON" || biasEnabled == "On" || biasEnabled == "oN") {
-        info << "Biasing is enabled" << endl;
+        RESTInfo << "Biasing is enabled" << RESTendl;
 
         TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
         while (biasVolumeDefinition) {
             TRestGeant4BiasingVolume biasVolume;
-            debug << "Def : " << biasVolumeDefinition << endl;
+            RESTDebug << "Def : " << biasVolumeDefinition << RESTendl;
 
             biasVolume.SetBiasingVolumePosition(
                 Get3DVectorParameterWithUnits("position", biasVolumeDefinition));
@@ -963,7 +963,7 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     // check if the generator is valid.
     if (GetNumberOfSources() == 0) {
-        ferr << "No sources are added inside geneartor!" << endl;
+        RESTFerr << "No sources are added inside geneartor!" << RESTendl;
         exit(1);
     }
 }
@@ -1055,13 +1055,13 @@ void TRestGeant4Metadata::ReadStorage() {
     TiXmlElement* storageDefinition = GetElement("storage");
     fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
     if (fSensitiveVolume == "Not defined") {
-        warning << "Sensitive volume not defined. Setting it to 'gas'!" << endl;
+        RESTWarning << "Sensitive volume not defined. Setting it to 'gas'!" << RESTendl;
         fSensitiveVolume = "gas";
     }
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
     if (defaultStep < 0) defaultStep = 0;
 
-    info << "Sensitive volume: " << fSensitiveVolume << endl;
+    RESTInfo << "Sensitive volume: " << fSensitiveVolume << RESTendl;
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
 
@@ -1087,18 +1087,18 @@ void TRestGeant4Metadata::ReadStorage() {
                 if (fGeant4GeometryInfo.fGdmlLogicalNames[i] == name) {
                     isValidLogical = true;
                     const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
-                    info << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
-                         << name << "' with chance: " << chance << endl;
+                    RESTInfo << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
+                         << name << "' with chance: " << chance << RESTendl;
                     SetActiveVolume(gdmlName, chance, maxStep);
                 }
             }
             if (!isValidLogical) {
-                ferr << "TRestGeant4Metadata: Problem reading storage section." << endl;
-                ferr << " 	- The volume '" << name << "' was not found in the GDML geometry." << endl;
+                RESTFerr << "TRestGeant4Metadata: Problem reading storage section." << RESTendl;
+                RESTFerr << " 	- The volume '" << name << "' was not found in the GDML geometry." << RESTendl;
                 exit(1);
             }
         } else {
-            info << "Adding active volume from RML: '" << name << "' with chance: " << chance << endl;
+            RESTInfo << "Adding active volume from RML: '" << name << "' with chance: " << chance << RESTendl;
             SetActiveVolume(name, chance, maxStep);
         }
         volumeDefinition = GetNextElement(volumeDefinition);
@@ -1109,7 +1109,7 @@ void TRestGeant4Metadata::ReadStorage() {
     if (GetNumberOfActiveVolumes() == 0) {
         for (auto& name : physicalVolumes) {
             SetActiveVolume(name, 1, defaultStep);
-            info << "Automatically adding active volume: '" << name << "' with chance: " << 1 << endl;
+            RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1 << RESTendl;
         }
     }
 }
@@ -1121,70 +1121,70 @@ void TRestGeant4Metadata::ReadStorage() {
 void TRestGeant4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Geant 4 version : " << GetGeant4Version() << endl;
-    metadata << "Random seed : " << GetSeed() << endl;
-    metadata << "GDML geometry : " << GetGdmlReference() << endl;
-    metadata << "GDML materials reference : " << GetMaterialsReference() << endl;
-    metadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << endl;
+    RESTMetadata << "Geant 4 version : " << GetGeant4Version() << RESTendl;
+    RESTMetadata << "Random seed : " << GetSeed() << RESTendl;
+    RESTMetadata << "GDML geometry : " << GetGdmlReference() << RESTendl;
+    RESTMetadata << "GDML materials reference : " << GetMaterialsReference() << RESTendl;
+    RESTMetadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << RESTendl;
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
     Double_t mz = GetMagneticField().Z();
-    metadata << "Magnetic field : ( " << mx << ", " << my << ", " << mz << ") T" << endl;
-    if (fSaveAllEvents) metadata << "Save all events was enabled!" << endl;
+    RESTMetadata << "Magnetic field : ( " << mx << ", " << my << ", " << mz << ") T" << RESTendl;
+    if (fSaveAllEvents) RESTMetadata << "Save all events was enabled!" << RESTendl;
     if (fRegisterEmptyTracks)
-        metadata << "Register empty tracks was enabled" << endl;
+        RESTMetadata << "Register empty tracks was enabled" << RESTendl;
     else
-        metadata << "Register empty tracks was NOT enabled" << endl;
-    metadata << "   ++++++++++ Generator +++++++++++   " << endl;
-    metadata << "Number of generated events : " << GetNumberOfEvents() << endl;
-    metadata << "Generator type : " << fGenType << endl;
-    metadata << "Generator shape : " << fGenShape;
+        RESTMetadata << "Register empty tracks was NOT enabled" << RESTendl;
+    RESTMetadata << "   ++++++++++ Generator +++++++++++   " << RESTendl;
+    RESTMetadata << "Number of generated events : " << GetNumberOfEvents() << RESTendl;
+    RESTMetadata << "Generator type : " << fGenType << RESTendl;
+    RESTMetadata << "Generator shape : " << fGenShape;
     if (fGenShape == "gdml") {
-        metadata << "::" << GetGDMLGeneratorVolume() << endl;
+        RESTMetadata << "::" << GetGDMLGeneratorVolume() << RESTendl;
     } else {
         if (fGenShape == "box") {
-            metadata << ", (length, width, height): ";
+            RESTMetadata << ", (length, width, height): ";
         } else if (fGenShape == "sphere") {
-            metadata << ", (radius, , ): ";
+            RESTMetadata << ", (radius, , ): ";
         } else if (fGenShape == "wall") {
-            metadata << ", (length, width, ): ";
+            RESTMetadata << ", (length, width, ): ";
         } else if (fGenShape == "circle") {
-            metadata << ", (radius, , ): ";
+            RESTMetadata << ", (radius, , ): ";
         } else if (fGenShape == "cylinder") {
-            metadata << ", (radius, length, ): ";
+            RESTMetadata << ", (radius, length, ): ";
         }
 
         if (fGenShape != "point") {
             TVector3 s = GetGeneratorSize();
-            metadata << s.X() << ", " << s.Y() << ", " << s.Z() << endl;
+            RESTMetadata << s.X() << ", " << s.Y() << ", " << s.Z() << RESTendl;
         } else {
-            metadata << endl;
+            RESTMetadata << RESTendl;
         }
     }
     TVector3 a = GetGeneratorPosition();
-    metadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << endl;
+    RESTMetadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << RESTendl;
     TVector3 b = GetGeneratorRotationAxis();
-    metadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
-             << "), angle: " << GetGeneratorRotationDegree() << " rads" << endl;
+    RESTMetadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
+             << "), angle: " << GetGeneratorRotationDegree() << " rads" << RESTendl;
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
-    metadata << "   ++++++++++ Storage volumes +++++++++++   " << endl;
-    metadata << "Energy range : Emin = " << GetMinimumEnergyStored()
-             << ", Emax : " << GetMaximumEnergyStored() << endl;
-    metadata << "Sensitive volume : " << GetSensitiveVolume() << endl;
-    metadata << "Active volumes : " << GetNumberOfActiveVolumes() << endl;
-    metadata << "---------------------------------------" << endl;
+    RESTMetadata << "   ++++++++++ Storage volumes +++++++++++   " << RESTendl;
+    RESTMetadata << "Energy range : Emin = " << GetMinimumEnergyStored()
+             << ", Emax : " << GetMaximumEnergyStored() << RESTendl;
+    RESTMetadata << "Sensitive volume : " << GetSensitiveVolume() << RESTendl;
+    RESTMetadata << "Active volumes : " << GetNumberOfActiveVolumes() << RESTendl;
+    RESTMetadata << "---------------------------------------" << RESTendl;
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-        metadata << "Name : " << GetActiveVolumeName(n)
+        RESTMetadata << "Name : " << GetActiveVolumeName(n)
                  << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
                  << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                 << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << endl;
+                 << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
     }
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
-    metadata << "+++++" << endl;
+    RESTMetadata << "+++++" << RESTendl;
 }
 
 /////////////////////////////////////////////////
@@ -1554,7 +1554,7 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fChance[id];
     }
-    warning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << endl;
+    RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << RESTendl;
 
     return 0;
 }
@@ -1566,7 +1566,7 @@ Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
     for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
     }
-    warning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << vol << " not found" << endl;
+    RESTWarning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << vol << " not found" << RESTendl;
 
     return 0;
 }

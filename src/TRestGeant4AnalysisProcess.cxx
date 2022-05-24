@@ -421,7 +421,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
 
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "----------------------------" << endl;
         cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
         cout << "Sensitive volume Energy : " << energy << endl;
@@ -583,7 +583,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         SetObservableValue((string)obsName, mpos);
     }
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
         cout << "----------------------------" << endl;
     }

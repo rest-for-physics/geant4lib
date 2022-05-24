@@ -86,35 +86,35 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        debug << "VETO KEYWORD: " << fVetoKeyword << endl;
-        debug << endl;
+        RESTDebug << "VETO KEYWORD: " << fVetoKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "VETO GROUP KEYWORDS:" << endl;
+        RESTDebug << "VETO GROUP KEYWORDS:" << RESTendl;
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            debug << "\t" << fVetoGroupKeywords[i] << endl;
+            RESTDebug << "\t" << fVetoGroupKeywords[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
+        RESTDebug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << RESTendl;
         for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "GROUPS:" << endl;
+        RESTDebug << "GROUPS:" << RESTendl;
         for (const auto& pair : fVetoGroupVolumeNames) {
-            debug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
+            RESTDebug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
             for (unsigned int i = 0; i < pair.second.size(); i++) {
-                debug << "\t" << pair.second[i] << endl;
+                RESTDebug << "\t" << pair.second[i] << RESTendl;
             }
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
+        RESTDebug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << RESTendl;
         for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            debug << "\t" << fQuenchingFactors[i] << endl;
+            RESTDebug << "\t" << fQuenchingFactors[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         EndPrintProcess();
     }
