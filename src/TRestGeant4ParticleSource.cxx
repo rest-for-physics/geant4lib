@@ -103,8 +103,8 @@ void TRestGeant4ParticleSource::InitFromConfigFile() {
     if (((string)modelUse).find(".dat") != -1) {
         string fullPathName = SearchFile((string)modelUse);
         if (fullPathName == "") {
-            RESTFerr << "File not found : " << modelUse << RESTendl;
-            RESTFerr << "Decay0 generator file could not be found!!" << RESTendl;
+            RESTError << "File not found : " << modelUse << RESTendl;
+            RESTError << "Decay0 generator file could not be found!!" << RESTendl;
             exit(1);
         }
         modelUse = fullPathName;
@@ -178,7 +178,7 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
     }
 
     if (generatorEvents == 0) {
-        RESTFerr << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << RESTendl;
+        RESTError << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << RESTendl;
         exit(1);
     }
 
@@ -281,7 +281,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
         }
     }
     if (!headerFound) {
-        RESTFerr << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+        RESTError << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
                 "full number of events:\" header.\n";
         abort();
     }

@@ -963,7 +963,7 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     // check if the generator is valid.
     if (GetNumberOfSources() == 0) {
-        RESTFerr << "No sources are added inside geneartor!" << RESTendl;
+        RESTError << "No sources are added inside geneartor!" << RESTendl;
         exit(1);
     }
 }
@@ -1093,8 +1093,8 @@ void TRestGeant4Metadata::ReadStorage() {
                 }
             }
             if (!isValidLogical) {
-                RESTFerr << "TRestGeant4Metadata: Problem reading storage section." << RESTendl;
-                RESTFerr << " 	- The volume '" << name << "' was not found in the GDML geometry." << RESTendl;
+                RESTError << "TRestGeant4Metadata: Problem reading storage section." << RESTendl;
+                RESTError << " 	- The volume '" << name << "' was not found in the GDML geometry." << RESTendl;
                 exit(1);
             }
         } else {
