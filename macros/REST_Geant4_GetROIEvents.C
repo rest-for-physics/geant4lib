@@ -13,7 +13,7 @@ Double_t radius = 63.0;
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
