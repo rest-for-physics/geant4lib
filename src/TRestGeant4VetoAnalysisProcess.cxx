@@ -71,9 +71,9 @@ ClassImp(TRestGeant4VetoAnalysisProcess);
 
 TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess() { Initialize(); }
 
-TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess(char* cfgFileName) {
+TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess(const char* configFilename) {
     Initialize();
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -108,12 +108,12 @@ void TRestGeant4VetoAnalysisProcess::Initialize() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4VetoAnalysisProcess section inside the RML.
+/// corresponding TRestGeant4VetoAnalysisProcess section inside the RML.
 ///
-void TRestGeant4VetoAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4VetoAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -156,9 +156,9 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestGeant4Event*)evInput;
-    *fOutputG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fInputG4Event = (TRestGeant4Event*)inputEvent;
+    *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
     std::map<string, Double_t> volume_energy_map;
 

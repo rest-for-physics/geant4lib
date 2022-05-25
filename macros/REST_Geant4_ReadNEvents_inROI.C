@@ -21,26 +21,22 @@ Int_t REST_Geant4_ReadNEvents_inROI(string fName, int n1, int n2, double en1, do
     // Reading events
     int n = 0;
     double en = 0;
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
 
-    run->SetInputEvent(ev);
+    run->SetInputEvent(event);
     for (int i = n1; i < n2 + 1; i++) {
         run->GetEntry(i);
-        en = ev->GetSensitiveVolumeEnergy();
+        en = event->GetSensitiveVolumeEnergy();
         if ((en >= en1) && (en <= en2)) {
-            ev->PrintEvent();
+            event->PrintEvent();
             n++;
             cout << n << " event with " << en << " energy in sensitive volume " << endl;
         }
     }
 
-    delete ev;
-
-    // Do what ever you want with g4Event
-
-    /////////////////////////////
-
+    delete event;
     delete run;
+
     return 0;
 }
 #endif

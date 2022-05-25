@@ -32,13 +32,13 @@ class TRestGeant4BiasingVolume : public TObject {
     TString fVolumeType;
 
    public:
-    Double_t GetBiasingFactor() { return fBiasingFactor; }
-    Double_t GetBiasingVolumeSize() { return fVolumeSize; }
-    TString GetBiasingVolumeType() { return fVolumeType; }
-    TVector3 GetBiasingVolumePosition() { return fVolumePosition; }
-    TVector2 GetEnergyRange() { return fEnergyRange; }
-    Double_t GetMaxEnergy() { return fEnergyRange.Y(); }
-    Double_t GetMinEnergy() { return fEnergyRange.X(); }
+    inline Double_t GetBiasingFactor() const { return fBiasingFactor; }
+    inline Double_t GetBiasingVolumeSize() const { return fVolumeSize; }
+    inline TString GetBiasingVolumeType() const { return fVolumeType; }
+    inline TVector3 GetBiasingVolumePosition() const { return fVolumePosition; }
+    inline TVector2 GetEnergyRange() const { return fEnergyRange; }
+    inline Double_t GetMaxEnergy() const { return fEnergyRange.Y(); }
+    inline Double_t GetMinEnergy() const { return fEnergyRange.X(); }
 
     void SetBiasingVolumeSize(Double_t size) { fVolumeSize = size; }
     void SetBiasingVolumeType(TString type) { fVolumeType = type; }
@@ -63,7 +63,7 @@ class TRestGeant4BiasingVolume : public TObject {
 
     void PrintBiasingVolume();
 
-    // Construtor
+    // Constructor
     TRestGeant4BiasingVolume();
     // Destructor
     virtual ~TRestGeant4BiasingVolume();

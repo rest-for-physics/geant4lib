@@ -181,8 +181,8 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
     if (fHitConnectors.size() > parentID)
         fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
     else {
-        warning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << endl;
-        warning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks" << endl;
+        RESTWarning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << RESTendl;
+        RESTWarning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks" << RESTendl;
     }
 }
 

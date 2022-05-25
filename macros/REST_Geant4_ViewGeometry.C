@@ -1,7 +1,9 @@
 #include <iostream>
 
 #include "TRestBrowser.h"
+#include "TRestGeant4Event.h"
 #include "TRestTask.h"
+
 using namespace std;
 
 #ifndef RestTask_ViewGeometry
@@ -9,7 +11,7 @@ using namespace std;
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -33,7 +35,7 @@ Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
     } else if (((string)fName).find(".gdml") != string::npos) {
         TRestGDMLParser* p = new TRestGDMLParser();
         p->Load((string)fName);
-        geo = p->CreateGeoM();
+        geo = p->CreateGeoManager();
     } else {
         cout << "File is not supported!" << endl;
     }

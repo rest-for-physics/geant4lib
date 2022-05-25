@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -34,15 +34,10 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
 
     run->PrintMetadata();
 
-    /////////////////////////////
-
-    /////////////////////////////
-
-    /////////////////////////////
     // Reading event
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
 
-    run->SetInputEvent(ev);
+    run->SetInputEvent(event);
 
     int j = 0;
 
@@ -52,31 +47,30 @@ Int_t REST_Geant4_FindIsotopes(TString fName, TString fIsotope) {
     if (run->GetEntries() > 0) {
         for (int n = 0; n < run->GetEntries(); n++) {
             run->GetEntry(n);
-            // cout<<" Event "<<n<<" has "<<ev->GetNumberOfTracks()<<" tracks"<<endl;
-            for (int i = 0; i < ev->GetNumberOfTracks(); i++) {
-                TString pName = ev->GetTrack(i).GetParticleName();
+            // cout<<" Event "<<n<<" has "<<event->GetNumberOfTracks()<<" tracks"<<endl;
+            for (int i = 0; i < event->GetNumberOfTracks(); i++) {
+                TString pName = event->GetTrack(i).GetParticleName();
 
-                if ((ev->GetTrack(i).GetParticleName() != "gamma") &&
-                    (ev->GetTrack(i).GetParticleName() != "e+") &&
-                    (ev->GetTrack(i).GetParticleName() != "e-")) {
-                    if (ev->GetTrack(i).GetParticleName() != "neutron")
-                        cout << "Track : " << i << " --> " << ev->GetTrack(i).GetParticleName() << "  "
-                             << ev->GetTrack(i).GetHits().GetNumberOfHits() + 1 << " hits in volume "
-                             << ev->GetTrack(i).GetHits().GetHitVolume(0) << endl;
+                if ((event->GetTrack(i).GetParticleName() != "gamma") &&
+                    (event->GetTrack(i).GetParticleName() != "e+") &&
+                    (event->GetTrack(i).GetParticleName() != "e-")) {
+                    if (event->GetTrack(i).GetParticleName() != "neutron")
+                        cout << "Track : " << i << " --> " << event->GetTrack(i).GetParticleName() << "  "
+                             << event->GetTrack(i).GetHits().GetNumberOfHits() + 1 << " hits in volume "
+                             << event->GetTrack(i).GetHits().GetHitVolume(0) << endl;
 
                     if (pName.Contains(fIsotope)) j++;
                 }
             }
         }
 
-        // ev->PrintEvent();
+        // event->PrintEvent();
 
         cout << "Number of " << fIsotope << " nuclei activated = " << j << endl;
     }
-    /////////////////////////////
 
     delete run;
-    delete ev;
+    delete event;
 
     return 0;
 }

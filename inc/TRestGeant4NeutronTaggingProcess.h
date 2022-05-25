@@ -83,8 +83,8 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     std::vector<Double_t> fSecondaryNeutronsShieldingProductionE;             //!
     std::vector<Double_t> fSecondaryNeutronsShieldingExitE;                   //!
 
-    void InitFromConfigFile();
-    void Initialize();
+    void InitFromConfigFile() override;
+    void Initialize() override;
     void LoadDefaultConfig();
     void Reset();
 
@@ -92,61 +92,61 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fInputG4Event; }
-    any GetOutputEvent() { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputG4Event; }
+    any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
-        debug << "VETO KEYWORD: " << fVetoKeyword << endl;
-        debug << endl;
+        RESTDebug << "VETO KEYWORD: " << fVetoKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "VETO GROUP KEYWORDS:" << endl;
+        RESTDebug << "VETO GROUP KEYWORDS:" << RESTendl;
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            debug << "\t" << fVetoGroupKeywords[i] << endl;
+            RESTDebug << "\t" << fVetoGroupKeywords[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
+        RESTDebug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << RESTendl;
         for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         // capture volumes
 
-        debug << "CAPTURE KEYWORD: " << fCaptureKeyword << endl;
-        debug << endl;
+        RESTDebug << "CAPTURE KEYWORD: " << fCaptureKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fCaptureVolumeIds.size() << " Capture volumes:" << endl;
+        RESTDebug << "Found " << fCaptureVolumeIds.size() << " Capture volumes:" << RESTendl;
         for (unsigned int i = 0; i < fCaptureVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fCaptureVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fCaptureVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         // shielding volume/s
 
-        debug << "SHIELDING KEYWORD: " << fShieldingKeyword << endl;
-        debug << endl;
+        RESTDebug << "SHIELDING KEYWORD: " << fShieldingKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fShieldingVolumeIds.size() << " Shielding volumes:" << endl;
+        RESTDebug << "Found " << fShieldingVolumeIds.size() << " Shielding volumes:" << RESTendl;
         for (unsigned int i = 0; i < fShieldingVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fShieldingVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fShieldingVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
+        RESTDebug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << RESTendl;
         for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            debug << "\t" << fQuenchingFactors[i] << endl;
+            RESTDebug << "\t" << fQuenchingFactors[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         EndPrintProcess();
     }
@@ -154,12 +154,12 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4NeutronTaggingProcess; }
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4NeutronTagging"; }
+    const char* GetProcessName() const override { return "geant4NeutronTagging"; }
 
     TRestGeant4NeutronTaggingProcess();
-    TRestGeant4NeutronTaggingProcess(char* cfgFileName);
+    TRestGeant4NeutronTaggingProcess(const char* configFilename);
     ~TRestGeant4NeutronTaggingProcess();
 
-    ClassDef(TRestGeant4NeutronTaggingProcess, 1);
+    ClassDefOverride(TRestGeant4NeutronTaggingProcess, 1);
 };
 #endif  // RestCore_TRestGeant4NeutronTaggingProcess

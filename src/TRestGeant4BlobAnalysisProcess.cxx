@@ -22,10 +22,10 @@ using namespace std;
 
 TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess() { Initialize(); }
 
-TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(char* cfgFileName) {
+TRestGeant4BlobAnalysisProcess::TRestGeant4BlobAnalysisProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 TRestGeant4BlobAnalysisProcess::~TRestGeant4BlobAnalysisProcess() { delete fG4Event; }
@@ -40,8 +40,8 @@ void TRestGeant4BlobAnalysisProcess::Initialize() {
     /// fOutputG4Event = new TRestGeant4Event();
 }
 
-void TRestGeant4BlobAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4BlobAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 void TRestGeant4BlobAnalysisProcess::InitProcess() {
@@ -66,8 +66,8 @@ void TRestGeant4BlobAnalysisProcess::InitProcess() {
     fG4Metadata = GetMetadata<TRestGeant4Metadata>();
 }
 
-TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    *fG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    *fG4Event = *((TRestGeant4Event*)inputEvent);
 
     TString obsName;
 

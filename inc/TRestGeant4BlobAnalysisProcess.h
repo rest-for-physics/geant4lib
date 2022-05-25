@@ -30,9 +30,9 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     std::vector<double> fQ2_Radius;            //!
 #endif
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -40,30 +40,30 @@ class TRestGeant4BlobAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fG4Event; }
-    any GetOutputEvent() { return fG4Event; }
+    any GetInputEvent() const override { return fG4Event; }
+    any GetOutputEvent() const override { return fG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         EndPrintProcess();
     }
 
-    TString GetProcessName() { return (TString) "findG4BlobAnalysis"; }
+    const char* GetProcessName() const override { return "findG4BlobAnalysis"; }
 
     // Constructor
     TRestGeant4BlobAnalysisProcess();
-    TRestGeant4BlobAnalysisProcess(char* cfgFileName);
+    TRestGeant4BlobAnalysisProcess(const char* configFilename);
     // Destructor
     ~TRestGeant4BlobAnalysisProcess();
 
-    ClassDef(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class inherited from
-                                                  // TRestEventProcess
+    ClassDefOverride(TRestGeant4BlobAnalysisProcess, 1);  // Template for a REST "event process" class
+                                                          // inherited from TRestEventProcess
 };
 #endif

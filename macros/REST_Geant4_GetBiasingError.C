@@ -7,7 +7,7 @@
 
 //*******************************************************************************************************
 //***
-//*** Your HELP is needed to verify, validate and document this macro
+//*** Your HELP is needed to verify, validate and document this macro.
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
@@ -49,17 +49,15 @@ Double_t REST_Geant4_GetBiasingError(TString fName, Int_t finalEvents = 0) {
         exit(1);
     }
 
-    /////////////////////////////
     run->PrintMetadata();
     metadata->PrintMetadata();
-    /////////////////////////////
 
     // Reading event
-    TRestGeant4Event* ev = new TRestGeant4Event();
+    TRestGeant4Event* event = new TRestGeant4Event();
     TTree* tr = (TTree*)f->Get("TRestGeant4Event Tree");
     TBranch* br = tr->GetBranch("eventBranch");
 
-    br->SetAddress(&ev);
+    br->SetAddress(&event);
 
     cout << "Number of biasing volumes : " << metadata->GetNumberOfBiasingVolumes() << endl;
 
@@ -95,7 +93,7 @@ Double_t REST_Geant4_GetBiasingError(TString fName, Int_t finalEvents = 0) {
     delete run;
     delete metadata;
 
-    delete ev;
+    delete event;
 
     f->Close();
 

@@ -45,8 +45,8 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     std::map<std::string, std::vector<std::string>> fVetoGroupVolumeNames;  //!
     std::vector<Float_t> fQuenchingFactors;                                 //!
 
-    void InitFromConfigFile();
-    void Initialize();
+    void InitFromConfigFile() override;
+    void Initialize() override;
     void LoadDefaultConfig();
 
     // clean std::string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
@@ -73,48 +73,48 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() { return fInputG4Event; }
-    any GetOutputEvent() { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputG4Event; }
+    any GetOutputEvent() const override { return fOutputG4Event; }
 
-    void InitProcess();
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
-    void EndProcess();
+    void InitProcess() override;
+    TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
+    void EndProcess() override;
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
-        debug << "VETO KEYWORD: " << fVetoKeyword << endl;
-        debug << endl;
+        RESTDebug << "VETO KEYWORD: " << fVetoKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "VETO GROUP KEYWORDS:" << endl;
+        RESTDebug << "VETO GROUP KEYWORDS:" << RESTendl;
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            debug << "\t" << fVetoGroupKeywords[i] << endl;
+            RESTDebug << "\t" << fVetoGroupKeywords[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
+        RESTDebug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << RESTendl;
         for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "GROUPS:" << endl;
+        RESTDebug << "GROUPS:" << RESTendl;
         for (const auto& pair : fVetoGroupVolumeNames) {
-            debug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
+            RESTDebug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
             for (unsigned int i = 0; i < pair.second.size(); i++) {
-                debug << "\t" << pair.second[i] << endl;
+                RESTDebug << "\t" << pair.second[i] << RESTendl;
             }
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
+        RESTDebug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << RESTendl;
         for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            debug << "\t" << fQuenchingFactors[i] << endl;
+            RESTDebug << "\t" << fQuenchingFactors[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         EndPrintProcess();
     }
@@ -122,12 +122,12 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestGeant4VetoAnalysisProcess; }
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "geant4VetoAnalysis"; }
+    const char* GetProcessName() const override { return "geant4VetoAnalysis"; }
 
     TRestGeant4VetoAnalysisProcess();
-    TRestGeant4VetoAnalysisProcess(char* cfgFileName);
+    TRestGeant4VetoAnalysisProcess(const char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
-    ClassDef(TRestGeant4VetoAnalysisProcess, 1);
+    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 1);
 };
 #endif  // RestCore_TRestGeant4VetoAnalysisProcess

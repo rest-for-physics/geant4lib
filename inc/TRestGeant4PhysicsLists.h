@@ -30,9 +30,9 @@
 
 class TRestGeant4PhysicsLists : public TRestMetadata {
    private:
-    void Initialize();
+    void Initialize() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
     TString GetPhysicsListOptionString(TString phName);
 
@@ -50,30 +50,30 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     std::vector<std::string> fIonLimitStepList;
 
    public:
-    Double_t GetCutForGamma() { return fCutForGamma; }
-    Double_t GetCutForElectron() { return fCutForElectron; }
-    Double_t GetCutForPositron() { return fCutForPositron; }
-    Double_t GetCutForMuon() { return fCutForMuon; }
-    Double_t GetCutForNeutron() { return fCutForNeutron; }
+    inline Double_t GetCutForGamma() const { return fCutForGamma; }
+    inline Double_t GetCutForElectron() const { return fCutForElectron; }
+    inline Double_t GetCutForPositron() const { return fCutForPositron; }
+    inline Double_t GetCutForMuon() const { return fCutForMuon; }
+    inline Double_t GetCutForNeutron() const { return fCutForNeutron; }
 
     std::vector<std::string> GetIonStepList() { return fIonLimitStepList; }
 
-    Double_t GetMinimumEnergyProductionCuts() { return fMinEnergyRangeProductionCuts; }
-    Double_t GetMaximumEnergyProductionCuts() { return fMaxEnergyRangeProductionCuts; }
+    inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
+    inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
 
     Int_t FindPhysicsList(TString phName);
     Bool_t PhysicsListExists(TString phName);
 
     TString GetPhysicsListOptionValue(TString phName, TString option);
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     // Constructors
     TRestGeant4PhysicsLists();
-    TRestGeant4PhysicsLists(char* cfgFileName, std::string name = "");
+    TRestGeant4PhysicsLists(const char* configFilename, std::string name = "");
     // Destructor
     ~TRestGeant4PhysicsLists();
 
-    ClassDef(TRestGeant4PhysicsLists, 2);
+    ClassDefOverride(TRestGeant4PhysicsLists, 2);
 };
 #endif

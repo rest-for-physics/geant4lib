@@ -230,12 +230,12 @@ TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess() { Initialize(); }
 /// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 ///
-TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(char* cfgFileName) {
+TRestGeant4AnalysisProcess::TRestGeant4AnalysisProcess(const char* configFilename) {
     Initialize();
 
-    if (LoadConfigFromFile(cfgFileName)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -269,12 +269,12 @@ void TRestGeant4AnalysisProcess::Initialize() {
 /// the path to the config file must be specified using full path, absolute or
 /// relative.
 ///
-/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param configFilename A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+/// corresponding TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestGeant4AnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
+void TRestGeant4AnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
+    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
@@ -413,15 +413,15 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputG4Event = (TRestGeant4Event*)evInput;
-    *fOutputG4Event = *((TRestGeant4Event*)evInput);
+TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
+    fInputG4Event = (TRestGeant4Event*)inputEvent;
+    *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
     TString obsName;
 
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "----------------------------" << endl;
         cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
         cout << "Sensitive volume Energy : " << energy << endl;
@@ -583,7 +583,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* evInput) {
         SetObservableValue((string)obsName, mpos);
     }
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "G4 Tracks : " << fOutputG4Event->GetNumberOfTracks() << endl;
         cout << "----------------------------" << endl;
     }
