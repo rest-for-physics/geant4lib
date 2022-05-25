@@ -105,48 +105,48 @@ class TRestGeant4NeutronTaggingProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        debug << "VETO KEYWORD: " << fVetoKeyword << endl;
-        debug << endl;
+        RESTDebug << "VETO KEYWORD: " << fVetoKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "VETO GROUP KEYWORDS:" << endl;
+        RESTDebug << "VETO GROUP KEYWORDS:" << RESTendl;
         for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            debug << "\t" << fVetoGroupKeywords[i] << endl;
+            RESTDebug << "\t" << fVetoGroupKeywords[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << endl;
+        RESTDebug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << RESTendl;
         for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         // capture volumes
 
-        debug << "CAPTURE KEYWORD: " << fCaptureKeyword << endl;
-        debug << endl;
+        RESTDebug << "CAPTURE KEYWORD: " << fCaptureKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fCaptureVolumeIds.size() << " Capture volumes:" << endl;
+        RESTDebug << "Found " << fCaptureVolumeIds.size() << " Capture volumes:" << RESTendl;
         for (unsigned int i = 0; i < fCaptureVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fCaptureVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fCaptureVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         // shielding volume/s
 
-        debug << "SHIELDING KEYWORD: " << fShieldingKeyword << endl;
-        debug << endl;
+        RESTDebug << "SHIELDING KEYWORD: " << fShieldingKeyword << RESTendl;
+        RESTDebug << RESTendl;
 
-        debug << "Found " << fShieldingVolumeIds.size() << " Shielding volumes:" << endl;
+        RESTDebug << "Found " << fShieldingVolumeIds.size() << " Shielding volumes:" << RESTendl;
         for (unsigned int i = 0; i < fShieldingVolumeIds.size(); i++) {
-            debug << "\t" << fG4Metadata->GetActiveVolumeName(fShieldingVolumeIds[i]) << endl;
+            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fShieldingVolumeIds[i]) << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
-        debug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << endl;
+        RESTDebug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << RESTendl;
         for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            debug << "\t" << fQuenchingFactors[i] << endl;
+            RESTDebug << "\t" << fQuenchingFactors[i] << RESTendl;
         }
-        debug << endl;
+        RESTDebug << RESTendl;
 
         EndPrintProcess();
     }
