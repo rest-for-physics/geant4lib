@@ -58,10 +58,14 @@ Int_t TRestGeant4Track::GetProcessID(const TString& pcsName) {
         id = 9;
     else if (pcsName == "annihil")
         id = 10;
-    else if (pcsName == "RadioactiveDecayBase")
+    else if (pcsName == "RadioactiveDecay")
         id = 11;
     else if (pcsName == "muIoni")
         id = 12;
+ else if (pcsName == "RadioactiveDecayBase")
+        id = 13;
+    else if (pcsName == "Radioactivation")
+        id = 14;
     else if (pcsName == "e-Step")
         id = 20;
     else if (pcsName == "e+Step")
