@@ -112,8 +112,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        metadata << "Low energy cut : " << fLowEnergyCut << " keV" << endl;
-        metadata << "High energy cut : " << fHighEnergyCut << " keV" << endl;
+        RESTMetadata << "Low energy cut : " << fLowEnergyCut << " keV" << RESTendl;
+        RESTMetadata << "High energy cut : " << fHighEnergyCut << " keV" << RESTendl;
 
         EndPrintProcess();
     }
