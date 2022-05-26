@@ -45,34 +45,34 @@ TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
 }
 
 void TRestGeant4ParticleSource::PrintParticleSource() {
-    metadata << "---------------------------------------" << endl;
-    metadata << "Particle Source Name: " << GetParticleName() << endl;
+    RESTMetadata << "---------------------------------------" << RESTendl;
+    RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;
     if (fParticlesTemplate.size() > 0 || fGenFilename != "NO_SUCH_PARA") {
-        metadata << "Generator file: " << GetGenFilename() << endl;
-        metadata << "Stored templates: " << fParticlesTemplate.size() << endl;
-        metadata << "Particles: ";
-        for (auto p : fParticles) metadata << p.GetParticleName() << ", ";
-        metadata << endl;
+        RESTMetadata << "Generator file: " << GetGenFilename() << RESTendl;
+        RESTMetadata << "Stored templates: " << fParticlesTemplate.size() << RESTendl;
+        RESTMetadata << "Particles: ";
+        for (auto p : fParticles) RESTMetadata << p.GetParticleName() << ", ";
+        RESTMetadata << RESTendl;
     } else {
-        metadata << "Charge : " << GetParticleCharge() << endl;
-        metadata << "Angular distribution type : " << GetAngularDistType() << endl;
+        RESTMetadata << "Charge : " << GetParticleCharge() << RESTendl;
+        RESTMetadata << "Angular distribution type : " << GetAngularDistType() << RESTendl;
         if (GetAngularDistType() == "TH1D") {
-            metadata << "Angular distribution filename : "
-                     << TRestTools::GetPureFileName((string)GetAngularFilename()) << endl;
-            metadata << "Angular histogram name  : " << GetAngularName() << endl;
+            RESTMetadata << "Angular distribution filename : "
+                     << TRestTools::GetPureFileName((string)GetAngularFilename()) << RESTendl;
+            RESTMetadata << "Angular histogram name  : " << GetAngularName() << RESTendl;
         }
-        metadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << ","
-                 << GetDirection().Z() << ")" << endl;
-        metadata << "Energy distribution : " << GetEnergyDistType() << endl;
+        RESTMetadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << ","
+                 << GetDirection().Z() << ")" << RESTendl;
+        RESTMetadata << "Energy distribution : " << GetEnergyDistType() << RESTendl;
         if (GetEnergyDistType() == "TH1D") {
-            metadata << "Energy distribution filename : "
-                     << TRestTools::GetPureFileName((string)GetSpectrumFilename()) << endl;
-            metadata << "Energy histogram name  : " << GetSpectrumName() << endl;
+            RESTMetadata << "Energy distribution filename : "
+                     << TRestTools::GetPureFileName((string)GetSpectrumFilename()) << RESTendl;
+            RESTMetadata << "Energy histogram name  : " << GetSpectrumName() << RESTendl;
         } else if (GetEnergyRange().X() == GetEnergyRange().Y())
-            metadata << "Energy : " << GetEnergy() << " keV" << endl;
+            RESTMetadata << "Energy : " << GetEnergy() << " keV" << RESTendl;
         else
-            metadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV"
-                     << endl;
+            RESTMetadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV"
+                     << RESTendl;
     }
 }
 
@@ -103,8 +103,8 @@ void TRestGeant4ParticleSource::InitFromConfigFile() {
     if (((string)modelUse).find(".dat") != -1) {
         string fullPathName = SearchFile((string)modelUse);
         if (fullPathName == "") {
-            ferr << "File not found : " << modelUse << endl;
-            ferr << "Decay0 generator file could not be found!!" << endl;
+            RESTError << "File not found : " << modelUse << RESTendl;
+            RESTError << "Decay0 generator file could not be found!!" << RESTendl;
             exit(1);
         }
         modelUse = fullPathName;
@@ -178,7 +178,7 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
     }
 
     if (generatorEvents == 0) {
-        ferr << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << endl;
+        RESTError << "TRestG4Metadata::ReadNewDecay0File. Problem reading generator file" << RESTendl;
         exit(1);
     }
 
@@ -189,8 +189,8 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
 
     TRestGeant4Particle particle;
 
-    debug << "Reading generator file : " << fileName << endl;
-    debug << "Total number of events : " << generatorEvents << endl;
+    RESTDebug << "Reading generator file : " << fileName << RESTendl;
+    RESTDebug << "Total number of events : " << generatorEvents << RESTendl;
     for (int n = 0; n < generatorEvents && !infile.eof(); n++) {
         int pos = -1;
         while (!infile.eof() && pos == -1) {
@@ -203,7 +203,7 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
 
         Int_t nParticles;
         infile >> nParticles;
-        debug << "Number of particles : " << nParticles << endl;
+        RESTDebug << "Number of particles : " << nParticles << RESTendl;
 
         // cout << evID <<" "<< time <<" "<< nParticles <<" "<< std::endl;
         for (int i = 0; i < nParticles && !infile.eof(); i++) {
@@ -215,11 +215,11 @@ bool TRestGeant4ParticleSource::ReadNewDecay0File(TString fileName) {
             Double_t time;
             infile >> pID >> time >> momx >> momy >> momz >> pName;
 
-            debug << " ---- New particle found --- " << endl;
-            debug << " Particle name : " << pName << endl;
-            debug << " - pId : " << pID << endl;
-            debug << " - Relative time : " << time << endl;
-            debug << " - px: " << momx << " py: " << momy << " pz: " << momz << " " << endl;
+            RESTDebug << " ---- New particle found --- " << RESTendl;
+            RESTDebug << " Particle name : " << pName << RESTendl;
+            RESTDebug << " - pId : " << pID << RESTendl;
+            RESTDebug << " - Relative time : " << time << RESTendl;
+            RESTDebug << " - px: " << momx << " py: " << momy << " pz: " << momz << " " << RESTendl;
 
             if (pID == 3) {
                 momentum2 = (momx * momx) + (momy * momy) + (momz * momz);
@@ -281,7 +281,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
         }
     }
     if (!headerFound) {
-        ferr << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+        RESTError << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
                 "full number of events:\" header.\n";
         abort();
     }
