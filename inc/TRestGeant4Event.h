@@ -262,9 +262,9 @@ class TRestGeant4Event : public TRestEvent {
     void SetTrackSubEventID(Int_t n, Int_t id);
     void AddTrack(TRestGeant4Track trk);
 
-    inline Bool_t isRadiactiveDecay() const {
+    inline Bool_t isRadioactiveDecay() const {
         for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n).isRadiactiveDecay()) return true;
+            if (GetTrack(n).isRadioactiveDecay()) return true;
         return false;
     }
 
@@ -344,9 +344,9 @@ class TRestGeant4Event : public TRestEvent {
     }
     /// Processes and particles in a given volume
 
-    inline Bool_t isRadiactiveDecayInVolume(Int_t volID) const {
+    inline Bool_t isRadioactiveDecayInVolume(Int_t volID) const {
         for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n).isRadiactiveDecayInVolume(volID)) return true;
+            if (GetTrack(n).isRadioactiveDecayInVolume(volID)) return true;
         return false;
     }
 

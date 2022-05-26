@@ -159,7 +159,7 @@ class TRestGeant4Track : public TObject {
         return false;
     }
     // Processes in active volume
-    inline Bool_t isRadiactiveDecayInVolume(Int_t volID) const {
+    inline Bool_t isRadioactiveDecayInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 11) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
