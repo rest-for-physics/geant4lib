@@ -370,10 +370,10 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         }
         if (fObservables[i].find("Process") != string::npos) {
             Int_t ls = 0;
-            if (fObservables[i].find("RadiactiveDecay") != string::npos) ls = 15;
+            if (fObservables[i].find("RadioactiveDecay") != string::npos) ls = 15;
             if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
             if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
-            if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
+            if (fObservables[i].find("Bremsstrahlung") != string::npos) ls = 12;
             if (fObservables[i].find("NInelastic") != string::npos) ls = 10;
             if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
             if (fObservables[i].find("NCapture") != string::npos) ls = 8;
@@ -469,7 +469,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     SetObservableValue((string) "compton", compton);
 
     Int_t bremstralung = 0;
-    if (fOutputG4Event->isBremstralung()) bremstralung = 1;
+    if (fOutputG4Event->isBremsstrahlung()) bremstralung = 1;
     SetObservableValue((string) "bremstralung", bremstralung);
 
     Int_t hadElastic = 0;
@@ -518,14 +518,14 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
         string obsName = fProcessObservables[n];
         TString processName = fProcessName[n];
-        if ((processName == "RadiactiveDecay") && (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
+        if ((processName == "RadioactiveDecay") && (fOutputG4Event->isRadioactiveDecayInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         else if ((processName == "Photoelectric") && (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         // else if((processName=="PhotonNuclear")&&(
         // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
         // SetObservableValue( obsName, 1 );
-        else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
+        else if ((processName == "Bremsstrahlung") && (fOutputG4Event->isBremsstrahlungInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);
         else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
             SetObservableValue(obsName, 1);

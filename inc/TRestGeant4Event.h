@@ -278,9 +278,9 @@ class TRestGeant4Event : public TRestEvent {
             if (GetTrack(n).isCompton()) return true;
         return false;
     }
-    inline Bool_t isBremstralung() const {
+    inline Bool_t isBremsstrahlung() const {
         for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n).isBremstralung()) return true;
+            if (GetTrack(n).isBremsstrahlung()) return true;
         return false;
     }
 
@@ -365,9 +365,9 @@ class TRestGeant4Event : public TRestEvent {
             if (GetTrack(n).isComptonInVolume(volID)) return true;
         return false;
     }
-    inline Bool_t isBremstralungInVolume(Int_t volID) const {
+    inline Bool_t isBremsstrahlungInVolume(Int_t volID) const {
         for (int n = 0; n < GetNumberOfTracks(); n++)
-            if (GetTrack(n).isBremstralungInVolume(volID)) return true;
+            if (GetTrack(n).isBremsstrahlungInVolume(volID)) return true;
         return false;
     }
 

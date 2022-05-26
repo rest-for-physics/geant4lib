@@ -126,7 +126,7 @@ class TRestGeant4Track : public TObject {
             if (fHits.GetHitProcess(n) == 7) return true;
         return false;
     }
-    inline Bool_t isBremstralung() const {
+    inline Bool_t isBremsstrahlung() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 5) return true;
         return false;
@@ -180,7 +180,7 @@ class TRestGeant4Track : public TObject {
             if ((fHits.GetHitProcess(n) == 7) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    inline Bool_t isBremstralungInVolume(Int_t volID) const {
+    inline Bool_t isBremsstrahlungInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 5) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
