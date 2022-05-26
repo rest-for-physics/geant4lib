@@ -109,9 +109,11 @@ class TRestGeant4Track : public TObject {
     Int_t GetProcessID(const TString& processName, const TRestGeant4Metadata& restGeant4Metadata = {}) const;
     TString GetProcessName(Int_t id, const TRestGeant4Metadata& = {}) const;
 
-    inline Bool_t isRadiactiveDecay() const {
+    inline Bool_t isRadioactiveDecay() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
-            if (fHits.GetHitProcess(n) == 11) return true;
+            if (fHits.GetHitProcess(n) == 11 || fHits.GetHitProcess(n) == 13 || fHits.GetHitProcess(n) == 14) {
+                return true;
+            }
         return false;
     }
     inline Bool_t isPhotoElectric() const {
