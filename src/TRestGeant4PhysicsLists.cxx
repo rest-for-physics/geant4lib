@@ -117,6 +117,8 @@ Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString phName) {
     if (phName == "G4DecayPhysics") return true;
     if (phName == "G4RadioactiveDecayPhysics") return true;
     if (phName == "G4RadioactiveDecay") return true;
+    if (phName == "G4RadioactiveDecayBase") return true;
+    if (phName == "G4Radioactivation") return true;
     if (phName == "G4EmLivermorePhysics") return true;
     if (phName == "G4EmPenelopePhysics") return true;
     if (phName == "G4EmStandardPhysics_option3") return true;
