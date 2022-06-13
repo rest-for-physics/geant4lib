@@ -4,14 +4,16 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
+  release:
 
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
   REST_FRAMEWORK_SOURCE_DIR: /rest/framework/source
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
   run:
@@ -32,7 +34,7 @@ jobs:
         run: |
           git clone https://github.com/rest-for-physics/framework.git ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
           cd ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
-          ./scripts/checkoutRemoteBranch.sh ${{ github.sha }}
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - uses: actions/checkout@v3
       - name: Setup, build and install
         run: |
@@ -43,7 +45,7 @@ jobs:
           make -j4 install
       - name: Cache framework installation
         id: framework-install-geant4lib-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.REST_PATH }}
-          key: ${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.BRANCH_NAME }}-${{ github.sha }}
