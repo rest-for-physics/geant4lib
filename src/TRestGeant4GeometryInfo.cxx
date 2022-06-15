@@ -149,6 +149,8 @@ TString TRestGeant4GeometryInfo::GetGeant4PhysicalNameFromAlternativeName(
     return "";
 }
 
+/*
+ * DO NOT REMOVE!
 Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) const {
     for (int i = 0; i < fGdmlNewPhysicalNames.size(); i++) {
         if (volumeName.EqualTo(fGdmlNewPhysicalNames[i])) {
@@ -166,6 +168,28 @@ Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) co
 
     cout << "TRestGeant4GeometryInfo::GetIDFromPhysicalName - ID not found for " << volumeName << endl;
     exit(1);
+}
+*/
+
+template <typename T, typename U>
+U GetOrDefaultMapValueFromKey(const map<T, U>* pMap, const T& key) {
+    if (pMap->count(key) > 0) {
+        return pMap->at(key);
+    }
+    return {};
+}
+
+TString TRestGeant4GeometryInfo::GetVolumeFromID(Int_t id) const {
+    return GetOrDefaultMapValueFromKey<Int_t, TString>(&fVolumeNameMap, id);
+}
+
+Int_t TRestGeant4GeometryInfo::GetIDFromVolume(const TString& volumeName) const {
+    return GetOrDefaultMapValueFromKey<TString, Int_t>(&fVolumeNameReverseMap, volumeName);
+}
+
+void TRestGeant4GeometryInfo::InsertVolumeName(Int_t id, const TString& volumeName) {
+    fVolumeNameMap[id] = volumeName;
+    fVolumeNameReverseMap[volumeName] = id;
 }
 
 void TRestGeant4GeometryInfo::Print() const {

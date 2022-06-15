@@ -127,9 +127,25 @@ void TRestGeant4Track::PrintTrack(int maxHits) const {
     }
 
     for (int i = 0; i < nHits; i++) {
-        cout << " # Hit " << i << " # process : " << GetProcessName(fHits.GetHitProcess(i))
-             << " volume : " << fHits.GetHitVolume(i) << " X : " << fHits.GetX(i) << " Y : " << fHits.GetY(i)
-             << " Z : " << fHits.GetZ(i) << " mm" << endl;
+        TString processName = GetProcessName(fHits.GetHitProcess(i));
+        if (processName.IsNull()) {
+            // in case process name is not found, use ID
+            processName = TString(std::to_string(fHits.GetHitProcess(i)));
+        }
+
+        TString volumeName = "";
+        const auto geant4Metadata = TRestGeant4Metadata::GetUnambiguousGlobalInstance("TRestGeant4Metadata");
+        if (geant4Metadata != nullptr) {
+            volumeName = geant4Metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
+        }
+        if (volumeName.IsNull()) {
+            // in case process name is not found, use ID
+            volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
+        }
+
+        cout << " # Hit " << i << " # process : " << processName << " volume : " << volumeName
+             << " X : " << fHits.GetX(i) << " Y : " << fHits.GetY(i) << " Z : " << fHits.GetZ(i) << " mm"
+             << endl;
         cout << " Edep : " << fHits.GetEnergy(i) << " keV Ekin : " << fHits.GetKineticEnergy(i) << " keV"
              << " Global time : " << fHits.GetTime(i) << " us" << endl;
     }

@@ -7,6 +7,8 @@
 #include <vector>
 
 class TRestGeant4PhysicsInfo {
+    ClassDef(TRestGeant4PhysicsInfo, 1);
+
    private:
     std::map<Int_t, TString> fProcessNamesMap = {};
     std::map<TString, Int_t> fProcessNamesReverseMap = {};
@@ -26,7 +28,6 @@ class TRestGeant4PhysicsInfo {
    public:
     inline TRestGeant4PhysicsInfo() = default;
     inline ~TRestGeant4PhysicsInfo() = default;
-    ClassDef(TRestGeant4PhysicsInfo, 1);
 
     void Print() const;
     void PrintProcesses() const;
