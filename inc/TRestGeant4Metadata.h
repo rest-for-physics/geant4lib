@@ -186,7 +186,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// volume.
     Double_t fMaxTargetStepSize = 0;  //!
 
-    /// \brief A time gap, in us, determinning if an energy hit should be considered (and
+    /// \brief A time gap, in us, determining if an energy hit should be considered (and
     /// stored) as an independent event.
     Double_t fSubEventTimeDelay;
 
@@ -421,6 +421,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata() override;
+
+    static const TRestGeant4Metadata* GetUnambiguousGlobalInstance(
+        const char* metadataName = "TRestGeant4Metadata");
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
