@@ -113,10 +113,16 @@ class TRestGeant4Track : public TObject {
     TString GetProcessName(Int_t id) const;
 
     inline Bool_t isRadiactiveDecay() const {
-        for (int n = 0; n < fHits.GetNumberOfHits(); n++)
-            if (fHits.GetHitProcess(n) == 11||fHits.GetHitProcess(n) == 13||fHits.GetHitProcess(n) == 14)return true;
+        // TODO: improve this
+        for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+            if (fHits.GetHitProcess(n) == 6210  // RadioactiveDecay, verified on v11.0.2
+            ) {
+                return true;
+            }
+        }
         return false;
     }
+    // WARNING: All these methods do not work correctly since the processID depends on the Geant4 version
     inline Bool_t isPhotoElectric() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 3) return true;
