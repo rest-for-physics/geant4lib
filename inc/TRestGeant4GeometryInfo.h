@@ -1,6 +1,3 @@
-//
-// Created by lobis on 3/5/2022.
-//
 
 #ifndef REST_TRESTGEANT4GEOMETRYINFO_H
 #define REST_TRESTGEANT4GEOMETRYINFO_H
