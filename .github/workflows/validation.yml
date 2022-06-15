@@ -4,14 +4,15 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
 
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/framework/install
   REST_FRAMEWORK_SOURCE_DIR: /rest/framework/source
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
   run:
@@ -32,7 +33,7 @@ jobs:
         run: |
           git clone https://github.com/rest-for-physics/framework.git ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
           cd ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
-          ./scripts/checkoutRemoteBranch.sh ${{ github.sha }}
+          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - uses: actions/checkout@v3
       - name: Setup, build and install
         run: |
