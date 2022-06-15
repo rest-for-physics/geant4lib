@@ -7,17 +7,35 @@ using namespace std;
 
 ClassImp(TRestGeant4PhysicsInfo);
 
-void TRestGeant4PhysicsInfo::Print() const {
+void TRestGeant4PhysicsInfo::PrintParticles() const {
+    vector<Int_t> ids = {};
+    for (const auto& [id, _] : fParticleNamesMap) {
+        ids.push_back(id);
+    }
+    sort(ids.begin(), ids.end());
+
+    cout << "Particles:" << endl;
+    for (const auto& id : ids) {
+        cout << "\t" << id << " - " << GetParticleName(id) << endl;
+    }
+}
+
+void TRestGeant4PhysicsInfo::PrintProcesses() const {
     vector<Int_t> ids = {};
     for (const auto& [id, _] : fProcessNamesMap) {
         ids.push_back(id);
     }
     sort(ids.begin(), ids.end());
 
-    cout << "ProcessNames:" << endl;
+    cout << "Processes:" << endl;
     for (const auto& id : ids) {
         cout << "\t" << id << " - " << GetProcessName(id) << endl;
     }
+}
+
+void TRestGeant4PhysicsInfo::Print() const {
+    PrintParticles();
+    PrintProcesses();
 }
 
 void TRestGeant4PhysicsInfo::InsertProcessName(Int_t id, const TString& processName) {
@@ -47,9 +65,9 @@ Int_t TRestGeant4PhysicsInfo::GetProcessID(const TString& processName) const {
 }
 
 TString TRestGeant4PhysicsInfo::GetParticleName(Int_t id) const {
-    return GetOrDefaultMapValueFromKey<Int_t, TString>(&fProcessNamesMap, id);
+    return GetOrDefaultMapValueFromKey<Int_t, TString>(&fParticleNamesMap, id);
 }
 
 Int_t TRestGeant4PhysicsInfo::GetParticleID(const TString& processName) const {
-    return GetOrDefaultMapValueFromKey<TString, Int_t>(&fProcessNamesReverseMap, processName);
+    return GetOrDefaultMapValueFromKey<TString, Int_t>(&fParticleNamesReverseMap, processName);
 }

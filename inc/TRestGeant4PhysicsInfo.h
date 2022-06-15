@@ -29,5 +29,7 @@ class TRestGeant4PhysicsInfo {
     ClassDef(TRestGeant4PhysicsInfo, 1);
 
     void Print() const;
+    void PrintProcesses() const;
+    void PrintParticles() const;
 };
 #endif  // REST_TRESTGEANT4PHYSICSINFO_H
