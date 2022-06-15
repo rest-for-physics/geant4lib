@@ -222,7 +222,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns a reference to the geometry info
-    inline TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
+    inline const TRestGeant4GeometryInfo& GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
 
     /// \brief Returns a std::string with the version of Geant4 used on the event data
     /// simulation
@@ -421,5 +421,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     ~TRestGeant4Metadata();
 
     ClassDefOverride(TRestGeant4Metadata, 9);
+
+    // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
+    friend class SteppingAction;
+    friend class DetectorConstruction;
 };
 #endif  // RestCore_TRestGeant4Metadata
