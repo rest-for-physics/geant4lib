@@ -109,10 +109,14 @@ class TRestGeant4Track : public TObject {
     inline void RemoveHits() { fHits.RemoveHits(); }
 
     // TODO move this to a namespace header??
-    Int_t GetProcessID(const TString& pcsName);
-    TString GetProcessName(Int_t id) const;
+    [[deprecated("May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] Int_t
+    GetProcessID(const TString& pcsName);
+    [[deprecated("May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] TString
+    GetProcessName(Int_t id) const;
 
-    inline Bool_t isRadiactiveDecay() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isRadiactiveDecay() const {
         // TODO: improve this
         for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
             if (fHits.GetHitProcess(n) == 6210  // RadioactiveDecay, verified on v11.0.2
@@ -123,126 +127,160 @@ class TRestGeant4Track : public TObject {
         return false;
     }
     // WARNING: All these methods do not work correctly since the processID depends on the Geant4 version
-    inline Bool_t isPhotoElectric() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isPhotoElectric() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 3) return true;
         return false;
     }
-    inline Bool_t isCompton() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isCompton() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 7) return true;
         return false;
     }
-    inline Bool_t isBremstralung() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isBremstralung() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 5) return true;
         return false;
     }
 
-    inline Bool_t ishadElastic() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    ishadElastic() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 36) return true;
         return false;
     }
-    inline Bool_t isneutronInelastic() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isneutronInelastic() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 37) return true;
         return false;
     }
-    inline Bool_t isnCapture() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isnCapture() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 38) return true;
         return false;
     }
-
-    inline Bool_t ishIoni() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    ishIoni() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 33) return true;
         return false;
     }
-    inline Bool_t isphotonNuclear() const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isphotonNuclear() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 42) return true;
         return false;
     }
     // Processes in active volume
-    inline Bool_t isRadiactiveDecayInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isRadiactiveDecayInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 11) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    inline Bool_t isPhotoElectricInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isPhotoElectricInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 3) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    inline Bool_t isPhotonNuclearInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isPhotonNuclearInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 42) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-
-    inline Bool_t isComptonInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isComptonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 7) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    inline Bool_t isBremstralungInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isBremstralungInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 5) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-
-    inline Bool_t isHadElasticInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isHadElasticInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 36) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-    inline Bool_t isNeutronInelasticInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isNeutronInelasticInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 37) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-
-    inline Bool_t isNCaptureInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isNCaptureInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 38) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-
-    inline Bool_t isHIoniInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isHIoniInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitProcess(n) == 33) && (fHits.GetHitVolume(n)) == volID) return true;
         return false;
     }
-
-    inline Bool_t isAlphaInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isAlphaInVolume(Int_t volID) const {
         if (GetParticleName() == "alpha") {
             for (int n = 0; n < fHits.GetNumberOfHits(); n++)
                 if ((fHits.GetHitVolume(n)) == volID) return true;
         }
         return false;
     }
-
-    inline Bool_t isNeutronInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isNeutronInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName() == "neutron")) return true;
         return false;
     }
-
-    inline Bool_t isArgonInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isArgonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Ar"))) return true;
         return false;
     }
-
-    inline Bool_t isNeonInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isNeonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Ne"))) return true;
         return false;
     }
-
-    inline Bool_t isXenonInVolume(Int_t volID) const {
+    [[gnu::warning(
+        "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
+    isXenonInVolume(Int_t volID) const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if ((fHits.GetHitVolume(n) == volID) && (GetParticleName().Contains("Xe"))) return true;
         return false;
@@ -250,11 +288,8 @@ class TRestGeant4Track : public TObject {
     /////////////////////////////////
 
     /// Prints the track information. N number of hits to print, 0 = all
-    void PrintTrack(int maxHits = 0) const;
+    [[gnu::warning("Process names shown may be not accurate")]] void PrintTrack(int maxHits = 0) const;
 
-    //    Int_t GetElement( Int_t n ) { return X.At(n); }
-
-    //    Int_t GetParticleID();
     // Constructor
     TRestGeant4Track();
     // Destructor
