@@ -1592,7 +1592,7 @@ const TRestGeant4Metadata* TRestGeant4Metadata::GetUnambiguousGlobalInstance(con
     for (const auto& run : TRestRun::GetGlobalStore()) {
         const auto metadata = (TRestGeant4Metadata*)run->GetMetadataClass("TRestGeant4Metadata");
         if (metadata != nullptr) {
-            if (result != nullptr && result != metadata) {
+            if (result != metadata) {
                 // multiple possible results, return nullptr
                 result = metadata;
             }

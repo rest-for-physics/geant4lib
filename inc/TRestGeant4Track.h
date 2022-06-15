@@ -27,8 +27,7 @@
 
 #include "TObject.h"
 
-// Perhaps there might be need for a mother class TRestTrack (if there is future
-// need)
+// Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
     Int_t fTrack_ID;
@@ -108,11 +107,8 @@ class TRestGeant4Track : public TObject {
 
     inline void RemoveHits() { fHits.RemoveHits(); }
 
-    // TODO move this to a namespace header??
-    [[deprecated("May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] Int_t
-    GetProcessID(const TString& pcsName);
-    [[deprecated("May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] TString
-    GetProcessName(Int_t id) const;
+    Int_t GetProcessID(const TString& processName);
+    TString GetProcessName(Int_t id) const;
 
     [[gnu::warning(
         "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
