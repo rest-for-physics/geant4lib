@@ -27,6 +27,7 @@
 
 #include "TObject.h"
 
+class TRestGeant4Metadata;
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
@@ -107,8 +108,8 @@ class TRestGeant4Track : public TObject {
 
     inline void RemoveHits() { fHits.RemoveHits(); }
 
-    Int_t GetProcessID(const TString& processName);
-    TString GetProcessName(Int_t id) const;
+    Int_t GetProcessID(const TString& processName, const TRestGeant4Metadata* geant4Metadata = nullptr);
+    TString GetProcessName(Int_t id, const TRestGeant4Metadata* geant4Metadata = nullptr) const;
 
     [[gnu::warning(
         "May not be accurate. Use `TRestGeant4Metadata::GetGeant4PhysicsInfo` instead")]] inline Bool_t
@@ -284,7 +285,7 @@ class TRestGeant4Track : public TObject {
     /////////////////////////////////
 
     /// Prints the track information. N number of hits to print, 0 = all
-    [[gnu::warning("Process names shown may be not accurate")]] void PrintTrack(int maxHits = 0) const;
+    void PrintTrack(int maxHits = 0, const TRestGeant4Metadata* geant4Metadata = nullptr) const;
 
     // Constructor
     TRestGeant4Track();

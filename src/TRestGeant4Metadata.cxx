@@ -1585,19 +1585,3 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
     }
     return std::stoi(majorVersion.Data());
 }
-
-const TRestGeant4Metadata* TRestGeant4Metadata::GetUnambiguousGlobalInstance(const char* metadataName) {
-    TRestGeant4Metadata* result = nullptr;
-
-    for (const auto& run : TRestRun::GetGlobalStore()) {
-        const auto metadata = (TRestGeant4Metadata*)run->GetMetadataClass("TRestGeant4Metadata");
-        if (metadata != nullptr) {
-            if (result != metadata) {
-                // multiple possible results, return nullptr
-                result = metadata;
-            }
-        }
-    }
-
-    return result;
-}

@@ -88,8 +88,6 @@ enum class angular_dist_types {
 extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
-//------------------------------------------------------------------------------------------------------------------------
-
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
@@ -421,9 +419,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata() override;
-
-    static const TRestGeant4Metadata* GetUnambiguousGlobalInstance(
-        const char* metadataName = "TRestGeant4Metadata");
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");

@@ -31,8 +31,7 @@ TRestGeant4Track::~TRestGeant4Track() {
     // TRestGeant4Track destructor
 }
 
-Int_t TRestGeant4Track::GetProcessID(const TString& processName) {
-    auto geant4Metadata = TRestGeant4Metadata::GetUnambiguousGlobalInstance("TRestGeant4Metadata");
+Int_t TRestGeant4Track::GetProcessID(const TString& processName, const TRestGeant4Metadata* geant4Metadata) {
     if (geant4Metadata != nullptr) {
         const auto processID = geant4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
         if (processID != Int_t{}) {
@@ -42,6 +41,19 @@ Int_t TRestGeant4Track::GetProcessID(const TString& processName) {
 
     cout << "WARNING : The process " << processName << " was not found" << endl;
     return -1;
+}
+
+TString TRestGeant4Track::GetProcessName(Int_t processID, const TRestGeant4Metadata* geant4Metadata) const {
+    if (geant4Metadata != nullptr) {
+        const auto& processName = geant4Metadata->GetGeant4PhysicsInfo().GetProcessName(processID);
+        if (processName != TString{}) {
+            return processName;
+        }
+    }
+
+    // cout << "WARNING : The process " << processID << " was not found" << endl;
+
+    return "";
 }
 
 EColor TRestGeant4Track::GetParticleColor() const {
@@ -92,20 +104,7 @@ Double_t TRestGeant4Track::GetTrackLength() const {
     return length;
 }
 
-TString TRestGeant4Track::GetProcessName(Int_t processID) const {
-    auto geant4Metadata = TRestGeant4Metadata::GetUnambiguousGlobalInstance("TRestGeant4Metadata");
-    if (geant4Metadata != nullptr) {
-        const auto& processName = geant4Metadata->GetGeant4PhysicsInfo().GetProcessName(processID);
-        if (processName != TString{}) {
-            return processName;
-        }
-    }
-
-    cout << "WARNING : The process " << processID << " was not found" << endl;
-    return "";
-}
-
-void TRestGeant4Track::PrintTrack(int maxHits) const {
+void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4Metadata) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
     cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
@@ -127,14 +126,13 @@ void TRestGeant4Track::PrintTrack(int maxHits) const {
     }
 
     for (int i = 0; i < nHits; i++) {
-        TString processName = GetProcessName(fHits.GetHitProcess(i));
+        TString processName = GetProcessName(fHits.GetHitProcess(i), geant4Metadata);
         if (processName.IsNull()) {
             // in case process name is not found, use ID
             processName = TString(std::to_string(fHits.GetHitProcess(i)));
         }
 
         TString volumeName = "";
-        const auto geant4Metadata = TRestGeant4Metadata::GetUnambiguousGlobalInstance("TRestGeant4Metadata");
         if (geant4Metadata != nullptr) {
             volumeName = geant4Metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
         }
