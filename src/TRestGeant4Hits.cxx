@@ -29,35 +29,6 @@ TRestGeant4Hits::~TRestGeant4Hits() {
     // TRestGeant4Hits destructor
 }
 
-void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
-                               Int_t volume, Double_t eKin, TVector3 momentumDirection) {
-    AddHit(pos, en, hit_global_time);
-
-    fProcessID.Set(fNHits);
-    fProcessID[fNHits - 1] = process;
-
-    fVolumeID.Set(fNHits);
-    fVolumeID[fNHits - 1] = volume;
-
-    fKineticEnergy.Set(fNHits);
-    fKineticEnergy[fNHits - 1] = eKin;
-
-    momentumDirection = momentumDirection.Unit();
-
-    Float_t x = momentumDirection.X();
-    Float_t y = momentumDirection.Y();
-    Float_t z = momentumDirection.Z();
-
-    fMomentumDirectionX.Set(fNHits);
-    fMomentumDirectionX[fNHits - 1] = x;
-
-    fMomentumDirectionY.Set(fNHits);
-    fMomentumDirectionY[fNHits - 1] = y;
-
-    fMomentumDirectionZ.Set(fNHits);
-    fMomentumDirectionZ[fNHits - 1] = z;
-}
-
 void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
@@ -71,9 +42,9 @@ void TRestGeant4Hits::RemoveG4Hits() {
 Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volID) const {
     Double_t en = 0;
 
-    for (int n = 0; n < fNHits; n++)
+    for (int n = 0; n < fNHits; n++) {
         if (fVolumeID[n] == volID) en += GetEnergy(n);
-
+    }
     return en;
 }
 
