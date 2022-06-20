@@ -39,6 +39,8 @@
 #include <utility>
 
 class G4Event;
+class G4Track;
+class G4Step;
 
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
@@ -437,10 +439,18 @@ class TRestGeant4Event : public TRestEvent {
 
     // Constructor
     TRestGeant4Event();
-    TRestGeant4Event(const G4Event*, const TRestGeant4Metadata&);  // Implemented in restG4
     // Destructor
     virtual ~TRestGeant4Event();
 
     ClassDef(TRestGeant4Event, 6);  // REST event superclass
+
+    // restG4
+   public:
+    TRestGeant4Event(const G4Event*, const TRestGeant4Metadata&);  //! // Implemented in restG4
+    bool InsertTrack(const G4Track*);                              //!
+    void UpdateTrack(const G4Track*);                              //!
+    void InsertStep(const G4Step*);                                //!
+
+    friend class OutputManager;
 };
 #endif

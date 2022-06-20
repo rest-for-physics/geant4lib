@@ -25,6 +25,7 @@ ClassImp(TRestGeant4Track);
 
 TRestGeant4Track::TRestGeant4Track() {
     // TRestGeant4Track default constructor
+    Initialize();
 }
 
 TRestGeant4Track::~TRestGeant4Track() {
@@ -107,7 +108,7 @@ Double_t TRestGeant4Track::GetTrackLength() const {
 void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4Metadata) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
+    cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
     cout.precision(5);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
