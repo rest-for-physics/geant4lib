@@ -38,6 +38,8 @@
 #include <map>
 #include <utility>
 
+class G4Event;
+
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
    private:
@@ -435,6 +437,7 @@ class TRestGeant4Event : public TRestEvent {
 
     // Constructor
     TRestGeant4Event();
+    TRestGeant4Event(const G4Event*, const TRestGeant4Metadata&);  // Implemented in restG4
     // Destructor
     virtual ~TRestGeant4Event();
 

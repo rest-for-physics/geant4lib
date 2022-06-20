@@ -388,7 +388,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.
-    inline Double_t GetStorageChance(Int_t n) { return fChance[n]; }
+    inline Double_t GetStorageChance(Int_t n) const { return fChance[n]; }
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
