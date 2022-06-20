@@ -6,6 +6,8 @@
 #include <map>
 #include <vector>
 
+class G4VProcess;
+
 class TRestGeant4PhysicsInfo {
     ClassDef(TRestGeant4PhysicsInfo, 1);
 
@@ -32,5 +34,7 @@ class TRestGeant4PhysicsInfo {
     void Print() const;
     void PrintProcesses() const;
     void PrintParticles() const;
+
+    static Int_t GetProcessIDFromGeant4Process(const G4VProcess*);  // implemented in restG4
 };
 #endif  // REST_TRESTGEANT4PHYSICSINFO_H
