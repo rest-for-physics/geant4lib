@@ -442,15 +442,19 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 6);  // REST event superclass
+    ClassDef(TRestGeant4Event, 7);  // REST event superclass
 
     // restG4
    public:
     TRestGeant4Event(const G4Event*, const TRestGeant4Metadata&);  //! // Implemented in restG4
     bool InsertTrack(const G4Track*);                              //!
     void UpdateTrack(const G4Track*);                              //!
-    void InsertStep(const G4Step*);                                //!
+    void InsertStep(const G4Step*, TRestGeant4Metadata&);          //!
 
     friend class OutputManager;
+
+   private:
+    std::map<int, int> fTrackIDToTrackIndex = {};  //!
+    TRestGeant4Hits fInitialStep;                  //!
 };
 #endif

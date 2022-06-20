@@ -47,6 +47,7 @@ class TRestGeant4Track {
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
+    Double_t fTrackLength;  //!
 
     TRestGeant4Hits fHits;
 
@@ -293,6 +294,7 @@ class TRestGeant4Track {
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(int maxHits = 0, const TRestGeant4Metadata* geant4Metadata = nullptr) const;
 
+    inline void SetHits(const TRestGeant4Hits& hits) { fHits = hits; }
     // Constructor
     TRestGeant4Track();
 
@@ -303,7 +305,9 @@ class TRestGeant4Track {
 
     // restG4
    public:
-    explicit TRestGeant4Track(const G4Track*);  //! // Implemented in restG4
+    explicit TRestGeant4Track(const G4Track*);             //!
+    void UpdateTrack(const G4Track*);                      //!
+    void InsertStep(const G4Step*, TRestGeant4Metadata&);  //!
 };
 
 #endif

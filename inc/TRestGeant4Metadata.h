@@ -430,5 +430,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;
     friend class DetectorConstruction;
+    friend class TRestGeant4Hits;
 };
 #endif  // RestCore_TRestGeant4Metadata

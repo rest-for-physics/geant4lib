@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "TObject.h"
+#include "TRestGeant4Metadata.h"
 
 class G4Step;
 
@@ -69,6 +70,6 @@ class TRestGeant4Hits : public TRestHits {
 
     // restG4
    public:
-    void InsertStep(const G4Step*);
+    void InsertStep(const G4Step*, TRestGeant4Metadata&);
 };
 #endif
