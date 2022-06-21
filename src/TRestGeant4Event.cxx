@@ -120,16 +120,6 @@ void TRestGeant4Event::AddTrack(TRestGeant4Track track) {
 }
 */
 
-Double_t TRestGeant4Event::GetTotalDepositedEnergyFromTracks() const {
-    Double_t eDep = 0;
-
-    for (int tk = 0; tk < GetNumberOfTracks(); tk++) {
-        eDep += GetTrack(tk).GetTotalDepositedEnergy();
-    }
-
-    return eDep;
-}
-
 TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) const {
     TVector3 pos;
     Double_t eDep = 0;
@@ -1120,7 +1110,9 @@ void TRestGeant4Event::PrintActiveVolumes() const {
             cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has not been stored" << endl;
     }
 }
-void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
+
+void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits,
+                                  const TRestGeant4Metadata* geant4Metadata) const {
     TRestEvent::PrintEvent();
 
     cout.precision(4);
@@ -1161,7 +1153,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
         cout << " Printing only the first " << ntracks << " tracks" << endl;
     }
 
-    for (int n = 0; n < ntracks; n++) GetTrack(n).PrintTrack(maxHits);
+    for (int n = 0; n < ntracks; n++) GetTrack(n).PrintTrack(maxHits, geant4Metadata);
 }
 
 void TRestGeant4Event::InitializePerProcessEnergyInSensitive() {

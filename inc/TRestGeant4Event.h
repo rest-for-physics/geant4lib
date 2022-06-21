@@ -57,6 +57,8 @@ class TRestGeant4Event : public TRestEvent {
     Bool_t PerProcessEnergyInitFlag = false;
     std::map<std::string, Double_t> PerProcessEnergyInSensitive;
 
+    std::map<std::string, std::map<std::string, Double_t>> fEnergyInVolumePerProcess;
+
     // TODO: review this method
     void InitializePerProcessEnergyInSensitive();
 
@@ -158,7 +160,6 @@ class TRestGeant4Event : public TRestEvent {
     inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
     inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
-    Double_t GetTotalDepositedEnergyFromTracks() const;
     inline Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }
     inline Double_t GetSensitiveVolumeEnergy() const { return fSensitiveVolumeEnergy; }
     TVector3 GetMeanPositionInVolume(Int_t volID) const;
@@ -171,6 +172,10 @@ class TRestGeant4Event : public TRestEvent {
 
     Int_t GetNumberOfTracksForParticle(const TString& parName) const;
     Int_t GetEnergyDepositedByParticle(const TString& parName) const;
+
+    const std::map<std::string, std::map<std::string, Double_t>> GetEnergyInVolumePerProcess() const {
+        return fEnergyInVolumePerProcess;
+    }
 
     inline Double_t GetEnergyInSensitiveFromProcessPhoto() {
         if (!PerProcessEnergyInitFlag) {
@@ -432,7 +437,11 @@ class TRestGeant4Event : public TRestEvent {
 
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;
-    void PrintEvent(int maxTracks = 0, int maxHits = 0) const;
+    void PrintEvent(int maxTracks = 0, int maxHits = 0,
+                    const TRestGeant4Metadata* geant4Metadata = nullptr) const;
+    inline void PrintEvent(const TRestGeant4Metadata* geant4Metadata) const {
+        PrintEvent(0, 0, geant4Metadata);
+    }
 
     inline TPad* DrawEvent(const TString& option = "") { return DrawEvent(option, true); }
     TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);
