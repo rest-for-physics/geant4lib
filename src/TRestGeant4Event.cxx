@@ -47,7 +47,6 @@ void TRestGeant4Event::Initialize() {
     fPrimaryEventOrigin.SetXYZ(0, 0, 0);
 
     fTrack.clear();
-    fNTracks = 0;
 
     // ClearVolumes();
     fXZHitGraph = nullptr;
@@ -112,12 +111,11 @@ void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
     if (fMaxSubEventID < id) fMaxSubEventID = id;
 }
 
-void TRestGeant4Event::AddTrack(TRestGeant4Track trk) {
-    fTrack.push_back(trk);
-    fNTracks = fTrack.size();
-    fTotalDepositedEnergy += trk.GetTotalDepositedEnergy();
+void TRestGeant4Event::AddTrack(TRestGeant4Track track) {
+    fTrack.push_back(track);
+    fTotalDepositedEnergy += track.GetTotalDepositedEnergy();
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        fVolumeDepositedEnergy[n] += trk.GetEnergyInVolume(n);
+        fVolumeDepositedEnergy[n] += track.GetEnergyInVolume(n);
 }
 
 Double_t TRestGeant4Event::GetTotalDepositedEnergyFromTracks() const {
@@ -215,7 +213,7 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
 }
 
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
-    for (int i = 0; i < fNTracks; i++)
+    for (int i = 0; i < GetNumberOfTracks(); i++)
         if (fTrack[i].GetTrackID() == id) return &fTrack[i];
     return nullptr;
 }
@@ -227,7 +225,7 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
 ///
 Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
     Int_t hits = 0;
-    for (int i = 0; i < fNTracks; i++) {
+    for (int i = 0; i < GetNumberOfTracks(); i++) {
         hits += GetTrack(i).GetNumberOfHits(volID);
     }
     return hits;
@@ -240,7 +238,7 @@ Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
 ///
 TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     TRestHits hits;
-    for (int t = 0; t < fNTracks; t++) {
+    for (int t = 0; t < GetNumberOfTracks(); t++) {
         const auto& g4Hits = GetTrack(t).GetHits();
         for (int n = 0; n < g4Hits.GetNumberOfHits(); n++) {
             if (volID != -1 && g4Hits.GetVolumeId(n) != volID) continue;
@@ -1153,11 +1151,11 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     cout << "--------------------------------------------------------------------"
             "-------"
          << endl;
-    cout << "Total number of tracks : " << fNTracks << endl;
+    cout << "Total number of tracks : " << GetNumberOfTracks() << endl;
 
     int ntracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        ntracks = min(maxTracks, GetNumberOfTracks());
+        ntracks = min(maxTracks, int(GetNumberOfTracks()));
         cout << " Printing only the first " << ntracks << " tracks" << endl;
     }
 

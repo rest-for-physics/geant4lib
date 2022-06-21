@@ -125,7 +125,6 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
 
-    Int_t fNTracks;
     std::vector<TRestGeant4Track> fTrack;
 
     Int_t fMaxSubEventID;
@@ -147,7 +146,7 @@ class TRestGeant4Event : public TRestEvent {
     Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
 
     Int_t GetNumberOfHits(Int_t volID = -1) const;
-    inline Int_t GetNumberOfTracks() const { return fNTracks; }
+    inline size_t GetNumberOfTracks() const { return fTrack.size(); }
     inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
@@ -251,11 +250,11 @@ class TRestGeant4Event : public TRestEvent {
 
     inline Int_t GetLowestTrackID() const {
         Int_t lowestID = 0;
-        if (fNTracks > 0) {
+        if (GetNumberOfTracks() > 0) {
             lowestID = GetTrack(0).GetTrackID();
         }
 
-        for (int i = 0; i < fNTracks; i++) {
+        for (int i = 0; i < GetNumberOfTracks(); i++) {
             auto tr = GetTrack(i);
             if (tr.GetTrackID() < lowestID) lowestID = tr.GetTrackID();
         }
