@@ -111,12 +111,14 @@ void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
     if (fMaxSubEventID < id) fMaxSubEventID = id;
 }
 
+/*
 void TRestGeant4Event::AddTrack(TRestGeant4Track track) {
     fTrack.push_back(track);
     fTotalDepositedEnergy += track.GetTotalDepositedEnergy();
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
         fVolumeDepositedEnergy[n] += track.GetEnergyInVolume(n);
 }
+*/
 
 Double_t TRestGeant4Event::GetTotalDepositedEnergyFromTracks() const {
     Double_t eDep = 0;
@@ -223,12 +225,12 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
 /// a specific volume is given as argument only the hits of that specific volume
 /// will be counted.
 ///
-Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
-    Int_t hits = 0;
-    for (int i = 0; i < GetNumberOfTracks(); i++) {
-        hits += GetTrack(i).GetNumberOfHits(volID);
+size_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (const auto& track : fTrack) {
+        numberOfHits += track.GetNumberOfHits(volID);
     }
-    return hits;
+    return numberOfHits;
 }
 
 ///////////////////////////////////////////////

@@ -124,6 +124,7 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<Int_t> fVolumeStored;
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
+    std::map<std::string, double> fEnergyInVolumeMap;
 
     std::vector<TRestGeant4Track> fTrack;
 
@@ -145,7 +146,7 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetPrimaryEventOrigin() const { return fPrimaryEventOrigin; }
     Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
 
-    Int_t GetNumberOfHits(Int_t volID = -1) const;
+    size_t GetNumberOfHits(Int_t volID = -1) const;
     inline size_t GetNumberOfTracks() const { return fTrack.size(); }
     inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }

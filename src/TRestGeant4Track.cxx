@@ -83,13 +83,15 @@ EColor TRestGeant4Track::GetParticleColor() const {
 /// the TRestGeant4Track. If a specific volume id is given as argument only
 /// the hits of that specific volume will be counted.
 ///
-Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
-    Int_t hits = 0;
+size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
+    size_t numberOfHits = 0;
     for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
-        if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
-        hits++;
+        if (volID != -1 && fHits.GetVolumeId(n) != volID) {
+            continue;
+        }
+        numberOfHits++;
     }
-    return hits;
+    return numberOfHits;
 }
 
 Double_t TRestGeant4Track::GetTrackLength() const {
@@ -122,7 +124,7 @@ void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4
 
     int nHits = GetNumberOfHits();
     if (maxHits > 0) {
-        nHits = min(maxHits, GetNumberOfHits());
+        nHits = min(maxHits, int(GetNumberOfHits()));
         cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 

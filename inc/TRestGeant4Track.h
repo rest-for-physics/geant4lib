@@ -65,7 +65,7 @@ class TRestGeant4Track {
 
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 
-    Int_t GetNumberOfHits(Int_t volID = -1) const;
+    size_t GetNumberOfHits(Int_t volID = -1) const;
     inline Int_t GetTrackID() const { return fTrackID; }
     inline Int_t GetParentID() const { return fParentID; }
 
