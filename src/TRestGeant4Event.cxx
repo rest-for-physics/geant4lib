@@ -1223,3 +1223,11 @@ void TRestGeant4Event::InitializePerProcessEnergyInSensitive() {
         }
     }
 }
+
+set<string> TRestGeant4Event::GetUniqueParticles() const {
+    set<string> result;
+    for (const auto& track : fTrack) {
+        result.insert(track.GetParticleName().Data());
+    }
+    return result;
+}

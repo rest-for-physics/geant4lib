@@ -238,7 +238,6 @@ class TRestGeant4Event : public TRestEvent {
         return PerProcessEnergyInSensitive["neutron_elastic"];
     }
 
-    inline void SetPrimaryEventOrigin(const TVector3& pos) { fPrimaryEventOrigin = pos; }
     inline void SetPrimaryEventDirection(const TVector3& dir) { fPrimaryEventDirection.push_back(dir); }
     inline void SetPrimaryEventParticleName(const TString& pName) { fPrimaryParticleName.push_back(pName); }
     inline void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
@@ -270,6 +269,8 @@ class TRestGeant4Event : public TRestEvent {
 
     void SetTrackSubEventID(Int_t n, Int_t id);
     void AddTrack(TRestGeant4Track trk);
+
+    std::set<std::string> GetUniqueParticles() const;
 
     inline Bool_t isRadiactiveDecay() const {
         for (int n = 0; n < GetNumberOfTracks(); n++)
