@@ -24,16 +24,15 @@
 
 #include <iostream>
 
-#include "TObject.h"
 #include "TRestGeant4Metadata.h"
 
 class G4Step;
 
 class TRestGeant4Hits : public TRestHits {
    protected:
-    TArrayI fVolumeID;
-    TArrayI fProcessID;      // [fNHits]
-    TArrayF fKineticEnergy;  // [fNHits]
+    std::vector<Int_t> fProcessID;
+    std::vector<Int_t> fVolumeID;
+    std::vector<Float_t> fKineticEnergy;
 
    public:
     TArrayF fMomentumDirectionX;
@@ -64,7 +63,7 @@ class TRestGeant4Hits : public TRestHits {
     // Destructor
     virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestGeant4Hits, 6);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 7);  // REST event superclass
 
     // restG4
    public:

@@ -184,6 +184,12 @@ TString TRestGeant4GeometryInfo::GetVolumeFromID(Int_t id) const {
 }
 
 Int_t TRestGeant4GeometryInfo::GetIDFromVolume(const TString& volumeName) const {
+    if (fVolumeNameReverseMap.count(volumeName) == 0) {
+        // if we do not find the volume we return -1 instead of default (which is 0 and may be confusing)
+        cout << "TRestGeant4GeometryInfo::GetIDFromVolume - volume '" << volumeName << "' not found in store!"
+             << endl;
+        return -1;
+    }
     return GetOrDefaultMapValueFromKey<TString, Int_t>(&fVolumeNameReverseMap, volumeName);
 }
 
@@ -201,6 +207,7 @@ void TRestGeant4GeometryInfo::Print() const {
         auto newName = GetAlternativeNameFromGeant4PhysicalName(physical);
         const auto logical = fPhysicalToLogicalVolumeMap.at(physical);
         cout << "\t- " << (newName == physical ? physical : newName + " (" + physical + ")")
+             << " - ID: " << GetIDFromVolume(physical)
              << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
              << " - Material: " << fLogicalToMaterialMap.at(logical) << endl;
     }

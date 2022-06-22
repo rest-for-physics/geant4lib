@@ -32,11 +32,9 @@ TRestGeant4Hits::~TRestGeant4Hits() {
 void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
-    fProcessID.Set(0);
-
-    fVolumeID.Set(0);
-
-    fKineticEnergy.Set(0);
+    fProcessID.clear();
+    fVolumeID.clear();
+    fKineticEnergy.clear();
 }
 
 Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volID) const {
