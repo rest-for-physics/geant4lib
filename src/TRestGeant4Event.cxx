@@ -224,6 +224,19 @@ size_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
 }
 
 ///////////////////////////////////////////////
+/// \brief Function that returns the total number of hits with energy > 0 in the Geant4 event. If
+/// a specific volume is given as argument only the hits of that specific volume
+/// will be counted.
+///
+size_t TRestGeant4Event::GetNumberOfPhysicalHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (const auto& track : fTrack) {
+        numberOfHits += track.GetNumberOfPhysicalHits(volID);
+    }
+    return numberOfHits;
+}
+
+///////////////////////////////////////////////
 /// \brief Function that returns all the hit depositions in the Geant4 event. If
 /// a specific volume is given as argument only the hits of that specific volume
 /// will be added to the TRestHits returned object.

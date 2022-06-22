@@ -94,6 +94,25 @@ size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
     return numberOfHits;
 }
 
+///////////////////////////////////////////////
+/// \brief Function that returns the number of hit depositions found inside
+/// the TRestGeant4Track with energy > 0. If a specific volume id is given as argument only
+/// the hits of that specific volume will be counted.
+///
+size_t TRestGeant4Track::GetNumberOfPhysicalHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+        if (volID != -1 && fHits.GetVolumeId(n) != volID) {
+            continue;
+        }
+        if (fHits.GetEnergy(n) <= 0) {
+            continue;
+        }
+        numberOfHits++;
+    }
+    return numberOfHits;
+}
+
 Double_t TRestGeant4Track::GetTrackLength() const {
     Double_t length = 0;
 

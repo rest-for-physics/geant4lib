@@ -149,6 +149,8 @@ class TRestGeant4Event : public TRestEvent {
     Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
+    size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
+
     inline size_t GetNumberOfTracks() const { return fTrack.size(); }
     inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
