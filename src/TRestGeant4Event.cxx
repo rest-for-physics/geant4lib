@@ -18,10 +18,11 @@
 #include "TRestGeant4Event.h"
 
 #include <TFrame.h>
+#include <TRestGeant4Metadata.h>
+#include <TRestRun.h>
+#include <TRestStringHelper.h>
+#include <TRestTools.h>
 #include <TStyle.h>
-
-#include "TRestStringHelper.h"
-#include "TRestTools.h"
 
 using namespace std;
 
@@ -1120,7 +1121,14 @@ void TRestGeant4Event::PrintActiveVolumes() const {
             cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has not been stored" << endl;
     }
 }
+
 void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
+    // Try to get TRestGeant4Metadata instance injected from TRestRun::GetEntry
+    TRestGeant4Metadata* metadata = nullptr;
+    if (fRun != nullptr) {
+        metadata = dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass("TRestGeant4Metadata"));
+    }
+
     TRestEvent::PrintEvent();
 
     cout.precision(4);
@@ -1150,18 +1158,18 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
                  << " has not been stored" << endl;
     }
 
-    cout << "--------------------------------------------------------------------"
-            "-------"
-         << endl;
+    cout << "---------------------------------------------------------------------------" << endl;
     cout << "Total number of tracks : " << fNTracks << endl;
 
-    int ntracks = GetNumberOfTracks();
+    int nTracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        ntracks = min(maxTracks, GetNumberOfTracks());
-        cout << " Printing only the first " << ntracks << " tracks" << endl;
+        nTracks = min(maxTracks, GetNumberOfTracks());
+        cout << " Printing only the first " << nTracks << " tracks" << endl;
     }
 
-    for (int n = 0; n < ntracks; n++) GetTrack(n).PrintTrack(maxHits);
+    for (int n = 0; n < nTracks; n++) {
+        GetTrack(n).PrintTrack(maxHits, metadata);
+    }
 }
 
 void TRestGeant4Event::InitializePerProcessEnergyInSensitive() {
