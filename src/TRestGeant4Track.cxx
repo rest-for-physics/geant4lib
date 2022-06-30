@@ -82,8 +82,8 @@ EColor TRestGeant4Track::GetParticleColor() const {
 /// the TRestGeant4Track. If a specific volume id is given as argument only
 /// the hits of that specific volume will be counted.
 ///
-Int_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
-    Int_t hits = 0;
+size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
+    size_t hits = 0;
     for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
         if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
         hits++;
@@ -104,7 +104,7 @@ Double_t TRestGeant4Track::GetTrackLength() const {
     return length;
 }
 
-void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4Metadata) const {
+void TRestGeant4Track::PrintTrack(size_t maxHits, const TRestGeant4Metadata* geant4Metadata) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
     cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
@@ -149,4 +149,12 @@ void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4
     }
     cout << endl;
     cout.precision(2);
+}
+
+Bool_t TRestGeant4Track::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (fHits.GetHitProcess(i) != processID) continue;
+        if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
+    }
+    return false;
 }

@@ -52,11 +52,13 @@ class TRestGeant4Hits : public TRestHits {
     Int_t GetVolumeId(int n) const { return fVolumeID[n]; }
     Double_t GetKineticEnergy(int n) const { return fKineticEnergy[n]; }
 
-    Double_t GetEnergyInVolume(Int_t volID) const;
+    Double_t GetEnergyInVolume(Int_t volumeID) const;
 
-    TVector3 GetMeanPositionInVolume(Int_t volID) const;
-    TVector3 GetFirstPositionInVolume(Int_t volID) const;
-    TVector3 GetLastPositionInVolume(Int_t volID) const;
+    TVector3 GetMeanPositionInVolume(Int_t volumeID) const;
+    TVector3 GetFirstPositionInVolume(Int_t volumeID) const;
+    TVector3 GetLastPositionInVolume(Int_t volumeID) const;
+
+    size_t GetNumberOfHitsInVolume(Int_t volumeID) const;
 
     // Constructor
     TRestGeant4Hits();
