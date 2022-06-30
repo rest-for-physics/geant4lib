@@ -50,12 +50,6 @@ class TRestGeant4Event : public TRestEvent {
 
     void AddEnergyDepositToVolume(Int_t volID, Double_t eDep);
 
-    Bool_t PerProcessEnergyInitFlag = false;
-    std::map<std::string, Double_t> PerProcessEnergyInSensitive;
-
-    // TODO: review this method
-    void InitializePerProcessEnergyInSensitive();
-
    protected:
 #ifndef __CINT__
 
@@ -167,67 +161,6 @@ class TRestGeant4Event : public TRestEvent {
 
     Int_t GetNumberOfTracksForParticle(const TString& parName) const;
     Int_t GetEnergyDepositedByParticle(const TString& parName) const;
-
-    inline Double_t GetEnergyInSensitiveFromProcessPhoto() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["photoelectric"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessCompton() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["compton"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessEIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["electron_ionization"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessIonIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["ion_ionization"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessAlphaIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["alpha_ionization"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessMsc() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["msc"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessHadronIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["hadronic_ionization"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessProtonIoni() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["proton_ionization"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessHadronElastic() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["hadronic_elastic"];
-    }
-    inline Double_t GetEnergyInSensitiveFromProcessNeutronElastic() {
-        if (!PerProcessEnergyInitFlag) {
-            InitializePerProcessEnergyInSensitive();
-        }
-        return PerProcessEnergyInSensitive["neutron_elastic"];
-    }
 
     inline void SetPrimaryEventOrigin(const TVector3& pos) { fPrimaryEventOrigin = pos; }
     inline void SetPrimaryEventDirection(const TVector3& dir) { fPrimaryEventDirection.push_back(dir); }

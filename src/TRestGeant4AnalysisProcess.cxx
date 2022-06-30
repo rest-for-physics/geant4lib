@@ -492,29 +492,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     if (fOutputG4Event->isphotonNuclear()) phoNucl = 1;
     SetObservableValue((string) "photonNuclear", phoNucl);
 
-    // per process energy
-    if (fPerProcessSensitiveEnergy) {
-        SetObservableValue((string) "PerProcessPhotoelectric",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessPhoto());
-        SetObservableValue((string) "PerProcessCompton",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessCompton());
-        SetObservableValue((string) "PerProcessElectronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessEIoni());
-        SetObservableValue((string) "PerProcessIonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessIonIoni());
-        SetObservableValue((string) "PerProcessAlphaIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessAlphaIoni());
-        SetObservableValue((string) "PerProcessHadronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronIoni());
-        SetObservableValue((string) "PerProcessProtonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessProtonIoni());
-        SetObservableValue((string) "PerProcessMsc", fOutputG4Event->GetEnergyInSensitiveFromProcessMsc());
-        SetObservableValue((string) "PerProcessHadronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronElastic());
-        SetObservableValue((string) "PerProcessNeutronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessNeutronElastic());
-    }
-
     for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
         string obsName = fProcessObservables[n];
         TString processName = fProcessName[n];
