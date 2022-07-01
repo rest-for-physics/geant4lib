@@ -426,6 +426,8 @@ class TRestGeant4Event : public TRestEvent {
 
     void Initialize();
 
+    void InitializeReferences(TRestRun* run) override;
+
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;
     void PrintEvent(int maxTracks = 0, int maxHits = 0) const;

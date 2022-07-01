@@ -1231,3 +1231,10 @@ void TRestGeant4Event::InitializePerProcessEnergyInSensitive() {
         }
     }
 }
+
+void TRestGeant4Event::InitializeReferences(TRestRun* run) {
+    TRestEvent::InitializeReferences(run);
+    for (auto& track : fTrack) {
+        track.SetEvent(this);
+    }
+}

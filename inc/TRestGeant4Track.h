@@ -27,8 +27,9 @@
 
 #include "TObject.h"
 
-// Perhaps there might be need for a mother class TRestTrack (if there is future
-// need)
+class TRestGeant4Event;
+
+// Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
     Int_t fTrack_ID;
@@ -48,6 +49,8 @@ class TRestGeant4Track : public TObject {
 
     TVector3 fTrackOrigin;
 
+    TRestGeant4Event* fEvent = nullptr;  //!
+
    public:
     inline void Initialize() {
         RemoveHits();
@@ -55,6 +58,9 @@ class TRestGeant4Track : public TObject {
     }
 
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
+
+    inline const TRestGeant4Event* GetEvent() const { return fEvent; }
+    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
 
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 
@@ -113,10 +119,15 @@ class TRestGeant4Track : public TObject {
     TString GetProcessName(Int_t id) const;
 
     inline Bool_t isRadiactiveDecay() const {
-        for (int n = 0; n < fHits.GetNumberOfHits(); n++)
-            if (fHits.GetHitProcess(n) == 11||fHits.GetHitProcess(n) == 13||fHits.GetHitProcess(n) == 14)return true;
+        for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+            if (fHits.GetHitProcess(n) == 11 || fHits.GetHitProcess(n) == 13 ||
+                fHits.GetHitProcess(n) == 14) {
+                return true;
+            }
+        }
         return false;
     }
+
     inline Bool_t isPhotoElectric() const {
         for (int n = 0; n < fHits.GetNumberOfHits(); n++)
             if (fHits.GetHitProcess(n) == 3) return true;
