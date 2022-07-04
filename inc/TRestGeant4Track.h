@@ -32,10 +32,10 @@ class TRestGeant4Metadata;
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track {
    protected:
-    Int_t fTrack_ID;
-    Int_t fParent_ID;
+    Int_t fTrackID;
+    Int_t fParentID;
 
-    Int_t fSubEventId;
+    Int_t fSubEventID = 0;
 
     // We must change this to save space! (Might be not needed after all)
     TString fParticleName;
@@ -51,9 +51,8 @@ class TRestGeant4Track {
     TRestGeant4Event* fEvent = nullptr;  //!
 
    public:
-    inline void Initialize() {
-        RemoveHits();
-        fSubEventId = 0.;
+    [[deprecated("This method is no longer necessary, remove it wherever found")]] inline void
+    Initialize() { /* Does nothing, to be removed in the future */
     }
 
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
@@ -64,8 +63,8 @@ class TRestGeant4Track {
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
-    inline Int_t GetTrackID() const { return fTrack_ID; }
-    inline Int_t GetParentID() const { return fParent_ID; }
+    inline Int_t GetTrackID() const { return fTrackID; }
+    inline Int_t GetParentID() const { return fParentID; }
 
     inline TString GetParticleName() const { return fParticleName; }
     EColor GetParticleColor() const;
@@ -75,7 +74,7 @@ class TRestGeant4Track {
     inline Double_t GetKineticEnergy() const { return fKineticEnergy; }
     inline Double_t GetTotalDepositedEnergy() const { return fHits.GetTotalDepositedEnergy(); }
     inline TVector3 GetTrackOrigin() const { return fTrackOrigin; }
-    inline Int_t GetSubEventID() const { return fSubEventId; }
+    inline Int_t GetSubEventID() const { return fSubEventID; }
 
     inline Double_t GetEnergyInVolume(Int_t volID) const { return fHits.GetEnergyInVolume(volID); }
     inline TVector3 GetMeanPositionInVolume(Int_t volID) const {
@@ -88,9 +87,9 @@ class TRestGeant4Track {
         return fHits.GetLastPositionInVolume(volID);
     }
 
-    void SetSubEventID(Int_t id) { fSubEventId = id; }
-    void SetTrackID(Int_t id) { fTrack_ID = id; }
-    void SetParentID(Int_t id) { fParent_ID = id; }
+    void SetSubEventID(Int_t id) { fSubEventID = id; }
+    void SetTrackID(Int_t id) { fTrackID = id; }
+    void SetParentID(Int_t id) { fParentID = id; }
     //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
     void SetParticleName(const TString& particleName) { fParticleName = particleName; }
     void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
@@ -134,7 +133,7 @@ class TRestGeant4Track {
     // Destructor
     virtual ~TRestGeant4Track();
 
-    ClassDef(TRestGeant4Track, 3);  // REST event superclass
+    ClassDef(TRestGeant4Track, 4);  // REST event superclass
 };
 
 #endif
