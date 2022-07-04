@@ -24,8 +24,6 @@
 
 #include <iostream>
 
-#include "TObject.h"
-
 class TRestGeant4Hits : public TRestHits {
    protected:
     TArrayI fVolumeID;

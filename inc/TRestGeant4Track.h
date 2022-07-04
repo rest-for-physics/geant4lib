@@ -18,20 +18,19 @@
 
 #include <TArrayI.h>
 #include <TColor.h>
-#include <TRestGeant4Hits.h>
 #include <TString.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <vector>
 
-#include "TObject.h"
+#include "TRestGeant4Hits.h"
 
 class TRestGeant4Event;
 class TRestGeant4Metadata;
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
-class TRestGeant4Track : public TObject {
+class TRestGeant4Track {
    protected:
     Int_t fTrack_ID;
     Int_t fParent_ID;
