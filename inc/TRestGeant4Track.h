@@ -28,6 +28,7 @@
 #include "TObject.h"
 
 class TRestGeant4Event;
+class TRestGeant4Metadata;
 
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
@@ -113,14 +114,16 @@ class TRestGeant4Track : public TObject {
 
     inline void RemoveHits() { fHits.RemoveHits(); }
 
-    Int_t GetProcessID(const TString& processName, const TRestGeant4Metadata* geant4Metadata = nullptr);
-    TString GetProcessName(Int_t id, const TRestGeant4Metadata* geant4Metadata = nullptr) const;
+    const TRestGeant4Metadata* GetGeant4Metadata() const;
+
+    Int_t GetProcessID(const TString& processName) const;
+    TString GetProcessName(Int_t id) const;
 
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
 
     /// Prints the track information. N number of hits to print, 0 = all
-    void PrintTrack(size_t maxHits = 0, const TRestGeant4Metadata* geant4Metadata = nullptr) const;
+    void PrintTrack(size_t maxHits = 0) const;
 
     // Constructor
     TRestGeant4Track();

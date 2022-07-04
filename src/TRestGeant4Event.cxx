@@ -1124,12 +1124,6 @@ void TRestGeant4Event::PrintActiveVolumes() const {
 }
 
 void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
-    // Try to get TRestGeant4Metadata instance injected from TRestRun::GetEntry
-    TRestGeant4Metadata* metadata = nullptr;
-    if (fRun != nullptr) {
-        metadata = dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass("TRestGeant4Metadata"));
-    }
-
     TRestEvent::PrintEvent();
 
     cout.precision(4);
@@ -1169,7 +1163,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     }
 
     for (int n = 0; n < nTracks; n++) {
-        GetTrack(n).PrintTrack(maxHits, metadata);
+        GetTrack(n).PrintTrack(maxHits);
     }
 }
 
