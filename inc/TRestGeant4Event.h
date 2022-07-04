@@ -38,6 +38,8 @@
 #include <map>
 #include <utility>
 
+class TRestGeant4Metadata;
+
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
    private:
@@ -202,6 +204,10 @@ class TRestGeant4Event : public TRestEvent {
     Bool_t ContainsParticleInVolume(const TString& particleName, Int_t volumeID = -1) const;
 
     void Initialize();
+
+    void InitializeReferences(TRestRun* run) override;
+
+    const TRestGeant4Metadata* GetGeant4Metadata(const char* name = "TRestGeant4Metadata") const;
 
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;

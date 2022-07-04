@@ -18,11 +18,12 @@
 #include "TRestGeant4Event.h"
 
 #include <TFrame.h>
-#include <TRestGeant4Metadata.h>
 #include <TRestRun.h>
 #include <TRestStringHelper.h>
 #include <TRestTools.h>
 #include <TStyle.h>
+
+#include "TRestGeant4Metadata.h"
 
 using namespace std;
 
@@ -1200,4 +1201,19 @@ Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, I
         }
     }
     return false;
+}
+
+const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata(const char* name) const {
+    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass(name));
+}
+
+void TRestGeant4Event::InitializeReferences(TRestRun* run) {
+    TRestEvent::InitializeReferences(run);
+    /*
+    This introduces overhead to event loading, but hopefully its small enough.
+    If this is a problem, we could rework this approach
+     */
+    for (auto& track : fTrack) {
+        track.SetEvent(this);
+    }
 }

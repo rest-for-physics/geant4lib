@@ -27,7 +27,8 @@
 
 #include "TObject.h"
 
-class TRestGeant4Metadata;
+class TRestGeant4Event;
+
 // Perhaps there might be need for a mother class TRestTrack (if there is future need)
 class TRestGeant4Track : public TObject {
    protected:
@@ -47,6 +48,8 @@ class TRestGeant4Track : public TObject {
 
     TVector3 fTrackOrigin;
 
+    TRestGeant4Event* fEvent = nullptr;  //!
+
    public:
     inline void Initialize() {
         RemoveHits();
@@ -54,6 +57,9 @@ class TRestGeant4Track : public TObject {
     }
 
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
+
+    inline const TRestGeant4Event* GetEvent() const { return fEvent; }
+    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
 
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 
