@@ -40,7 +40,7 @@
 
 class TRestGeant4Metadata;
 
-/// An event class to store geant4 generated event information
+/// An event class to store Geant4 generated event information
 class TRestGeant4Event : public TRestEvent {
    private:
 #ifndef __CINT__
@@ -117,8 +117,7 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
 
-    Int_t fNTracks;
-    std::vector<TRestGeant4Track> fTrack;
+    std::vector<TRestGeant4Track> fTracks;
 
     Int_t fMaxSubEventID;
 
@@ -139,13 +138,13 @@ class TRestGeant4Event : public TRestEvent {
     Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
 
     Int_t GetNumberOfHits(Int_t volID = -1) const;
-    inline Int_t GetNumberOfTracks() const { return fNTracks; }
+    inline size_t GetNumberOfTracks() const { return fTracks.size(); }
     inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
     inline Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
-    inline const TRestGeant4Track& GetTrack(int n) const { return fTrack[n]; }
-    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTrack[n]; }
+    inline const TRestGeant4Track& GetTrack(int n) const { return fTracks[n]; }
+    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTracks[n]; }
     TRestGeant4Track* GetTrackByID(int id);
     inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
@@ -182,11 +181,11 @@ class TRestGeant4Event : public TRestEvent {
 
     inline Int_t GetLowestTrackID() const {
         Int_t lowestID = 0;
-        if (fNTracks > 0) {
+        if (GetNumberOfTracks() > 0) {
             lowestID = GetTrack(0).GetTrackID();
         }
 
-        for (int i = 0; i < fNTracks; i++) {
+        for (int i = 0; i < GetNumberOfTracks(); i++) {
             auto tr = GetTrack(i);
             if (tr.GetTrackID() < lowestID) lowestID = tr.GetTrackID();
         }
@@ -226,6 +225,6 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 7);  // REST event superclass
+    ClassDef(TRestGeant4Event, 8);  // REST event superclass
 };
 #endif

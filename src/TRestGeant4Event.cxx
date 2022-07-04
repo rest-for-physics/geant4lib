@@ -48,8 +48,7 @@ void TRestGeant4Event::Initialize() {
     fPrimaryEventEnergy.clear();
     fPrimaryEventOrigin.SetXYZ(0, 0, 0);
 
-    fTrack.clear();
-    fNTracks = 0;
+    fTracks.clear();
 
     // ClearVolumes();
     fXZHitGraph = nullptr;
@@ -110,13 +109,12 @@ void TRestGeant4Event::AddEnergyDepositToVolume(Int_t volID, Double_t eDep) {
 }
 
 void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
-    fTrack[n].SetSubEventID(id);
+    fTracks[n].SetSubEventID(id);
     if (fMaxSubEventID < id) fMaxSubEventID = id;
 }
 
 void TRestGeant4Event::AddTrack(TRestGeant4Track trk) {
-    fTrack.push_back(trk);
-    fNTracks = fTrack.size();
+    fTracks.push_back(trk);
     fTotalDepositedEnergy += trk.GetTotalDepositedEnergy();
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
         fVolumeDepositedEnergy[n] += trk.GetEnergyInVolume(n);
@@ -217,8 +215,8 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
 }
 
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
-    for (int i = 0; i < fNTracks; i++)
-        if (fTrack[i].GetTrackID() == id) return &fTrack[i];
+    for (int i = 0; i < GetNumberOfTracks(); i++)
+        if (fTracks[i].GetTrackID() == id) return &fTracks[i];
     return nullptr;
 }
 
@@ -229,7 +227,7 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
 ///
 Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
     Int_t hits = 0;
-    for (int i = 0; i < fNTracks; i++) {
+    for (int i = 0; i < GetNumberOfTracks(); i++) {
         hits += GetTrack(i).GetNumberOfHits(volID);
     }
     return hits;
@@ -242,7 +240,7 @@ Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
 ///
 TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     TRestHits hits;
-    for (int t = 0; t < fNTracks; t++) {
+    for (int t = 0; t < GetNumberOfTracks(); t++) {
         const auto& g4Hits = GetTrack(t).GetHits();
         for (int n = 0; n < g4Hits.GetNumberOfHits(); n++) {
             if (volID != -1 && g4Hits.GetVolumeId(n) != volID) continue;
@@ -1154,11 +1152,11 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     }
 
     cout << "---------------------------------------------------------------------------" << endl;
-    cout << "Total number of tracks : " << fNTracks << endl;
+    cout << "Total number of tracks : " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        nTracks = min(maxTracks, GetNumberOfTracks());
+        nTracks = min(maxTracks, int(GetNumberOfTracks()));
         cout << " Printing only the first " << nTracks << " tracks" << endl;
     }
 
@@ -1168,7 +1166,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
 }
 
 Bool_t TRestGeant4Event::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.ContainsProcessInVolume(processID, volumeID)) {
             return true;
         }
@@ -1182,7 +1180,7 @@ Bool_t TRestGeant4Event::ContainsProcessInVolume(const TString& processName, Int
         return false;
     }
     const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.ContainsProcessInVolume(processID, volumeID)) {
             return true;
         }
@@ -1191,7 +1189,7 @@ Bool_t TRestGeant4Event::ContainsProcessInVolume(const TString& processName, Int
 }
 
 Bool_t TRestGeant4Event::ContainsParticle(const TString& particleName) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.GetParticleName() == particleName) {
             return true;
         }
@@ -1200,7 +1198,7 @@ Bool_t TRestGeant4Event::ContainsParticle(const TString& particleName) const {
 }
 
 Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, Int_t volumeID) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.GetParticleName() != particleName) {
             continue;
         }
@@ -1221,7 +1219,7 @@ void TRestGeant4Event::InitializeReferences(TRestRun* run) {
     This introduces overhead to event loading, but hopefully its small enough.
     If this is a problem, we could rework this approach
      */
-    for (auto& track : fTrack) {
+    for (auto& track : fTracks) {
         track.SetEvent(this);
     }
 }
