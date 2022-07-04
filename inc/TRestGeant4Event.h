@@ -200,6 +200,11 @@ class TRestGeant4Event : public TRestEvent {
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
 
+    Bool_t ContainsProcessInVolume(const TString& processName, Int_t volumeID = -1) const;
+    inline Bool_t ContainsProcess(const TString& processName) const {
+        return ContainsProcessInVolume(processName, -1);
+    }
+
     Bool_t ContainsParticle(const TString& particleName) const;
     Bool_t ContainsParticleInVolume(const TString& particleName, Int_t volumeID = -1) const;
 

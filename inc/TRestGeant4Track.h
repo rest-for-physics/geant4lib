@@ -122,6 +122,11 @@ class TRestGeant4Track : public TObject {
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
 
+    Bool_t ContainsProcessInVolume(const TString& processName, Int_t volumeID = -1) const;
+    inline Bool_t ContainsProcess(const TString& processName) const {
+        return ContainsProcessInVolume(processName, -1);
+    }
+
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;
 

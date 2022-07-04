@@ -163,6 +163,19 @@ Bool_t TRestGeant4Track::ContainsProcessInVolume(Int_t processID, Int_t volumeID
     return false;
 }
 
+Bool_t TRestGeant4Track::ContainsProcessInVolume(const TString& processName, Int_t volumeID) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return false;
+    }
+    const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (fHits.GetHitProcess(i) != processID) continue;
+        if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
+    }
+    return false;
+}
+
 const TRestGeant4Metadata* TRestGeant4Track::GetGeant4Metadata() const {
     if (GetEvent() == nullptr) {
         return nullptr;
