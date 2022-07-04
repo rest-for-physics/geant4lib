@@ -226,6 +226,6 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 6);  // REST event superclass
+    ClassDef(TRestGeant4Event, 7);  // REST event superclass
 };
 #endif
