@@ -17,6 +17,7 @@
 
 #include "TRestGeant4Track.h"
 
+#include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
 using namespace std;
@@ -131,7 +132,7 @@ Double_t TRestGeant4Track::GetTrackLength() const {
 void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
+    cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
     cout.precision(5);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();

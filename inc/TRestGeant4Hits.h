@@ -58,6 +58,8 @@ class TRestGeant4Hits : public TRestHits {
     TVector3 GetFirstPositionInVolume(Int_t volumeID) const;
     TVector3 GetLastPositionInVolume(Int_t volumeID) const;
 
+    size_t GetNumberOfHitsInVolume(Int_t volumeID) const;
+
     // Constructor
     TRestGeant4Hits();
     // Destructor

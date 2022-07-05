@@ -18,10 +18,12 @@
 #include "TRestGeant4Event.h"
 
 #include <TFrame.h>
+#include <TRestRun.h>
+#include <TRestStringHelper.h>
+#include <TRestTools.h>
 #include <TStyle.h>
 
-#include "TRestStringHelper.h"
-#include "TRestTools.h"
+#include "TRestGeant4Metadata.h"
 
 using namespace std;
 
@@ -1146,11 +1148,11 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     }
 
     cout << "---------------------------------------------------------------------------" << endl;
-    cout << "Total number of tracks : " << fNTracks << endl;
+    cout << "Total number of tracks : " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        nTracks = min(maxTracks, GetNumberOfTracks());
+        nTracks = min(maxTracks, int(GetNumberOfTracks()));
         cout << " Printing only the first " << nTracks << " tracks" << endl;
     }
 

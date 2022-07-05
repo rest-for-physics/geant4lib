@@ -79,3 +79,13 @@ TVector3 TRestGeant4Hits::GetLastPositionInVolume(Int_t volumeID) const {
     Double_t nan = TMath::QuietNaN();
     return {nan, nan, nan};
 }
+
+size_t TRestGeant4Hits::GetNumberOfHitsInVolume(Int_t volumeID) const {
+    size_t result = 0;
+    for (int n = 0; n < fNHits; n++) {
+        if (fVolumeID[n] == volumeID) {
+            result++;
+        }
+    }
+    return result;
+}

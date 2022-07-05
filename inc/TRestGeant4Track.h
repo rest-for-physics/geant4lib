@@ -25,8 +25,7 @@
 #include <iostream>
 #include <vector>
 
-#include "TObject.h"
-
+class TRestGeant4Event;
 class TRestGeant4Metadata;
 class G4Track;
 class G4Step;
@@ -53,7 +52,9 @@ class TRestGeant4Track {
 
     TVector3 fTrackOrigin;
 
-    Double_t fWeight;  //! // Used for biasing
+    Double_t fWeight = 1;  //! // Used for biasing
+
+    TRestGeant4Event* fEvent = nullptr;  //!
 
    public:
     inline void Initialize() {
@@ -62,6 +63,9 @@ class TRestGeant4Track {
     }
 
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
+
+    inline const TRestGeant4Event* GetEvent() const { return fEvent; }
+    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
 
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 

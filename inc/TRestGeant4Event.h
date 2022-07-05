@@ -119,7 +119,7 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
     std::map<std::string, double> fEnergyInVolumeMap;
-
+    std::map<std::string, std::map<std::string, double>> fEnergyInVolumePerProcess;
     std::vector<TRestGeant4Track> fTrack;
 
     Int_t fMaxSubEventID;
@@ -200,7 +200,22 @@ class TRestGeant4Event : public TRestEvent {
 
     std::set<std::string> GetUniqueParticles() const;
 
+    Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
+    inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
+
+    Bool_t ContainsProcessInVolume(const TString& processName, Int_t volumeID = -1) const;
+    inline Bool_t ContainsProcess(const TString& processName) const {
+        return ContainsProcessInVolume(processName, -1);
+    }
+
+    Bool_t ContainsParticle(const TString& particleName) const;
+    Bool_t ContainsParticleInVolume(const TString& particleName, Int_t volumeID = -1) const;
+
     void Initialize();
+
+    void InitializeReferences(TRestRun* run) override;
+
+    const TRestGeant4Metadata* GetGeant4Metadata(const char* name = "TRestGeant4Metadata") const;
 
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;
