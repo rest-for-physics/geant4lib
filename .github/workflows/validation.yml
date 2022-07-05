@@ -1,17 +1,17 @@
 name: Validation
 
 on:
-  workflow_dispatch:
-
   push:
-    branches: [ master ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ master ]
+    branches: [ "master" ]
+  release:
+
+  workflow_dispatch:
 
 env:
   CMAKE_BUILD_TYPE: Release
-  REST_PATH: /rest/framework/install
-  REST_FRAMEWORK_SOURCE_DIR: /rest/framework/source
+  REST_PATH: /rest/geant4lib/install
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
@@ -19,32 +19,31 @@ defaults:
     shell: bash
 
 jobs:
-  framework-install:
-    name: Install framework with Geant4lib
+  framework-validation:
+    uses: rest-for-physics/framework/.github/workflows/validation.yml@master
+
+  check-library:
+    name: Validate library
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
-
     steps:
-      - name: Print version of dependencies for image
-        run: version.sh
-
-      - name: Checkout framework
-        run: |
-          git clone https://github.com/rest-for-physics/framework.git ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
-          cd ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
-          ./scripts/checkoutRemoteBranch.sh ${{ env.BRANCH_NAME }}
       - uses: actions/checkout@v3
-      - name: Setup, build and install
-        run: |
-          cd ${{ env.REST_FRAMEWORK_SOURCE_DIR }}
-          rm -rf source/libraries/geant4 && cp -r $GITHUB_WORKSPACE source/libraries/geant4
-          mkdir -p ${{ env.REST_FRAMEWORK_SOURCE_DIR }}/build && cd ${{ env.REST_FRAMEWORK_SOURCE_DIR }}/build
-          cmake ../ -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON -DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }}
-          make -j4 install
-      - name: Cache framework installation
-        id: framework-install-geant4lib-cache
-        uses: actions/cache@v2
+      - run: python3 pipeline/validateLibrary.py .
+
+  build-geant4lib:
+    name: Build only geant4lib
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          path: ${{ env.REST_PATH }}
-          key: ${{ github.sha }}
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON"
+          branch: ${{ env.BRANCH_NAME }}
+      - name: Load REST libraries
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restRoot -b -q

@@ -32,9 +32,10 @@ TRestGeant4Track::~TRestGeant4Track() {
     // TRestGeant4Track destructor
 }
 
-Int_t TRestGeant4Track::GetProcessID(const TString& processName, const TRestGeant4Metadata* geant4Metadata) {
-    if (geant4Metadata != nullptr) {
-        const auto processID = geant4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
+Int_t TRestGeant4Track::GetProcessID(const TString& processName) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata != nullptr) {
+        const auto processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
         if (processID != Int_t{}) {
             return processID;
         }
@@ -44,15 +45,16 @@ Int_t TRestGeant4Track::GetProcessID(const TString& processName, const TRestGean
     return -1;
 }
 
-TString TRestGeant4Track::GetProcessName(Int_t processID, const TRestGeant4Metadata* geant4Metadata) const {
-    if (geant4Metadata != nullptr) {
-        const auto& processName = geant4Metadata->GetGeant4PhysicsInfo().GetProcessName(processID);
+TString TRestGeant4Track::GetProcessName(Int_t processID) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata != nullptr) {
+        const auto& processName = metadata->GetGeant4PhysicsInfo().GetProcessName(processID);
         if (processName != TString{}) {
             return processName;
         }
     }
 
-    // cout << "WARNING : The process " << processID << " was not found" << endl;
+    cout << "WARNING : The process " << processID << " was not found" << endl;
 
     return "";
 }
@@ -126,10 +128,10 @@ Double_t TRestGeant4Track::GetTrackLength() const {
     return length;
 }
 
-void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4Metadata) const {
+void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
+    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
     cout.precision(5);
     cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
@@ -143,20 +145,21 @@ void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4
 
     int nHits = GetNumberOfHits();
     if (maxHits > 0) {
-        nHits = min(maxHits, int(GetNumberOfHits()));
+        nHits = min(maxHits, GetNumberOfHits());
         cout << " Printing only the first " << nHits << " hits of the track" << endl;
     }
 
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
     for (int i = 0; i < nHits; i++) {
-        TString processName = GetProcessName(fHits.GetHitProcess(i), geant4Metadata);
+        TString processName = GetProcessName(fHits.GetHitProcess(i));
         if (processName.IsNull()) {
             // in case process name is not found, use ID
             processName = TString(std::to_string(fHits.GetHitProcess(i)));
         }
 
         TString volumeName = "";
-        if (geant4Metadata != nullptr) {
-            volumeName = geant4Metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
+        if (metadata != nullptr) {
+            volumeName = metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
         }
         if (volumeName.IsNull()) {
             // in case process name is not found, use ID
@@ -171,4 +174,32 @@ void TRestGeant4Track::PrintTrack(int maxHits, const TRestGeant4Metadata* geant4
     }
     cout << endl;
     cout.precision(2);
+}
+
+Bool_t TRestGeant4Track::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (fHits.GetHitProcess(i) != processID) continue;
+        if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
+    }
+    return false;
+}
+
+Bool_t TRestGeant4Track::ContainsProcessInVolume(const TString& processName, Int_t volumeID) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return false;
+    }
+    const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
+    for (int i = 0; i < GetNumberOfHits(); i++) {
+        if (fHits.GetHitProcess(i) != processID) continue;
+        if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
+    }
+    return false;
+}
+
+const TRestGeant4Metadata* TRestGeant4Track::GetGeant4Metadata() const {
+    if (GetEvent() == nullptr) {
+        return nullptr;
+    }
+    return GetEvent()->GetGeant4Metadata();
 }

@@ -111,15 +111,6 @@ void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
     if (fMaxSubEventID < id) fMaxSubEventID = id;
 }
 
-/*
-void TRestGeant4Event::AddTrack(TRestGeant4Track track) {
-    fTrack.push_back(track);
-    fTotalDepositedEnergy += track.GetTotalDepositedEnergy();
-    for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        fVolumeDepositedEnergy[n] += track.GetEnergyInVolume(n);
-}
-*/
-
 TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) const {
     TVector3 pos;
     Double_t eDep = 0;
@@ -1124,8 +1115,7 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
-void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits,
-                                  const TRestGeant4Metadata* geant4Metadata) const {
+void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     TRestEvent::PrintEvent();
 
     cout.precision(4);
@@ -1155,85 +1145,76 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits,
                  << " has not been stored" << endl;
     }
 
-    cout << "--------------------------------------------------------------------"
-            "-------"
-         << endl;
-    cout << "Total number of tracks : " << GetNumberOfTracks() << endl;
+    cout << "---------------------------------------------------------------------------" << endl;
+    cout << "Total number of tracks : " << fNTracks << endl;
 
-    int ntracks = GetNumberOfTracks();
+    int nTracks = GetNumberOfTracks();
     if (maxTracks > 0) {
-        ntracks = min(maxTracks, int(GetNumberOfTracks()));
-        cout << " Printing only the first " << ntracks << " tracks" << endl;
+        nTracks = min(maxTracks, GetNumberOfTracks());
+        cout << " Printing only the first " << nTracks << " tracks" << endl;
     }
 
-    for (int n = 0; n < ntracks; n++) GetTrack(n).PrintTrack(maxHits, geant4Metadata);
+    for (int n = 0; n < nTracks; n++) {
+        GetTrack(n).PrintTrack(maxHits);
+    }
 }
 
-void TRestGeant4Event::InitializePerProcessEnergyInSensitive() {
-    PerProcessEnergyInitFlag = true;
-    PerProcessEnergyInSensitive["photoelectric"] = 0;
-    PerProcessEnergyInSensitive["compton"] = 0;
-    PerProcessEnergyInSensitive["electron_ionization"] = 0;
-    PerProcessEnergyInSensitive["ion_ionization"] = 0;
-    PerProcessEnergyInSensitive["alpha_ionization"] = 0;
-    PerProcessEnergyInSensitive["msc"] = 0;
-    PerProcessEnergyInSensitive["hadronic_ionization"] = 0;
-    PerProcessEnergyInSensitive["proton_ionization"] = 0;
-    PerProcessEnergyInSensitive["hadronic_elastic"] = 0;
-    PerProcessEnergyInSensitive["neutron_elastic"] = 0;
+Bool_t TRestGeant4Event::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
+    for (const auto& track : fTrack) {
+        if (track.ContainsProcessInVolume(processID, volumeID)) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    std::string volume_name;
-    std::string process_name;
-    Double_t energy;
+Bool_t TRestGeant4Event::ContainsProcessInVolume(const TString& processName, Int_t volumeID) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return false;
+    }
+    const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
+    for (const auto& track : fTrack) {
+        if (track.ContainsProcessInVolume(processID, volumeID)) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    for (Int_t track_id = 0; track_id < GetNumberOfTracks(); track_id++) {
-        const auto& track = GetTrack(track_id);
+Bool_t TRestGeant4Event::ContainsParticle(const TString& particleName) const {
+    for (const auto& track : fTrack) {
+        if (track.GetParticleName() == particleName) {
+            return true;
+        }
+    }
+    return false;
+}
 
-        if (track.GetEnergyInVolume(0) == 0) {
+Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, Int_t volumeID) const {
+    for (const auto& track : fTrack) {
+        if (track.GetParticleName() != particleName) {
             continue;
         }
-
-        const auto& hits = track.GetHits();
-
-        for (Int_t hit_id = 0; hit_id < hits.GetNumberOfHits(); hit_id++) {
-            if (hits.GetVolumeId(hit_id) != 0) {
-                continue;
-            }
-
-            process_name = (std::string)track.GetProcessName(hits.GetHitProcess(hit_id));
-            energy = hits.GetEnergy(hit_id);
-            if (process_name == "phot") {
-                PerProcessEnergyInSensitive["photoelectric"] += energy;
-            } else if (process_name == "compt") {
-                PerProcessEnergyInSensitive["compton"] += energy;
-            } else if (process_name == "eIoni" || process_name == "e-Step" || process_name == "e+Step") {
-                PerProcessEnergyInSensitive["electron_ionization"] += energy;
-            } else if (process_name == "ionIoni") {
-                PerProcessEnergyInSensitive["ion_ionization"] += energy;
-                if (track.GetParticleName() == "alpha") {
-                    PerProcessEnergyInSensitive["alpha_ionization"] += energy;
-                }
-            } else if (process_name == "msc") {
-                PerProcessEnergyInSensitive["msc"] += energy;
-            } else if (process_name == "hIoni") {
-                PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                if (track.GetParticleName() == "proton") {
-                    PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                }
-            } else if (process_name == "hadElastic") {
-                PerProcessEnergyInSensitive["hadronic_elastic"] += energy;
-                if (track.GetParticleName() == "neutron") {
-                    PerProcessEnergyInSensitive["neutron_elastic"] += energy;
-                }
-            } else if (process_name == "Transportation") {
-                if (track.GetParticleName() == "proton") {
-                    PerProcessEnergyInSensitive["hadronic_ionization"] += energy;
-                    PerProcessEnergyInSensitive["proton_ionization"] += energy;
-                } else if (track.GetParticleName() == "e-" || track.GetParticleName() == "e+") {
-                    PerProcessEnergyInSensitive["electron_ionization"] += energy;
-                }
-            }
+        if (track.GetHits().GetNumberOfHitsInVolume(volumeID) > 0) {
+            return true;
         }
+    }
+    return false;
+}
+
+const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata(const char* name) const {
+    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass(name));
+}
+
+void TRestGeant4Event::InitializeReferences(TRestRun* run) {
+    TRestEvent::InitializeReferences(run);
+    /*
+    This introduces overhead to event loading, but hopefully its small enough.
+    If this is a problem, we could rework this approach
+     */
+    for (auto& track : fTrack) {
+        track.SetEvent(this);
     }
 }
 

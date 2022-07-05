@@ -37,20 +37,20 @@ void TRestGeant4Hits::RemoveG4Hits() {
     fKineticEnergy.clear();
 }
 
-Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volID) const {
+Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volumeID) const {
     Double_t en = 0;
 
     for (int n = 0; n < fNHits; n++) {
-        if (fVolumeID[n] == volID) en += GetEnergy(n);
+        if (fVolumeID[n] == volumeID) en += GetEnergy(n);
     }
     return en;
 }
 
-TVector3 TRestGeant4Hits::GetMeanPositionInVolume(Int_t volID) const {
+TVector3 TRestGeant4Hits::GetMeanPositionInVolume(Int_t volumeID) const {
     TVector3 pos;
     Double_t en = 0;
     for (int n = 0; n < fNHits; n++)
-        if (fVolumeID[n] == volID) {
+        if (fVolumeID[n] == volumeID) {
             pos += GetPosition(n) * GetEnergy(n);
             en += GetEnergy(n);
         }
@@ -64,17 +64,17 @@ TVector3 TRestGeant4Hits::GetMeanPositionInVolume(Int_t volID) const {
     return pos;
 }
 
-TVector3 TRestGeant4Hits::GetFirstPositionInVolume(Int_t volID) const {
+TVector3 TRestGeant4Hits::GetFirstPositionInVolume(Int_t volumeID) const {
     for (int n = 0; n < fNHits; n++)
-        if (fVolumeID[n] == volID) return GetPosition(n);
+        if (fVolumeID[n] == volumeID) return GetPosition(n);
 
     Double_t nan = TMath::QuietNaN();
     return {nan, nan, nan};
 }
 
-TVector3 TRestGeant4Hits::GetLastPositionInVolume(Int_t volID) const {
+TVector3 TRestGeant4Hits::GetLastPositionInVolume(Int_t volumeID) const {
     for (int n = fNHits - 1; n >= 0; n--)
-        if (fVolumeID[n] == volID) return GetPosition(n);
+        if (fVolumeID[n] == volumeID) return GetPosition(n);
 
     Double_t nan = TMath::QuietNaN();
     return {nan, nan, nan};
