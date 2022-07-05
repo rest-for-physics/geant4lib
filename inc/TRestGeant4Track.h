@@ -40,6 +40,7 @@ class TRestGeant4Track : public TObject {
     // We must change this to save space! (Might be not needed after all)
     // Int_t fParticle_ID;
     TString fParticleName;
+    TString fCreatorProcess;
 
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
@@ -61,6 +62,9 @@ class TRestGeant4Track : public TObject {
 
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
     inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
+
+    inline TString GetCreatorProcess() const { return fCreatorProcess; }
+    inline void SetCreatorProcess(const TString& processName) { fCreatorProcess = processName; }
 
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
 
@@ -265,7 +269,7 @@ class TRestGeant4Track : public TObject {
     // Destructor
     virtual ~TRestGeant4Track();
 
-    ClassDef(TRestGeant4Track, 3);  // REST event superclass
+    ClassDef(TRestGeant4Track, 4);  // REST event superclass
 };
 
 #endif
