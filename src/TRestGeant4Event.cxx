@@ -105,11 +105,6 @@ void TRestGeant4Event::AddEnergyDepositToVolume(Int_t volID, Double_t eDep) {
     fVolumeDepositedEnergy[volID] += eDep;
 }
 
-void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
-    fTracks[n].SetSubEventID(id);
-    if (fMaxSubEventID < id) fMaxSubEventID = id;
-}
-
 TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) const {
     TVector3 pos;
     Double_t eDep = 0;

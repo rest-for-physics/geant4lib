@@ -35,18 +35,18 @@ class TRestGeant4Track {
    protected:
     Int_t fTrackID;
     Int_t fParentID;
-    Int_t fSubEventID = 0;
 
     // We must change this to save space! (Might be not needed after all)
     TString fParticleName;
+
+    TRestGeant4Hits fHits;
+
     TString fCreatorProcess;
 
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
     Double_t fTrackLength;  //!
-
-    TRestGeant4Hits fHits;
 
     TVector3 fTrackOrigin;
 
@@ -55,11 +55,6 @@ class TRestGeant4Track {
     TRestGeant4Event* fEvent = nullptr;  //!
 
    public:
-    inline void Initialize() {
-        RemoveHits();
-        fSubEventID = 0.;
-    }
-
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
 
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
@@ -83,7 +78,6 @@ class TRestGeant4Track {
     inline Double_t GetKineticEnergy() const { return fKineticEnergy; }
     inline Double_t GetTotalDepositedEnergy() const { return fHits.GetTotalDepositedEnergy(); }
     inline TVector3 GetTrackOrigin() const { return fTrackOrigin; }
-    inline Int_t GetSubEventID() const { return fSubEventID; }
 
     inline Double_t GetEnergyInVolume(Int_t volID) const { return fHits.GetEnergyInVolume(volID); }
     inline TVector3 GetMeanPositionInVolume(Int_t volID) const {
@@ -96,10 +90,8 @@ class TRestGeant4Track {
         return fHits.GetLastPositionInVolume(volID);
     }
 
-    void SetSubEventID(Int_t id) { fSubEventID = id; }
     void SetTrackID(Int_t id) { fTrackID = id; }
     void SetParentID(Int_t id) { fParentID = id; }
-    //       void SetParticleID( Int_t id ) { fParticle_ID = id; }
     void SetParticleName(const TString& particleName) { fParticleName = particleName; }
     void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
     void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
@@ -132,7 +124,10 @@ class TRestGeant4Track {
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;
 
-    inline void SetHits(const TRestGeant4Hits& hits) { fHits = hits; }
+    inline void SetHits(const TRestGeant4Hits& hits) {
+        fHits = hits;
+        fHits.SetTrack(this);
+    }
     // Constructor
     TRestGeant4Track();
 
@@ -143,9 +138,9 @@ class TRestGeant4Track {
 
     // restG4
    public:
-    explicit TRestGeant4Track(const G4Track*);             //!
-    void UpdateTrack(const G4Track*);                      //!
-    void InsertStep(const G4Step*, TRestGeant4Metadata&);  //!
+    explicit TRestGeant4Track(const G4Track*);  //!
+    void UpdateTrack(const G4Track*);           //!
+    void InsertStep(const G4Step*);             //!
 };
 
 #endif

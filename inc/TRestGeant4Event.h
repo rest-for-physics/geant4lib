@@ -199,8 +199,6 @@ class TRestGeant4Event : public TRestEvent {
         return lowestID;
     }
 
-    void SetTrackSubEventID(Int_t n, Int_t id);
-
     std::set<std::string> GetUniqueParticles() const;
 
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
@@ -236,10 +234,10 @@ class TRestGeant4Event : public TRestEvent {
 
     // restG4
    public:
-    TRestGeant4Event(const G4Event*, const TRestGeant4Metadata&);  //! // Implemented in restG4
-    bool InsertTrack(const G4Track*);                              //!
-    void UpdateTrack(const G4Track*);                              //!
-    void InsertStep(const G4Step*, TRestGeant4Metadata&);          //!
+    TRestGeant4Event(const G4Event*);  //! // Implemented in restG4
+    bool InsertTrack(const G4Track*);  //!
+    void UpdateTrack(const G4Track*);  //!
+    void InsertStep(const G4Step*);    //!
 
     friend class OutputManager;
 

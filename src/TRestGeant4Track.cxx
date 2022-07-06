@@ -24,14 +24,9 @@ using namespace std;
 
 ClassImp(TRestGeant4Track);
 
-TRestGeant4Track::TRestGeant4Track() {
-    // TRestGeant4Track default constructor
-    Initialize();
-}
+TRestGeant4Track::TRestGeant4Track() {}
 
-TRestGeant4Track::~TRestGeant4Track() {
-    // TRestGeant4Track destructor
-}
+TRestGeant4Track::~TRestGeant4Track() {}
 
 Int_t TRestGeant4Track::GetProcessID(const TString& processName) const {
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
@@ -131,19 +126,14 @@ Double_t TRestGeant4Track::GetTrackLength() const {
 
 void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
-         << endl;
     cout.precision(5);
-    cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID()
-         << " Created by process: " << fCreatorProcess;
-    cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us"
-         << endl;
-    cout << " Origin : X = " << GetTrackOrigin().X() << "mm Y = " << GetTrackOrigin().Y()
-         << "mm Z = " << GetTrackOrigin().Z() << "mm  Ekin : " << GetKineticEnergy() << " keV" << endl;
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-            "++++++++++++"
-         << endl;
+    cout << " Particle : " << GetParticleName() << " Track ID: " << GetTrackID()
+         << " Parent ID: " << GetParentID() << " Created by process: " << fCreatorProcess
+         << " Global timestamp: " << fGlobalTimestamp << " Time track length: " << GetTrackTimeLength()
+         << " us" << endl;
+    cout << " Origin: (" << GetTrackOrigin().X() << ", " << GetTrackOrigin().Y() << ", "
+         << GetTrackOrigin().Z() << ") mm Initial KE: " << GetKineticEnergy() << " keV" << endl;
+    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
     int nHits = GetNumberOfHits();
     if (maxHits > 0) {

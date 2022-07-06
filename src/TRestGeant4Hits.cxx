@@ -17,17 +17,16 @@
 
 #include "TRestGeant4Hits.h"
 
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Track.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4Hits);
 
-TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
-    // TRestGeant4Hits default constructor
-}
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {}
 
-TRestGeant4Hits::~TRestGeant4Hits() {
-    // TRestGeant4Hits destructor
-}
+TRestGeant4Hits::~TRestGeant4Hits() {}
 
 void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
@@ -89,4 +88,18 @@ size_t TRestGeant4Hits::GetNumberOfHitsInVolume(Int_t volumeID) const {
         }
     }
     return result;
+}
+
+TRestGeant4Metadata* TRestGeant4Hits::GetGeant4Metadata() const {
+    const TRestGeant4Event* event = nullptr;
+    if (fTrack != nullptr) {
+        event = fTrack->GetEvent();
+    } else {
+        event = fEvent;
+    }
+    if (event == nullptr) {
+        cout << "null event" << endl;
+        return nullptr;
+    }
+    return const_cast<TRestGeant4Metadata*>(event->GetGeant4Metadata());
 }

@@ -27,6 +27,8 @@
 #include "TRestGeant4Metadata.h"
 
 class G4Step;
+class TRestGeant4Track;
+class TRestGeant4Event;
 
 class TRestGeant4Hits : public TRestHits {
    protected:
@@ -34,7 +36,18 @@ class TRestGeant4Hits : public TRestHits {
     std::vector<Int_t> fVolumeID;
     std::vector<Float_t> fKineticEnergy;
 
+    TRestGeant4Track* fTrack = nullptr;  //!
+    TRestGeant4Event* fEvent = nullptr;  //!
+
    public:
+    TRestGeant4Metadata* GetGeant4Metadata() const;
+
+    const TRestGeant4Track* GetTrack() const { return fTrack; }
+    void SetTrack(TRestGeant4Track* track) { fTrack = track; }
+
+    const TRestGeant4Event* GetEvent() const { return fEvent; }
+    void SetEvent(TRestGeant4Event* event) { fEvent = event; }
+
     TArrayF fMomentumDirectionX;
     TArrayF fMomentumDirectionY;
     TArrayF fMomentumDirectionZ;
@@ -65,10 +78,10 @@ class TRestGeant4Hits : public TRestHits {
     // Destructor
     virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestGeant4Hits, 7);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 8);  // REST event superclass
 
     // restG4
    public:
-    void InsertStep(const G4Step*, TRestGeant4Metadata&);
+    void InsertStep(const G4Step*);
 };
 #endif
