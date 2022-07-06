@@ -135,7 +135,8 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     cout << " SubEvent ID : " << fSubEventID << " Global timestamp : " << GetGlobalTime() << " seconds"
          << endl;
     cout.precision(5);
-    cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID();
+    cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID()
+         << " Created by process: " << fCreatorProcess;
     cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us"
          << endl;
     cout << " Origin : X = " << GetTrackOrigin().X() << "mm Y = " << GetTrackOrigin().Y()

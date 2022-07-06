@@ -41,6 +41,7 @@
 class G4Event;
 class G4Track;
 class G4Step;
+class TRestGeant4Metadata;
 
 /// An event class to store geant4 generated event information
 class TRestGeant4Event : public TRestEvent {

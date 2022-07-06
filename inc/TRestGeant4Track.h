@@ -38,9 +38,7 @@ class TRestGeant4Track {
     Int_t fSubEventID = 0;
 
     // We must change this to save space! (Might be not needed after all)
-    // Int_t fParticle_ID;
     TString fParticleName;
-
     TString fCreatorProcess;
 
     Double_t fGlobalTimestamp;  // in seconds precision
@@ -52,7 +50,7 @@ class TRestGeant4Track {
 
     TVector3 fTrackOrigin;
 
-    Double_t fWeight = 1;  //! // Used for biasing
+    Double_t fWeight = 1;  // Used for biasing
 
     TRestGeant4Event* fEvent = nullptr;  //!
 
@@ -74,6 +72,8 @@ class TRestGeant4Track {
 
     inline Int_t GetTrackID() const { return fTrackID; }
     inline Int_t GetParentID() const { return fParentID; }
+
+    inline TString GetCreatorProcess() const { return fCreatorProcess; }
 
     inline TString GetParticleName() const { return fParticleName; }
     EColor GetParticleColor() const;
@@ -139,7 +139,7 @@ class TRestGeant4Track {
     // Destructor
     virtual ~TRestGeant4Track();
 
-    ClassDef(TRestGeant4Track, 4);  // REST event superclass
+    ClassDef(TRestGeant4Track, 5);  // REST event superclass
 
     // restG4
    public:

@@ -43,6 +43,7 @@ Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volumeID) const {
     for (int n = 0; n < fNHits; n++) {
         if (fVolumeID[n] == volumeID) en += GetEnergy(n);
     }
+
     return en;
 }
 
