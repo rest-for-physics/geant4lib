@@ -29,14 +29,14 @@
 #include <TH2F.h>
 #include <TLegend.h>
 #include <TMultiGraph.h>
-#include <TObject.h>
 #include <TRestEvent.h>
-#include <TRestGeant4Track.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <map>
 #include <utility>
+
+#include "TRestGeant4Track.h"
 
 class G4Event;
 class G4Track;
@@ -106,11 +106,15 @@ class TRestGeant4Event : public TRestEvent {
     TH1D* GetZHistogram(Int_t gridElement, std::vector<TString> optList);
 #endif
 
-    TVector3 fPrimaryEventOrigin;
+    TVector3 fPrimaryPosition;
+    std::vector<TString> fPrimaryParticleNames;
+    std::vector<Double_t> fPrimaryEnergies;
+    std::vector<TVector3> fPrimaryDirections;
 
-    std::vector<TString> fPrimaryParticleName;
-    std::vector<TVector3> fPrimaryEventDirection;
-    std::vector<Double_t> fPrimaryEventEnergy;
+    TString fSubEventPrimaryParticleName;
+    Double_t fSubEventPrimaryEnergy;
+    TVector3 fSubEventPrimaryPosition;
+    TVector3 fSubEventPrimaryDirection;
 
     Double_t fTotalDepositedEnergy;
     Double_t fSensitiveVolumeEnergy;
@@ -121,7 +125,7 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<Double_t> fVolumeDepositedEnergy;
     std::map<std::string, double> fEnergyInVolumeMap;
     std::map<std::string, std::map<std::string, double>> fEnergyInVolumePerProcess;
-    std::vector<TRestGeant4Track> fTrack;
+    std::vector<TRestGeant4Track> fTracks;
 
     Int_t fMaxSubEventID;
 
@@ -130,27 +134,28 @@ class TRestGeant4Event : public TRestEvent {
     void SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
                        Double_t zMax);
 
-    inline TString GetPrimaryEventParticleName(int n) const {
-        if (fPrimaryParticleName.size() > n) {
-            return fPrimaryParticleName[n];
-        }
-        return "Not defined";
-    }
+    inline size_t GetNumberOfPrimaries() const { return fPrimaryParticleNames.size(); }
 
-    TVector3 GetPrimaryEventDirection(Int_t n = 0) const { return fPrimaryEventDirection[n]; }
-    TVector3 GetPrimaryEventOrigin() const { return fPrimaryEventOrigin; }
-    Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
+    inline TString GetPrimaryEventParticleName(size_t n = 0) const { return fPrimaryParticleNames[n]; }
+    inline TVector3 GetPrimaryEventDirection(size_t n = 0) const { return fPrimaryDirections[n]; }
+    inline TVector3 GetPrimaryEventOrigin() const { return fPrimaryPosition; }
+    inline Double_t GetPrimaryEventEnergy(size_t n = 0) const { return fPrimaryEnergies[n]; }
+
+    inline Bool_t IsSubEvent() const { return fSubEventID > 0; }
+    inline TString GetSubEventPrimaryEventParticleName() const { return fSubEventPrimaryParticleName; }
+    inline TVector3 GetSubEventPrimaryEventDirection() const { return fSubEventPrimaryDirection; }
+    inline TVector3 GetSubEventPrimaryEventOrigin() const { return fSubEventPrimaryPosition; }
+    inline Double_t GetSubEventPrimaryEventEnergy() const { return fSubEventPrimaryEnergy; }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
 
-    inline size_t GetNumberOfTracks() const { return fTrack.size(); }
-    inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
+    inline size_t GetNumberOfTracks() const { return fTracks.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
     inline Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
-    inline const TRestGeant4Track& GetTrack(int n) const { return fTrack[n]; }
-    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTrack[n]; }
+    inline const TRestGeant4Track& GetTrack(int n) const { return fTracks[n]; }
+    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTracks[n]; }
     TRestGeant4Track* GetTrackByID(int id);
     inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
@@ -168,9 +173,6 @@ class TRestGeant4Event : public TRestEvent {
     Int_t GetNumberOfTracksForParticle(const TString& parName) const;
     Int_t GetEnergyDepositedByParticle(const TString& parName) const;
 
-    inline void SetPrimaryEventDirection(const TVector3& dir) { fPrimaryEventDirection.push_back(dir); }
-    inline void SetPrimaryEventParticleName(const TString& pName) { fPrimaryParticleName.push_back(pName); }
-    inline void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
     inline void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     inline void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
@@ -230,7 +232,7 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 7);  // REST event superclass
+    ClassDef(TRestGeant4Event, 8);  // REST event superclass
 
     // restG4
    public:
