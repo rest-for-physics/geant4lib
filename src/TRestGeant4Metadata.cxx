@@ -648,12 +648,13 @@
 
 #include "TRestGeant4Metadata.h"
 
-using namespace std;
-
 #include <TGeoManager.h>
 #include <TRandom.h>
+#include <TRestRun.h>
 
 #include "TRestGDMLParser.h"
+
+using namespace std;
 
 namespace g4_metadata_parameters {
 string CleanString(string s) {
@@ -825,11 +826,12 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         RESTWarning << "IMPORTANT: *maxTargetStepSize* parameter is now obsolete!" << RESTendl;
         RESTWarning << "The sensitive volume will not define any integration step limit" << RESTendl;
         cout << " " << endl;
-        RESTWarning << "In order to avoid this warning REMOVE the *maxTargetStepSize* definition," << RESTendl;
+        RESTWarning << "In order to avoid this warning REMOVE the *maxTargetStepSize* definition,"
+                    << RESTendl;
         RESTWarning << "and replace it by the following statement at the <storage> section" << RESTendl;
         cout << " " << endl;
         RESTWarning << "<activeVolume name=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
-                << fMaxTargetStepSize << "mm\" />" << RESTendl;
+                    << fMaxTargetStepSize << "mm\" />" << RESTendl;
         cout << " " << endl;
         RESTInfo << "Now, any active volume is allowed to define a maxStepSize" << RESTendl;
         cout << " " << endl;
@@ -837,7 +839,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         RESTInfo << "so that in case no step is defined, the default will be used." << RESTendl;
         cout << " " << endl;
         RESTInfo << "<storage sensitiveVolume=\"" << this->GetSensitiveVolume() << "\" maxStepSize=\""
-             << fMaxTargetStepSize << "mm\" />" << RESTendl;
+                 << fMaxTargetStepSize << "mm\" />" << RESTendl;
         cout << " " << endl;
         GetChar();
     }
@@ -1088,13 +1090,14 @@ void TRestGeant4Metadata::ReadStorage() {
                     isValidLogical = true;
                     const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
                     RESTInfo << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
-                         << name << "' with chance: " << chance << RESTendl;
+                             << name << "' with chance: " << chance << RESTendl;
                     SetActiveVolume(gdmlName, chance, maxStep);
                 }
             }
             if (!isValidLogical) {
                 RESTError << "TRestGeant4Metadata: Problem reading storage section." << RESTendl;
-                RESTError << " 	- The volume '" << name << "' was not found in the GDML geometry." << RESTendl;
+                RESTError << " 	- The volume '" << name << "' was not found in the GDML geometry."
+                          << RESTendl;
                 exit(1);
             }
         } else {
@@ -1171,15 +1174,15 @@ void TRestGeant4Metadata::PrintMetadata() {
 
     RESTMetadata << "   ++++++++++ Storage volumes +++++++++++   " << RESTendl;
     RESTMetadata << "Energy range : Emin = " << GetMinimumEnergyStored()
-             << ", Emax : " << GetMaximumEnergyStored() << RESTendl;
+                 << ", Emax : " << GetMaximumEnergyStored() << RESTendl;
     RESTMetadata << "Sensitive volume : " << GetSensitiveVolume() << RESTendl;
     RESTMetadata << "Active volumes : " << GetNumberOfActiveVolumes() << RESTendl;
     RESTMetadata << "---------------------------------------" << RESTendl;
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
         RESTMetadata << "Name : " << GetActiveVolumeName(n)
-                 << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
-                 << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                 << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+                     << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
+                     << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
+                     << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
     }
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();

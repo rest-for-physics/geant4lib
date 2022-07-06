@@ -454,67 +454,24 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
     SetObservableValue((string) "energyPrimary", energyPrimary);
-    /* }}} */
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
     obsName = this->GetName() + (TString) ".totalEdep";
     SetObservableValue((string) "totalEdep", energyTotal);
 
-    Int_t photo = 0;
-    if (fOutputG4Event->isPhotoElectric()) photo = 1;
-    SetObservableValue((string) "photoelectric", photo);
-
-    Int_t compton = 0;
-    if (fOutputG4Event->isCompton()) compton = 1;
-    SetObservableValue((string) "compton", compton);
-
-    Int_t bremstralung = 0;
-    if (fOutputG4Event->isBremstralung()) bremstralung = 1;
-    SetObservableValue((string) "bremstralung", bremstralung);
-
-    Int_t hadElastic = 0;
-    if (fOutputG4Event->ishadElastic()) hadElastic = 1;
-    SetObservableValue((string) "hadElastic", hadElastic);
-
-    Int_t neutronInelastic = 0;
-    if (fOutputG4Event->isneutronInelastic()) neutronInelastic = 1;
-    SetObservableValue((string) "neutronInelastic", neutronInelastic);
-
-    Int_t nCapture = 0;
-    if (fOutputG4Event->isnCapture()) nCapture = 1;
-    SetObservableValue((string) "nCapture", nCapture);
-
-    Int_t hIoni = 0;
-    if (fOutputG4Event->ishIoni()) hIoni = 1;
-    SetObservableValue((string) "hIoni", hIoni);
-
-    Int_t phoNucl = 0;
-    if (fOutputG4Event->isphotonNuclear()) phoNucl = 1;
-    SetObservableValue((string) "photonNuclear", phoNucl);
-
-    // per process energy
-    if (fPerProcessSensitiveEnergy) {
-        SetObservableValue((string) "PerProcessPhotoelectric",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessPhoto());
-        SetObservableValue((string) "PerProcessCompton",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessCompton());
-        SetObservableValue((string) "PerProcessElectronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessEIoni());
-        SetObservableValue((string) "PerProcessIonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessIonIoni());
-        SetObservableValue((string) "PerProcessAlphaIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessAlphaIoni());
-        SetObservableValue((string) "PerProcessHadronicIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronIoni());
-        SetObservableValue((string) "PerProcessProtonIoni",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessProtonIoni());
-        SetObservableValue((string) "PerProcessMsc", fOutputG4Event->GetEnergyInSensitiveFromProcessMsc());
-        SetObservableValue((string) "PerProcessHadronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessHadronElastic());
-        SetObservableValue((string) "PerProcessNeutronElastic",
-                           fOutputG4Event->GetEnergyInSensitiveFromProcessNeutronElastic());
+    // process names as named by Geant4
+    // processes present here will be added to the list of observables which can be used to see if the event
+    // contains the process of interest.
+    vector<string> processNames = {"phot", "compt"};
+    for (const auto& processName : processNames) {
+        Int_t containsProcess = 0;
+        if (fOutputG4Event->ContainsProcess(fG4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName))) {
+            containsProcess = 1;
+        }
+        SetObservableValue("ContainsProcess" + processName, containsProcess);
     }
 
+    /*
     for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
         string obsName = fProcessObservables[n];
         TString processName = fProcessName[n];
@@ -549,6 +506,8 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         else
             SetObservableValue(obsName, 0);
     }
+     */
+
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
         string obsName = fTrackCounterObservables[n];

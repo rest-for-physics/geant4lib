@@ -40,6 +40,7 @@
 #include "TRestGeant4BiasingVolume.h"
 #include "TRestGeant4GeometryInfo.h"
 #include "TRestGeant4ParticleSource.h"
+#include "TRestGeant4PhysicsInfo.h"
 //------------------------------------------------------------------------------------------------------------------------
 //
 // * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
@@ -87,8 +88,6 @@ enum class angular_dist_types {
 extern std::map<std::string, angular_dist_types> angular_dist_types_map;
 }  // namespace g4_metadata_parameters
 
-//------------------------------------------------------------------------------------------------------------------------
-
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
@@ -104,6 +103,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
+
+    /// Class used to store and retrieve physics info such as process names or particle names
+    TRestGeant4PhysicsInfo fGeant4PhysicsInfo;
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -182,7 +184,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// volume.
     Double_t fMaxTargetStepSize = 0;  //!
 
-    /// \brief A time gap, in us, determinning if an energy hit should be considered (and
+    /// \brief A time gap, in us, determining if an energy hit should be considered (and
     /// stored) as an independent event.
     Double_t fSubEventTimeDelay;
 
@@ -221,8 +223,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// geant4 dataset.
     inline Long_t GetSeed() const { return fSeed; }
 
-    /// \brief Returns a reference to the geometry info
-    inline TRestGeant4GeometryInfo* GetGeant4GeometryInfo() { return &fGeant4GeometryInfo; }
+    /// \brief Returns an immutable reference to the geometry info
+    inline const TRestGeant4GeometryInfo& GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
+
+    /// \brief Returns an immutable reference to the physics info
+    inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
 
     /// \brief Returns a std::string with the version of Geant4 used on the event data
     /// simulation
@@ -420,6 +425,10 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDefOverride(TRestGeant4Metadata, 9);
+    ClassDefOverride(TRestGeant4Metadata, 10);
+
+    // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
+    friend class SteppingAction;
+    friend class DetectorConstruction;
 };
 #endif  // RestCore_TRestGeant4Metadata

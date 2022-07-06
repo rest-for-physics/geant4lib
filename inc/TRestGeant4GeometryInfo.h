@@ -1,6 +1,3 @@
-//
-// Created by lobis on 3/5/2022.
-//
 
 #ifndef REST_TRESTGEANT4GEOMETRYINFO_H
 #define REST_TRESTGEANT4GEOMETRYINFO_H
@@ -15,10 +12,13 @@
 class G4VPhysicalVolume;
 
 class TRestGeant4GeometryInfo {
-    ClassDef(TRestGeant4GeometryInfo, 2);
+    ClassDef(TRestGeant4GeometryInfo, 3);
 
    private:
     bool fIsAssembly = false;
+
+    std::map<Int_t, TString> fVolumeNameMap = {};
+    std::map<TString, Int_t> fVolumeNameReverseMap = {};
 
    public:
     // Insertion order is important for GDML containers. These containers are filled from GDML only not Geant4
@@ -44,7 +44,7 @@ class TRestGeant4GeometryInfo {
     TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
     TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
 
-    Int_t GetIDFromVolumeName(const TString&) const;
+    // Int_t GetIDFromVolumeName(const TString&) const;
 
     void PopulateFromGeant4World(const G4VPhysicalVolume*);
 
@@ -78,6 +78,11 @@ class TRestGeant4GeometryInfo {
     }
 
     inline bool IsAssembly() const { return fIsAssembly; }
+
+    void InsertVolumeName(Int_t id, const TString& volumeName);
+
+    TString GetVolumeFromID(Int_t id) const;
+    Int_t GetIDFromVolume(const TString& volumeName) const;
 
     void Print() const;
 };
