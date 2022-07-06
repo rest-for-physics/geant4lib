@@ -7,29 +7,37 @@ using namespace std;
 
 ClassImp(TRestGeant4PhysicsInfo);
 
-void TRestGeant4PhysicsInfo::PrintParticles() const {
-    vector<Int_t> ids = {};
-    for (const auto& [id, _] : fParticleNamesMap) {
-        ids.push_back(id);
+set<TString> TRestGeant4PhysicsInfo::GetAllParticles() const {
+    set<TString> particles = {};
+    for (const auto& [_, name] : fParticleNamesMap) {
+        particles.insert(name);
     }
-    sort(ids.begin(), ids.end());
+    return particles;
+}
 
+std::set<TString> TRestGeant4PhysicsInfo::GetAllProcesses() const {
+    set<TString> processes = {};
+    for (const auto& [_, name] : fProcessNamesMap) {
+        processes.insert(name);
+    }
+    return processes;
+}
+
+void TRestGeant4PhysicsInfo::PrintParticles() const {
+    const auto particleNames = GetAllParticles();
     cout << "Particles:" << endl;
-    for (const auto& id : ids) {
-        cout << "\t" << id << " - " << GetParticleName(id) << endl;
+    for (const auto& name : particleNames) {
+        const auto id = GetParticleID(name);
+        cout << "\t" << name << " - " << id << endl;
     }
 }
 
 void TRestGeant4PhysicsInfo::PrintProcesses() const {
-    vector<Int_t> ids = {};
-    for (const auto& [id, _] : fProcessNamesMap) {
-        ids.push_back(id);
-    }
-    sort(ids.begin(), ids.end());
-
+    const auto processNames = GetAllProcesses();
     cout << "Processes:" << endl;
-    for (const auto& id : ids) {
-        cout << "\t" << id << " - " << GetProcessName(id) << endl;
+    for (const auto& name : processNames) {
+        const auto id = GetProcessID(name);
+        cout << "\t" << name << " - " << id << endl;
     }
 }
 

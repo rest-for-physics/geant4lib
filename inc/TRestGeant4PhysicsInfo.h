@@ -4,6 +4,7 @@
 #include <TString.h>
 
 #include <map>
+#include <set>
 #include <vector>
 
 class G4VProcess;
@@ -22,10 +23,12 @@ class TRestGeant4PhysicsInfo {
     TString GetProcessName(Int_t id) const;
     Int_t GetProcessID(const TString& processName) const;
     void InsertProcessName(Int_t id, const TString& processName);
+    std::set<TString> GetAllParticles() const;
 
     TString GetParticleName(Int_t id) const;
     Int_t GetParticleID(const TString& processName) const;
     void InsertParticleName(Int_t id, const TString& particleName);
+    std::set<TString> GetAllProcesses() const;
 
    public:
     inline TRestGeant4PhysicsInfo() = default;
