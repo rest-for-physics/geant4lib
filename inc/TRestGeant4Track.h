@@ -44,7 +44,7 @@ class TRestGeant4Track {
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
-    Double_t fTrackLength = 0;
+    Double_t fTrackLength;
 
     TVector3 fTrackOrigin;
 
@@ -109,8 +109,6 @@ class TRestGeant4Track {
     void PrintTrack(size_t maxHits = 0) const;
 
     inline void RemoveHits() { fHits.RemoveHits(); }
-
-    inline void IncreaseTrackLength(Double_t length) { fTrackLength += length; }
 
     // Constructor
     TRestGeant4Track();
