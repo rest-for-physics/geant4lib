@@ -39,6 +39,8 @@ class TRestGeant4Track {
 
     TString fCreatorProcess;
 
+    std::vector<Int_t> fSecondaryTrackIDs;
+
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
@@ -60,6 +62,8 @@ class TRestGeant4Track {
         fHits = hits;
         fHits.SetTrack(this);
     }
+
+    inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
