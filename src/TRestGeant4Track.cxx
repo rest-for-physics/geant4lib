@@ -111,19 +111,6 @@ size_t TRestGeant4Track::GetNumberOfPhysicalHits(Int_t volID) const {
     return numberOfHits;
 }
 
-Double_t TRestGeant4Track::GetTrackLength() const {
-    Double_t length = 0;
-
-    length = GetDistance(fHits.GetPosition(0), GetTrackOrigin());
-
-    for (int i = 1; i < GetNumberOfHits(); i++) {
-        TVector3 prevHit = fHits.GetPosition(i - 1);
-        TVector3 hit = fHits.GetPosition(i);
-        length += GetDistance(hit, prevHit);
-    }
-    return length;
-}
-
 void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout.precision(5);

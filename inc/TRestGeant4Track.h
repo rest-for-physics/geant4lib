@@ -42,7 +42,7 @@ class TRestGeant4Track {
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
-    Double_t fTrackLength;
+    Double_t fTrackLength = 0;
 
     TVector3 fTrackOrigin;
 
@@ -52,28 +52,32 @@ class TRestGeant4Track {
 
    public:
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
-
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
-    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
+    const TRestGeant4Metadata* GetGeant4Metadata() const;
 
-    inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
+    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
+    inline void SetHits(const TRestGeant4Hits& hits) {
+        fHits = hits;
+        fHits.SetTrack(this);
+    }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
 
     inline Int_t GetTrackID() const { return fTrackID; }
     inline Int_t GetParentID() const { return fParentID; }
-
     inline TString GetCreatorProcess() const { return fCreatorProcess; }
-
     inline TString GetParticleName() const { return fParticleName; }
-    EColor GetParticleColor() const;
-
     inline Double_t GetGlobalTime() const { return fGlobalTimestamp; }
     inline Double_t GetTrackTimeLength() const { return fTrackTimestamp; }
     inline Double_t GetKineticEnergy() const { return fKineticEnergy; }
     inline Double_t GetTotalDepositedEnergy() const { return fHits.GetTotalDepositedEnergy(); }
     inline TVector3 GetTrackOrigin() const { return fTrackOrigin; }
+    inline Double_t GetWeight() const { return fWeight; }
+    inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
+    inline Double_t GetTrackLength() const { return fTrackLength; }
+
+    EColor GetParticleColor() const;
 
     inline Double_t GetEnergyInVolume(Int_t volID) const { return fHits.GetEnergyInVolume(volID); }
     inline TVector3 GetMeanPositionInVolume(Int_t volID) const {
@@ -85,26 +89,6 @@ class TRestGeant4Track {
     inline TVector3 GetLastPositionInVolume(Int_t volID) const {
         return fHits.GetLastPositionInVolume(volID);
     }
-
-    inline void SetTrackID(Int_t id) { fTrackID = id; }
-    inline void SetParentID(Int_t id) { fParentID = id; }
-    inline void SetParticleName(const TString& particleName) { fParticleName = particleName; }
-    inline void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
-    inline void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
-    inline void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
-    inline void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
-    inline void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
-
-    Double_t GetTrackLength() const;
-
-    inline static Double_t GetDistance(const TVector3& v1, const TVector3& v2) {
-        return TMath::Sqrt((v1.X() - v2.X()) * (v1.X() - v2.X()) + (v1.Y() - v2.Y()) * (v1.Y() - v2.Y()) +
-                           (v1.Z() - v2.Z()) * (v1.Z() - v2.Z()));
-    }
-
-    inline void RemoveHits() { fHits.RemoveHits(); }
-
-    const TRestGeant4Metadata* GetGeant4Metadata() const;
 
     Int_t GetProcessID(const TString& processName) const;
     TString GetProcessName(Int_t id) const;
@@ -120,10 +104,10 @@ class TRestGeant4Track {
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;
 
-    inline void SetHits(const TRestGeant4Hits& hits) {
-        fHits = hits;
-        fHits.SetTrack(this);
-    }
+    inline void RemoveHits() { fHits.RemoveHits(); }
+
+    inline void IncreaseTrackLength(Double_t length) { fTrackLength += length; }
+
     // Constructor
     TRestGeant4Track();
 
