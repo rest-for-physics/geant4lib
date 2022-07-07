@@ -16,14 +16,11 @@
 #ifndef RestCore_TRestGeant4Track
 #define RestCore_TRestGeant4Track
 
-#include <TArrayI.h>
 #include <TColor.h>
-#include <TRestGeant4Hits.h>
 #include <TString.h>
 #include <TVector3.h>
 
-#include <iostream>
-#include <vector>
+#include "TRestGeant4Hits.h"
 
 class TRestGeant4Event;
 class TRestGeant4Metadata;
@@ -36,7 +33,6 @@ class TRestGeant4Track {
     Int_t fTrackID;
     Int_t fParentID;
 
-    // We must change this to save space! (Might be not needed after all)
     TString fParticleName;
 
     TRestGeant4Hits fHits;
@@ -46,7 +42,7 @@ class TRestGeant4Track {
     Double_t fGlobalTimestamp;  // in seconds precision
     Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
     Double_t fKineticEnergy;
-    Double_t fTrackLength;  //!
+    Double_t fTrackLength;
 
     TVector3 fTrackOrigin;
 
@@ -90,14 +86,14 @@ class TRestGeant4Track {
         return fHits.GetLastPositionInVolume(volID);
     }
 
-    void SetTrackID(Int_t id) { fTrackID = id; }
-    void SetParentID(Int_t id) { fParentID = id; }
-    void SetParticleName(const TString& particleName) { fParticleName = particleName; }
-    void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
-    void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
-    void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
-    void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
-    void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
+    inline void SetTrackID(Int_t id) { fTrackID = id; }
+    inline void SetParentID(Int_t id) { fParentID = id; }
+    inline void SetParticleName(const TString& particleName) { fParticleName = particleName; }
+    inline void SetGlobalTrackTime(Double_t time) { fGlobalTimestamp = time; }
+    inline void SetTrackTimeLength(Double_t time) { fTrackTimestamp = time; }
+    inline void SetKineticEnergy(Double_t en) { fKineticEnergy = en; }
+    inline void SetTrackOrigin(const TVector3& pos) { fTrackOrigin = pos; }
+    inline void SetTrackOrigin(Double_t x, Double_t y, Double_t z) { fTrackOrigin.SetXYZ(x, y, z); }
 
     Double_t GetTrackLength() const;
 
