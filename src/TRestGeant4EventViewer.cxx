@@ -80,7 +80,7 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
         TVector3 origin = g4Track->GetTrackOrigin();
 
         // Building track name
-        Double_t eKin = g4Track->GetKineticEnergy();
+        Double_t eKin = g4Track->GetInitialKineticEnergy();
         // cout << "eKin: " << eKin << endl;
         TString ptlName = g4Track->GetParticleName();
         // cout << "ptlName: " << ptlName << endl;

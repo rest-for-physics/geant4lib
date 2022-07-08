@@ -352,7 +352,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
                         }
                     }
                     fNeutronsCapturedIsCaptureVolume.push_back(isCaptureVolume);
-                    fNeutronsCapturedProductionE.push_back(track.GetKineticEnergy());
+                    fNeutronsCapturedProductionE.push_back(track.GetInitialKineticEnergy());
 
                     // get energy deposited by neutron that undergoes capture and children
                     double neutronsCapturedEDepByNeutron = 0;
@@ -445,7 +445,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
                     }
                 }
                 fGammasNeutronCaptureIsCaptureVolume.push_back(isCaptureVolume);
-                fGammasNeutronCaptureProductionE.push_back(track.GetKineticEnergy());
+                fGammasNeutronCaptureProductionE.push_back(track.GetInitialKineticEnergy());
 
                 // cout << "gamma capture" << endl;
 
@@ -505,7 +505,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
                                 fSecondaryNeutronsShieldingIsCapturedInCaptureVolume.push_back(0);
                             }
 
-                            fSecondaryNeutronsShieldingProductionE.push_back(track.GetKineticEnergy());
+                            fSecondaryNeutronsShieldingProductionE.push_back(track.GetInitialKineticEnergy());
                             fSecondaryNeutronsShieldingExitE.push_back(hits.GetKineticEnergy(j));
                         }
                     }

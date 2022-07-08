@@ -41,12 +41,14 @@ class TRestGeant4Track {
 
     std::vector<Int_t> fSecondaryTrackIDs;
 
-    Double_t fGlobalTimestamp;  // in seconds precision
-    Double_t fTrackTimestamp;   // in ns precision (seconds have been removed)
-    Double_t fKineticEnergy;
-    Double_t fTrackLength;
+    /* Time is stored in seconds */
+    Double_t fGlobalTimestamp;
+    Double_t fTimeLength;
 
-    TVector3 fTrackOrigin;
+    Double_t fInitialKineticEnergy;
+    Double_t fLength;
+
+    TVector3 fInitialPosition;
 
     Double_t fWeight = 1;  // Used for biasing
 
@@ -65,26 +67,29 @@ class TRestGeant4Track {
         fHits.SetTrack(this);
     }
 
-    inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
-    inline void AddSecondaryTrackID(Int_t trackID) { fSecondaryTrackIDs.push_back(trackID); }
+    inline TString GetCreatorProcess() const { return fCreatorProcess; }
 
-    std::vector<const TRestGeant4Track*> GetSecondaryTracks() const;
+    inline void AddSecondaryTrackID(Int_t trackID) { fSecondaryTrackIDs.push_back(trackID); }
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
 
     inline Int_t GetTrackID() const { return fTrackID; }
     inline Int_t GetParentID() const { return fParentID; }
-    inline TString GetCreatorProcess() const { return fCreatorProcess; }
     inline TString GetParticleName() const { return fParticleName; }
     inline Double_t GetGlobalTime() const { return fGlobalTimestamp; }
-    inline Double_t GetTrackTimeLength() const { return fTrackTimestamp; }
-    inline Double_t GetKineticEnergy() const { return fKineticEnergy; }
+    inline Double_t GetTimeLength() const { return fTimeLength; }
+    inline Double_t GetInitialKineticEnergy() const { return fInitialKineticEnergy; }
     inline Double_t GetTotalDepositedEnergy() const { return fHits.GetTotalDepositedEnergy(); }
-    inline TVector3 GetTrackOrigin() const { return fTrackOrigin; }
+    inline TVector3 GetInitialPosition() const { return fInitialPosition; }
     inline Double_t GetWeight() const { return fWeight; }
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
-    inline Double_t GetTrackLength() const { return fTrackLength; }
+    inline Double_t GetLength() const { return fLength; }
+
+    inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
+    std::vector<const TRestGeant4Track*> GetSecondaryTracks() const;
+
+    inline TVector3 GetTrackOrigin() const { return GetInitialPosition(); }
 
     EColor GetParticleColor() const;
 
