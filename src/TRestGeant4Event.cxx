@@ -189,10 +189,20 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
     return {nan, nan, nan};
 }
 
-TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
-    for (int i = 0; i < GetNumberOfTracks(); i++)
-        if (fTracks[i].GetTrackID() == id) return &fTracks[i];
+TRestGeant4Track* TRestGeant4Event::GetTrackByID(Int_t trackID) const {
+    if (fTrackIDToTrackIndex.count(trackID) > 0) {
+        return const_cast<TRestGeant4Track*>(&fTracks[fTrackIDToTrackIndex.at(trackID)]);
+    }
     return nullptr;
+
+    /*
+    for (const auto& track : fTracks) {
+        if (track.GetTrackID() == trackID) {
+            return const_cast<TRestGeant4Track*>(&track);
+        }
+    }
+    return nullptr;
+     */
 }
 
 ///////////////////////////////////////////////

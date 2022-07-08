@@ -57,6 +57,8 @@ class TRestGeant4Track {
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
     const TRestGeant4Metadata* GetGeant4Metadata() const;
 
+    TRestGeant4Track* GetParentTrack() const;
+
     inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
     inline void SetHits(const TRestGeant4Hits& hits) {
         fHits = hits;
@@ -64,6 +66,9 @@ class TRestGeant4Track {
     }
 
     inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
+    inline void AddSecondaryTrackID(Int_t trackID) { fSecondaryTrackIDs.push_back(trackID); }
+
+    std::vector<const TRestGeant4Track*> GetSecondaryTracks() const;
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;

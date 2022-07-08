@@ -156,7 +156,7 @@ class TRestGeant4Event : public TRestEvent {
     inline Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
     inline const TRestGeant4Track& GetTrack(int n) const { return fTracks[n]; }
     inline TRestGeant4Track* GetTrackPointer(int n) { return &fTracks[n]; }
-    TRestGeant4Track* GetTrackByID(int id);
+    TRestGeant4Track* GetTrackByID(Int_t trackID) const;
     inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
     inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
@@ -242,7 +242,7 @@ class TRestGeant4Event : public TRestEvent {
     friend class OutputManager;
 
    private:
-    std::map<int, int> fTrackIDToTrackIndex = {};  //!
-    TRestGeant4Hits fInitialStep;                  //!
+    std::map<Int_t, Int_t> fTrackIDToTrackIndex = {};
+    TRestGeant4Hits fInitialStep;  //!
 };
 #endif

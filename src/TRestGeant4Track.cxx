@@ -182,3 +182,21 @@ const TRestGeant4Metadata* TRestGeant4Track::GetGeant4Metadata() const {
     }
     return GetEvent()->GetGeant4Metadata();
 }
+
+TRestGeant4Track* TRestGeant4Track::GetParentTrack() const {
+    if (fEvent == nullptr) {
+        return nullptr;
+    }
+    return fEvent->GetTrackByID(GetParentID());
+}
+
+vector<const TRestGeant4Track*> TRestGeant4Track::GetSecondaryTracks() const {
+    vector<const TRestGeant4Track*> secondaryTracks = {};
+    for (const auto trackID : fSecondaryTrackIDs) {
+        const TRestGeant4Track* track = fEvent->GetTrackByID(trackID);
+        if (track != nullptr) {
+            secondaryTracks.push_back(track);
+        }
+    }
+    return secondaryTracks;
+}
