@@ -44,8 +44,6 @@ class TRestGeant4GeometryInfo {
     TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
     TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
 
-    // Int_t GetIDFromVolumeName(const TString&) const;
-
     void PopulateFromGeant4World(const G4VPhysicalVolume*);
 
     std::vector<TString> GetAllLogicalVolumes() const;

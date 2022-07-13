@@ -47,13 +47,23 @@ void TRestGeant4PhysicsInfo::Print() const {
 }
 
 void TRestGeant4PhysicsInfo::InsertProcessName(Int_t id, const TString& processName) {
+    if (fProcessNamesMap.count(id) > 0) {
+        return;
+    }
+    fMutex.lock();
     fProcessNamesMap[id] = processName;
     fProcessNamesReverseMap[processName] = id;
+    fMutex.unlock();
 }
 
 void TRestGeant4PhysicsInfo::InsertParticleName(Int_t id, const TString& particleName) {
+    if (fParticleNamesMap.count(id) > 0) {
+        return;
+    }
+    fMutex.lock();
     fParticleNamesMap[id] = particleName;
     fParticleNamesReverseMap[particleName] = id;
+    fMutex.unlock();
 }
 
 template <typename T, typename U>

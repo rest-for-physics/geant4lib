@@ -4,6 +4,7 @@
 #include <TString.h>
 
 #include <map>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -19,6 +20,7 @@ class TRestGeant4PhysicsInfo {
     std::map<Int_t, TString> fParticleNamesMap = {};
     std::map<TString, Int_t> fParticleNamesReverseMap = {};
 
+    std::mutex fMutex;  //!
    public:
     TString GetProcessName(Int_t id) const;
     Int_t GetProcessID(const TString& processName) const;
