@@ -41,6 +41,8 @@
 #include "TRestGeant4GeometryInfo.h"
 #include "TRestGeant4ParticleSource.h"
 #include "TRestGeant4PhysicsInfo.h"
+#include "TRestGeant4PrimaryGeneratorInfo.h"
+
 //------------------------------------------------------------------------------------------------------------------------
 //
 // * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
@@ -106,6 +108,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Class used to store and retrieve physics info such as process names or particle names
     TRestGeant4PhysicsInfo fGeant4PhysicsInfo;
+
+    /// Class used to store and retrieve Geant4 primary generator info
+    TRestGeant4PrimaryGeneratorInfo fGeant4PrimaryGeneratorInfo;  // TODO: Implement this
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
@@ -228,6 +233,11 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns an immutable reference to the physics info
     inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
+
+    /// \brief Returns an immutable reference to the primary generator info
+    inline const TRestGeant4PrimaryGeneratorInfo& GetGeant4PrimaryGeneratorInfo() const {
+        return fGeant4PrimaryGeneratorInfo;
+    }
 
     /// \brief Returns a std::string with the version of Geant4 used on the event data
     /// simulation
