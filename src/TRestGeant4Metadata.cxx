@@ -650,50 +650,10 @@
 
 #include <TGeoManager.h>
 #include <TRandom.h>
+#include <TRestGDMLParser.h>
 #include <TRestRun.h>
 
-#include "TRestGDMLParser.h"
-
 using namespace std;
-
-namespace g4_metadata_parameters {
-string CleanString(string s) {
-    // transform the string to lowercase
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
-    // this is a temporary fix, TH1D name comparison is being done elsewhere and giving error
-    if (s == "th1d") {
-        s = "TH1D";
-    }
-    return s;
-}
-
-map<string, generator_types> generator_types_map = {
-    {CleanString("custom"), generator_types::CUSTOM},
-    {CleanString("volume"), generator_types::VOLUME},
-    {CleanString("surface"), generator_types::SURFACE},
-    {CleanString("point"), generator_types::POINT},
-};
-
-std::map<string, generator_shapes> generator_shapes_map = {
-    {CleanString("gdml"), generator_shapes::GDML},     {CleanString("wall"), generator_shapes::WALL},
-    {CleanString("circle"), generator_shapes::CIRCLE}, {CleanString("box"), generator_shapes::BOX},
-    {CleanString("sphere"), generator_shapes::SPHERE}, {CleanString("cylinder"), generator_shapes::CYLINDER},
-};
-
-map<string, energy_dist_types> energy_dist_types_map = {
-    {CleanString("TH1D"), energy_dist_types::TH1D},
-    {CleanString("mono"), energy_dist_types::MONO},
-    {CleanString("flat"), energy_dist_types::FLAT},
-    {CleanString("log"), energy_dist_types::LOG},
-};
-
-map<string, angular_dist_types> angular_dist_types_map = {
-    {CleanString("TH1D"), angular_dist_types::TH1D},
-    {CleanString("isotropic"), angular_dist_types::ISOTROPIC},
-    {CleanString("flux"), angular_dist_types::FLUX},
-    {CleanString("backtoback"), angular_dist_types::BACK_TO_BACK},
-};
-}  // namespace g4_metadata_parameters
 
 ClassImp(TRestGeant4Metadata);
 

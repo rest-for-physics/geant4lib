@@ -43,53 +43,6 @@
 #include "TRestGeant4PhysicsInfo.h"
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
-//------------------------------------------------------------------------------------------------------------------------
-//
-// * This section was added by Luis A. Obis (lobis@unizar.es) on 17/06/2019
-//
-// Here we add all the possible options for different configurations such as all the types of generators, etc.
-// We use a structure called 'enum' and a function to clean the strings so that we can easily implement case
-// insensitivity or more options such as ignoring underscores.
-//
-
-namespace g4_metadata_parameters {
-std::string CleanString(std::string);
-
-enum class generator_types {
-    CUSTOM,
-    VOLUME,
-    SURFACE,
-    POINT,
-};
-extern std::map<std::string, generator_types> generator_types_map;
-
-enum class generator_shapes {
-    GDML,
-    WALL,
-    CIRCLE,
-    BOX,
-    SPHERE,
-    CYLINDER,
-};
-extern std::map<std::string, generator_shapes> generator_shapes_map;
-
-enum class energy_dist_types {
-    TH1D,
-    MONO,
-    FLAT,
-    LOG,
-};
-extern std::map<std::string, energy_dist_types> energy_dist_types_map;
-
-enum class angular_dist_types {
-    TH1D,
-    ISOTROPIC,
-    FLUX,
-    BACK_TO_BACK,
-};
-extern std::map<std::string, angular_dist_types> angular_dist_types_map;
-}  // namespace g4_metadata_parameters
-
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
    private:
