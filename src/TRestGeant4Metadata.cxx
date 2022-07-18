@@ -653,7 +653,10 @@
 #include <TRestGDMLParser.h>
 #include <TRestRun.h>
 
+#include "TRestGeant4PrimaryGeneratorInfo.h"
+
 using namespace std;
+using namespace TRestGeant4PrimaryGeneratorTypes;
 
 ClassImp(TRestGeant4Metadata);
 
@@ -900,8 +903,10 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     TiXmlElement* generatorDefinition = GetElement("generator");
 
-    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType = GetParameter("type", generatorDefinition, "volume");
-    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = GetParameter("shape", generatorDefinition, "box");
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType = SpatialGeneratorTypesToString(
+        StringToSpatialGeneratorTypes(GetParameter("type", generatorDefinition, "volume")));
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = SpatialGeneratorShapesToString(
+        StringToSpatialGeneratorShapes(GetParameter("shape", generatorDefinition, "box")));
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom = GetParameter("from", generatorDefinition);
     if (fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom != PARAMETER_NOT_FOUND_STR) {
         fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = "gdml";
