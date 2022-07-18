@@ -2,17 +2,24 @@
 #ifndef REST_TRESTGEANT4PRIMARYGENERATORINFO_H
 #define REST_TRESTGEANT4PRIMARYGENERATORINFO_H
 
-namespace TRestGeant4PrimaryGeneratorInfo {
+#include <TString.h>
+#include <TVector3.h>
 
-enum class generator_types {
+#include <string>
+
+namespace TRestGeant4PrimaryGeneratorTypes {
+
+enum class SpatialGeneratorTypes {
     CUSTOM,
     VOLUME,
     SURFACE,
     POINT,
 };
-extern std::map<std::string, generator_types> generator_types_map;
 
-enum class generator_shapes {
+std::string SpatialGeneratorTypesToString(const SpatialGeneratorTypes&);
+SpatialGeneratorTypes StringToSpatialGeneratorTypes(const std::string&);
+
+enum class SpatialGeneratorShapes {
     GDML,
     WALL,
     CIRCLE,
@@ -20,24 +27,33 @@ enum class generator_shapes {
     SPHERE,
     CYLINDER,
 };
-extern std::map<std::string, generator_shapes> generator_shapes_map;
 
-enum class energy_dist_types {
+std::string SpatialGeneratorShapesToString(const SpatialGeneratorShapes&);
+SpatialGeneratorShapes StringToSpatialGeneratorShapes(const std::string&);
+
+enum class EnergyDistributionTypes {
     TH1D,
     FORMULA,
     MONO,
     FLAT,
     LOG,
 };
-extern std::map<std::string, energy_dist_types> energy_dist_types_map;
 
-enum class angular_dist_types {
+std::string EnergyDistributionTypesToString(const EnergyDistributionTypes&);
+EnergyDistributionTypes StringToEnergyDistributionTypes(const std::string&);
+
+enum class AngularDistributionTypes {
     TH1D,
     FORMULA,
     ISOTROPIC,
     FLUX,
     BACK_TO_BACK,
 };
+
+std::string AngularDistributionTypesToString(const AngularDistributionTypes&);
+AngularDistributionTypes StringToAngularDistributionTypes(const std::string&);
+
+}  // namespace TRestGeant4PrimaryGeneratorTypes
 
 class TRestGeant4PrimaryGeneratorInfo {
     ClassDef(TRestGeant4PrimaryGeneratorInfo, 1);
