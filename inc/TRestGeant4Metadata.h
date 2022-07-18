@@ -127,38 +127,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
 
-    /// Type of spatial generator (surface, volume, custom)
-    TString fGenType;
-
-    /// Shape of spatial generator (point, wall, gdml, sphere, etc)
-    TString fGenShape;
-
-    /// The volume name where the events are generated, in case of volume or
-    /// surface generator types.
-    TString fGenFrom;
-
-    /// The position of the generator for virtual, and point, generator types.
-    TVector3 fGenPosition;
-
-    /// \brief A 3d-std::vector with the angles, measured in degrees, of a XYZ rotation
-    /// applied to the virtual generator. This rotation is used by virtualWall,
-    /// virtualCircleWall and virtualCylinder generators.
-    TVector3 fGenRotationAxis;
-
-    /// \brief degrees of rotation for generator virtual shape along the axis
-    Double_t fGenRotationDegree;
-
-    /// \brief The size of the generator. Stores up to three deminsions according to the shape
-    /// box: length, width, height
-    /// sphere: radius
-    /// wall: length, width
-    /// circle: radius
-    /// cylinder: radius, length
-    TVector3 fGenSize;
-
-    /// \brief Defines density distribution of the generator shape. rho=F(x,y,z), in range 0~1
-    TString fGenDensityFunction;
-
     /// \brief A 2d-std::vector storing the energy range, in keV, to decide if a particular
     /// event should be written to disk or not.
     TVector2 fEnergyRangeStored;
@@ -209,7 +177,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     Long_t fSeed = 0;
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
-    /// sensitive volume (used for debugging pourposes). It is set to 'false' by default.
+    /// sensitive volume (used for debugging purposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = false;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
@@ -257,43 +225,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the reference provided at the materials file header
     inline TString GetMaterialsReference() const { return fMaterialsReference; }
 
-    /// \brief Returns a std::string specifying the generator type (volume, surface, point,
-    /// virtualWall, etc )
-    inline TString GetGeneratorType() const { return fGenType; }
-
-    /// \brief Returns a std::string specifying the generator shape (point, wall, box, etc )
-    inline TString GetGeneratorShape() const { return fGenShape; }
-
-    /// \brief Returns the name of the GDML volume where primary events are
-    /// produced. This value has meaning only when using volume or surface
-    /// generator types.
-    inline TString GetGeneratedFrom() const { return fGenFrom; }
-
-    /// \brief Returns the name of the GDML volume where primary events are
-    /// produced. This value has meaning only when using volume or surface
-    /// generator types.
-    inline TString GetGDMLGeneratorVolume() const { return fGenFrom; }
-
-    /// \brief Returns a 3d-std::vector with the position of the primary event
-    /// generator. This value has meaning only when using point and virtual
-    /// generator types.
-    inline TVector3 GetGeneratorPosition() const { return fGenPosition; }
-
-    /// \brief Returns a 3d-std::vector, fGenRotation, with the XYZ rotation angle
-    /// values in degrees. This value is used by virtualWall, virtualCircleWall
-    /// and virtualCylinder generator types.
-    inline TVector3 GetGeneratorRotationAxis() const { return fGenRotationAxis; }
-
-    /// \brief Returns the degree of rotation
-    inline Double_t GetGeneratorRotationDegree() const { return fGenRotationDegree; }
-
-    /// \brief Returns the main spatial dimension of virtual generator.
-    /// It is the size of a  virtualBox.
-    inline TVector3 GetGeneratorSize() const { return fGenSize; }
-
-    /// \brief Returns the density function of the generator
-    inline TString GetGeneratorSpatialDensity() const { return fGenDensityFunction; }
-
     /// \brief Returns true in case full decay chain simulation is enabled.
     inline Bool_t isFullChainActivated() const { return fFullChain; }
 
@@ -326,25 +257,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Sets the value of the Geant4 version
     inline void SetGeant4Version(const TString& versionString) { fGeant4Version = versionString; }
 
-    ///  \brief Sets the generator type. I.e. volume, surface, point, virtualWall,
-    ///  virtualCylinder, etc.
-    inline void SetGeneratorType(TString type) { fGenType = type; }
-
-    ///  \brief Sets the generator main spatial dimension. In a virtual generator is the
-    ///  radius of cylinder, size of wall, etc.
-    inline void SetGeneratorSize(const TVector3& size) { fGenSize = size; }
-
     ///  Enables/disables the full chain decay generation.
     inline void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
-
-    ///  Sets the position of the virtual generator using a TVector3.
-    inline void SetGeneratorPosition(const TVector3& pos) { fGenPosition = pos; }
-
-    ///  Sets the position of the virtual generator using x,y,z coordinates.
-    inline void SetGeneratorPosition(double x, double y, double z) { fGenPosition = TVector3(x, y, z); }
-
-    /// Sets the number of events to be simulated.
-    inline void SetNEvents(Int_t n) { fNEvents = n; }
 
     /// It sets the location of the geometry files
     inline void SetGeometryPath(std::string path) { fGeometryPath = path; }

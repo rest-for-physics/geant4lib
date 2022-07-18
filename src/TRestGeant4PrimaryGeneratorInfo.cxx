@@ -4,6 +4,10 @@
 
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
+#include <TMath.h>
+#include <TRestStringOutput.h>
+#include <tinyxml.h>
+
 #include <iostream>
 
 using namespace std;
@@ -24,7 +28,7 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const Spa
     exit(1);
 }
 
-SpatialGeneratorTypes StringToSpatialGeneratorTypes(const string& type) {
+SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(const string& type) {
     if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::CUSTOM),
                               TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorTypes::CUSTOM;
@@ -62,7 +66,7 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString(const Sp
     exit(1);
 }
 
-SpatialGeneratorShapes StringToSpatialGeneratorShapes(const string& type) {
+SpatialGeneratorShapes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorShapes(const string& type) {
     if (TString(type).EqualTo(SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML),
                               TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorShapes::GDML;
@@ -106,7 +110,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
     exit(1);
 }
 
-EnergyDistributionTypes StringToEnergyDistributionTypes(const string& type) {
+EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
+    const string& type) {
     if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::TH1D;
@@ -146,7 +151,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
     exit(1);
 }
 
-AngularDistributionTypes StringToAngularDistributionTypes(const string& type) {
+AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+    const string& type) {
     if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::TH1D;
@@ -166,4 +172,41 @@ AngularDistributionTypes StringToAngularDistributionTypes(const string& type) {
         cout << "Error: Unknown AngularDistributionTypes: " << type << endl;
         exit(1);
     }
+}
+
+void TRestGeant4PrimaryGeneratorInfo::Print() const {
+    const auto typeEnum = StringToSpatialGeneratorTypes(fSpatialGeneratorType.Data());
+    const auto shapeEnum = StringToSpatialGeneratorShapes(fSpatialGeneratorShape.Data());
+
+    RESTMetadata << "Generator type: " << fSpatialGeneratorType << RESTendl;
+    RESTMetadata << "Generator shape: " << fSpatialGeneratorShape;
+
+    if (shapeEnum == SpatialGeneratorShapes::GDML) {
+        RESTMetadata << "::" << fSpatialGeneratorFrom << RESTendl;
+    } else {
+        if (shapeEnum == SpatialGeneratorShapes::BOX) {
+            RESTMetadata << ", (length, width, height): ";
+        } else if (shapeEnum == SpatialGeneratorShapes::SPHERE) {
+            RESTMetadata << ", (radius, , ): ";
+        } else if (shapeEnum == SpatialGeneratorShapes::WALL) {
+            RESTMetadata << ", (length, width, ): ";
+        } else if (shapeEnum == SpatialGeneratorShapes::CIRCLE) {
+            RESTMetadata << ", (radius, , ): ";
+        } else if (shapeEnum == SpatialGeneratorShapes::CYLINDER) {
+            RESTMetadata << ", (radius, length, ): ";
+        }
+
+        if (typeEnum != SpatialGeneratorTypes::POINT) {
+            RESTMetadata << fSpatialGeneratorSize.X() << ", " << fSpatialGeneratorSize.Y() << ", "
+                         << fSpatialGeneratorSize.Z() << RESTendl;
+        } else {
+            RESTMetadata << RESTendl;
+        }
+    }
+    RESTMetadata << "Generator center : (" << fSpatialGeneratorPosition.X() << ","
+                 << fSpatialGeneratorPosition.Y() << "," << fSpatialGeneratorPosition.Z() << ") mm"
+                 << RESTendl;
+    RESTMetadata << "Generator rotation : (" << fSpatialGeneratorRotationAxis.X() << ","
+                 << fSpatialGeneratorRotationAxis.Y() << "," << fSpatialGeneratorRotationAxis.Z()
+                 << "), angle: " << fSpatialGeneratorRotationValue * TMath::RadToDeg() << "º" << RESTendl;
 }

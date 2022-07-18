@@ -107,8 +107,8 @@
 /// *restG4*, as important as the detector geometry, or the number of events to
 /// be simulated.
 ///
-/// * **Nevents**: The number of primary particles to be generated. The number
-/// of registered events might differ from *Nevents* due to storage definitions.
+/// * **nEvents**: The number of primary particles to be generated. The number
+/// of registered events might differ from *nEvents* due to storage definitions.
 /// The number of events registered could be even larger than the number of
 /// primaries, as for example when launching full decay chain simulations, where
 /// different isotope decays are stored in different events.
@@ -940,17 +940,22 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     TiXmlElement* generatorDefinition = GetElement("generator");
 
-    fGenType = GetParameter("type", generatorDefinition, "volume");
-    fGenShape = GetParameter("shape", generatorDefinition, "box");
-    fGenFrom = GetParameter("from", generatorDefinition);
-    if (fGenFrom != PARAMETER_NOT_FOUND_STR) {
-        fGenShape = "gdml";
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType = GetParameter("type", generatorDefinition, "volume");
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = GetParameter("shape", generatorDefinition, "box");
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom = GetParameter("from", generatorDefinition);
+    if (fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom != PARAMETER_NOT_FOUND_STR) {
+        fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = "gdml";
     }
-    fGenSize = Get3DVectorParameterWithUnits("size", generatorDefinition);
-    fGenPosition = Get3DVectorParameterWithUnits("position", generatorDefinition);
-    fGenRotationAxis = StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
-    fGenRotationDegree = GetDblParameterWithUnits("rotationAngle", generatorDefinition);
-    fGenDensityFunction = GetParameter("densityFunc", generatorDefinition, "1");
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSize =
+        Get3DVectorParameterWithUnits("size", generatorDefinition);
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorPosition =
+        Get3DVectorParameterWithUnits("position", generatorDefinition);
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationAxis =
+        StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationValue =
+        GetDblParameterWithUnits("rotationAngle", generatorDefinition);
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSpatialDensityFunction =
+        GetParameter("densityFunc", generatorDefinition, "1");
 
     TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
     while (sourceDefinition) {
@@ -965,7 +970,7 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     // check if the generator is valid.
     if (GetNumberOfSources() == 0) {
-        RESTError << "No sources are added inside geneartor!" << RESTendl;
+        RESTError << "No sources are added inside generator!" << RESTendl;
         exit(1);
     }
 }
@@ -1140,35 +1145,7 @@ void TRestGeant4Metadata::PrintMetadata() {
         RESTMetadata << "Register empty tracks was NOT enabled" << RESTendl;
     RESTMetadata << "   ++++++++++ Generator +++++++++++   " << RESTendl;
     RESTMetadata << "Number of generated events : " << GetNumberOfEvents() << RESTendl;
-    RESTMetadata << "Generator type : " << fGenType << RESTendl;
-    RESTMetadata << "Generator shape : " << fGenShape;
-    if (fGenShape == "gdml") {
-        RESTMetadata << "::" << GetGDMLGeneratorVolume() << RESTendl;
-    } else {
-        if (fGenShape == "box") {
-            RESTMetadata << ", (length, width, height): ";
-        } else if (fGenShape == "sphere") {
-            RESTMetadata << ", (radius, , ): ";
-        } else if (fGenShape == "wall") {
-            RESTMetadata << ", (length, width, ): ";
-        } else if (fGenShape == "circle") {
-            RESTMetadata << ", (radius, , ): ";
-        } else if (fGenShape == "cylinder") {
-            RESTMetadata << ", (radius, length, ): ";
-        }
-
-        if (fGenShape != "point") {
-            TVector3 s = GetGeneratorSize();
-            RESTMetadata << s.X() << ", " << s.Y() << ", " << s.Z() << RESTendl;
-        } else {
-            RESTMetadata << RESTendl;
-        }
-    }
-    TVector3 a = GetGeneratorPosition();
-    RESTMetadata << "Generator center : (" << a.X() << "," << a.Y() << "," << a.Z() << ") mm" << RESTendl;
-    TVector3 b = GetGeneratorRotationAxis();
-    RESTMetadata << "Generator rotation : (" << b.X() << "," << b.Y() << "," << b.Z()
-                 << "), angle: " << GetGeneratorRotationDegree() << " rads" << RESTendl;
+    fGeant4PrimaryGeneratorInfo.Print();
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
