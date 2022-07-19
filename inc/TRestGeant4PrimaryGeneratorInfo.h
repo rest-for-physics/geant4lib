@@ -65,10 +65,10 @@ class TRestGeant4PrimaryGeneratorInfo {
 
    private:
     /* Members related to spatial generator */
-    /// Type of spatial generator (surface, volume, custom)
-    TString fSpatialGeneratorType;
+    /// Type of spatial generator (point, surface, volume, custom)
+    TString fSpatialGeneratorType = "point";
 
-    /// Shape of spatial generator (point, wall, GDML, sphere, etc)
+    /// Shape of spatial generator (wall, GDML, sphere, etc)
     TString fSpatialGeneratorShape;
 
     /// The volume name where the events are generated, in case of volume or surface generator types
@@ -83,7 +83,7 @@ class TRestGeant4PrimaryGeneratorInfo {
     TVector3 fSpatialGeneratorRotationAxis;
 
     /// \brief degrees of rotation for generator virtual shape along the axis
-    Double_t fSpatialGeneratorRotationValue;
+    Double_t fSpatialGeneratorRotationValue = 0;
 
     /// \brief The size of the generator. Stores up to three dimensions according to the shape
     /// box: length, width, height

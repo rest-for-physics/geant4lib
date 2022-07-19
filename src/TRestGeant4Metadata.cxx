@@ -1102,7 +1102,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
     Double_t mz = GetMagneticField().Z();
-    RESTMetadata << "Magnetic field : ( " << mx << ", " << my << ", " << mz << ") T" << RESTendl;
+    RESTMetadata << "Magnetic field : (" << mx << ", " << my << ", " << mz << ") T" << RESTendl;
     if (fSaveAllEvents) RESTMetadata << "Save all events was enabled!" << RESTendl;
     if (fRegisterEmptyTracks)
         RESTMetadata << "Register empty tracks was enabled" << RESTendl;

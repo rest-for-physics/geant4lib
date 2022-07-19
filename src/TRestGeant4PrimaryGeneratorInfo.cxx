@@ -24,7 +24,9 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const Spa
         case SpatialGeneratorTypes::POINT:
             return "Point";
     }
-    cout << "Error: Unknown SpatialGeneratorTypes" << endl;
+    cout << "TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString - Error - Unknown "
+            "SpatialGeneratorTypes"
+         << endl;
     exit(1);
 }
 
@@ -42,7 +44,9 @@ SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerator
                                      TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorTypes::POINT;
     } else {
-        cout << "Error: Unknown SpatialGeneratorTypes: " << type << endl;
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes - Error - Unknown "
+                "SpatialGeneratorTypes: "
+             << type << endl;
         exit(1);
     }
 }
@@ -62,7 +66,9 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString(const Sp
         case SpatialGeneratorShapes::CYLINDER:
             return "Cylinder";
     }
-    cout << "Error: Unknown SpatialGeneratorShapes" << endl;
+    cout << "TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString - Error - Unknown "
+            "SpatialGeneratorShapes"
+         << endl;
     exit(1);
 }
 
@@ -87,7 +93,9 @@ SpatialGeneratorShapes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerato
         return SpatialGeneratorShapes::CYLINDER;
 
     } else {
-        cout << "Error: Unknown SpatialGeneratorShapes: " << type << endl;
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorShapes - Error - Unknown "
+                "SpatialGeneratorShapes: "
+             << type << endl;
         exit(1);
     }
 }
@@ -106,7 +114,9 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
         case EnergyDistributionTypes::LOG:
             return "Log";
     }
-    cout << "Error: Unknown EnergyDistributionTypes" << endl;
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString - Error - Unknown energy "
+            "distribution type"
+         << endl;
     exit(1);
 }
 
@@ -128,7 +138,9 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::LOG;
     } else {
-        cout << "Error: Unknown EnergyDistributionTypes: " << type << endl;
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes - Error - Unknown "
+                "EnergyDistributionTypes: "
+             << type << endl;
         exit(1);
     }
 }
@@ -147,7 +159,9 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
         case AngularDistributionTypes::BACK_TO_BACK:
             return "Back to back";
     }
-    cout << "Error: Unknown AngularDistributionTypes" << endl;
+    cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString - Error - Unknown angular "
+            "distribution type"
+         << endl;
     exit(1);
 }
 
@@ -169,38 +183,37 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::BACK_TO_BACK;
     } else {
-        cout << "Error: Unknown AngularDistributionTypes: " << type << endl;
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes - Error - Unknown "
+                "AngularDistributionTypes: "
+             << type << endl;
         exit(1);
     }
 }
 
 void TRestGeant4PrimaryGeneratorInfo::Print() const {
     const auto typeEnum = StringToSpatialGeneratorTypes(fSpatialGeneratorType.Data());
-    const auto shapeEnum = StringToSpatialGeneratorShapes(fSpatialGeneratorShape.Data());
+    RESTMetadata << "Generator type: " << SpatialGeneratorTypesToString(typeEnum) << RESTendl;
 
-    RESTMetadata << "Generator type: " << fSpatialGeneratorType << RESTendl;
-    RESTMetadata << "Generator shape: " << fSpatialGeneratorShape;
+    if (typeEnum != SpatialGeneratorTypes::POINT) {
+        const auto shapeEnum = StringToSpatialGeneratorShapes(fSpatialGeneratorShape.Data());
+        RESTMetadata << "Generator shape: " << SpatialGeneratorShapesToString(shapeEnum);
+        if (shapeEnum == SpatialGeneratorShapes::GDML) {
+            RESTMetadata << "::" << fSpatialGeneratorFrom << RESTendl;
+        } else {
+            if (shapeEnum == SpatialGeneratorShapes::BOX) {
+                RESTMetadata << ", (length, width, height): ";
+            } else if (shapeEnum == SpatialGeneratorShapes::SPHERE) {
+                RESTMetadata << ", (radius, , ): ";
+            } else if (shapeEnum == SpatialGeneratorShapes::WALL) {
+                RESTMetadata << ", (length, width, ): ";
+            } else if (shapeEnum == SpatialGeneratorShapes::CIRCLE) {
+                RESTMetadata << ", (radius, , ): ";
+            } else if (shapeEnum == SpatialGeneratorShapes::CYLINDER) {
+                RESTMetadata << ", (radius, length, ): ";
+            }
 
-    if (shapeEnum == SpatialGeneratorShapes::GDML) {
-        RESTMetadata << "::" << fSpatialGeneratorFrom << RESTendl;
-    } else {
-        if (shapeEnum == SpatialGeneratorShapes::BOX) {
-            RESTMetadata << ", (length, width, height): ";
-        } else if (shapeEnum == SpatialGeneratorShapes::SPHERE) {
-            RESTMetadata << ", (radius, , ): ";
-        } else if (shapeEnum == SpatialGeneratorShapes::WALL) {
-            RESTMetadata << ", (length, width, ): ";
-        } else if (shapeEnum == SpatialGeneratorShapes::CIRCLE) {
-            RESTMetadata << ", (radius, , ): ";
-        } else if (shapeEnum == SpatialGeneratorShapes::CYLINDER) {
-            RESTMetadata << ", (radius, length, ): ";
-        }
-
-        if (typeEnum != SpatialGeneratorTypes::POINT) {
             RESTMetadata << fSpatialGeneratorSize.X() << ", " << fSpatialGeneratorSize.Y() << ", "
                          << fSpatialGeneratorSize.Z() << RESTendl;
-        } else {
-            RESTMetadata << RESTendl;
         }
     }
     RESTMetadata << "Generator center : (" << fSpatialGeneratorPosition.X() << ","

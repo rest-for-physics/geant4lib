@@ -112,18 +112,18 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief A time gap, in us, determining if an energy hit should be considered (and
     /// stored) as an independent event.
-    Double_t fSubEventTimeDelay;
+    Double_t fSubEventTimeDelay = 100;
 
     /// \brief Defines if a radioactive isotope decay is simulated in full chain
     /// (fFullChain=true), or just a single decay (fFullChain=false).
-    Bool_t fFullChain;
+    Bool_t fFullChain = true;
 
     /// \brief The volume that serves as trigger for data storage. Only events that
     /// deposit a non-zero energy on this volume will be registered.
     TString fSensitiveVolume;
 
     /// The number of events simulated, or to be simulated.
-    Int_t fNEvents;
+    Int_t fNEvents = 0;
 
     /// \brief The seed value used for Geant4 random event generator. If it is zero
     /// its value will be assigned using the system timestamp.
