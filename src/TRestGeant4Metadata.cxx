@@ -947,16 +947,8 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     TiXmlElement* sourceDefinition = definition;
 
     source->SetParticleName(GetParameter("particle", sourceDefinition));
-
     source->SetExcitationLevel(StringToDouble(GetParameter("excitedLevel", sourceDefinition)));
-
-    Int_t charge = 0;
-    if (GetParameter("charge", sourceDefinition) == PARAMETER_NOT_FOUND_STR)
-        charge = 0;
-    else
-        charge = StringToInteger(GetParameter("charge", sourceDefinition));
-
-    source->SetParticleCharge(charge);
+    source->SetParticleCharge(StringToInteger(GetParameter("charge", sourceDefinition, "0")));
 
     TString fullChain = GetParameter("fullChain", sourceDefinition);
     SetFullChain(false);
