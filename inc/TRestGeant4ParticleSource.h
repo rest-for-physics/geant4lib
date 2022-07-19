@@ -107,14 +107,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     }
     inline void SetEnergyDistributionRange(const TVector2& range) {
         fEnergyDistributionRange = range;
-        if (fEnergyDistributionRange.x() < 0) {
-            fEnergyDistributionRange.Set(0, fEnergyDistributionRange.y());
+        if (fEnergyDistributionRange.X() < 0) {
+            fEnergyDistributionRange.Set(0, fEnergyDistributionRange.Y());
         }
-        if (fEnergyDistributionRange.y() < 0) {
-            fEnergyDistributionRange.Set(fEnergyDistributionRange.x(), 0);
+        if (fEnergyDistributionRange.Y() < 0) {
+            fEnergyDistributionRange.Set(fEnergyDistributionRange.X(), 0);
         }
-        if (fEnergyDistributionRange.x() > fEnergyDistributionRange.y()) {
-            fEnergyDistributionRange.Set(fEnergyDistributionRange.y(), fEnergyDistributionRange.x());
+        if (fEnergyDistributionRange.Y() > fEnergyDistributionRange.Y()) {
+            fEnergyDistributionRange.Set(fEnergyDistributionRange.Y(), fEnergyDistributionRange.X());
         }
     }
     inline void SetEnergyDistributionFilename(const TString& filename) {
