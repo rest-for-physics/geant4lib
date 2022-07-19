@@ -105,7 +105,18 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         fEnergyDistributionType = TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
             TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(type.Data()));
     }
-    inline void SetEnergyDistributionRange(const TVector2& range) { fEnergyDistributionRange = range; }
+    inline void SetEnergyDistributionRange(const TVector2& range) {
+        fEnergyDistributionRange = range;
+        if (fEnergyDistributionRange.x() < 0) {
+            fEnergyDistributionRange.Set(0, fEnergyDistributionRange.y());
+        }
+        if (fEnergyDistributionRange.y() < 0) {
+            fEnergyDistributionRange.Set(fEnergyDistributionRange.x(), 0);
+        }
+        if (fEnergyDistributionRange.x() > fEnergyDistributionRange.y()) {
+            fEnergyDistributionRange.Set(fEnergyDistributionRange.y(), fEnergyDistributionRange.x());
+        }
+    }
     inline void SetEnergyDistributionFilename(const TString& filename) {
         fEnergyDistributionFilename = filename;
     }
