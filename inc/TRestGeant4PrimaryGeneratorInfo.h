@@ -43,6 +43,16 @@ enum class EnergyDistributionTypes {
 std::string EnergyDistributionTypesToString(const EnergyDistributionTypes&);
 EnergyDistributionTypes StringToEnergyDistributionTypes(const std::string&);
 
+enum class EnergyDistributionFormulas {
+    COSMIC_MUONS,
+    COSMIC_NEUTRONS,
+    COSMIC_GAMMAS,
+};
+
+std::string EnergyDistributionFormulasToString(const EnergyDistributionFormulas&);
+EnergyDistributionFormulas StringToEnergyDistributionFormulas(const std::string&);
+TF1 EnergyDistributionFormulasToRootFormula(const EnergyDistributionFormulas&);
+
 enum class AngularDistributionTypes {
     TH1D,
     FORMULA,

@@ -145,6 +145,67 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
     }
 }
 
+string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
+    const EnergyDistributionFormulas& type) {
+    switch (type) {
+        case EnergyDistributionFormulas::COSMIC_MUONS:
+            return "CosmicMuons";
+        case EnergyDistributionFormulas::COSMIC_NEUTRONS:
+            return "CosmicNeutrons";
+        case EnergyDistributionFormulas::COSMIC_GAMMAS:
+            return "CosmicGammas";
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString - Error - Unknown energy "
+            "distribution formula"
+         << endl;
+    exit(1);
+}
+
+EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(
+    const string& type) {
+    if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_MUONS),
+                              TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::COSMIC_MUONS;
+    } else if (TString(type).EqualTo(
+                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::COSMIC_NEUTRONS;
+    } else if (TString(type).EqualTo(
+                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_GAMMAS),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::COSMIC_GAMMAS;
+    } else {
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
+                "energyDistributionFormulas: "
+             << type << endl;
+        exit(1);
+    }
+}
+
+TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
+    const EnergyDistributionFormulas& type) {
+    switch (type) {
+        case EnergyDistributionFormulas::COSMIC_MUONS:
+            exit(1);
+        case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
+            const char* title = "EnergyDistribution: Cosmic Neutrons Sea Level";
+            auto f = TF1(
+                title,
+                "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x), 2) + 2.1451 * TMath::Log(x)) + "
+                "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x), 2) -0.6670 * TMath::Log(x))",
+                0.1E0, 10E3);
+            f.SetTitle(title);
+            return f;
+        }
+        case EnergyDistributionFormulas::COSMIC_GAMMAS:
+            exit(1);
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula - Error - Unknown "
+            "energy distribution formula"
+         << endl;
+    exit(1);
+}
+
 string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
     const AngularDistributionTypes& type) {
     switch (type) {
@@ -190,10 +251,6 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
     }
 }
 
-std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
-AngularDistributionTypes StringToAngularDistributionFormulas(const std::string&);
-TFormula AngularDistributionFormulasToRootFormula(const AngularDistributionFormulas&);
-
 string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
     const AngularDistributionFormulas& type) {
     switch (type) {
@@ -222,7 +279,7 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
 TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
     const AngularDistributionFormulas& type) {
     switch (type) {
-        case AngularDistributionFormulas::COS2:
+        case AngularDistributionFormulas::COS2: {
             auto cos2 = [](double* xs, double* ps) {
                 if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
                     return TMath::Power(TMath::Cos(xs[0]), 2);
@@ -230,6 +287,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
                 return 0.0;
             };
             return TF1("AngularDistribution: Cos2", cos2, 0.0, TMath::Pi());
+        }
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "
             "angular distribution formula"
