@@ -63,7 +63,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4PhysicsInfo fGeant4PhysicsInfo;
 
     /// Class used to store and retrieve Geant4 primary generator info
-    TRestGeant4PrimaryGeneratorInfo fGeant4PrimaryGeneratorInfo;  // TODO: Implement this
+    TRestGeant4PrimaryGeneratorInfo fGeant4PrimaryGeneratorInfo;
 
     /// The version of Geant4 used to generate the data
     TString fGeant4Version;
