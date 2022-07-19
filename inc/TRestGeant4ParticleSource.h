@@ -17,6 +17,7 @@
 #ifndef RestCore_TRestGeant4ParticleSource
 #define RestCore_TRestGeant4ParticleSource
 
+#include <TRestGeant4PrimaryGeneratorInfo.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -66,29 +67,47 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline Double_t GetEnergyDistributionRangeMax() const { return fEnergyDistributionRange.Y(); }
     inline TString GetEnergyDistributionFilename() const { return fEnergyDistributionFilename; }
     inline TString GetEnergyDistributionNameInFile() const { return fEnergyDistributionNameInFile; }
+    inline TString GetEnergyDistributionFormulaString() const { return fEnergyDistributionFormulaString; }
 
     inline TString GetAngularDistributionType() const { return fAngularDistributionType; }
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
+    inline TString GetAngularDistributionFormulaString() const { return fAngularDistributionFormulaString; }
 
     inline TString GetGenFilename() const { return fGenFilename; }
 
     inline std::vector<TRestGeant4Particle> GetParticles() const { return fParticles; }
 
-    inline void SetAngularDistributionType(const TString& type) { fAngularDistributionType = type; }
+    inline void SetAngularDistributionType(const TString& type) {
+        fAngularDistributionType = TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
+            TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(type.Data()));
+    }
     inline void SetAngularDistributionFilename(const TString& filename) {
         fAngularDistributionFilename = filename;
     }
     inline void SetAngularDistributionNameInFile(const TString& name) {
         fAngularDistributionNameInFile = name;
     }
+    inline void SetAngularDistributionFormulaString(const TString& formula) {
+        fAngularDistributionFormulaString =
+            TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
+                TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas(formula.Data()));
+    }
 
-    inline void SetEnergyDistributionType(const TString& type) { fEnergyDistributionType = type; }
+    inline void SetEnergyDistributionType(const TString& type) {
+        fEnergyDistributionType = TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
+            TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(type.Data()));
+    }
     inline void SetEnergyDistributionRange(const TVector2& range) { fEnergyDistributionRange = range; }
     inline void SetEnergyDistributionFilename(const TString& filename) {
         fEnergyDistributionFilename = filename;
     }
     inline void SetEnergyDistributionNameInFile(const TString& name) { fEnergyDistributionNameInFile = name; }
+    inline void SetEnergyDistributionFormulaString(const TString& formula) {
+        fEnergyDistributionFormulaString =
+            TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
+                TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(formula.Data()));
+    }
 
     inline void SetGenFilename(const TString& name) { fGenFilename = name; }
 
