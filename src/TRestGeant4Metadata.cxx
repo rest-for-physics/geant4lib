@@ -960,7 +960,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
 
     TString fullChain = GetParameter("fullChain", sourceDefinition);
     SetFullChain(false);
-    if (fullChain.EqualTo("on"), TString::ECaseCompare::kIgnoreCase) {
+    if (fullChain.EqualTo("on", TString::ECaseCompare::kIgnoreCase)) {
         SetFullChain(true);
     }
 
