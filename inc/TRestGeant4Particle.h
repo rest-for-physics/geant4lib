@@ -27,7 +27,7 @@ class TRestGeant4Particle : public TObject {
    protected:
     TString fParticleName;
     Double_t fExcitationLevel = 0;
-    TVector3 fDirection;
+    TVector3 fDirection = {1, 0, 0};
     Double_t fEnergy;
     Int_t fCharge = 0;
     TVector3 fOrigin;

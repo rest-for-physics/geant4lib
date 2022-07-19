@@ -125,8 +125,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// The number of events simulated, or to be simulated.
     Int_t fNEvents = 0;
 
-    /// \brief The seed value used for Geant4 random event generator. If it is zero
-    /// its value will be assigned using the system timestamp.
+    /// \brief The seed value used for Geant4 random event generator.
+    /// If it is zero its value will be assigned using the system timestamp.
     Long_t fSeed = 0;
 
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the

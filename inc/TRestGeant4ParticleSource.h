@@ -59,7 +59,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
     inline TString GetParticleName() const { return fParticleName; }
-    inline TVector3 GetDirection() const { return fDirection; }
+    inline TVector3 GetDirection() const {
+        if (fDirection.Mag() <= 0) {
+            std::cout << "TRestGeant4ParticleSource::GetDirection: "
+                      << "Direction cannot be the zero vector" << std::endl;
+            exit(1);
+        }
+        return fDirection;
+    }
 
     inline TString GetEnergyDistributionType() const { return fEnergyDistributionType; }
     inline TVector2 GetEnergyDistributionRange() const { return fEnergyDistributionRange; }
