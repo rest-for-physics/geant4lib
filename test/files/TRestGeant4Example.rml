@@ -11,8 +11,8 @@
 
         <generator type="point" position="(0, 0, 0)">
             <source particle="geantino">
-                <energyDist type="mono" energy="1.0" units="MeV"/>
-                <angularDist type="isotropic"/>
+                <energy type="mono" energy="1.0" units="MeV"/>
+                <angular type="isotropic"/>
             </source>
         </generator>
 

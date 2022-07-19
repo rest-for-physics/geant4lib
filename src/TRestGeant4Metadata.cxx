@@ -159,8 +159,8 @@
 /// <generator type="generatorType" ... >
 ///
 ///     <source use="geant4" particle="particleName" ... >
-///         <angularDist type="angularDistribution" />
-///         <energyDist type="energyDistribution" energy="energyValues" units="MeV" />
+///         <angular type="angularDistribution" />
+///         <energy type="energyDistribution" energy="energyValues" units="MeV" />
 ///     </source>
 ///
 ///     <source particle="particleName" ... >
@@ -283,8 +283,8 @@
 /// \code
 ///    // 3. geant4 internal
 ///    <source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
-///		    <angularDist type="isotropic" />
-///			<energyDist type="mono" energy="0.0" units="MeV" />
+///		    <angular type="isotropic" />
+///			<energy type="mono" energy="0.0" units="MeV" />
 ///	   </source>
 /// \endcode
 ///
@@ -331,7 +331,7 @@
 /// \code
 ///     // We launch pre-generated 136Xe NLDBD events
 ///     <source fromFile="Xe136bb0n.dat">
-///         // The energyDist and angularDist
+///         // The energy and angular
 ///         // definitions here will be just
 ///         // ignored with this type of source
 ///     </source>
@@ -341,7 +341,7 @@
 ///
 /// A source, or particle, associated kinetic energy is defined by using.
 /// \code
-/// <energyDist type="energyDistType" ... />
+/// <energy type="energyDistType" ... />
 /// \endcode
 ///
 /// There are different energy distribution types we can use to define the
@@ -354,7 +354,7 @@
 /// `energy="E"`, where `E` is the kinetic energy of the particle in keV.
 /// \code
 ///     // A mono energetic particle with 10keV.
-///     <energyDist type="mono" energy="10" units="keV" />
+///     <energy type="mono" energy="10" units="keV" />
 /// \endcode
 ///
 /// * **flat**: All the particles from this source will be launched in a
@@ -362,7 +362,7 @@
 /// define the parameter `range="(Ei,Ef)"`, where `Ei` is the minimum energy and
 /// `Ef` is the maximum energy (in keV). \code
 ///     // A random uniform generation between 1 and 10 keV
-///     <energyDist type="flat" range="(1,10)" units="keV" />
+///     <energy type="flat" range="(1,10)" units="keV" />
 /// \endcode
 ///
 /// * **log**: All the particles from this source will be launched in a
@@ -370,12 +370,12 @@
 /// define the parameter `range="(Ei,Ef)"`, where `Ei` is the minimum energy and
 /// `Ef` is the maximum energy (in keV). `Ei` needs to be > 0. \code
 ///     // A random logarithmic generation between 1 and 10 keV
-///     <energyDist type="log" range="(1,10)" units="keV" />
+///     <energy type="log" range="(1,10)" units="keV" />
 /// \endcode
 ///
 /// * **TH1D**: It will use a TH1D histogram from a ROOT file with a user
 /// defined spectrum. It requires to define the parameters
-/// `file="mySpectrum.root"` `spctName="histName"` and `range="(Ei,Ef)"`. The
+/// `file="mySpectrum.root"` `name="histName"` and `range="(Ei,Ef)"`. The
 /// ROOT file should contain a TH1D histogram with name `histName`. Only the
 /// region of the spectrum inside the range `Ei-Ef` will be considered. If `range`
 /// is not specified inside the RML, the full TH1D range definition will be used.
@@ -385,7 +385,7 @@
 /// \code
 ///     // A TH1D input spectrum to produce underground muons in the range
 ///     // between 150 and 400 GeV
-///     <energyDist type="TH1D" file="Muons.root" spctName="LSCMuon"
+///     <energy type="TH1D" file="Muons.root" name="LSCMuon"
 ///                 range="(150,400)" units="GeV" />
 /// \endcode
 ///
@@ -393,7 +393,7 @@
 ///
 /// The momentum direction of a particle is specified by using.
 /// \code
-/// <angularDist type="angularDistType" ... />
+/// <angular type="angularDistType" ... />
 /// \endcode
 ///
 /// We can use different types of angular distributions to define the
@@ -406,7 +406,7 @@
 /// normalized).
 /// \code
 ///     // Particles will be launched in the positive y-axis direction.
-///     <angularDist type="flux" direction="(0,1,0)" />
+///     <angular type="flux" direction="(0,1,0)" />
 /// \endcode
 ///
 /// * **isotropic**: The momentum direction of each particle will be
@@ -415,7 +415,7 @@
 /// volume will be considered.
 /// \code
 ///     // Particles will be launched without preferred direction.
-///     <angularDist type="isotropic" />
+///     <angular type="isotropic" />
 /// \endcode
 ///
 /// * **backtoback**: The source momentum direction will be opposite to
@@ -423,18 +423,18 @@
 /// angular distribution type will be re-defined to isotropic.
 /// \code
 ///     // Particles will be launched without preferred direction.
-///     <angularDist type="backtoback" />
+///     <angular type="backtoback" />
 /// \endcode
 ///
 /// * **TH1D** : It will use a TH1D histogram from a ROOT file with a
 /// user defined angular distribution. It requires to define the
 /// additional parameters as `file="mySpectrum.root"` and
-/// `spctName="histName"`. The file we give should be stored in
+/// `name="histName"`. The file we give should be stored in
 /// `"data/distributions/"` and contain a TH1D histogram with
 /// name "histName".
 /// \code
 ///     // A TH1D input angular distribution used for cosmic rays
-///     <angularDist type="TH1D" file="CosmicAngles.root" spctName="Theta2" />
+///     <angular type="TH1D" file="CosmicAngles.root" name="Theta2" />
 /// \endcode
 ///
 /// ## 3. The storage section definition
@@ -885,8 +885,8 @@ void TRestGeant4Metadata::ReadBiasing() {
 ///
 ///      ///3. geant4 internal
 ///      <!--<source use="geant4" particle="Na22" excitedLevel="0.0" fullChain="on">
-///        <angularDist type="isotropic" />
-///        <energyDist type="mono" energy="0.0" units="MeV" />
+///        <angular type="isotropic" />
+///        <energy type="mono" energy="0.0" units="MeV" />
 ///      </source>-->
 ///    </generator>
 /// \endcode
@@ -959,20 +959,25 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     source->SetParticleCharge(charge);
 
     TString fullChain = GetParameter("fullChain", sourceDefinition);
-
-    if (fullChain == "on" || fullChain == "ON" || fullChain == "On" || fullChain == "oN") {
+    SetFullChain(false);
+    if (fullChain.EqualTo("on"), TString::ECaseCompare::kIgnoreCase) {
         SetFullChain(true);
-    } else {
-        SetFullChain(false);
     }
 
     // Angular distribution parameters
-    TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
+    TiXmlElement* angularDefinition = GetElement("angular", sourceDefinition);
+    if (angularDefinition == nullptr) {
+        angularDefinition = GetElement("angularDist", sourceDefinition);  // old name
+    }
     source->SetAngularDistributionType(GetParameter("type", angularDefinition, "flux"));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::TH1D) {
         source->SetAngularDistributionFilename(SearchFile(GetParameter("file", angularDefinition)));
-        source->SetAngularDistributionNameInFile(GetParameter("spctName", angularDefinition));
+        auto name = GetParameter("name", angularDefinition);
+        if (name == "NO_SUCH_PARA") {
+            name = GetParameter("spctName", angularDefinition);  // old name
+        }
+        source->SetAngularDistributionNameInFile(name);
     }
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::FORMULA) {
@@ -982,17 +987,25 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
             AngularDistributionTypes::BACK_TO_BACK) {
         cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-        source->SetAngularDistributionType("isotropic");
+        source->SetAngularDistributionType(
+            AngularDistributionTypesToString(AngularDistributionTypes::ISOTROPIC));
     }
     source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
 
     // Energy distribution parameters
-    TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
+    TiXmlElement* energyDefinition = GetElement("energy", sourceDefinition);
+    if (energyDefinition == nullptr) {
+        energyDefinition = GetElement("energyDist", sourceDefinition);  // old name
+    }
     source->SetEnergyDistributionType(GetParameter("type", energyDefinition, "mono"));
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
         EnergyDistributionTypes::TH1D) {
         source->SetEnergyDistributionFilename(SearchFile(GetParameter("file", energyDefinition)));
-        source->SetEnergyDistributionNameInFile(GetParameter("spctName", energyDefinition));
+        auto name = GetParameter("name", energyDefinition);
+        if (name == "NO_SUCH_PARA") {
+            name = GetParameter("spctName", energyDefinition);  // old name
+        }
+        source->SetEnergyDistributionNameInFile(name);
     }
     source->SetEnergyDistributionRange(Get2DVectorParameterWithUnits("range", energyDefinition));
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
