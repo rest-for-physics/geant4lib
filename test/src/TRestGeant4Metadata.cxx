@@ -46,5 +46,5 @@ TEST(TRestGeant4Metadata, FromRml) {
     EXPECT_TRUE(restGeant4Metadata.GetNumberOfSources() == 1);
     const auto particleSource = restGeant4Metadata.GetParticleSource(0);
     EXPECT_TRUE(particleSource->GetParticleName() == "geantino");
-    EXPECT_TRUE(particleSource->GetEnergyDistType() == "mono");
+    EXPECT_TRUE(particleSource->GetEnergyDistributionType() == "mono");
 }

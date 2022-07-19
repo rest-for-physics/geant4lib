@@ -256,6 +256,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
     switch (type) {
         case AngularDistributionFormulas::COS2:
             return "Cos2";
+        case AngularDistributionFormulas::COS3:
+            return "Cos3";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString - Error - Unknown angular "
             "distribution formula"
@@ -268,6 +270,9 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
     if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS2),
                               TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::COS2;
+    } else if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS3),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionFormulas::COS3;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas - Error - Unknown "
                 "AngularDistributionFormulas: "
@@ -286,7 +291,22 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
                 }
                 return 0.0;
             };
-            return TF1("AngularDistribution: Cos2", cos2, 0.0, TMath::Pi());
+            const char* title = "AngularDistribution: Cos2";
+            auto f = TF1(title, cos2, 0.0, TMath::Pi());
+            f.SetTitle(title);
+            return f;
+        }
+        case AngularDistributionFormulas::COS3: {
+            auto cos3 = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+                    return TMath::Power(TMath::Cos(xs[0]), 3);
+                }
+                return 0.0;
+            };
+            const char* title = "AngularDistribution: Cos3";
+            auto f = TF1(title, cos3, 0.0, TMath::Pi());
+            f.SetTitle(title);
+            return f;
         }
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "

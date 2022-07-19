@@ -17,16 +17,14 @@
 #ifndef RestCore_TRestGeant4ParticleSource
 #define RestCore_TRestGeant4ParticleSource
 
+#include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
 #include <TVector3.h>
 
 #include <iostream>
 
-#include "TObject.h"
-//
 #include "TRestGeant4Particle.h"
-#include "TRestMetadata.h"
 
 class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetadata {
    private:
@@ -35,12 +33,12 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     bool ReadOldDecay0File(TString fileName);
 
    protected:
-    TString fAngularDistributionType;
+    TString fAngularDistributionType = "Flux";
     TString fAngularDistributionFilename;
     TString fAngularDistributionNameInFile;
     TString fAngularDistributionFormulaString;
 
-    TString fEnergyDistributionType;
+    TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
     TString fEnergyDistributionNameInFile;
     TString fEnergyDistributionFormulaString;
@@ -60,31 +58,41 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
     inline TString GetParticleName() const { return fParticleName; }
-    inline TString GetAngularDistType() const { return fAngularDistributionType; }
     inline TVector3 GetDirection() const { return fDirection; }
-    inline TString GetEnergyDistType() const { return fEnergyDistributionType; }
-    inline TVector2 GetEnergyRange() const { return fEnergyDistributionRange; }
-    inline Double_t GetMinEnergy() const { return fEnergyDistributionRange.X(); }
-    inline Double_t GetMaxEnergy() const { return fEnergyDistributionRange.Y(); }
-    inline TString GetSpectrumFilename() const { return fEnergyDistributionFilename; }
-    inline TString GetSpectrumName() const { return fEnergyDistributionNameInFile; }
-    inline TString GetAngularFilename() const { return fAngularDistributionFilename; }
-    inline TString GetAngularName() const { return fAngularDistributionNameInFile; }
+
+    inline TString GetEnergyDistributionType() const { return fEnergyDistributionType; }
+    inline TVector2 GetEnergyDistributionRange() const { return fEnergyDistributionRange; }
+    inline Double_t GetEnergyDistributionRangeMin() const { return fEnergyDistributionRange.X(); }
+    inline Double_t GetEnergyDistributionRangeMax() const { return fEnergyDistributionRange.Y(); }
+    inline TString GetEnergyDistributionFilename() const { return fEnergyDistributionFilename; }
+    inline TString GetEnergyDistributionNameInFile() const { return fEnergyDistributionNameInFile; }
+
+    inline TString GetAngularDistributionType() const { return fAngularDistributionType; }
+    inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
+    inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
+
     inline TString GetGenFilename() const { return fGenFilename; }
 
     inline std::vector<TRestGeant4Particle> GetParticles() const { return fParticles; }
 
-    inline void SetAngularDistType(const TString& type) { fAngularDistributionType = type; }
-    inline void SetEnergyDistType(const TString& type) { fEnergyDistributionType = type; }
-    inline void SetEnergyRange(const TVector2& range) { fEnergyDistributionRange = range; }
-    inline void SetSpectrumFilename(const TString& spectrumFilename) {
-        fEnergyDistributionFilename = spectrumFilename;
+    inline void SetAngularDistributionType(const TString& type) { fAngularDistributionType = type; }
+    inline void SetAngularDistributionFilename(const TString& filename) {
+        fAngularDistributionFilename = filename;
     }
-    inline void SetSpectrumName(const TString& spectrumName) { fEnergyDistributionNameInFile = spectrumName; }
-    inline void SetAngularFilename(const TString& angFilename) { fAngularDistributionFilename = angFilename; }
-    inline void SetAngularName(const TString& angularName) { fAngularDistributionNameInFile = angularName; }
+    inline void SetAngularDistributionNameInFile(const TString& name) {
+        fAngularDistributionNameInFile = name;
+    }
+
+    inline void SetEnergyDistributionType(const TString& type) { fEnergyDistributionType = type; }
+    inline void SetEnergyDistributionRange(const TVector2& range) { fEnergyDistributionRange = range; }
+    inline void SetEnergyDistributionFilename(const TString& filename) {
+        fEnergyDistributionFilename = filename;
+    }
+    inline void SetEnergyDistributionNameInFile(const TString& name) { fEnergyDistributionNameInFile = name; }
+
     inline void SetGenFilename(const TString& name) { fGenFilename = name; }
-    inline void setRandomMethod(double (*method)()) { fRandomMethod = method; }
+
+    inline void SetRandomMethod(double (*method)()) { fRandomMethod = method; }
 
     inline void AddParticle(const TRestGeant4Particle& particle) { fParticles.push_back(particle); }
 

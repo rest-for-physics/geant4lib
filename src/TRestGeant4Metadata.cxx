@@ -968,29 +968,29 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
 
     // Angular distribution parameters
     TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
-    source->SetAngularDistType(GetParameter("type", angularDefinition, "flux"));
-    if (source->GetAngularDistType() == "TH1D") {
-        source->SetAngularFilename(SearchFile(GetParameter("file", angularDefinition)));
-        source->SetAngularName(GetParameter("spctName", angularDefinition));
+    source->SetAngularDistributionType(GetParameter("type", angularDefinition, "flux"));
+    if (source->GetAngularDistributionType() == "TH1D") {
+        source->SetAngularDistributionFilename(SearchFile(GetParameter("file", angularDefinition)));
+        source->SetAngularDistributionNameInFile(GetParameter("spctName", angularDefinition));
     }
-    if (GetNumberOfSources() == 0 && source->GetAngularDistType() == "backtoback") {
+    if (GetNumberOfSources() == 0 && source->GetAngularDistributionType() == "backtoback") {
         cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-        source->SetAngularDistType("isotropic");
+        source->SetAngularDistributionType("isotropic");
     }
     source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
 
     // Energy distribution parameters
     TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
-    source->SetEnergyDistType(GetParameter("type", energyDefinition, "mono"));
-    if (source->GetEnergyDistType() == "TH1D") {
-        source->SetSpectrumFilename(SearchFile(GetParameter("file", energyDefinition)));
-        source->SetSpectrumName(GetParameter("spctName", energyDefinition));
+    source->SetEnergyDistributionType(GetParameter("type", energyDefinition, "mono"));
+    if (source->GetEnergyDistributionType() == "TH1D") {
+        source->SetEnergyDistributionFilename(SearchFile(GetParameter("file", energyDefinition)));
+        source->SetEnergyDistributionNameInFile(GetParameter("spctName", energyDefinition));
     }
-    source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
-    if (source->GetEnergyDistType() == "mono") {
+    source->SetEnergyDistributionRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+    if (source->GetEnergyDistributionType() == "mono") {
         Double_t en;
         en = GetDblParameterWithUnits("energy", energyDefinition, 0);
-        source->SetEnergyRange(TVector2(en, en));
+        source->SetEnergyDistributionRange(TVector2(en, en));
         source->SetEnergy(en);
     }
 
@@ -1190,8 +1190,8 @@ void TRestGeant4Metadata::PrintMetadata() {
 //
 //     TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
 //     src->SetGenFilename(fileName);
-//     // src->SetAngularDistType("flux");
-//     // src->SetEnergyDistType("mono");
+//     // src->SetAngularDistributionType("flux");
+//     // src->SetEnergyDistributionType("mono");
 //
 //     TRestGeant4Particle particle;
 //
@@ -1303,8 +1303,8 @@ void TRestGeant4Metadata::PrintMetadata() {
 //     // cout << "i : " << tmpInt << " fN : " << fGeneratorEvents << endl;
 //     TRestGeant4ParticleSource* src = TRestGeant4ParticleSource::instantiate();
 //     src->SetGenFilename(fileName);
-//     // src->SetAngularDistType("flux");
-//     // src->SetEnergyDistType("mono");
+//     // src->SetAngularDistributionType("flux");
+//     // src->SetEnergyDistributionType("mono");
 //
 //     TRestGeant4Particle particle;
 //     string type = (string)GetGeneratorType();
@@ -1406,16 +1406,16 @@ void TRestGeant4Metadata::PrintMetadata() {
 //     // Angular distribution parameters
 //     TiXmlElement* angularDefinition = GetElement("angularDist", sourceDefinition);
 //
-//     source->SetAngularDistType(GetFieldValue("type", angularDefinition));
+//     source->SetAngularDistributionType(GetFieldValue("type", angularDefinition));
 //
-//     if (source->GetAngularDistType() == "TH1D") {
-//         source->SetAngularFilename(SearchFile(GetFieldValue("file", angularDefinition)));
-//         source->SetAngularName(GetFieldValue("spctName", angularDefinition));
+//     if (source->GetAngularDistributionType() == "TH1D") {
+//         source->SetAngularDistributionFilename(SearchFile(GetFieldValue("file", angularDefinition)));
+//         source->SetAngularDistributionNameInFile(GetFieldValue("spctName", angularDefinition));
 //     }
 //
-//     if (GetNumberOfSources() == 0 && source->GetAngularDistType() == "backtoback") {
+//     if (GetNumberOfSources() == 0 && source->GetAngularDistributionType() == "backtoback") {
 //         cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
-//         source->SetAngularDistType("isotropic");
+//         source->SetAngularDistributionType("isotropic");
 //     }
 //
 //     source->SetDirection(StringTo3DVector(GetFieldValue("direction", angularDefinition)));
@@ -1423,19 +1423,19 @@ void TRestGeant4Metadata::PrintMetadata() {
 //     // Energy distribution parameters
 //     TiXmlElement* energyDefinition = GetElement("energyDist", sourceDefinition);
 //
-//     source->SetEnergyDistType(GetFieldValue("type", energyDefinition));
+//     source->SetEnergyDistributionType(GetFieldValue("type", energyDefinition));
 //
-//     if (source->GetEnergyDistType() == "TH1D") {
-//         source->SetSpectrumFilename(SearchFile(GetFieldValue("file", energyDefinition)));
-//         source->SetSpectrumName(GetFieldValue("spctName", energyDefinition));
+//     if (source->GetEnergyDistributionType() == "TH1D") {
+//         source->SetEnergyDistributionFilename(SearchFile(GetFieldValue("file", energyDefinition)));
+//         source->SetEnergyDistributionNameInFile(GetFieldValue("spctName", energyDefinition));
 //     }
 //
-//     source->SetEnergyRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+//     source->SetEnergyDistributionRange(Get2DVectorParameterWithUnits("range", energyDefinition));
 //
-//     if (source->GetEnergyDistType() == "mono") {
+//     if (source->GetEnergyDistributionType() == "mono") {
 //         Double_t en;
 //         en = GetDblParameterWithUnits("energy", energyDefinition);
-//         source->SetEnergyRange(TVector2(en, en));
+//         source->SetEnergyDistributionRange(TVector2(en, en));
 //         source->SetEnergy(en);
 //     }
 //
