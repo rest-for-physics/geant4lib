@@ -190,6 +190,53 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
     }
 }
 
+std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
+AngularDistributionTypes StringToAngularDistributionFormulas(const std::string&);
+TFormula AngularDistributionFormulasToRootFormula(const AngularDistributionFormulas&);
+
+string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
+    const AngularDistributionFormulas& type) {
+    switch (type) {
+        case AngularDistributionFormulas::COS2:
+            return "Cos2";
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString - Error - Unknown angular "
+            "distribution formula"
+         << endl;
+    exit(1);
+}
+
+AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas(
+    const string& type) {
+    if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS2),
+                              TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionFormulas::COS2;
+    } else {
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas - Error - Unknown "
+                "AngularDistributionFormulas: "
+             << type << endl;
+        exit(1);
+    }
+}
+
+TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
+    const AngularDistributionFormulas& type) {
+    switch (type) {
+        case AngularDistributionFormulas::COS2:
+            auto cos2 = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+                    return TMath::Power(TMath::Cos(xs[0]), 2);
+                }
+                return 0.0;
+            };
+            return TF1("AngularDistribution: Cos2", cos2, 0.0, TMath::Pi());
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "
+            "angular distribution formula"
+         << endl;
+    exit(1);
+}
+
 void TRestGeant4PrimaryGeneratorInfo::Print() const {
     const auto typeEnum = StringToSpatialGeneratorTypes(fSpatialGeneratorType.Data());
     RESTMetadata << "Generator type: " << SpatialGeneratorTypesToString(typeEnum) << RESTendl;

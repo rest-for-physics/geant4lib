@@ -2,6 +2,7 @@
 #ifndef REST_TRESTGEANT4PRIMARYGENERATORINFO_H
 #define REST_TRESTGEANT4PRIMARYGENERATORINFO_H
 
+#include <TF1.h>
 #include <TString.h>
 #include <TVector3.h>
 
@@ -52,6 +53,14 @@ enum class AngularDistributionTypes {
 
 std::string AngularDistributionTypesToString(const AngularDistributionTypes&);
 AngularDistributionTypes StringToAngularDistributionTypes(const std::string&);
+
+enum class AngularDistributionFormulas {
+    COS2,
+};
+
+std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
+AngularDistributionFormulas StringToAngularDistributionFormulas(const std::string&);
+TF1 AngularDistributionFormulasToRootFormula(const AngularDistributionFormulas&);
 
 }  // namespace TRestGeant4PrimaryGeneratorTypes
 

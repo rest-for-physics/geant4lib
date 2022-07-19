@@ -36,8 +36,8 @@ ClassImp(TRestGeant4ParticleSource);
 
 TRestGeant4ParticleSource::TRestGeant4ParticleSource() {
     // TRestGeant4ParticleSource default constructor
-    fAngularDistType = "flux";
-    fEnergyDistType = "mono";
+    fAngularDistributionType = "flux";
+    fEnergyDistributionType = "mono";
 }
 
 TRestGeant4ParticleSource::~TRestGeant4ParticleSource() {
@@ -51,38 +51,38 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         RESTMetadata << "Generator file: " << GetGenFilename() << RESTendl;
         RESTMetadata << "Stored templates: " << fParticlesTemplate.size() << RESTendl;
         RESTMetadata << "Particles: ";
-        for (auto p : fParticles) RESTMetadata << p.GetParticleName() << ", ";
+        for (const auto& particle : fParticles) RESTMetadata << particle.GetParticleName() << ", ";
         RESTMetadata << RESTendl;
     } else {
         RESTMetadata << "Charge : " << GetParticleCharge() << RESTendl;
         RESTMetadata << "Angular distribution type : " << GetAngularDistType() << RESTendl;
         if (GetAngularDistType() == "TH1D") {
             RESTMetadata << "Angular distribution filename : "
-                     << TRestTools::GetPureFileName((string)GetAngularFilename()) << RESTendl;
+                         << TRestTools::GetPureFileName((string)GetAngularFilename()) << RESTendl;
             RESTMetadata << "Angular histogram name  : " << GetAngularName() << RESTendl;
         }
         RESTMetadata << "Direction : (" << GetDirection().X() << "," << GetDirection().Y() << ","
-                 << GetDirection().Z() << ")" << RESTendl;
+                     << GetDirection().Z() << ")" << RESTendl;
         RESTMetadata << "Energy distribution : " << GetEnergyDistType() << RESTendl;
         if (GetEnergyDistType() == "TH1D") {
             RESTMetadata << "Energy distribution filename : "
-                     << TRestTools::GetPureFileName((string)GetSpectrumFilename()) << RESTendl;
+                         << TRestTools::GetPureFileName((string)GetSpectrumFilename()) << RESTendl;
             RESTMetadata << "Energy histogram name  : " << GetSpectrumName() << RESTendl;
         } else if (GetEnergyRange().X() == GetEnergyRange().Y())
             RESTMetadata << "Energy : " << GetEnergy() << " keV" << RESTendl;
         else
-            RESTMetadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y() << ") keV"
-                     << RESTendl;
+            RESTMetadata << "Energy range : (" << GetEnergyRange().X() << "," << GetEnergyRange().Y()
+                         << ") keV" << RESTendl;
     }
 }
 
 TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string model) {
-    if (model == "" || model == "geant4" || model.find(".dat") != -1) {
+    if (model.empty() || model == "geant4" || model.find(".dat") != -1) {
         // use default generator
         return new TRestGeant4ParticleSource();
     } else {
         // use specific generator
-        // naming convension: TRestGeant4ParticleSourceXXX
+        // naming convention: TRestGeant4ParticleSourceXXX
         // currently supported generator: decay0
         // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
@@ -120,17 +120,14 @@ void TRestGeant4ParticleSource::InitFromConfigFile() {
 
 // base class's generator action: randomize the particle's energy/direction with distribution file
 void TRestGeant4ParticleSource::Update() {
-    if (fParticlesTemplate.size() > 0) {
+    if (!fParticlesTemplate.empty()) {
         // we use particle template to generate particles
-        Int_t rndCollection = (Int_t)(fRndmMethod() * fParticlesTemplate.size());
+        Int_t rndCollection = (Int_t)(fRandomMethod() * fParticlesTemplate.size());
         Int_t pCollectionID = rndCollection % fParticlesTemplate.size();
         fParticles = fParticlesTemplate[pCollectionID];
     } else {
         TRestGeant4Particle p(*this);
-        // Future: implement particle generation for toy simulation
-        //
-        //
-
+        // TODO: implement particle generation for toy simulation
         fParticles = {p};
     }
 }
@@ -281,8 +278,9 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
         }
     }
     if (!headerFound) {
-        RESTError << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
-                "full number of events:\" header.\n";
+        RESTError
+            << "TRestG4Metadata::ReadOldDecay0File. Problem reading generator file: no \"First event and "
+               "full number of events:\" header.\n";
         abort();
     }
     int tmpInt;
