@@ -1053,6 +1053,16 @@ void TRestGeant4Metadata::ReadStorage() {
     RESTInfo << "Sensitive volume: " << fSensitiveVolume << RESTendl;
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
+    // TODO: Place this as a generic method
+    if (fEnergyRangeStored.X() < 0) {
+        fEnergyRangeStored.Set(0, fEnergyRangeStored.Y());
+    }
+    if (fEnergyRangeStored.Y() < 0) {
+        fEnergyRangeStored.Set(fEnergyRangeStored.X(), 0);
+    }
+    if (fEnergyRangeStored.Y() > fEnergyRangeStored.Y()) {
+        fEnergyRangeStored.Set(fEnergyRangeStored.Y(), fEnergyRangeStored.X());
+    }
 
     auto gdml = new TRestGDMLParser();
     gdml->Load(GetGdmlFilename().Data());
