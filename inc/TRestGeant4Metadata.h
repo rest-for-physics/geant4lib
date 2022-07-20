@@ -269,9 +269,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Returns the probability per event to register (write to disk) hits in a
     /// GDML volume given its geometry name.
-    Double_t GetStorageChance(TString vol);
+    Double_t GetStorageChance(TString volume);
 
-    Double_t GetMaxStepSize(TString vol);
+    Double_t GetMaxStepSize(TString volume);
 
     /// Returns the minimum event energy required for an event to be stored.
     inline Double_t GetMinimumEnergyStored() const { return fEnergyRangeStored.X(); }
@@ -291,7 +291,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     Int_t GetActiveVolumeID(TString name);
 
-    Bool_t isVolumeStored(TString volName);
+    Bool_t isVolumeStored(TString volume);
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 

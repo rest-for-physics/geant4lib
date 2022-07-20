@@ -903,13 +903,16 @@ void TRestGeant4Metadata::ReadGenerator() {
 
     TiXmlElement* generatorDefinition = GetElement("generator");
 
-    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType = SpatialGeneratorTypesToString(
-        StringToSpatialGeneratorTypes(GetParameter("type", generatorDefinition, "volume")));
-    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = SpatialGeneratorShapesToString(
-        StringToSpatialGeneratorShapes(GetParameter("shape", generatorDefinition, "box")));
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType =
+        SpatialGeneratorTypesToString(StringToSpatialGeneratorTypes(GetParameter(
+            "type", generatorDefinition, SpatialGeneratorTypesToString(SpatialGeneratorTypes::VOLUME))));
+    fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape =
+        SpatialGeneratorShapesToString(StringToSpatialGeneratorShapes(GetParameter(
+            "shape", generatorDefinition, SpatialGeneratorShapesToString(SpatialGeneratorShapes::BOX))));
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom = GetParameter("from", generatorDefinition);
     if (fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom != PARAMETER_NOT_FOUND_STR) {
-        fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape = "gdml";
+        fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape =
+            SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML);
     }
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSize =
         Get3DVectorParameterWithUnits("size", generatorDefinition);
@@ -961,7 +964,8 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     if (angularDefinition == nullptr) {
         angularDefinition = GetElement("angularDist", sourceDefinition);  // old name
     }
-    source->SetAngularDistributionType(GetParameter("type", angularDefinition, "flux"));
+    source->SetAngularDistributionType(GetParameter(
+        "type", angularDefinition, AngularDistributionTypesToString(AngularDistributionTypes::FLUX)));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::TH1D) {
         source->SetAngularDistributionFilename(SearchFile(GetParameter("file", angularDefinition)));
@@ -989,7 +993,8 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     if (energyDefinition == nullptr) {
         energyDefinition = GetElement("energyDist", sourceDefinition);  // old name
     }
-    source->SetEnergyDistributionType(GetParameter("type", energyDefinition, "mono"));
+    source->SetEnergyDistributionType(GetParameter(
+        "type", energyDefinition, EnergyDistributionTypesToString(EnergyDistributionTypes::MONO)));
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
         EnergyDistributionTypes::TH1D) {
         source->SetEnergyDistributionFilename(SearchFile(GetParameter("file", energyDefinition)));
@@ -1201,9 +1206,9 @@ void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, 
 /// \brief Returns true if the volume named *volName* has been registered for
 /// data storage.
 ///
-Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
+Bool_t TRestGeant4Metadata::isVolumeStored(TString volume) {
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        if (GetActiveVolumeName(n) == volName) return true;
+        if (GetActiveVolumeName(n) == volume) return true;
 
     return false;
 }
@@ -1211,12 +1216,12 @@ Bool_t TRestGeant4Metadata::isVolumeStored(TString volName) {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
+Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == vol) return fChance[id];
+        if (fActiveVolumes[id] == volume) return fChance[id];
     }
-    RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << vol << " not found" << RESTendl;
+    RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << volume << " not found" << RESTendl;
 
     return 0;
 }
@@ -1224,11 +1229,11 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString vol) {
 ///////////////////////////////////////////////
 /// \brief Returns the maximum step at a particular active volume
 ///
-Double_t TRestGeant4Metadata::GetMaxStepSize(TString vol) {
+Double_t TRestGeant4Metadata::GetMaxStepSize(TString volume) {
     for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == vol) return fMaxStepSize[id];
+        if (fActiveVolumes[id] == volume) return fMaxStepSize[id];
     }
-    RESTWarning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << vol << " not found" << RESTendl;
+    RESTWarning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << volume << " not found" << RESTendl;
 
     return 0;
 }
