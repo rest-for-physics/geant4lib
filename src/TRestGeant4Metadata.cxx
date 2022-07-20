@@ -915,13 +915,13 @@ void TRestGeant4Metadata::ReadGenerator() {
             SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML);
     }
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSize =
-        Get3DVectorParameterWithUnits("size", generatorDefinition);
+        Get3DVectorParameterWithUnits("size", generatorDefinition, {0, 0, 0});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorPosition =
-        Get3DVectorParameterWithUnits("position", generatorDefinition);
+        Get3DVectorParameterWithUnits("position", generatorDefinition, {0, 0, 0});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationAxis =
-        StringTo3DVector(GetParameter("rotationAxis", generatorDefinition, "(0,0,1)"));
+        Get3DVectorParameterWithUnits("rotationAxis", generatorDefinition, {0, 0, 1});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationValue =
-        GetDblParameterWithUnits("rotationAngle", generatorDefinition);
+        GetDblParameterWithUnits("rotationAngle", generatorDefinition, 0);
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSpatialDensityFunction =
         GetParameter("densityFunc", generatorDefinition, "1");
 

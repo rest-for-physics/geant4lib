@@ -58,7 +58,6 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual void InitFromConfigFile();
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
-    inline TString GetParticleName() const { return fParticleName; }
     inline TVector3 GetDirection() const {
         if (fDirection.Mag() <= 0) {
             std::cout << "TRestGeant4ParticleSource::GetDirection: "

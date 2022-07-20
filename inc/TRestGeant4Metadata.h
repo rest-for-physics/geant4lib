@@ -235,7 +235,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    inline TRestGeant4ParticleSource* GetParticleSource(int n) const { return fParticleSource[n]; }
+    inline TRestGeant4ParticleSource* GetParticleSource(size_t n = 0) const { return fParticleSource[n]; }
 
     /// Remove all the particle sources.
     void RemoveParticleSources();
