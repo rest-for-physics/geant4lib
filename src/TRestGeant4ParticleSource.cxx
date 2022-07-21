@@ -50,21 +50,23 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
             AngularDistributionTypes::TH1D) {
             RESTMetadata << "Angular distribution filename: "
                          << TRestTools::GetPureFileName((string)GetAngularDistributionFilename()) << RESTendl;
-            RESTMetadata << "Angular histogram name: " << GetAngularDistributionNameInFile() << RESTendl;
+            RESTMetadata << "Angular distribution histogram name: " << GetAngularDistributionNameInFile()
+                         << RESTendl;
         }
-        RESTMetadata << "Direction: (" << GetDirection().X() << "," << GetDirection().Y() << ","
-                     << GetDirection().Z() << ")" << RESTendl;
+        RESTMetadata << "Angular distribution direction: (" << GetDirection().X() << "," << GetDirection().Y()
+                     << "," << GetDirection().Z() << ")" << RESTendl;
         RESTMetadata << "Energy distribution type: " << GetEnergyDistributionType() << RESTendl;
         if (StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
             EnergyDistributionTypes::TH1D) {
             RESTMetadata << "Energy distribution filename: "
                          << TRestTools::GetPureFileName((string)GetEnergyDistributionFilename()) << RESTendl;
-            RESTMetadata << "Energy histogram name: " << GetEnergyDistributionNameInFile() << RESTendl;
+            RESTMetadata << "Energy distribution histogram name: " << GetEnergyDistributionNameInFile()
+                         << RESTendl;
         }
         if (GetEnergyDistributionRangeMin() == GetEnergyDistributionRangeMax()) {
-            RESTMetadata << "Energy: " << GetEnergy() << " keV" << RESTendl;
+            RESTMetadata << "Energy distribution energy: " << GetEnergy() << " keV" << RESTendl;
         } else {
-            RESTMetadata << "Energy range (keV): (" << GetEnergyDistributionRangeMin() << ", "
+            RESTMetadata << "Energy distribution range (keV): (" << GetEnergyDistributionRangeMin() << ", "
                          << GetEnergyDistributionRangeMax() << ")" << RESTendl;
         }
     }
