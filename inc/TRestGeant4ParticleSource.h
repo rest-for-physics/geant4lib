@@ -114,7 +114,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         if (fEnergyDistributionRange.Y() < 0) {
             fEnergyDistributionRange.Set(fEnergyDistributionRange.X(), 0);
         }
-        if (fEnergyDistributionRange.Y() > fEnergyDistributionRange.Y()) {
+        if (fEnergyDistributionRange.X() > fEnergyDistributionRange.Y()) {
             fEnergyDistributionRange.Set(fEnergyDistributionRange.Y(), fEnergyDistributionRange.X());
         }
     }
