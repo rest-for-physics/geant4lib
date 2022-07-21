@@ -426,7 +426,7 @@
 ///     <angular type="backtoback" />
 /// \endcode
 ///
-/// * **TH1D** : It will use a TH1D histogram from a ROOT file with a
+/// * **TH1D**: It will use a TH1D histogram from a ROOT file with a
 /// user defined angular distribution. It requires to define the
 /// additional parameters as `file="mySpectrum.root"` and
 /// `name="histName"`. The file we give should be stored in
@@ -837,7 +837,7 @@ void TRestGeant4Metadata::ReadBiasing() {
     TString biasEnabled = GetFieldValue("value", biasingDefinition);
     TString biasType = GetFieldValue("type", biasingDefinition);
 
-    RESTDebug << "Bias : " << biasEnabled << RESTendl;
+    RESTDebug << "Bias: " << biasEnabled << RESTendl;
 
     if (biasEnabled == "on" || biasEnabled == "ON" || biasEnabled == "On" || biasEnabled == "oN") {
         RESTInfo << "Biasing is enabled" << RESTendl;
@@ -846,7 +846,7 @@ void TRestGeant4Metadata::ReadBiasing() {
         Int_t n = 0;
         while (biasVolumeDefinition) {
             TRestGeant4BiasingVolume biasVolume;
-            RESTDebug << "Def : " << biasVolumeDefinition << RESTendl;
+            RESTDebug << "Def: " << biasVolumeDefinition << RESTendl;
 
             biasVolume.SetBiasingVolumePosition(
                 Get3DVectorParameterWithUnits("position", biasVolumeDefinition));
@@ -1126,37 +1126,38 @@ void TRestGeant4Metadata::ReadStorage() {
 void TRestGeant4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "Geant 4 version : " << GetGeant4Version() << RESTendl;
-    RESTMetadata << "Random seed : " << GetSeed() << RESTendl;
-    RESTMetadata << "GDML geometry : " << GetGdmlReference() << RESTendl;
-    RESTMetadata << "GDML materials reference : " << GetMaterialsReference() << RESTendl;
-    RESTMetadata << "Sub-event time delay : " << GetSubEventTimeDelay() << " us" << RESTendl;
+    RESTMetadata << "Geant4 version: " << GetGeant4Version() << RESTendl;
+    RESTMetadata << "Random seed: " << GetSeed() << RESTendl;
+    RESTMetadata << "GDML geometry: " << GetGdmlReference() << RESTendl;
+    RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
+    RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
     Double_t mz = GetMagneticField().Z();
-    RESTMetadata << "Magnetic field : (" << mx << ", " << my << ", " << mz << ") T" << RESTendl;
+    RESTMetadata << "Magnetic field: (" << mx << ", " << my << ", " << mz << ") T" << RESTendl;
     if (fSaveAllEvents) RESTMetadata << "Save all events was enabled!" << RESTendl;
-    if (fRegisterEmptyTracks)
+    if (fRegisterEmptyTracks) {
         RESTMetadata << "Register empty tracks was enabled" << RESTendl;
-    else
+    } else {
         RESTMetadata << "Register empty tracks was NOT enabled" << RESTendl;
+    }
     RESTMetadata << "   ++++++++++ Generator +++++++++++   " << RESTendl;
-    RESTMetadata << "Number of generated events : " << GetNumberOfEvents() << RESTendl;
+    RESTMetadata << "Number of generated events: " << GetNumberOfEvents() << RESTendl;
     fGeant4PrimaryGeneratorInfo.Print();
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
     RESTMetadata << "   ++++++++++ Storage volumes +++++++++++   " << RESTendl;
-    RESTMetadata << "Energy range : Emin = " << GetMinimumEnergyStored()
-                 << ", Emax : " << GetMaximumEnergyStored() << RESTendl;
-    RESTMetadata << "Sensitive volume : " << GetSensitiveVolume() << RESTendl;
-    RESTMetadata << "Active volumes : " << GetNumberOfActiveVolumes() << RESTendl;
+    RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", " << GetMaximumEnergyStored()
+                 << ")" << RESTendl;
+    RESTMetadata << "Sensitive volume: " << GetSensitiveVolume() << RESTendl;
+    RESTMetadata << "Active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
     RESTMetadata << "---------------------------------------" << RESTendl;
     for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-        RESTMetadata << "Name : " << GetActiveVolumeName(n)
-                     << ", ID : " << GetActiveVolumeID(GetActiveVolumeName(n))
-                     << ", maxStep : " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                     << ", chance : " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+        RESTMetadata << "Name: " << GetActiveVolumeName(n)
+                     << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
+                     << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
+                     << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
     }
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
