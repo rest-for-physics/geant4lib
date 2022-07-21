@@ -648,6 +648,7 @@
 
 #include "TRestGeant4Metadata.h"
 
+#include <TAxis.h>
 #include <TGeoManager.h>
 #include <TRandom.h>
 #include <TRestGDMLParser.h>
@@ -977,7 +978,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     }
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::FORMULA) {
-        source->SetAngularDistributionFormulaString(GetParameter("name", angularDefinition));
+        source->SetAngularDistributionFormula(GetParameter("name", angularDefinition));
     }
     if (GetNumberOfSources() == 0 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
@@ -1004,7 +1005,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         }
         source->SetEnergyDistributionNameInFile(name);
     }
-    source->SetEnergyDistributionRange(Get2DVectorParameterWithUnits("range", energyDefinition));
+    source->SetEnergyDistributionRange(Get2DVectorParameterWithUnits("range", energyDefinition, {0, 1E20}));
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
         EnergyDistributionTypes::MONO) {
         Double_t energy;
@@ -1014,7 +1015,17 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     }
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
         EnergyDistributionTypes::FORMULA) {
-        source->SetEnergyDistributionFormulaString(GetParameter("name", energyDefinition));
+        source->SetEnergyDistributionFormula(GetParameter("name", energyDefinition));
+        // We cannot use an energy range bigger than the range of the formula
+        const auto function = source->GetEnergyDistributionFunction();
+        if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
+            source->SetEnergyDistributionRange(
+                {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
+        }
+        if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
+            source->SetEnergyDistributionRange(
+                {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
     }
     // allow custom configuration from the class
     source->LoadConfigFromElement(sourceDefinition, fElementGlobal, fVariables);

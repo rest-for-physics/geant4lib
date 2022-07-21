@@ -189,11 +189,12 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
             exit(1);
         case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
             const char* title = "EnergyDistribution: Cosmic Neutrons Sea Level";
-            auto f = TF1(
-                title,
-                "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x), 2) + 2.1451 * TMath::Log(x)) + "
-                "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x), 2) -0.6670 * TMath::Log(x))",
-                0.1E0, 10E3);
+            auto f = TF1(title,
+                         "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x * 1E-3), 2) + 2.1451 * "
+                         "TMath::Log(x * 1E-3)) + "
+                         "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x * 1E-3), 2) - 0.6670 * "
+                         "TMath::Log(x * 1E-3))",
+                         1E2, 1E7);
             f.SetTitle(title);
             return f;
         }
