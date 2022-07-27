@@ -261,6 +261,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline TString GetSensitiveVolume() const { return fSensitiveVolume; }
 
     /// Sets the name of the sensitive volume
+    inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
+
+    /// Sets the name of the sensitive volume
     inline void SetSensitiveVolume(const TString& sensitiveVolume) { fSensitiveVolume = sensitiveVolume; }
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
