@@ -685,8 +685,6 @@ TRestGeant4Metadata::TRestGeant4Metadata(const char* configFilename, const strin
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
-
-    PrintMetadata();
 }
 
 ///////////////////////////////////////////////
