@@ -128,6 +128,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// The number of events the user desired to be on the file
     Int_t fNDesiredEntries = 0;
 
+    /// Time before simulation is ended and saved
+    Int_t fSimulationMaxTimeSeconds = 0;
+
     /// \brief The seed value used for Geant4 random event generator.
     /// If it is zero its value will be assigned using the system timestamp.
     Long_t fSeed = 0;
@@ -233,6 +236,8 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline Int_t GetNumberOfDesiredEntries() const { return fNDesiredEntries; }
 
+    inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
+
     ///////////////////////////////////////////////////////////
 
     // Direct access to sources definition in primary generator
@@ -269,6 +274,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
 
     inline void SetNumberOfDesiredEntries(Int_t n) { fNDesiredEntries = n; }
+
+    inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
     /// Sets the name of the sensitive volume
     inline void SetSensitiveVolume(const TString& sensitiveVolume) { fSensitiveVolume = sensitiveVolume; }
