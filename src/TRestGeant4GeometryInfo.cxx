@@ -37,12 +37,6 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
 void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logicalNames,
                            const vector<TString>& children, map<TString, TString>& nameTable,
                            map<TString, vector<TString>>& childrenTable, const TString& name = "") {
-    /*
-    cout << "called AddVolumesRecursively with name: " << name << endl;
-    for (const auto& child : children) {
-        cout << "\t" << child << endl;
-    }
-     */
     if (children.empty()) {
         physicalNames->push_back(name);
         const auto logicalVolumeName = nameTable[name];
@@ -117,16 +111,21 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
 
     xml.FreeDoc(xmldoc);
 
+    // Checks
+    if (fGdmlNewPhysicalNames.empty()) {
+        cout << "TRestGeant4GeometryInfo::PopulateFromGdml - ERROR - No physical volumes have been added!"
+             << endl;
+        exit(1);
+    }
     // Find duplicates
-    size_t n = fGdmlNewPhysicalNames.size();
     set<TString> s;
     for (const auto& name : fGdmlNewPhysicalNames) {
         s.insert(name);
     }
-    if (s.size() != n) {
-        cout
-            << "TRestGeant4GeometryInfo::PopulateFromGdml - Generated a duplicate name, please check assembly"
-            << endl;
+    if (s.size() != fGdmlNewPhysicalNames.size()) {
+        cout << "TRestGeant4GeometryInfo::PopulateFromGdml - ERROR - Generated a duplicate name, please "
+                "check assembly"
+             << endl;
         exit(1);
     }
 }
@@ -148,28 +147,6 @@ TString TRestGeant4GeometryInfo::GetGeant4PhysicalNameFromAlternativeName(
     }
     return "";
 }
-
-/*
- * DO NOT REMOVE!
-Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) const {
-    for (int i = 0; i < fGdmlNewPhysicalNames.size(); i++) {
-        if (volumeName.EqualTo(fGdmlNewPhysicalNames[i])) {
-            return i;
-        }
-    }
-
-    int i = 0;
-    for (const auto& physical : GetAllPhysicalVolumes()) {
-        if (volumeName.EqualTo(physical)) {
-            return i;
-        }
-        i++;
-    }
-
-    cout << "TRestGeant4GeometryInfo::GetIDFromPhysicalName - ID not found for " << volumeName << endl;
-    exit(1);
-}
-*/
 
 template <typename T, typename U>
 U GetOrDefaultMapValueFromKey(const map<T, U>* pMap, const T& key) {

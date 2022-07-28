@@ -46,6 +46,11 @@ class TRestGeant4GeometryInfo {
 
     void PopulateFromGeant4World(const G4VPhysicalVolume*);
 
+    inline void InitializeOnDetectorConstruction(const G4VPhysicalVolume* world, const TString& gdmlFilename) {
+        PopulateFromGdml(gdmlFilename);
+        PopulateFromGeant4World(world);
+    }
+
     std::vector<TString> GetAllLogicalVolumes() const;
     std::vector<TString> GetAllPhysicalVolumes() const;
     std::vector<TString> GetAllAlternativePhysicalVolumes() const;
