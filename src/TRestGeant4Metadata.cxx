@@ -761,11 +761,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (nEventsString == PARAMETER_NOT_FOUND_STR) {
         nEventsString = GetParameter("Nevents");  // old name
     }
-    if (nEventsString == PARAMETER_NOT_FOUND_STR) {
-        cout << "\"nEvents\" parameter is not defined!" << endl;
-        exit(1);
-    }
-    fNEvents = StringToInteger(nEventsString);
+    fNEvents = nEventsString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(nEventsString);
 
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
