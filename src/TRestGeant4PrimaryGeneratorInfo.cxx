@@ -4,6 +4,7 @@
 
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
+#include <TAxis.h>
 #include <TMath.h>
 #include <TRestStringOutput.h>
 #include <tinyxml.h>
@@ -189,15 +190,18 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
             exit(1);
         case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
             // Formula from https://ieeexplore.ieee.org/document/1369506
-            const char* title = "EnergyDistribution: Cosmic Neutrons Sea Level";
-            auto f = TF1(title,
-                         "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x * 1E-3), 2) + 2.1451 * "
-                         "TMath::Log(x * 1E-3)) + "
-                         "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x * 1E-3), 2) - 0.6670 * "
-                         "TMath::Log(x * 1E-3))",
-                         1E2, 1E7);
-            f.SetTitle(title);
-            return f;
+            const char* title = "Cosmic Neutrons at Sea Level";
+            auto distribution =
+                TF1(title,
+                    "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x * 1E-3), 2) + 2.1451 * "
+                    "TMath::Log(x * 1E-3)) + "
+                    "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x * 1E-3), 2) - 0.6670 * "
+                    "TMath::Log(x * 1E-3))",
+                    1E2, 1E7);
+            distribution.SetNormalized(true);  // Normalized, not really necessary
+            distribution.SetTitle(title);
+            distribution.GetXaxis()->SetTitle("Energy (keV)");
+            return distribution;
         }
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
             exit(1);
