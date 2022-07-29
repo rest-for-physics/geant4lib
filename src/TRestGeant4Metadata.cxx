@@ -1120,8 +1120,8 @@ void TRestGeant4Metadata::ReadDetector() {
         }
 
         for (const auto& physical : physicalVolumes) {
-            RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '" << physical
-                 << (chance != 1 ? " with change: " + to_string(chance) : " ") << RESTendl;
+            RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '"
+                     << physical << (chance != 1 ? " with change: " + to_string(chance) : " ") << RESTendl;
             SetActiveVolume(physical, chance, maxStep);
             if (isSensitive) {
                 InsertSensitiveVolume(physical);
@@ -1250,8 +1250,7 @@ void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, 
     fActiveVolumes.push_back(name);
     fChance.push_back(chance);
     fMaxStepSize.push_back(maxStep);
-
-    fActiveVolumesSet.insert(nameC);
+    fActiveVolumesSet.insert(name.Data());
 }
 
 ///////////////////////////////////////////////
