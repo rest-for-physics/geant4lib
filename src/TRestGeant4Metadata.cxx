@@ -769,9 +769,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
                            ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
 
     ReadGenerator();
-
-    ReadDetector();
-
+    // Detector (old storage) section is processed after initializing geometry info in Detector Construction
+    // This allows to use regular expression to match logical or physical volumes etc.
     ReadBiasing();
 
     fMaxTargetStepSize = GetDblParameterWithUnits("maxTargetStepSize", -1);
@@ -1038,29 +1037,105 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
 ///
 /// This section allows to define which hits will be stored to disk.
 /// Different volumes in the geometry can be tagged for hit storage.
+/// At least one volume must be tagged as sensitive
 ///
 /// \code
-///    <storage sensitiveVolume="gas">
+///    <detector>
 ///      <parameter name="energyRange" value="(0,5)MeV" />
-///      <activeVolume name="gas" chance="1" maxStepSize="2mm" />
-///    </storage>
+///      <volume name="gas" sensitive="true" chance="1" maxStepSize="2mm" />
+///    </detector>
 /// \endcode
 ///
 void TRestGeant4Metadata::ReadDetector() {
-    TiXmlElement* storageDefinition = GetElement("storage");
-    string sensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
-    if (sensitiveVolume == "Not defined") {
-        RESTWarning << "Sensitive volume not defined. Setting it to 'gas'!" << RESTendl;
-        sensitiveVolume = "gas";
+    RESTInfo << "TRestGeant4Metadata: Processing detector section" << RESTendl;
+    TiXmlElement* detectorDefinition = GetElement("detector");
+    if (detectorDefinition == nullptr) {
+        RESTError << "Detector section (<detector>) is not present in metadata!" << RESTendl;
+        exit(1);
     }
-    InsertSensitiveVolume(sensitiveVolume);
 
-    Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
-    if (defaultStep < 0) defaultStep = 0;
+    const bool activateAllVolumes =
+        StringToBool(GetParameter("activateAllVolumes", detectorDefinition, "false"));
+    RESTInfo << "TRestGeant4Metadata: Setting 'fActivateAllVolumes' to " << fActivateAllVolumes << RESTendl;
+    fActivateAllVolumes = activateAllVolumes;
 
-    RESTInfo << "Sensitive volume: " << sensitiveVolume << RESTendl;
+    Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", detectorDefinition);
+    if (defaultStep < 0) {
+        defaultStep = 0;
+    }
 
-    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
+    TiXmlElement* volumeDefinition = GetElement("volume", detectorDefinition);
+    while (volumeDefinition != nullptr) {
+        string name = GetFieldValue("name", volumeDefinition);
+        if (name.empty() || name == "Not defined") {
+            RESTError << "volume inside detector section defined without name" << RESTendl;
+            exit(1);
+        }
+        vector<string> physicalVolumes;
+        if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
+            if (fGeant4GeometryInfo.IsValidLogicalVolume(name)) {
+                for (const auto& physical : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
+                    physicalVolumes.emplace_back(
+                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                }
+            }
+            // does not match a explicit (gdml) physical name or a logical name, perhaps its a regular exp
+            if (physicalVolumes.empty()) {
+                for (const auto& physical :
+                     fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
+                    physicalVolumes.emplace_back(
+                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                }
+            }
+            if (physicalVolumes.empty()) {
+                for (const auto& logical : fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
+                    for (const auto& physical :
+                         fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
+                        physicalVolumes.emplace_back(
+                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                    }
+                }
+            }
+        } else {
+            physicalVolumes.push_back(name);
+        }
+
+        if (physicalVolumes.empty()) {
+            RESTError
+                << "volume '" << name
+                << "' is not defined in the geometry. Could not match to a physical, logical volume or regex"
+                << RESTendl;
+            exit(1);
+        }
+
+        bool isSensitive = StringToBool(GetFieldValue("sensitive", volumeDefinition));
+
+        Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
+        if (chance == -1 || chance < 0) {
+            chance = 1.0;
+        }
+        Double_t maxStep = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
+        if (maxStep < 0) {
+            maxStep = defaultStep;
+        }
+
+        for (const auto& physical : physicalVolumes) {
+            RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '"
+                     << physical << (chance != 1 ? " with change: " + to_string(chance) : " ") << RESTendl;
+            SetActiveVolume(physical, chance, maxStep);
+            if (isSensitive) {
+                InsertSensitiveVolume(physical);
+            }
+        }
+        volumeDefinition = GetNextElement(detectorDefinition);
+    }
+
+    if (fSensitiveVolumes.empty()) {
+        cout << "No sensitive volumes defined in detector section. Adding 'gas' as sensitive volume" << endl;
+        InsertSensitiveVolume("gas");
+    }
+
+    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", detectorDefinition);
     // TODO: Place this as a generic method
     if (fEnergyRangeStored.X() < 0) {
         fEnergyRangeStored.Set(0, fEnergyRangeStored.Y());
@@ -1077,49 +1152,16 @@ void TRestGeant4Metadata::ReadDetector() {
 
     fGeant4GeometryInfo.PopulateFromGdml(gdml->GetOutputGDMLFile());
 
-    const auto& physicalVolumes = fGeant4GeometryInfo.fGdmlNewPhysicalNames;
-    TiXmlElement* volumeDefinition = GetElement("activeVolume", storageDefinition);
-    while (volumeDefinition) {
-        Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
-        if (chance == -1) chance = 1;
-
-        Double_t maxStep = GetDblParameterWithUnits("maxStepSize", volumeDefinition);
-        if (maxStep < 0) maxStep = defaultStep;
-
-        const TString& name = GetFieldValue("name", volumeDefinition);
-        // first we verify it's in the list of valid volumes
-        if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
-            bool isValidLogical = false;
-            for (size_t i = 0; i < fGeant4GeometryInfo.fGdmlNewPhysicalNames.size(); i++) {
-                if (fGeant4GeometryInfo.fGdmlLogicalNames[i] == name) {
-                    isValidLogical = true;
-                    const auto& gdmlName = fGeant4GeometryInfo.fGdmlNewPhysicalNames[i];
-                    RESTInfo << "Adding active volume from RML: '" << gdmlName << "' from logical volume: '"
-                             << name << "' with chance: " << chance << RESTendl;
-                    SetActiveVolume(gdmlName, chance, maxStep);
-                }
-            }
-            if (!isValidLogical) {
-                RESTError << "TRestGeant4Metadata: Problem reading storage section." << RESTendl;
-                RESTError << " 	- The volume '" << name << "' was not found in the GDML geometry."
-                          << RESTendl;
-                exit(1);
-            }
-        } else {
-            RESTInfo << "Adding active volume from RML: '" << name << "' with chance: " << chance << RESTendl;
-            SetActiveVolume(name, chance, maxStep);
-        }
-        volumeDefinition = GetNextElement(volumeDefinition);
-    }
-
     // If the user did not add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
-    if (GetNumberOfActiveVolumes() == 0) {
-        for (auto& name : physicalVolumes) {
+    if (fActivateAllVolumes || GetNumberOfActiveVolumes() == 0) {
+        for (auto& name : fGeant4GeometryInfo.fGdmlNewPhysicalNames) {
             SetActiveVolume(name, 1, defaultStep);
             RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1 << RESTendl;
         }
     }
+
+    fDetectorSectionInitialized = true;
 }
 
 ///////////////////////////////////////////////
@@ -1150,17 +1192,21 @@ void TRestGeant4Metadata::PrintMetadata() {
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
-    RESTMetadata << "   ++++++++++ Storage volumes +++++++++++   " << RESTendl;
-    RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", " << GetMaximumEnergyStored()
-                 << ")" << RESTendl;
-    RESTMetadata << "Sensitive volume: " << GetSensitiveVolume() << RESTendl;
-    RESTMetadata << "Active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
-    RESTMetadata << "---------------------------------------" << RESTendl;
-    for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-        RESTMetadata << "Name: " << GetActiveVolumeName(n)
-                     << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
-                     << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                     << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+    if (fDetectorSectionInitialized) {
+        RESTMetadata << "   ++++++++++ Detector +++++++++++   " << RESTendl;
+        RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", "
+                     << GetMaximumEnergyStored() << ")" << RESTendl;
+        RESTMetadata << "Number of sensitive volumes: " << GetNumberOfSensitiveVolumes() << RESTendl;
+        for (const auto& sensitiveVolume : fSensitiveVolumes) {
+            RESTMetadata << "Sensitive volume: " << sensitiveVolume << RESTendl;
+        }
+        RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
+        for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
+            RESTMetadata << "Name: " << GetActiveVolumeName(n)
+                         << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
+                         << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
+                         << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+        }
     }
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();

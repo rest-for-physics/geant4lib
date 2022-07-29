@@ -56,6 +56,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadDetector();
     void ReadBiasing();
 
+    bool fDetectorSectionInitialized = false;  //!
+
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
 
@@ -138,6 +140,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging purposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = false;
+
+    /// \brief Sets all volume as active without having to explicitly list them.
+    Bool_t fActivateAllVolumes = true;  //!
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = false;  //!
@@ -282,14 +287,14 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
     /// Sets the name of the sensitive volume
-    inline void InsertSensitiveVolume(const TString& sensitiveVolume) {
+    inline void InsertSensitiveVolume(const TString& volume) {
         for (const auto& sensitiveVolume : fSensitiveVolumes) {
             // Do not add duplicate volumes
-            if (sensitiveVolume == sensitiveVolume) {
+            if (volume == sensitiveVolume) {
                 return;
             }
         }
-        fSensitiveVolumes.push_back(sensitiveVolume);
+        fSensitiveVolumes.push_back(volume);
     }
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
