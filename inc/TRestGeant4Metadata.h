@@ -53,7 +53,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadGenerator();
     void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
 
-    void ReadStorage();
+    void ReadDetector();
     void ReadBiasing();
 
     /// Class used to store and retrieve geometry info
@@ -100,7 +100,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
     /// technique is used.
-    Int_t fNBiasingVolumes;
+    Int_t fNBiasingVolumes = 0;
 
     /// A std::vector containing the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
@@ -120,7 +120,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief The volume that serves as trigger for data storage. Only events that
     /// deposit a non-zero energy on this volume will be registered.
-    TString fSensitiveVolume;
+    std::vector<TString> fSensitiveVolumes;
 
     /// The number of events simulated, or to be simulated.
     Int_t fNEvents = 0;
@@ -268,7 +268,11 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline Int_t isBiasingActive() const { return fBiasingVolumes.size(); }
 
     /// Returns a std::string with the name of the sensitive volume.
-    inline TString GetSensitiveVolume() const { return fSensitiveVolume; }
+    inline TString GetSensitiveVolume(int n = 0) const { return fSensitiveVolumes[n]; }
+
+    inline size_t GetNumberOfSensitiveVolumes() const { return fSensitiveVolumes.size(); }
+
+    inline const std::vector<TString>& GetSensitiveVolumes() const { return fSensitiveVolumes; }
 
     /// Sets the name of the sensitive volume
     inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
@@ -278,7 +282,15 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
     /// Sets the name of the sensitive volume
-    inline void SetSensitiveVolume(const TString& sensitiveVolume) { fSensitiveVolume = sensitiveVolume; }
+    inline void InsertSensitiveVolume(const TString& sensitiveVolume) {
+        for (const auto& sensitiveVolume : fSensitiveVolumes) {
+            // Do not add duplicate volumes
+            if (sensitiveVolume == sensitiveVolume) {
+                return;
+            }
+        }
+        fSensitiveVolumes.push_back(sensitiveVolume);
+    }
 
     /// \brief Returns the probability per event to register (write to disk) hits in the
     /// storage volume with index n.

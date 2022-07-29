@@ -703,11 +703,7 @@ void TRestGeant4Metadata::Initialize() {
     fActiveVolumes.clear();
     fBiasingVolumes.clear();
 
-    fNBiasingVolumes = 0;
-
     RemoveParticleSources();
-
-    fSensitiveVolume = "gas";
 
     fEnergyRangeStored.Set(0, 1.E20);
 }
@@ -774,7 +770,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     ReadGenerator();
 
-    ReadStorage();
+    ReadDetector();
 
     ReadBiasing();
 
@@ -1050,17 +1046,19 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
 ///    </storage>
 /// \endcode
 ///
-void TRestGeant4Metadata::ReadStorage() {
+void TRestGeant4Metadata::ReadDetector() {
     TiXmlElement* storageDefinition = GetElement("storage");
-    fSensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
-    if (fSensitiveVolume == "Not defined") {
+    string sensitiveVolume = GetFieldValue("sensitiveVolume", storageDefinition);
+    if (sensitiveVolume == "Not defined") {
         RESTWarning << "Sensitive volume not defined. Setting it to 'gas'!" << RESTendl;
-        fSensitiveVolume = "gas";
+        sensitiveVolume = "gas";
     }
+    InsertSensitiveVolume(sensitiveVolume);
+
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", storageDefinition);
     if (defaultStep < 0) defaultStep = 0;
 
-    RESTInfo << "Sensitive volume: " << fSensitiveVolume << RESTendl;
+    RESTInfo << "Sensitive volume: " << sensitiveVolume << RESTendl;
 
     fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", storageDefinition);
     // TODO: Place this as a generic method
