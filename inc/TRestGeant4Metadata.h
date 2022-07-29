@@ -144,6 +144,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Sets all volume as active without having to explicitly list them.
     Bool_t fActivateAllVolumes = false;  //!
 
+    /// \brief If activated will remove tracks not present in volumes marked as "keep" or "sensitive".
+    Bool_t fRemoveUnwantedTracks = false;
+
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = false;  //!
 
@@ -327,6 +330,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }
 
     inline std::vector<TString> GetActiveVolumes() const { return fActiveVolumes; }
+
+    inline bool GetRemoveUnwantedTracks() const { return fRemoveUnwantedTracks; }
 
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }

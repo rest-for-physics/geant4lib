@@ -1059,6 +1059,11 @@ void TRestGeant4Metadata::ReadDetector() {
     RESTInfo << "TRestGeant4Metadata: Setting 'fActivateAllVolumes' to " << fActivateAllVolumes << RESTendl;
     fActivateAllVolumes = activateAllVolumes;
 
+    const bool removeUnwantedTracks =
+        StringToBool(GetParameter("removeUnwantedTracks", detectorDefinition, "false"));
+    RESTInfo << "TRestGeant4Metadata: Setting 'removeUnwantedTracks' to " << removeUnwantedTracks << RESTendl;
+    fRemoveUnwantedTracks = removeUnwantedTracks;
+
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", detectorDefinition);
     if (defaultStep < 0) {
         defaultStep = 0;
@@ -1108,7 +1113,17 @@ void TRestGeant4Metadata::ReadDetector() {
             exit(1);
         }
 
-        bool isSensitive = StringToBool(GetFieldValue("sensitive", volumeDefinition));
+        bool isSensitive = false;
+        const string isSensitiveValue = GetFieldValue("sensitive", volumeDefinition);
+        if (isSensitiveValue != "Not defined") {
+            isSensitive = StringToBool(isSensitiveValue);
+        }
+
+        bool isKeepTracks = isSensitive;
+        const string isKeepTracksValue = GetFieldValue("keepTracks", volumeDefinition);
+        if (isKeepTracksValue != "Not defined") {
+            isKeepTracks = StringToBool(isKeepTracksValue);
+        }
 
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1 || chance < 0) {
