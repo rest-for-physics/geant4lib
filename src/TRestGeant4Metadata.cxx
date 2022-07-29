@@ -1127,7 +1127,7 @@ void TRestGeant4Metadata::ReadDetector() {
                 InsertSensitiveVolume(physical);
             }
         }
-        volumeDefinition = GetNextElement(detectorDefinition);
+        volumeDefinition = GetNextElement(volumeDefinition);
     }
 
     if (fSensitiveVolumes.empty()) {
