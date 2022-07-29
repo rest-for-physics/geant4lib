@@ -142,7 +142,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     Bool_t fSaveAllEvents = false;
 
     /// \brief Sets all volume as active without having to explicitly list them.
-    Bool_t fActivateAllVolumes = true;  //!
+    Bool_t fActivateAllVolumes = false;  //!
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = false;  //!
@@ -156,6 +156,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     TVector3 fMagneticField = TVector3(0, 0, 0);
 
    public:
+    std::set<std::string> fActiveVolumesSet = {};  //! // Used for faster lookup
+
     /// \brief Returns the random seed that was used to generate the corresponding
     /// geant4 dataset.
     inline Long_t GetSeed() const { return fSeed; }
@@ -317,15 +319,21 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// selected for data storage.
     inline Int_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
+    inline bool IsActiveVolume(const char* volumeName) const {
+        return fActiveVolumesSet.count(volumeName) > 0;
+    }  //!
+
     /// Returns a std::string with the name of the active volume with index n
-    inline TString GetActiveVolumeName(Int_t n) { return fActiveVolumes[n]; }
+    inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }
+
+    inline std::vector<TString> GetActiveVolumes() const { return fActiveVolumes; }
 
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
 
     Int_t GetActiveVolumeID(TString name);
 
-    Bool_t isVolumeStored(TString volume);
+    Bool_t isVolumeStored(const TString& volume) const;
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 

@@ -29,7 +29,6 @@ TEST(TRestGeant4Metadata, Default) {
     restGeant4Metadata.PrintMetadata();
 
     EXPECT_TRUE(restGeant4Metadata.GetSeed() == 0);
-    EXPECT_TRUE(restGeant4Metadata.GetSensitiveVolume() == "gas");
 }
 
 TEST(TRestGeant4Metadata, FromRml) {
