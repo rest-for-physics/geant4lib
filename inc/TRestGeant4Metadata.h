@@ -89,6 +89,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief A std::vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;
 
+    /// \brief A container related to fRemoveUnwantedTracks.
+    std::set<std::string> fKeepTracksVolumesSet;
+
     /// \brief A std::vector to store the probability value to write to disk the hits in a
     /// particular event.
     std::vector<Double_t> fChance;
@@ -325,6 +328,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline bool IsActiveVolume(const char* volumeName) const {
         return fActiveVolumesSet.count(volumeName) > 0;
     }  //!
+
+    inline bool IsKeepTracksVolume(const char* volumeName) const {
+        return fKeepTracksVolumesSet.count(volumeName) > 0;
+    }
 
     /// Returns a std::string with the name of the active volume with index n
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }

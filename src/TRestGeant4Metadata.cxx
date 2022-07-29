@@ -1141,6 +1141,9 @@ void TRestGeant4Metadata::ReadDetector() {
             if (isSensitive) {
                 InsertSensitiveVolume(physical);
             }
+            if (fRemoveUnwantedTracks && isKeepTracks) {
+                fKeepTracksVolumesSet.insert(physical);
+            }
         }
         volumeDefinition = GetNextElement(volumeDefinition);
     }
