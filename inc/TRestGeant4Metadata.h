@@ -84,7 +84,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief A 2d-std::vector storing the energy range, in keV, to decide if a particular
     /// event should be written to disk or not.
-    TVector2 fEnergyRangeStored;
+    TVector2 fEnergyRangeStored = {0, 1E20};
 
     /// \brief A std::vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;

@@ -704,8 +704,6 @@ void TRestGeant4Metadata::Initialize() {
     fBiasingVolumes.clear();
 
     RemoveParticleSources();
-
-    fEnergyRangeStored.Set(0, 1.E20);
 }
 
 ///////////////////////////////////////////////
@@ -1158,7 +1156,7 @@ void TRestGeant4Metadata::ReadDetector() {
         InsertSensitiveVolume("gas");
     }
 
-    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", detectorDefinition);
+    fEnergyRangeStored = Get2DVectorParameterWithUnits("energyRange", detectorDefinition, fEnergyRangeStored);
     // TODO: Place this as a generic method
     if (fEnergyRangeStored.X() < 0) {
         fEnergyRangeStored.Set(0, fEnergyRangeStored.Y());
@@ -1168,6 +1166,11 @@ void TRestGeant4Metadata::ReadDetector() {
     }
     if (fEnergyRangeStored.Y() > fEnergyRangeStored.Y()) {
         fEnergyRangeStored.Set(fEnergyRangeStored.Y(), fEnergyRangeStored.X());
+    }
+    if (fEnergyRangeStored.Y() <= 0) {
+        RESTError << "Energy range is not valid: (" << fEnergyRangeStored.X() << ", "
+                  << fEnergyRangeStored.Y() << ") keV" << RESTendl;
+        exit(1);
     }
 
     auto gdml = new TRestGDMLParser();
