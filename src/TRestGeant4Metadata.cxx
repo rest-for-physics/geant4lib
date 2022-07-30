@@ -1059,10 +1059,15 @@ void TRestGeant4Metadata::ReadDetector() {
     RESTInfo << "TRestGeant4Metadata: Setting 'fActivateAllVolumes' to " << fActivateAllVolumes << RESTendl;
     fActivateAllVolumes = activateAllVolumes;
 
-    const bool removeUnwantedTracks =
-        StringToBool(GetParameter("removeUnwantedTracks", detectorDefinition, "false"));
-    RESTInfo << "TRestGeant4Metadata: Setting 'removeUnwantedTracks' to " << removeUnwantedTracks << RESTendl;
-    fRemoveUnwantedTracks = removeUnwantedTracks;
+    TiXmlElement* removeUnwantedTracksDefinition = GetElement("removeUnwantedTracks", detectorDefinition);
+    if (removeUnwantedTracksDefinition != nullptr) {
+        fRemoveUnwantedTracks = StringToBool(GetParameter("enabled", removeUnwantedTracksDefinition, "true"));
+        fRemoveUnwantedTracksKeepZeroEnergyTracks =
+            StringToBool(GetParameter("keepZeroEnergyTracks", removeUnwantedTracksDefinition, "false"));
+        RESTInfo << "TRestGeant4Metadata: Setting 'fRemoveUnwantedTracks' to " << fRemoveUnwantedTracks
+                 << " with 'keepZeroEnergyTracks' option set to " << fRemoveUnwantedTracksKeepZeroEnergyTracks
+                 << RESTendl;
+    }
 
     Double_t defaultStep = GetDblParameterWithUnits("maxStepSize", detectorDefinition);
     if (defaultStep < 0) {
@@ -1142,7 +1147,7 @@ void TRestGeant4Metadata::ReadDetector() {
                 InsertSensitiveVolume(physical);
             }
             if (fRemoveUnwantedTracks && isKeepTracks) {
-                fKeepTracksVolumesSet.insert(physical);
+                fRemoveUnwantedTracksVolumesToKeep.insert(physical);
             }
         }
         volumeDefinition = GetNextElement(volumeDefinition);
@@ -1174,8 +1179,11 @@ void TRestGeant4Metadata::ReadDetector() {
     // the user wants to register all the volumes
     if (fActivateAllVolumes || GetNumberOfActiveVolumes() == 0) {
         for (auto& name : fGeant4GeometryInfo.fGdmlNewPhysicalNames) {
-            SetActiveVolume(name, 1, defaultStep);
-            RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1 << RESTendl;
+            if (!IsActiveVolume(name)) {
+                SetActiveVolume(name, 1, defaultStep);
+                RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1
+                         << RESTendl;
+            }
         }
     }
 
@@ -1298,9 +1306,11 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
 ///////////////////////////////////////////////
 /// \brief Returns the maximum step at a particular active volume
 ///
-Double_t TRestGeant4Metadata::GetMaxStepSize(TString volume) {
-    for (Int_t id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == volume) return fMaxStepSize[id];
+Double_t TRestGeant4Metadata::GetMaxStepSize(const TString& volume) {
+    for (Int_t i = 0; i < (Int_t)fActiveVolumes.size(); i++) {
+        if (volume.EqualTo(fActiveVolumes[i], TString::kIgnoreCase)) {
+            return fMaxStepSize[i];
+        }
     }
     RESTWarning << "TRestGeant4Metadata::GetMaxStepSize. Volume " << volume << " not found" << RESTendl;
 

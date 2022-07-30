@@ -89,9 +89,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief A std::vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;
 
-    /// \brief A container related to fRemoveUnwantedTracks.
-    std::set<std::string> fKeepTracksVolumesSet;
-
     /// \brief A std::vector to store the probability value to write to disk the hits in a
     /// particular event.
     std::vector<Double_t> fChance;
@@ -149,6 +146,13 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If activated will remove tracks not present in volumes marked as "keep" or "sensitive".
     Bool_t fRemoveUnwantedTracks = false;
+
+    /// \brief Option for 'removeUnwantedTracks', if enabled tracks with hits in volumes will be kept event if
+    /// they deposit zero energy (such as neutron captures)
+    Bool_t fRemoveUnwantedTracksKeepZeroEnergyTracks = false;
+
+    /// \brief A container related to fRemoveUnwantedTracks.
+    std::set<std::string> fRemoveUnwantedTracksVolumesToKeep;
 
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = false;  //!
@@ -313,7 +317,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// GDML volume given its geometry name.
     Double_t GetStorageChance(TString volume);
 
-    Double_t GetMaxStepSize(TString volume);
+    Double_t GetMaxStepSize(const TString& volume);
 
     /// Returns the minimum event energy required for an event to be stored.
     inline Double_t GetMinimumEnergyStored() const { return fEnergyRangeStored.X(); }
@@ -330,7 +334,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     }  //!
 
     inline bool IsKeepTracksVolume(const char* volumeName) const {
-        return fKeepTracksVolumesSet.count(volumeName) > 0;
+        return fRemoveUnwantedTracksVolumesToKeep.count(volumeName) > 0;
     }
 
     /// Returns a std::string with the name of the active volume with index n
@@ -339,6 +343,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline std::vector<TString> GetActiveVolumes() const { return fActiveVolumes; }
 
     inline bool GetRemoveUnwantedTracks() const { return fRemoveUnwantedTracks; }
+
+    inline bool GetRemoveUnwantedTracksKeepZeroEnergyTracks() const {
+        return fRemoveUnwantedTracksKeepZeroEnergyTracks;
+    }
 
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
