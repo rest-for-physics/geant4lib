@@ -34,7 +34,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
-    TString GetPhysicsListOptionString(TString phName) const;
+    TString GetPhysicsListOptionString(const TString& physicsListName) const;
 
     std::vector<TString> fPhysicsLists;
     std::vector<TString> fPhysicsListOptions;
@@ -61,11 +61,11 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
     inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
 
-    Int_t FindPhysicsList(TString phName) const;
-    Bool_t PhysicsListExists(TString phName) const;
+    Int_t FindPhysicsList(const TString& physicsListName) const;
+    Bool_t PhysicsListExists(const TString& physicsListName) const;
 
-    TString GetPhysicsListOptionValue(TString phName, TString option,
-                                      TString defaultValue = "NotDefined") const;
+    TString GetPhysicsListOptionValue(const TString& physicsListName, const TString& option,
+                                      const TString& defaultValue = "NotDefined") const;
 
     void PrintMetadata() override;
 

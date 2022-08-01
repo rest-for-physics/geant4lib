@@ -18,29 +18,21 @@
 
 #include "TRestGeant4PhysicsLists.h"
 
-#include "TRestTools.h"
+#include <TRestTools.h>
 
 using namespace std;
 
 ClassImp(TRestGeant4PhysicsLists);
 
-TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() {
-    // TRestGeant4PhysicsLists default constructor
-    Initialize();
-}
+TRestGeant4PhysicsLists::TRestGeant4PhysicsLists() : TRestMetadata() { Initialize(); }
 
 TRestGeant4PhysicsLists::TRestGeant4PhysicsLists(const char* configFilename, string name)
     : TRestMetadata(configFilename) {
     Initialize();
-
     LoadConfigFromFile(fConfigFileName, name);
-
-    PrintMetadata();
 }
 
-TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() {
-    // TRestGeant4PhysicsLists destructor
-}
+TRestGeant4PhysicsLists::~TRestGeant4PhysicsLists() = default;
 
 void TRestGeant4PhysicsLists::Initialize() {
     SetSectionName(this->ClassName());
@@ -63,11 +55,11 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
     TiXmlElement* physicsListDefinition = GetElement("physicsList");
     while (physicsListDefinition) {
         // PhysicsList name
-        TString phName = GetFieldValue("name", physicsListDefinition);
+        TString physicsListName = GetFieldValue("name", physicsListDefinition);
 
-        if (!PhysicsListExists(phName)) {
-            cerr << "TRestPhysicsList: Physics list: '" << phName << "' not found among valid options"
-                 << endl;
+        if (!PhysicsListExists(physicsListName)) {
+            cerr << "TRestPhysicsList: Physics list: '" << physicsListName
+                 << "' not found among valid options" << endl;
             exit(1);
         }
 
@@ -85,17 +77,17 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
             optionDefinition = GetNextElement(optionDefinition);
         }
 
-        fPhysicsLists.push_back(phName);
+        fPhysicsLists.push_back(physicsListName);
         fPhysicsListOptions.push_back(optionString);
         physicsListDefinition = GetNextElement(physicsListDefinition);
     }
 }
 
-Int_t TRestGeant4PhysicsLists::FindPhysicsList(TString phName) const {
-    if (!PhysicsListExists(phName)) return -1;
+Int_t TRestGeant4PhysicsLists::FindPhysicsList(const TString& physicsListName) const {
+    if (!PhysicsListExists(physicsListName)) return -1;
 
     for (unsigned int n = 0; n < fPhysicsLists.size(); n++) {
-        if (fPhysicsLists[n] == phName) {
+        if (fPhysicsLists[n] == physicsListName) {
             return (Int_t)n;
         }
     }
@@ -103,8 +95,8 @@ Int_t TRestGeant4PhysicsLists::FindPhysicsList(TString phName) const {
     return -1;
 }
 
-TString TRestGeant4PhysicsLists::GetPhysicsListOptionString(TString phName) const {
-    Int_t index = FindPhysicsList(phName);
+TString TRestGeant4PhysicsLists::GetPhysicsListOptionString(const TString& physicsListName) const {
+    Int_t index = FindPhysicsList(physicsListName);
 
     if (index == -1) {
         return "";
@@ -113,9 +105,10 @@ TString TRestGeant4PhysicsLists::GetPhysicsListOptionString(TString phName) cons
     return fPhysicsListOptions[index];
 }
 
-TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(TString phName, TString option,
-                                                           TString defaultValue) const {
-    vector<string> optList = TRestTools::GetOptions((string)GetPhysicsListOptionString(phName));
+TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(const TString& physicsListName,
+                                                           const TString& option,
+                                                           const TString& defaultValue) const {
+    vector<string> optList = TRestTools::GetOptions((string)GetPhysicsListOptionString(physicsListName));
 
     for (unsigned int n = 0; n < optList.size(); n = n + 2) {
         if (optList[n] == option) {
@@ -126,7 +119,7 @@ TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(TString phName, TStri
     return defaultValue;
 }
 
-Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString name) const {
+Bool_t TRestGeant4PhysicsLists::PhysicsListExists(const TString& physicsListName) const {
     const set<TString> validPhysicsLists = {"G4DecayPhysics",
                                             "G4RadioactiveDecayPhysics",
                                             "G4RadioactiveDecay",
@@ -142,7 +135,7 @@ Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString name) const {
                                             "G4NeutronTrackingCut",
                                             "G4EmExtraPhysics"};
 
-    return validPhysicsLists.count(name) > 0;
+    return validPhysicsLists.count(physicsListName) > 0;
 }
 
 void TRestGeant4PhysicsLists::PrintMetadata() {
@@ -165,11 +158,13 @@ void TRestGeant4PhysicsLists::PrintMetadata() {
             RESTMetadata << " - Option " << m / 2 << " : " << optList[m] << " = " << optList[m + 1]
                          << RESTendl;
     }
-    if (fIonLimitStepList.size() > 0)
-        RESTMetadata << "List of ions where step limit is affecting" << RESTendl;
-    for (unsigned int n = 0; n < fIonLimitStepList.size(); n++) {
-        RESTMetadata << "   - " << fIonLimitStepList[n] << RESTendl;
+    if (!fIonLimitStepList.empty()) {
+        RESTMetadata << "List of ions affected by step limit" << RESTendl;
+        for (const auto& ion : fIonLimitStepList) {
+            RESTMetadata << "   - " << ion << RESTendl;
+        }
     }
+
     RESTMetadata << "******************************************" << RESTendl;
     RESTMetadata << RESTendl;
     RESTMetadata << RESTendl;
