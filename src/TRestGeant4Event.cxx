@@ -1122,6 +1122,7 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
+// TODO: Find how to place this so that we don't need to copy it in every source file
 template <>
 struct fmt::formatter<TVector3> : formatter<string> {
     auto format(TVector3 c, format_context& ctx) {
