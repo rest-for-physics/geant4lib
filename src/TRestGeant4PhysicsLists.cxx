@@ -126,28 +126,23 @@ TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(TString phName, TStri
     return defaultValue;
 }
 
-Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString phName) const {
-    if (phName == "G4DecayPhysics") return true;
-    if (phName == "G4RadioactiveDecayPhysics") return true;
-    if (phName == "G4RadioactiveDecay") return true;
-    if (phName == "G4RadioactiveDecayBase") return true;
-    if (phName == "G4Radioactivation") return true;
-    if (phName == "G4EmLivermorePhysics") return true;
-    if (phName == "G4EmPenelopePhysics") return true;
-    if (phName == "G4EmStandardPhysics_option3") return true;
-    if (phName == "G4EmStandardPhysics_option4") return true;
-    if (phName == "G4HadronElasticPhysicsHP") return true;
-    if (phName == "G4IonBinaryCascadePhysics") return true;
-    if (phName == "G4HadronPhysicsQGSP_BIC_HP") return true;
-    if (phName == "G4NeutronTrackingCut") return true;
-    if (phName == "G4EmExtraPhysics") return true;
+Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString name) const {
+    const set<TString> validPhysicsLists = {"G4DecayPhysics",
+                                            "G4RadioactiveDecayPhysics",
+                                            "G4RadioactiveDecay",
+                                            "G4RadioactiveDecayBase",
+                                            "G4Radioactivation",
+                                            "G4EmLivermorePhysics",
+                                            "G4EmPenelopePhysics",
+                                            "G4EmStandardPhysics_option3",
+                                            "G4EmStandardPhysics_option4",
+                                            "G4HadronElasticPhysicsHP",
+                                            "G4IonBinaryCascadePhysics",
+                                            "G4HadronPhysicsQGSP_BIC_HP",
+                                            "G4NeutronTrackingCut",
+                                            "G4EmExtraPhysics"};
 
-    cout << endl;
-    cout << "REST Warning. TRestGeant4PhysicsLists::PhysicsListExists." << endl;
-    cout << "Physics list " << phName << " does NOT exist in TRestGeant4PhysicsLists." << endl;
-    cout << endl;
-
-    return false;
+    return validPhysicsLists.count(name) > 0;
 }
 
 void TRestGeant4PhysicsLists::PrintMetadata() {
