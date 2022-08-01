@@ -71,14 +71,17 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
         }
 
         TString optionString = "";
-        TiXmlElement* optionDefinition = GetElement("physicsList", physicsListDefinition);
+        TiXmlElement* optionDefinition = GetElement("option", physicsListDefinition);
         while (optionDefinition) {
             TString optionName = GetFieldValue("name", optionDefinition);
             TString optionValue = GetFieldValue("value", optionDefinition);
 
-            if (optionString != "") optionString += ":";
-
+            if (optionString != "") {
+                optionString += ":";
+            }
             optionString += optionName + ":" + optionValue;
+
+            optionDefinition = GetNextElement(optionDefinition);
         }
 
         fPhysicsLists.push_back(phName);
