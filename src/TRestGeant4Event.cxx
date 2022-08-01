@@ -22,10 +22,13 @@
 #include <TRestStringHelper.h>
 #include <TRestTools.h>
 #include <TStyle.h>
+#include <fmt/color.h>
+#include <fmt/core.h>
 
 #include "TRestGeant4Metadata.h"
 
 using namespace std;
+using namespace fmt;
 
 ClassImp(TRestGeant4Event);
 
@@ -1119,47 +1122,42 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
+template <>
+struct fmt::formatter<TVector3> : formatter<string> {
+    auto format(TVector3 c, format_context& ctx) {
+        string s = fmt::format("({:0.3f}, {:0.3f}, {:0.3f})", c.X(), c.Y(), c.Z());
+        return formatter<string>::format(s, ctx);
+    }
+};
+
 void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     TRestEvent::PrintEvent();
 
-    cout.precision(4);
+    print("- Total deposited energy: {}\n", ToEnergyString(fTotalDepositedEnergy));
+    print(fg(color::medium_sea_green), "- Sensitive detectors total energy: {}\n",
+          ToEnergyString(fSensitiveVolumeEnergy));
 
-    cout << "Total energy : " << fTotalDepositedEnergy << " keV" << endl;
-    cout << "Sensitive volume energy : " << fSensitiveVolumeEnergy << " keV" << endl;
-    cout << "Source origin : (" << fPrimaryPosition.X() << "," << fPrimaryPosition.Y() << ","
-         << fPrimaryPosition.Z() << ") mm" << endl;
+    print("- Primary source position: {} mm\n", fPrimaryPosition);
 
-    for (int n = 0; n < GetNumberOfPrimaries(); n++) {
-        const auto& direction = fPrimaryDirections[n];
-        cout << "Source " << n << " Particle name : " << fPrimaryParticleNames[n] << endl;
-        cout << "Source " << n << " direction : (" << direction.X() << "," << direction.Y() << ","
-             << direction.Z() << ")" << endl;
-        cout << "Source " << n << " energy : " << fPrimaryEnergies[n] << " keV" << endl;
+    for (int i = 0; i < GetNumberOfPrimaries(); i++) {
+        const auto sourceNumberString =
+            GetNumberOfPrimaries() <= 1 ? "" : format(" {} of {}", i + 1, GetNumberOfPrimaries());
+        print("   - Source{} primary particle: {}\n", sourceNumberString, fPrimaryParticleNames[i]);
+        print("     Direction: {}\n", fPrimaryDirections[i]);
+        print(fg(color::light_golden_rod_yellow), "     Energy: {}\n", ToEnergyString(fPrimaryEnergies[i]));
     }
 
-    cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
-    for (int i = 0; i < GetNumberOfActiveVolumes(); i++) {
-        if (isVolumeStored(i)) {
-            cout << "Active volume " << i << ":"
-                 << " has been stored." << endl;
-            cout << "Total energy deposit in volume " << i << ":"
-                 << " : " << fVolumeDepositedEnergy[i] << " keV" << endl;
-        } else
-            cout << "Active volume " << i << ":"
-                 << " has not been stored" << endl;
-    }
-
-    cout << "---------------------------------------------------------------------------" << endl;
-    cout << "Total number of tracks : " << GetNumberOfTracks() << endl;
+    print("\n");
+    print("Total number of tracks: {}\n", GetNumberOfTracks());
 
     int nTracks = GetNumberOfTracks();
-    if (maxTracks > 0) {
+    if (maxTracks > 0 && maxTracks < GetNumberOfTracks()) {
         nTracks = min(maxTracks, int(GetNumberOfTracks()));
-        cout << " Printing only the first " << nTracks << " tracks" << endl;
+        print(fg(color::light_slate_gray), "Printing only the first {} tracks\n", nTracks);
     }
 
-    for (int n = 0; n < nTracks; n++) {
-        GetTrack(n).PrintTrack(maxHits);
+    for (int i = 0; i < nTracks; i++) {
+        GetTrack(i).PrintTrack(maxHits);
     }
 }
 
