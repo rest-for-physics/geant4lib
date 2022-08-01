@@ -66,8 +66,9 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
         TString phName = GetFieldValue("name", physicsListDefinition);
 
         if (!PhysicsListExists(phName)) {
-            cout << "REST WARNING. TRestPhysicsList : Skipping physics list : " << phName << endl;
-            continue;
+            cerr << "TRestPhysicsList: Physics list: '" << phName << "' not found among valid options"
+                 << endl;
+            exit(1);
         }
 
         TString optionString = "";
