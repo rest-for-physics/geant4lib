@@ -87,33 +87,42 @@ void TRestGeant4PhysicsLists::InitFromConfigFile() {
     }
 }
 
-Int_t TRestGeant4PhysicsLists::FindPhysicsList(TString phName) {
+Int_t TRestGeant4PhysicsLists::FindPhysicsList(TString phName) const {
     if (!PhysicsListExists(phName)) return -1;
 
-    for (unsigned int n = 0; n < fPhysicsLists.size(); n++)
-        if (fPhysicsLists[n] == phName) return (Int_t)n;
+    for (unsigned int n = 0; n < fPhysicsLists.size(); n++) {
+        if (fPhysicsLists[n] == phName) {
+            return (Int_t)n;
+        }
+    }
 
     return -1;
 }
 
-TString TRestGeant4PhysicsLists::GetPhysicsListOptionString(TString phName) {
+TString TRestGeant4PhysicsLists::GetPhysicsListOptionString(TString phName) const {
     Int_t index = FindPhysicsList(phName);
 
-    if (index == -1) return "";
+    if (index == -1) {
+        return "";
+    }
 
     return fPhysicsListOptions[index];
 }
 
-TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(TString phName, TString option) {
+TString TRestGeant4PhysicsLists::GetPhysicsListOptionValue(TString phName, TString option,
+                                                           TString defaultValue) const {
     vector<string> optList = TRestTools::GetOptions((string)GetPhysicsListOptionString(phName));
 
-    for (unsigned int n = 0; n < optList.size(); n = n + 2)
-        if (optList[n] == option) return optList[n + 1];
+    for (unsigned int n = 0; n < optList.size(); n = n + 2) {
+        if (optList[n] == option) {
+            return optList[n + 1];
+        }
+    }
 
-    return "NotDefined";
+    return defaultValue;
 }
 
-Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString phName) {
+Bool_t TRestGeant4PhysicsLists::PhysicsListExists(TString phName) const {
     if (phName == "G4DecayPhysics") return true;
     if (phName == "G4RadioactiveDecayPhysics") return true;
     if (phName == "G4RadioactiveDecay") return true;
@@ -145,16 +154,20 @@ void TRestGeant4PhysicsLists::PrintMetadata() {
     RESTMetadata << "Cut for gammas : " << fCutForGamma << " mm" << RESTendl;
     RESTMetadata << "Cut for muons : " << fCutForMuon << " mm" << RESTendl;
     RESTMetadata << "Cut for neutrons : " << fCutForNeutron << " mm" << RESTendl;
-    RESTMetadata << "Min Energy for particle production: " << fMinEnergyRangeProductionCuts << " keV" << RESTendl;
-    RESTMetadata << "Max Energy for particle production: " << fMaxEnergyRangeProductionCuts << " keV" << RESTendl;
+    RESTMetadata << "Min Energy for particle production: " << fMinEnergyRangeProductionCuts << " keV"
+                 << RESTendl;
+    RESTMetadata << "Max Energy for particle production: " << fMaxEnergyRangeProductionCuts << " keV"
+                 << RESTendl;
     RESTMetadata << "---------------------------------------" << RESTendl;
     for (unsigned int n = 0; n < fPhysicsLists.size(); n++) {
         RESTMetadata << "Physics list " << n << " : " << fPhysicsLists[n] << RESTendl;
         vector<string> optList = TRestTools::GetOptions((string)fPhysicsListOptions[n]);
         for (unsigned int m = 0; m < optList.size(); m = m + 2)
-            RESTMetadata << " - Option " << m / 2 << " : " << optList[m] << " = " << optList[m + 1] << RESTendl;
+            RESTMetadata << " - Option " << m / 2 << " : " << optList[m] << " = " << optList[m + 1]
+                         << RESTendl;
     }
-    if (fIonLimitStepList.size() > 0) RESTMetadata << "List of ions where step limit is affecting" << RESTendl;
+    if (fIonLimitStepList.size() > 0)
+        RESTMetadata << "List of ions where step limit is affecting" << RESTendl;
     for (unsigned int n = 0; n < fIonLimitStepList.size(); n++) {
         RESTMetadata << "   - " << fIonLimitStepList[n] << RESTendl;
     }

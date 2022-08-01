@@ -34,7 +34,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     void InitFromConfigFile() override;
 
-    TString GetPhysicsListOptionString(TString phName);
+    TString GetPhysicsListOptionString(TString phName) const;
 
     std::vector<TString> fPhysicsLists;
     std::vector<TString> fPhysicsListOptions;
@@ -56,15 +56,16 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     inline Double_t GetCutForMuon() const { return fCutForMuon; }
     inline Double_t GetCutForNeutron() const { return fCutForNeutron; }
 
-    std::vector<std::string> GetIonStepList() { return fIonLimitStepList; }
+    std::vector<std::string> GetIonStepList() const { return fIonLimitStepList; }
 
     inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
     inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
 
-    Int_t FindPhysicsList(TString phName);
-    Bool_t PhysicsListExists(TString phName);
+    Int_t FindPhysicsList(TString phName) const;
+    Bool_t PhysicsListExists(TString phName) const;
 
-    TString GetPhysicsListOptionValue(TString phName, TString option);
+    TString GetPhysicsListOptionValue(TString phName, TString option,
+                                      TString defaultValue = "NotDefined") const;
 
     void PrintMetadata() override;
 
