@@ -1,4 +1,4 @@
-<?xml version="4.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <test>
 
@@ -9,18 +9,25 @@
         <parameter name="seed" value="17021981"/>
         <parameter name="nEvents" value="1"/>
 
-        <generator type="point" position="(0, 0, 0)">
+        <generator type="point" position="(0,0,0)">
             <source particle="geantino">
                 <energy type="mono" energy="1.0" units="MeV"/>
                 <angular type="isotropic"/>
             </source>
         </generator>
 
-        <storage sensitiveVolume="sensitiveVolume">
-            <parameter name="energyRange" value="(0,10)" units="GeV"/>
-            <activeVolume name="activeVolume1" chance="1" maxStepSize="1mm"/>
-            <activeVolume name="activeVolume2" chance="1" maxStepSize="1mm"/>
-        </storage>
+        <detector>
+            <parameter name="maxStepSize" value="1mm"/>
+            <parameter name="activateAllVolumes" value="true"/>
+
+            <removeUnwantedTracks enabled="true" keepZeroEnergyTracks="true"/>
+
+            <volume name="gasVolume" sensitive="true" maxStepSize="0.05mm"/>
+            <volume name="^scintillatorVolume" sensitive="false" keepTracks="true" maxStepSize="0.5mm"/>
+            <volume name="^captureLayerVolume" sensitive="false" keepTracks="true" maxStepSize="0.05mm"/>
+            <volume name="ShieldingVolume" sensitive="false" maxStepSize="5mm"/>
+
+        </detector>
 
     </TRestGeant4Metadata>
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<test>
+
+    <TRestGeant4VetoAnalysisProcess>
+
+        <parameter name="vetoVolumesExpression" value="^scintillatorVolume"/>
+
+    </TRestGeant4VetoAnalysisProcess>
+
+</test>

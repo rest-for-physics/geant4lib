@@ -81,6 +81,10 @@ class TRestGeant4GeometryInfo {
         return {};
     }
 
+    inline TVector3 GetPosition(const TString& volume) const {
+        return fPhysicalToPositionInWorldMap.at(volume);
+    }
+
     inline bool IsAssembly() const { return fIsAssembly; }
 
     void InsertVolumeName(Int_t id, const TString& volumeName);

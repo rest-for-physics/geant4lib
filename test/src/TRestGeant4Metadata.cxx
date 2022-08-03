@@ -12,7 +12,7 @@ const auto filesPath = fs::path(__FILE__).parent_path().parent_path() / "files";
 const auto geant4MetadataRml = filesPath / "TRestGeant4Example.rml";
 
 TEST(TRestGeant4Metadata, TestFiles) {
-    cout << "FrameworkCore test files path: " << filesPath << endl;
+    cout << "Test files path: " << filesPath << endl;
 
     // Check dir exists and is a directory
     EXPECT_TRUE(fs::is_directory(filesPath));
