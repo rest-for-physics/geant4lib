@@ -5,6 +5,11 @@
     <TRestGeant4VetoAnalysisProcess>
 
         <parameter name="vetoVolumesExpression" value="^scintillatorVolume"/>
+        <parameter name="vetoDetectorsExpression" value="^scintillatorLightGuideVolume"/>
+
+        <parameter name="vetoDetectorOffset" value="0"/>
+        <parameter name="vetoLightAttenuation" value="0"/>
+        <parameter name="quenchingFactor" value="0"/>
 
     </TRestGeant4VetoAnalysisProcess>
 

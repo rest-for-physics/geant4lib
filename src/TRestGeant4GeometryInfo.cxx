@@ -182,11 +182,14 @@ void TRestGeant4GeometryInfo::Print() const {
     cout << "Physical volumes (" << physicalVolumes.size() << "):" << endl;
     for (const auto& physical : GetAllPhysicalVolumes()) {
         auto geant4Name = GetGeant4PhysicalNameFromAlternativeName(physical);
-        const auto logical = fPhysicalToLogicalVolumeMap.at(physical);
+        const auto& logical = fPhysicalToLogicalVolumeMap.at(physical);
+        const auto& position = GetPosition(physical);
         cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
              << " - ID: " << GetIDFromVolume(physical)
              << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
-             << " - Material: " << fLogicalToMaterialMap.at(logical) << endl;
+             << " - Material: " << fLogicalToMaterialMap.at(logical)                                        //
+             << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"  //
+             << endl;
     }
 
     const auto logicalVolumes = GetAllLogicalVolumes();

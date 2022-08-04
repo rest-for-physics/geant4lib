@@ -32,9 +32,11 @@ TEST(TRestGeant4Metadata, Default) {
 }
 
 TEST(TRestGeant4Metadata, FromRml) {
-    GTEST_SKIP_("Problem with paths...");
+    cout << "Path: " << geant4MetadataRml << endl;
 
     TRestGeant4Metadata restGeant4Metadata(geant4MetadataRml.c_str());
+
+    GTEST_SKIP_("TODO: fix this");
 
     restGeant4Metadata.PrintMetadata();
 
