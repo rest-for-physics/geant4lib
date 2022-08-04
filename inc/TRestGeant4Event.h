@@ -150,6 +150,7 @@ class TRestGeant4Event : public TRestEvent {
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
 
+    inline const std::vector<TRestGeant4Track>& GetTracks() const { return fTracks; }
     inline size_t GetNumberOfTracks() const { return fTracks.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
