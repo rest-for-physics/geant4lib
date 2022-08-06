@@ -168,6 +168,20 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
+    inline const std::map<std::string, double> GetEnergyInVolumeMap() const {
+        std::map<std::string, double> result;
+        for (const auto& [volume, processMap] : fEnergyInVolumePerProcess) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume] += energy;
+            }
+        }
+        return result;
+    }
+    inline const std::map<std::string, std::map<std::string, double>>& GetEnergyInVolumePerProcessMap()
+        const {
+        return fEnergyInVolumePerProcess;
+    }
+
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
