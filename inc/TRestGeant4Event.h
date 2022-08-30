@@ -123,8 +123,8 @@ class TRestGeant4Event : public TRestEvent {
     std::vector<Int_t> fVolumeStored;
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
-    std::map<std::string, double> fEnergyInVolumeMap;
-    std::map<std::string, std::map<std::string, double>> fEnergyInVolumePerProcess;
+    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
+        fEnergyInVolumePerParticlePerProcess;
     std::vector<TRestGeant4Track> fTracks;
 
     Int_t fMaxSubEventID;
@@ -168,19 +168,13 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
-    inline const std::map<std::string, double> GetEnergyInVolumeMap() const {
-        std::map<std::string, double> result;
-        for (const auto& [volume, processMap] : fEnergyInVolumePerProcess) {
-            for (const auto& [process, energy] : processMap) {
-                result[volume] += energy;
-            }
-        }
-        return result;
-    }
-    inline const std::map<std::string, std::map<std::string, double>>& GetEnergyInVolumePerProcessMap()
-        const {
-        return fEnergyInVolumePerProcess;
-    }
+    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
+    GetEnergyInVolumePerParticlePerProcessMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
+    std::map<std::string, double> GetEnergyPerProcessMap() const;
+    std::map<std::string, double> GetEnergyPerParticleMap() const;
+    std::map<std::string, double> GetEnergyInVolumeMap() const;
 
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }

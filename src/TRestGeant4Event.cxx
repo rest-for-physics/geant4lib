@@ -335,7 +335,7 @@ void TRestGeant4Event::SetBoundaries() {
 }
 
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
-TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXYHitGraph) {
         delete[] fXYHitGraph;
@@ -427,7 +427,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
     return fXYMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fYZHitGraph) {
         delete[] fYZHitGraph;
@@ -519,7 +519,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
     return fYZMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXZHitGraph) {
         delete[] fXZHitGraph;
@@ -613,7 +613,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 /* }}} */
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
-TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXYHisto) {
         delete fXYHisto;
         fXYHisto = nullptr;
@@ -672,7 +672,7 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
     return fXYHisto;
 }
 
-TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXZHisto) {
         delete fXZHisto;
         fXZHisto = nullptr;
@@ -731,7 +731,7 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
     return fXZHisto;
 }
 
-TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYZHisto) {
         delete fYZHisto;
         fYZHisto = nullptr;
@@ -791,7 +791,7 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
 }
 /* }}} */
 
-TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXHisto) {
         delete fXHisto;
         fXHisto = nullptr;
@@ -842,7 +842,7 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
     return fXHisto;
 }
 
-TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fZHisto) {
         delete fZHisto;
         fZHisto = nullptr;
@@ -893,7 +893,7 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> op
     return fZHisto;
 }
 
-TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYHisto) {
         delete fYHisto;
         fYHisto = nullptr;
@@ -1024,7 +1024,7 @@ TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) 
         if (optList[n] == "print") this->PrintEvent();
     }
 
-    optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
+    optList.erase(remove(optList.begin(), optList.end(), "print"), optList.end());
 
     unsigned int nPlots = optList.size();
 
@@ -1225,6 +1225,66 @@ set<string> TRestGeant4Event::GetUniqueParticles() const {
     set<string> result;
     for (const auto& track : fTracks) {
         result.insert(track.GetParticleName().Data());
+    }
+    return result;
+}
+
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerProcessMap() const {
+    map<string, map<string, double>> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume][process] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerParticleMap() const {
+    map<string, map<string, double>> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume][particle] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyPerProcessMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[process] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyPerParticleMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[particle] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyInVolumeMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume] += energy;
+            }
+        }
     }
     return result;
 }
