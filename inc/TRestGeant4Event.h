@@ -116,8 +116,8 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 fSubEventPrimaryPosition;
     TVector3 fSubEventPrimaryDirection;
 
-    Double_t fTotalDepositedEnergy;
-    Double_t fSensitiveVolumeEnergy;
+    Double_t fTotalDepositedEnergy = 0;
+    Double_t fSensitiveVolumeEnergy = 0;
 
     Int_t fNVolumes;
     std::vector<Int_t> fVolumeStored;
@@ -168,13 +168,13 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
-    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
+    const std::map<std::string, std::map<std::string, std::map<std::string, double>>>&
     GetEnergyInVolumePerParticlePerProcessMap() const;
-    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
-    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
-    std::map<std::string, double> GetEnergyPerProcessMap() const;
-    std::map<std::string, double> GetEnergyPerParticleMap() const;
-    std::map<std::string, double> GetEnergyInVolumeMap() const;
+    const std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
+    const std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
+    const std::map<std::string, double> GetEnergyPerProcessMap() const;
+    const std::map<std::string, double> GetEnergyPerParticleMap() const;
+    const std::map<std::string, double> GetEnergyInVolumeMap() const;
 
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
@@ -208,7 +208,7 @@ class TRestGeant4Event : public TRestEvent {
         return lowestID;
     }
 
-    std::set<std::string> GetUniqueParticles() const;
+    const std::set<std::string> GetUniqueParticles() const;
 
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
@@ -253,5 +253,9 @@ class TRestGeant4Event : public TRestEvent {
    private:
     std::map<Int_t, Int_t> fTrackIDToTrackIndex = {};
     TRestGeant4Hits fInitialStep;  //!
+
+    void AddEnergyInVolumeForParticleForProcess(Double_t energy, const std::string& volumeName,
+                                                const std::string& particleName,
+                                                const std::string& processName);
 };
 #endif
