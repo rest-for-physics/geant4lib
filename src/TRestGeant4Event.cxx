@@ -1228,7 +1228,7 @@ const set<string> TRestGeant4Event::GetUniqueParticles() const {
     return result;
 }
 
-const map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerProcessMap() const {
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerProcessMap() const {
     map<string, map<string, double>> result;
     for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
         for (const auto& [particle, processMap] : particleProcessMap) {
@@ -1240,7 +1240,7 @@ const map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerPro
     return result;
 }
 
-const map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerParticleMap() const {
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerParticleMap() const {
     map<string, map<string, double>> result;
     for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
         for (const auto& [particle, processMap] : particleProcessMap) {
@@ -1252,7 +1252,7 @@ const map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerPar
     return result;
 }
 
-const map<string, double> TRestGeant4Event::GetEnergyPerProcessMap() const {
+map<string, double> TRestGeant4Event::GetEnergyPerProcessMap() const {
     map<string, double> result;
     for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
         for (const auto& [particle, processMap] : particleProcessMap) {
@@ -1264,7 +1264,7 @@ const map<string, double> TRestGeant4Event::GetEnergyPerProcessMap() const {
     return result;
 }
 
-const map<string, double> TRestGeant4Event::GetEnergyPerParticleMap() const {
+map<string, double> TRestGeant4Event::GetEnergyPerParticleMap() const {
     map<string, double> result;
     for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
         for (const auto& [particle, processMap] : particleProcessMap) {
@@ -1276,7 +1276,7 @@ const map<string, double> TRestGeant4Event::GetEnergyPerParticleMap() const {
     return result;
 }
 
-const map<string, double> TRestGeant4Event::GetEnergyInVolumeMap() const {
+map<string, double> TRestGeant4Event::GetEnergyInVolumeMap() const {
     map<string, double> result;
     for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
         for (const auto& [particle, processMap] : particleProcessMap) {
@@ -1288,8 +1288,8 @@ const map<string, double> TRestGeant4Event::GetEnergyInVolumeMap() const {
     return result;
 }
 
-const map<string, map<string, map<string, double>>>&
-TRestGeant4Event::GetEnergyInVolumePerParticlePerProcessMap() const {
+map<string, map<string, map<string, double>>> TRestGeant4Event::GetEnergyInVolumePerParticlePerProcessMap()
+    const {
     return fEnergyInVolumePerParticlePerProcess;
 }
 

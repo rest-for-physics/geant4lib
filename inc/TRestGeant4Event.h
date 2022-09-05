@@ -165,13 +165,18 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
-    const std::map<std::string, std::map<std::string, std::map<std::string, double>>>&
+    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
     GetEnergyInVolumePerParticlePerProcessMap() const;
-    const std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
-    const std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
-    const std::map<std::string, double> GetEnergyPerProcessMap() const;
-    const std::map<std::string, double> GetEnergyPerParticleMap() const;
-    const std::map<std::string, double> GetEnergyInVolumeMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
+    std::map<std::string, double> GetEnergyPerProcessMap() const;
+    std::map<std::string, double> GetEnergyPerParticleMap() const;
+    std::map<std::string, double> GetEnergyInVolumeMap() const;
+
+    inline Double_t GetEnergyInVolume(const std::string& volumeName) const {
+        auto energyMap = GetEnergyInVolumeMap();
+        return energyMap[volumeName];
+    }
 
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
