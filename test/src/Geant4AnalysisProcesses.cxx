@@ -13,6 +13,8 @@ const auto vetoAnalysisRml = filesPath / "TRestGeant4VetoAnalysisProcessExample.
 const auto vetoAnalysisRestG4Run = filesPath / "VetoAnalysisGeant4Run.root";
 
 TEST(TRestGeant4VetoAnalysisProcess, TestFiles) {
+    GTEST_SKIP();
+
     cout << "Test files path: " << filesPath << endl;
 
     // Check dir exists and is a directory
@@ -50,6 +52,8 @@ TEST(TRestGeant4VetoAnalysisProcess, FromRml) {
 }
 
 TEST(TRestGeant4VetoAnalysisProcess, Simulation) {
+    GTEST_SKIP();
+
     TRestGeant4VetoAnalysisProcess process(vetoAnalysisRml.c_str());
 
     EXPECT_TRUE(process.GetVetoVolumesExpression() == "^scintillatorVolume");
