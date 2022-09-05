@@ -127,8 +127,6 @@ class TRestGeant4Event : public TRestEvent {
         fEnergyInVolumePerParticlePerProcess;
     std::vector<TRestGeant4Track> fTracks;
 
-    Int_t fMaxSubEventID;
-
    public:
     void SetBoundaries();
     void SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
@@ -158,7 +156,6 @@ class TRestGeant4Event : public TRestEvent {
     inline const TRestGeant4Track& GetTrack(int n) const { return fTracks[n]; }
     inline TRestGeant4Track* GetTrackPointer(int n) { return &fTracks[n]; }
     TRestGeant4Track* GetTrackByID(Int_t trackID) const;
-    inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
 
     inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
     inline Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }

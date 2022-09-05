@@ -75,7 +75,6 @@ void TRestGeant4Event::Initialize() {
 
     fTotalDepositedEnergy = 0;
     fSensitiveVolumeEnergy = 0;
-    fMaxSubEventID = 0;
 
     fMinX = 1e20;
     fMaxX = -1e20;
