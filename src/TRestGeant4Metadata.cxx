@@ -1240,6 +1240,20 @@ void TRestGeant4Metadata::PrintMetadata() {
     for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
+
+    if (GetRemoveUnwantedTracks()) {
+        RESTMetadata << "removeUnwantedTracks is enabled "
+                     << (fRemoveUnwantedTracksKeepZeroEnergyTracks ? "with" : "without")
+                     << " keeping zero energy tracks" << RESTendl;
+
+        /*
+        RESTMetadata << "keep volumes for removeUnwantedTracks:" << RESTendl;
+        for (const auto& volume : fRemoveUnwantedTracksVolumesToKeep) {
+            RESTMetadata << "\t" << volume << RESTendl;
+        }
+         */
+    }
+
     RESTMetadata << "+++++" << RESTendl;
 }
 
