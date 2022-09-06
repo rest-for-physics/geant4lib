@@ -22,12 +22,13 @@ class TRestGeant4EventViewer : public TRestEveEventViewer {
    private:
     std::vector<TEveLine*> fHitConnectors;
 
-    TRestGeant4Event* fG4Event;
+    TRestGeant4Event* fG4Event = nullptr;
+    const TRestGeant4Metadata* fG4Metadata = nullptr;
 
    public:
     void Initialize();
     void DeleteCurrentEvent();
-    void AddEvent(TRestEvent* ev);
+    void AddEvent(TRestEvent* event);
 
     void NextTrackVertex(Int_t trkID, TVector3 to);
     void AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name);
@@ -41,6 +42,6 @@ class TRestGeant4EventViewer : public TRestEveEventViewer {
     // Destructor
     ~TRestGeant4EventViewer();
 
-    ClassDef(TRestGeant4EventViewer, 1);  // class inherited from TRestEventViewer
+    ClassDef(TRestGeant4EventViewer, 2);  // class inherited from TRestEventViewer
 };
 #endif
