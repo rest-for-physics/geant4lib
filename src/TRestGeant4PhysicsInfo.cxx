@@ -23,6 +23,14 @@ std::set<TString> TRestGeant4PhysicsInfo::GetAllProcesses() const {
     return processes;
 }
 
+std::set<TString> TRestGeant4PhysicsInfo::GetAllProcessTypes() const {
+    set<TString> types = {};
+    for (const auto& [_, type] : fProcessTypesMap) {
+        types.insert(type);
+    }
+    return types;
+}
+
 void TRestGeant4PhysicsInfo::PrintParticles() const {
     const auto particleNames = GetAllParticles();
     cout << "Particles:" << endl;
@@ -46,13 +54,16 @@ void TRestGeant4PhysicsInfo::Print() const {
     PrintProcesses();
 }
 
-void TRestGeant4PhysicsInfo::InsertProcessName(Int_t id, const TString& processName) {
+void TRestGeant4PhysicsInfo::InsertProcessName(Int_t id, const TString& processName,
+                                               const TString& processType) {
     if (fProcessNamesMap.count(id) > 0) {
         return;
     }
     std::lock_guard<std::mutex> lock(fMutex);
     fProcessNamesMap[id] = processName;
     fProcessNamesReverseMap[processName] = id;
+
+    fProcessTypesMap[processName] = processType;
 }
 
 void TRestGeant4PhysicsInfo::InsertParticleName(Int_t id, const TString& particleName) {
@@ -86,4 +97,8 @@ TString TRestGeant4PhysicsInfo::GetParticleName(Int_t id) const {
 
 Int_t TRestGeant4PhysicsInfo::GetParticleID(const TString& processName) const {
     return GetOrDefaultMapValueFromKey<TString, Int_t>(&fParticleNamesReverseMap, processName);
+}
+
+TString TRestGeant4PhysicsInfo::GetProcessType(const TString& processName) const {
+    return GetOrDefaultMapValueFromKey<TString, TString>(&fProcessTypesMap, processName);
 }
