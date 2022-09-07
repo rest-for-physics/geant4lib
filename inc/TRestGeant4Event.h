@@ -208,7 +208,7 @@ class TRestGeant4Event : public TRestEvent {
     Bool_t ContainsParticle(const TString& particleName) const;
     Bool_t ContainsParticleInVolume(const TString& particleName, Int_t volumeID = -1) const;
 
-    void Initialize();
+    void Initialize() override;
 
     void InitializeReferences(TRestRun* run) override;
 
@@ -218,7 +218,7 @@ class TRestGeant4Event : public TRestEvent {
     void PrintActiveVolumes() const;
     void PrintEvent(int maxTracks = 0, int maxHits = 0) const;
 
-    inline TPad* DrawEvent(const TString& option = "") { return DrawEvent(option, true); }
+    inline TPad* DrawEvent(const TString& option = "") override { return DrawEvent(option, true); }
     TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);
 
     // Constructor
@@ -226,6 +226,6 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDef(TRestGeant4Event, 7);  // REST event superclass
+    ClassDefOverride(TRestGeant4Event, 7);  // REST event superclass
 };
 #endif
