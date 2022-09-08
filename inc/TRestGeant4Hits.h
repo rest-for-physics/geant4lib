@@ -73,6 +73,7 @@ class TRestGeant4Hits : public TRestHits {
 
     ClassDef(TRestGeant4Hits, 7);  // REST event superclass
 
+    friend class TRestGeant4QuenchingProcess;
     // restG4
    public:
     void InsertStep(const G4Step*);

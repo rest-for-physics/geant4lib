@@ -56,6 +56,7 @@ class TRestGeant4Track {
 
    public:
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
+    inline TRestGeant4Hits* GetHitsPointer() { return &fHits; }
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
     const TRestGeant4Metadata* GetGeant4Metadata() const;
 
