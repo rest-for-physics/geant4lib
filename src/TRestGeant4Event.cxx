@@ -195,7 +195,7 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(Int_t trackID) const {
     TRestGeant4Track* result = nullptr;
     if (fTrackIDToTrackIndex.count(trackID) > 0) {
         result = const_cast<TRestGeant4Track*>(&fTracks[fTrackIDToTrackIndex.at(trackID)]);
-        if (result->GetTrackID() != trackID) {
+        if (result == nullptr || result->GetTrackID() != trackID) {
             cerr << "TRestGeant4Event::GetTrackByID - ERROR: trackIDToTrackIndex map is corrupted" << endl;
             exit(1);
         }
