@@ -192,23 +192,15 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
 }
 
 TRestGeant4Track* TRestGeant4Event::GetTrackByID(Int_t trackID) const {
+    TRestGeant4Track* result = nullptr;
     if (fTrackIDToTrackIndex.count(trackID) > 0) {
-        TRestGeant4Track* result = const_cast<TRestGeant4Track*>(&fTracks[fTrackIDToTrackIndex.at(trackID)]);
+        result = const_cast<TRestGeant4Track*>(&fTracks[fTrackIDToTrackIndex.at(trackID)]);
         if (result->GetTrackID() != trackID) {
             cerr << "TRestGeant4Event::GetTrackByID - ERROR: trackIDToTrackIndex map is corrupted" << endl;
             exit(1);
         }
     }
-    return nullptr;
-
-    /*
-    for (const auto& track : fTracks) {
-        if (track.GetTrackID() == trackID) {
-            return const_cast<TRestGeant4Track*>(&track);
-        }
-    }
-    return nullptr;
-     */
+    return result;
 }
 
 ///////////////////////////////////////////////
