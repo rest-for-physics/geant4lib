@@ -202,3 +202,22 @@ vector<const TRestGeant4Track*> TRestGeant4Track::GetSecondaryTracks() const {
     }
     return secondaryTracks;
 }
+
+TString TRestGeant4Track::GetInitialVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(hits.GetVolumeId(0));
+}
+
+TString TRestGeant4Track::GetFinalVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(
+        hits.GetVolumeId(hits.GetNumberOfHits() - 1));
+}

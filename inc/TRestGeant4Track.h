@@ -85,6 +85,9 @@ class TRestGeant4Track {
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
     inline Double_t GetLength() const { return fLength; }
 
+    TString GetInitialVolume() const;
+    TString GetFinalVolume() const;
+
     inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
     std::vector<const TRestGeant4Track*> GetSecondaryTracks() const;
 
