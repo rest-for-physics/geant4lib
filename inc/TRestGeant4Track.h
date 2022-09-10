@@ -41,7 +41,6 @@ class TRestGeant4Track {
 
     std::vector<Int_t> fSecondaryTrackIDs;
 
-    /* Time is stored in seconds */
     Double_t fGlobalTimestamp;
     Double_t fTimeLength;
 
