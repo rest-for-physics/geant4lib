@@ -65,10 +65,6 @@
 
 #include "TRestGeant4VetoAnalysisProcess.h"
 
-#include <fmt/color.h>
-#include <fmt/core.h>
-
-using namespace fmt;
 using namespace std;
 
 ClassImp(TRestGeant4VetoAnalysisProcess);
@@ -333,15 +329,6 @@ void TRestGeant4VetoAnalysisProcess::InitFromConfigFile() {
     fVetoQuenchingFactor = GetDblParameterWithUnits("quenchingFactor", fVetoQuenchingFactor);
 }
 
-// TODO: Find how to place this so that we don't need to copy it in every source file
-template <>
-struct fmt::formatter<TVector3> : formatter<string> {
-    auto format(const TVector3& c, format_context& ctx) {
-        string s = fmt::format("({:0.3f}, {:0.3f}, {:0.3f})", c.X(), c.Y(), c.Z());
-        return formatter<string>::format(s, ctx);
-    }
-};
-
 void TRestGeant4VetoAnalysisProcess::PrintMetadata() {
     BeginPrintProcess();
 
@@ -370,7 +357,9 @@ void TRestGeant4VetoAnalysisProcess::PrintMetadata() {
         const auto& vetoName = fVetoVolumes[i];
         const auto& vetoPosition = geometryInfo.GetPosition(vetoName);
 
-        print(" - Veto volume: {} - name: '{}' - position: {} mm\n", i, vetoName, vetoPosition);
+        cout << TString::Format(" - Veto volume: %d - name: '%s' - position: %s mm", i, vetoName.Data(),
+                                VectorToString(vetoPosition).c_str())
+             << endl;
 
         if (fVetoDetectorVolumes.empty()) {
             continue;
@@ -379,9 +368,12 @@ void TRestGeant4VetoAnalysisProcess::PrintMetadata() {
         const auto& vetoDetectorName = fVetoDetectorVolumes[i];
         const auto& vetoDetectorPosition = geometryInfo.GetPosition(vetoDetectorName);
 
-        print("   Veto detector name: '{}' - position: {} mm\n", vetoDetectorName, vetoDetectorPosition);
+        cout << TString::Format("   Veto detector name: '%s' - position: %s mm", vetoDetectorName.Data(),
+                                VectorToString(vetoDetectorPosition).c_str())
+             << endl;
 
-        print("   Boundary position: {} mm - direction: {}\n", fVetoDetectorBoundaryPosition.at(vetoName),
-              fVetoDetectorBoundaryDirection.at(vetoName));
+        cout << TString::Format("   Boundary position: %s mm - direction: %s",
+                                VectorToString(fVetoDetectorBoundaryPosition.at(vetoName)).c_str(),
+                                VectorToString(fVetoDetectorBoundaryDirection.at(vetoName)).c_str());
     }
 }

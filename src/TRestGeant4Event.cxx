@@ -22,13 +22,10 @@
 #include <TRestStringHelper.h>
 #include <TRestTools.h>
 #include <TStyle.h>
-#include <fmt/color.h>
-#include <fmt/core.h>
 
 #include "TRestGeant4Metadata.h"
 
 using namespace std;
-using namespace fmt;
 
 ClassImp(TRestGeant4Event);
 
@@ -1117,39 +1114,31 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
-// TODO: Find how to place this so that we don't need to copy it in every source file
-template <>
-struct fmt::formatter<TVector3> : formatter<string> {
-    auto format(TVector3 c, format_context& ctx) {
-        string s = fmt::format("({:0.3f}, {:0.3f}, {:0.3f})", c.X(), c.Y(), c.Z());
-        return formatter<string>::format(s, ctx);
-    }
-};
-
 void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     TRestEvent::PrintEvent();
 
-    print("- Total deposited energy: {}\n", ToEnergyString(fTotalDepositedEnergy));
-    print(fg(color::medium_sea_green), "- Sensitive detectors total energy: {}\n",
-          ToEnergyString(fSensitiveVolumeEnergy));
+    cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
+    cout << "- Sensitive detectors total energy: " << ToEnergyString(fSensitiveVolumeEnergy) << endl;
 
-    print("- Primary source position: {} mm\n", fPrimaryPosition);
+    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << "{} mm" << endl;
 
     for (int i = 0; i < GetNumberOfPrimaries(); i++) {
-        const auto sourceNumberString =
-            GetNumberOfPrimaries() <= 1 ? "" : format(" {} of {}", i + 1, GetNumberOfPrimaries());
-        print("   - Source{} primary particle: {}\n", sourceNumberString, fPrimaryParticleNames[i]);
-        print("     Direction: {}\n", fPrimaryDirections[i]);
-        print(fg(color::light_golden_rod_yellow), "     Energy: {}\n", ToEnergyString(fPrimaryEnergies[i]));
+        const char* sourceNumberString =
+            GetNumberOfPrimaries() <= 1 ? ""
+                                        : TString::Format(" %d of %zu", i + 1, GetNumberOfPrimaries()).Data();
+        cout << "   - Source" << sourceNumberString << " primary particle: " << fPrimaryParticleNames[i]
+             << endl;
+        cout << "     Direction: " << VectorToString(fPrimaryDirections[i]) << endl;
+        cout << "     Energy: " << ToEnergyString(fPrimaryEnergies[i]) << endl;
     }
 
-    print("\n");
-    print("Total number of tracks: {}\n", GetNumberOfTracks());
+    cout << endl;
+    cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
     if (maxTracks > 0 && maxTracks < GetNumberOfTracks()) {
         nTracks = min(maxTracks, int(GetNumberOfTracks()));
-        print(fg(color::light_slate_gray), "Printing only the first {} tracks\n", nTracks);
+        cout << "Printing only the first " << nTracks << " tracks" << endl;
     }
 
     for (int i = 0; i < nTracks; i++) {
