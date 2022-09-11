@@ -118,6 +118,8 @@ class TRestGeant4Track {
         return ContainsProcessInVolume(processName, -1);
     }
 
+    Double_t GetEnergyInVolume(const TString& volumeName, bool children = false) const;
+
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;
 

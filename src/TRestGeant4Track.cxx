@@ -221,3 +221,31 @@ TString TRestGeant4Track::GetFinalVolume() const {
     return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(
         hits.GetVolumeId(hits.GetNumberOfHits() - 1));
 }
+
+Double_t TRestGeant4Track::GetEnergyInVolume(const TString& volumeName, bool children) const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return 0;
+    }
+
+    const auto volumeId = metadata->GetGeant4GeometryInfo().GetIDFromVolume(volumeName);
+
+    if (!children) {
+        return GetEnergyInVolume(volumeId);
+    }
+
+    Double_t energy = 0;
+    vector<const TRestGeant4Track*> tracks = {this};
+    while (!tracks.empty()) {
+        const TRestGeant4Track* track = tracks.back();
+        tracks.pop_back();
+        if (track == nullptr) {
+            continue;
+        }
+        energy += track->GetEnergyInVolume(volumeId);
+        for (const TRestGeant4Track* secondaryTrack : track->GetSecondaryTracks()) {
+            tracks.push_back(secondaryTrack);
+        }
+    }
+    return energy;
+}
