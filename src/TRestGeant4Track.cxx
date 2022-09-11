@@ -249,3 +249,14 @@ Double_t TRestGeant4Track::GetEnergyInVolume(const TString& volumeName, bool chi
     }
     return energy;
 }
+
+TString TRestGeant4Track::GetLastProcessName() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4PhysicsInfo().GetProcessName(
+        hits.GetProcess(hits.GetNumberOfHits() - 1));
+}
