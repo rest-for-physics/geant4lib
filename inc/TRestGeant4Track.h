@@ -41,7 +41,6 @@ class TRestGeant4Track {
 
     std::vector<Int_t> fSecondaryTrackIDs;
 
-    /* Time is stored in seconds */
     Double_t fGlobalTimestamp;
     Double_t fTimeLength;
 
@@ -58,8 +57,6 @@ class TRestGeant4Track {
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
     const TRestGeant4Metadata* GetGeant4Metadata() const;
-
-    TRestGeant4Track* GetParentTrack() const;
 
     inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
     inline void SetHits(const TRestGeant4Hits& hits) {
@@ -86,8 +83,14 @@ class TRestGeant4Track {
     inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
     inline Double_t GetLength() const { return fLength; }
 
+    TString GetInitialVolume() const;
+    TString GetFinalVolume() const;
+
     inline std::vector<Int_t> GetSecondaryTrackIDs() const { return fSecondaryTrackIDs; }
     std::vector<const TRestGeant4Track*> GetSecondaryTracks() const;
+    inline std::vector<const TRestGeant4Track*> GetChildrenTracks() const { return GetSecondaryTracks(); }
+
+    TRestGeant4Track* GetParentTrack() const;
 
     inline TVector3 GetTrackOrigin() const { return GetInitialPosition(); }
 
@@ -114,6 +117,10 @@ class TRestGeant4Track {
     inline Bool_t ContainsProcess(const TString& processName) const {
         return ContainsProcessInVolume(processName, -1);
     }
+
+    Double_t GetEnergyInVolume(const TString& volumeName, bool children = false) const;
+
+    TString GetLastProcessName() const;
 
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;

@@ -17,20 +17,16 @@
 
 #include "TRestGeant4Track.h"
 
-#include <fmt/color.h>
-#include <fmt/core.h>
-
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
 using namespace std;
-using namespace fmt;
 
 ClassImp(TRestGeant4Track);
 
-TRestGeant4Track::TRestGeant4Track() {}
+TRestGeant4Track::TRestGeant4Track() = default;
 
-TRestGeant4Track::~TRestGeant4Track() {}
+TRestGeant4Track::~TRestGeant4Track() = default;
 
 Int_t TRestGeant4Track::GetProcessID(const TString& processName) const {
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
@@ -115,31 +111,26 @@ size_t TRestGeant4Track::GetNumberOfPhysicalHits(Int_t volID) const {
     return numberOfHits;
 }
 
-template <>
-struct fmt::formatter<TVector3> : formatter<string> {
-    auto format(TVector3 c, format_context& ctx) {
-        string s = fmt::format("({:0.3f}, {:0.3f}, {:0.3f})", c.X(), c.Y(), c.Z());
-        return formatter<string>::format(s, ctx);
-    }
-};
-
 void TRestGeant4Track::PrintTrack(size_t maxHits) const {
-    print(fg(color::green_yellow),
-          " * TrackID: {} - Particle: {} - ParentID: {}{} - Created by '{}' with initial "
-          "KE of {}\n",
-          fTrackID, fParticleName, fParentID,
-          (GetParentTrack() != nullptr ? format(" - Parent particle: {}", GetParentTrack()->GetParticleName())
-                                       : ""),
-          fCreatorProcess, ToEnergyString(fInitialKineticEnergy));
-    print(fg(color::green_yellow),
-          "   Initial position {} mm at time {} - Time length of {} and spatial length of {}\n",
-          fInitialPosition, ToTimeString(fGlobalTimestamp), ToTimeString(fTimeLength),
-          ToLengthString(fLength));
+    cout
+        << " * TrackID: " << fTrackID << " - Particle: " << fParticleName << " - ParentID: " << fParentID
+        << ""
+        << (GetParentTrack() != nullptr
+                ? TString::Format(" - Parent particle: {}", GetParentTrack()->GetParticleName().Data()).Data()
+                : "")
+        << " - Created by '" << fCreatorProcess
+        << "' with initial "
+           "KE of "
+        << ToEnergyString(fInitialKineticEnergy) << "" << endl;
+
+    cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
+         << ToTimeString(fGlobalTimestamp) << " - Time length of " << ToTimeString(fTimeLength)
+         << " and spatial length of " << ToLengthString(fLength) << endl;
 
     size_t nHits = GetNumberOfHits();
     if (maxHits > 0 && maxHits < nHits) {
         nHits = min(maxHits, nHits);
-        print(fg(color::light_slate_gray), "Printing only the first {} hits of the track\n", nHits);
+        cout << "Printing only the first " << nHits << " hits of the track" << endl;
     }
 
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
@@ -158,13 +149,11 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
             // in case process name is not found, use ID
             volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
         }
-
-        print(
-            (fHits.GetEnergy(i) > 0 ? fg(color::light_salmon) : fg(color::antique_white)),
-            "      - Hit {} - Energy: {} - Process: {} - Volume: {} - Position: {} mm - Time: {} - KE: {}\n",
-            i, ToEnergyString(fHits.GetEnergy(i)), processName, volumeName,
-            TVector3(fHits.GetX(i), fHits.GetY(i), fHits.GetZ(i)), ToTimeString(fHits.GetTime(i)),
-            ToEnergyString(fHits.GetKineticEnergy(i)));
+        cout << "      - Hit " << i << " - Energy: " << ToEnergyString(fHits.GetEnergy(i))
+             << " - Process: " << processName << " - Volume: " << volumeName
+             << " - Position: " << VectorToString(TVector3(fHits.GetX(i), fHits.GetY(i), fHits.GetZ(i)))
+             << " mm - Time: " << ToTimeString(fHits.GetTime(i))
+             << " - KE: " << ToEnergyString(fHits.GetKineticEnergy(i)) << endl;
     }
 }
 
@@ -212,4 +201,62 @@ vector<const TRestGeant4Track*> TRestGeant4Track::GetSecondaryTracks() const {
         }
     }
     return secondaryTracks;
+}
+
+TString TRestGeant4Track::GetInitialVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(hits.GetVolumeId(0));
+}
+
+TString TRestGeant4Track::GetFinalVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(
+        hits.GetVolumeId(hits.GetNumberOfHits() - 1));
+}
+
+Double_t TRestGeant4Track::GetEnergyInVolume(const TString& volumeName, bool children) const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return 0;
+    }
+
+    const auto volumeId = metadata->GetGeant4GeometryInfo().GetIDFromVolume(volumeName);
+
+    if (!children) {
+        return GetEnergyInVolume(volumeId);
+    }
+
+    Double_t energy = 0;
+    vector<const TRestGeant4Track*> tracks = {this};
+    while (!tracks.empty()) {
+        const TRestGeant4Track* track = tracks.back();
+        tracks.pop_back();
+        if (track == nullptr) {
+            continue;
+        }
+        energy += track->GetEnergyInVolume(volumeId);
+        for (const TRestGeant4Track* secondaryTrack : track->GetSecondaryTracks()) {
+            tracks.push_back(secondaryTrack);
+        }
+    }
+    return energy;
+}
+
+TString TRestGeant4Track::GetLastProcessName() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4PhysicsInfo().GetProcessName(
+        hits.GetProcess(hits.GetNumberOfHits() - 1));
 }
