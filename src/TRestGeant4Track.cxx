@@ -116,7 +116,7 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         << " * TrackID: " << fTrackID << " - Particle: " << fParticleName << " - ParentID: " << fParentID
         << ""
         << (GetParentTrack() != nullptr
-                ? TString::Format(" - Parent particle: {}", GetParentTrack()->GetParticleName().Data()).Data()
+                ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
                 : "")
         << " - Created by '" << fCreatorProcess
         << "' with initial "
