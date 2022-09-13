@@ -79,7 +79,6 @@ TrackVisualConfiguration GetTrackVisualConfiguration(const TRestGeant4Track& tra
     }
 
     // width
-
     Width_t width = TMath::Log10(track.GetInitialKineticEnergy() / 100);
     width = (width > 10 ? 10 : width);
     width = (width < 1 ? 1 : width);
@@ -96,9 +95,9 @@ TrackVisualConfiguration GetTrackVisualConfiguration(const TRestGeant4Track& tra
 
 TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track) {
     auto lineSet = new TEveStraightLineSet(
-        TString::Format("ID%d | %s | Created by %s | Init KE: %0.2f keV",  //
+        TString::Format("ID %d | %s | Created by %s | KE: %s",  //
                         track.GetTrackID(), track.GetParticleName().Data(), track.GetCreatorProcess().Data(),
-                        track.GetInitialKineticEnergy()));
+                        ToEnergyString(track.GetInitialKineticEnergy()).c_str()));
 
     const auto& hits = track.GetHits();
     for (int i = 0; i < hits.GetNumberOfHits() - 1; i++) {
@@ -225,8 +224,10 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* event) {
     TVector3 position = {firstTrack.GetInitialPosition().X(), firstTrack.GetInitialPosition().Y(),
                          firstTrack.GetInitialPosition().Z()};
     AddText(
-        TString::Format("Event ID: %d (SubID: %d) | Position: (%4.2lf, %4.2lf, %4.2lf) mm", fG4Event->GetID(),
-                        fG4Event->GetSubID(), position.X(), position.Y(), position.Z()),
+        TString::Format(
+            "Event ID: %d%s | Primary origin: (%4.2lf, %4.2lf, %4.2lf) mm", fG4Event->GetID(),
+            (fG4Event->GetSubID() > 0 ? TString::Format(" (SubID: %d)", fG4Event->GetSubID()) : "").Data(),
+            position.X(), position.Y(), position.Z()),
         position);
 
     Update();
