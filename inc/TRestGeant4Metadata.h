@@ -127,8 +127,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// The number of events simulated, or to be simulated.
     Int_t fNEvents = 0;
 
-    /// The number of events the user desired to be on the file
-    Int_t fNDesiredEntries = 0;
+    /// The number of events the user requested to be on the file
+    Int_t fNRequestedEntries = 0;
 
     /// Time before simulation is ended and saved
     Int_t fSimulationMaxTimeSeconds = 0;
@@ -251,7 +251,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the number of events to be simulated.
     inline Int_t GetNumberOfEvents() const { return fNEvents; }
 
-    inline Int_t GetNumberOfDesiredEntries() const { return fNDesiredEntries; }
+    inline Int_t GetNumberOfRequestedEntries() const { return fNRequestedEntries; }
 
     inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
 
@@ -294,7 +294,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Sets the name of the sensitive volume
     inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
 
-    inline void SetNumberOfDesiredEntries(Int_t n) { fNDesiredEntries = n; }
+    inline void SetNumberOfRequestedEntries(Int_t n) { fNRequestedEntries = n; }
 
     inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
