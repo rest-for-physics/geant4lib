@@ -14,7 +14,8 @@
 
 #include "TRestGeant4EventViewer.h"
 
-#include "TRestStringOutput.h"
+#include <TEveStraightLineSet.h>
+#include <TRestStringOutput.h>
 
 using namespace std;
 
@@ -35,105 +36,199 @@ void TRestGeant4EventViewer::Initialize() {
 }
 
 void TRestGeant4EventViewer::DeleteCurrentEvent() {
-    // cout<<"Removing event"<<endl;
-
     TRestEveEventViewer::DeleteCurrentEvent();
+    fG4Metadata = nullptr;
 
     fHitConnectors.clear();
     fHitConnectors.push_back(nullptr);
 }
 
-void TRestGeant4EventViewer::AddEvent(TRestEvent* ev) {
+struct TrackVisualConfiguration {
+    Color_t fColor = kWhite;
+    Style_t fLineStyle = 1;
+    Width_t fLineWidth = 4.0;
+};
+
+TrackVisualConfiguration GetTrackVisualConfiguration(const TRestGeant4Track& track) {
+    auto config = TrackVisualConfiguration();
+    // special particles
+    const auto particleName = track.GetParticleName();
+    if (particleName == "geantino") {
+        config.fColor = kRed;
+        config.fLineStyle = 9;
+        config.fLineWidth = 2;
+        return config;
+    }
+    // color based on charge
+    if (particleName.Contains('-')) {
+        config.fColor = kMagenta;  // red
+    } else if (particleName.Contains('+')) {
+        config.fColor = kAzure;
+    }
+    // color based on particle (overrides charge color)
+    if (particleName == "neutron") {
+        config.fColor = kOrange;  // white
+    } else if (particleName == "gamma") {
+        config.fColor = kGreen;  // green
+    } else if (particleName == "e-") {
+        config.fColor = kRed;  // red
+    } else if (particleName == "mu-") {
+        config.fColor = kGray;  // red
+    } else if (particleName == "alpha") {
+        config.fColor = kYellow;  // red
+    }
+
+    // width
+    Width_t width = TMath::Log10(track.GetInitialKineticEnergy() / 100);
+    width = (width > 10 ? 10 : width);
+    width = (width < 1 ? 1 : width);
+    config.fLineWidth = TMath::Log10(track.GetInitialKineticEnergy() / 10);
+
+    // line style
+
+    if (track.GetCreatorProcess() == "nCapture") {
+        config.fLineStyle = 2;
+    }
+
+    return config;
+}
+
+TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track) {
+    auto lineSet = new TEveStraightLineSet(
+        TString::Format("ID %d | %s | Created by %s | KE: %s",  //
+                        track.GetTrackID(), track.GetParticleName().Data(), track.GetCreatorProcess().Data(),
+                        ToEnergyString(track.GetInitialKineticEnergy()).c_str()));
+
+    const auto& hits = track.GetHits();
+    for (int i = 0; i < hits.GetNumberOfHits() - 1; i++) {
+        lineSet->AddLine({static_cast<float>(GEOM_SCALE * hits.GetPosition(i).x()),
+                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i).y()),
+                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i).z())},  //
+                         {static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).x()),
+                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).y()),
+                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).z())});
+
+        const auto config = GetTrackVisualConfiguration(track);
+        lineSet->SetMainColor(config.fColor);
+        lineSet->SetLineColor(config.fColor);
+        lineSet->SetLineStyle(config.fLineStyle);
+        lineSet->SetLineWidth(config.fLineWidth);
+    }
+
+    return lineSet;
+}
+
+struct HitsVisualConfiguration {
+    Color_t fColor = kBlack;
+    Style_t fMarkerStyle = 1;
+    Size_t fMarkerSize = 1.0;
+};
+
+HitsVisualConfiguration GetHitsVisualConfiguration(const TString& processNameOrType) {
+    auto config = HitsVisualConfiguration();
+    // based on particle type
+    if (processNameOrType.EqualTo("Electromagnetic")) {
+        config.fColor = kRed;
+    } else if (processNameOrType.EqualTo("Init")) {
+        // custom process (not Geant4)
+        config.fColor = kWhite;
+    }
+
+    // based on particle name
+    if (processNameOrType.EqualTo("Transportation")) {
+        config.fColor = kWhite;
+    } else if (processNameOrType.EqualTo("Init")) {
+        // custom process (not Geant4)
+        config.fColor = kWhite;
+    } else if (processNameOrType.EqualTo("hadElastic")) {
+        config.fColor = kOrange;
+    } else if (processNameOrType.EqualTo("neutronInelastic")) {
+        config.fColor = kGreen;
+        config.fMarkerStyle = 4;
+    } else if (processNameOrType.EqualTo("nCapture")) {
+        config.fColor = kBlue;
+        config.fMarkerStyle = 2;
+        config.fMarkerSize = 4.0;
+    }
+    return config;
+}
+
+void TRestGeant4EventViewer::AddEvent(TRestEvent* event) {
     DeleteCurrentEvent();
 
-    fG4Event = (TRestGeant4Event*)ev;
+    fG4Event = (TRestGeant4Event*)event;
+    fG4Metadata = fG4Event->GetGeant4Metadata();
+    if (fG4Metadata == nullptr) {
+        cerr << "TRestGeant4EventViewer::Initialize. No TRestGeant4Metadata found in TRestGeant4Event"
+             << endl;
+        exit(1);
+    }
 
-    Double_t eDepMin = 1.e6;
-    Double_t eDepMax = 0;
-    Double_t totalEDep = 0;
+    size_t trackCounter = 0;
+    size_t hitsCounter = 0;
 
-    for (int i = 0; i < fG4Event->GetNumberOfTracks(); i++) {
-        const auto& g4Track = fG4Event->GetTrack(i);
-        const auto& g4Hits = g4Track.GetHits();
-        Int_t nHits = g4Track.GetNumberOfHits();
-        for (int j = 0; j < nHits; j++) {
-            Double_t eDep = g4Hits.GetEnergy(j);
-            if (eDep > eDepMax) eDepMax = eDep;
-            if (eDep < eDepMin) eDepMin = eDep;
+    map<Int_t, TEveStraightLineSet*> linesSet;
+    map<TString, TEvePointSet*> hitsPoints;
+    map<TString, TEveElementList*> hitsType;
 
-            // cout<<" track "<<i<<" hit "<<j<<" eDep "<<eDep<<endl;
+    auto trackList = new TEveElementList("Tracks");
+    gEve->AddElement(trackList);
+    auto hitsList = new TEveElementList("Hits");
+    gEve->AddElement(hitsList);
 
-            totalEDep += eDep;
+    const auto& physicsInfo = fG4Metadata->GetGeant4PhysicsInfo();
+
+    for (const auto& track : fG4Event->GetTracks()) {
+        if (track.GetInitialKineticEnergy() < 1.0 || track.GetLength() < 0.1) {
+            continue;
+        }
+
+        auto line = GetTrackEveDrawable(track);
+        linesSet[track.GetTrackID()] = line;
+        TEveElement* parentLine = trackList;
+        if (linesSet.count(track.GetParentID())) {
+            parentLine = linesSet.at(track.GetParentID());
+        }
+        gEve->AddElement(line, parentLine);
+        trackCounter++;
+
+        const auto& hits = track.GetHits();
+        for (int i = 0; i < hits.GetNumberOfHits(); i++) {
+            const auto& processName = physicsInfo.GetProcessName(hits.GetProcess(i));
+            const auto& processType = physicsInfo.GetProcessType(processName);
+            const auto& position = hits.GetPosition(i);
+
+            if (hitsType.count(processType) == 0) {
+                hitsType[processType] = new TEveElementList(processType);
+                gEve->AddElement(hitsType[processType], hitsList);
+            }
+            if (hitsPoints.count(processName) == 0) {
+                hitsPoints[processName] = new TEvePointSet(processName);
+                auto hitPoints = hitsPoints.at(processName);
+                auto hitsVisualConfig = GetHitsVisualConfiguration(processName);
+                hitPoints->SetMarkerColor(hitsVisualConfig.fColor);
+                hitPoints->SetMarkerStyle(hitsVisualConfig.fMarkerStyle);
+                hitPoints->SetMarkerSize(hitsVisualConfig.fMarkerSize);
+
+                gEve->AddElement(hitPoints, hitsType[processType]);
+            }
+            hitsPoints.at(processName)
+                ->SetNextPoint(GEOM_SCALE * position.X(), GEOM_SCALE * position.Y(),
+                               GEOM_SCALE * position.Z());
+            hitsCounter++;
         }
     }
 
-    cout << "TRestGeant4EventViewer::AddEvent. Total EDep " << totalEDep << endl;
-
-    Double_t slope = (fMaxRadius - fMinRadius) / (eDepMax - eDepMin);
-    Double_t bias = fMinRadius - slope * eDepMin;
-
-    Int_t textAdded = 0;
-    for (int trkID = 1; trkID < fG4Event->GetNumberOfTracks() + 1; trkID++) {
-        const auto& g4Track = fG4Event->GetTrackByID(trkID);
-
-        Int_t parentID = g4Track->GetParentID();
-        TVector3 origin = g4Track->GetTrackOrigin();
-
-        // Building track name
-        Double_t eKin = g4Track->GetInitialKineticEnergy();
-        // cout << "eKin: " << eKin << endl;
-        TString ptlName = g4Track->GetParticleName();
-        // cout << "ptlName: " << ptlName << endl;
-        char pcleStr[64];
-        sprintf(pcleStr, "Track ID : %d %s (%6.2lf keV)", trkID, ptlName.Data(), eKin);
-
-        char markerStr[256];
-        sprintf(markerStr, " %s (%6.2lf keV). Position (%4.1lf,%4.1lf,%4.1lf)", ptlName.Data(), eKin,
-                origin.X(), origin.Y(), origin.Z());
-
-        if (parentID == 0) {
-            // cout << " Parent ID : 0" << endl;
-            char evInfoStr[256];
-            sprintf(evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm", ptlName.Data(),
-                    fG4Event->GetID(), origin.X(), origin.Y(), origin.Z());
-            this->AddParentTrack(trkID, origin, pcleStr);
-            if (fG4Event->GetSubID() == 0)
-                this->AddText(evInfoStr, origin);
-            else if (!textAdded) {
-                textAdded = 1;
-                sprintf(evInfoStr, "%s. EventID = %d at position (%4.2lf, %4.2lf, %4.2lf) mm",
-                        fG4Event->GetSubEventTag().Data(), fG4Event->GetID(), origin.X(), origin.Y(),
-                        origin.Z());
-                this->AddText(evInfoStr, origin);
-            }
-        } else {
-            // cout << "Adding track : " << trkID << " parent : " << parentID << " pt: " << pcleStr << endl;
-            this->AddTrack(trkID, parentID, origin, pcleStr);
-        }
-
-        // cout << "Adding marker" << endl;
-        this->AddMarker(trkID, origin, markerStr);
-
-        const auto& g4Hits = g4Track->GetHits();
-        Int_t nHits = g4Track->GetNumberOfHits();
-
-        // cout << "Adding hits" << endl;
-        for (int i = 0; i < nHits; i++) {
-            Double_t x = g4Hits.GetX(i);
-            Double_t y = g4Hits.GetY(i);
-            Double_t z = g4Hits.GetZ(i);
-
-            this->NextTrackVertex(trkID, TVector3(x, y, z));
-
-            Double_t eDep = g4Hits.GetEnergy(i);
-
-            if (eDep > 0) {
-                Double_t radius = slope * eDep + bias;
-                AddSphericalHit(x, y, z, radius, eDep);
-            }
-        }
-    }
-    // cout << "Updating" << endl;
+    // Add event text
+    const auto& firstTrack = fG4Event->GetTracks().front();
+    TVector3 position = {firstTrack.GetInitialPosition().X(), firstTrack.GetInitialPosition().Y(),
+                         firstTrack.GetInitialPosition().Z()};
+    AddText(
+        TString::Format(
+            "Event ID: %d%s | Primary origin: (%4.2lf, %4.2lf, %4.2lf) mm", fG4Event->GetID(),
+            (fG4Event->GetSubID() > 0 ? TString::Format(" (SubID: %d)", fG4Event->GetSubID()) : "").Data(),
+            position.X(), position.Y(), position.Z()),
+        position);
 
     Update();
 }
@@ -182,7 +277,8 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
         fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
     else {
         RESTWarning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << RESTendl;
-        RESTWarning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks" << RESTendl;
+        RESTWarning << "This might be solved by enabling TRestGeant4Metadata::fRegisterEmptyTracks"
+                    << RESTendl;
     }
 }
 
