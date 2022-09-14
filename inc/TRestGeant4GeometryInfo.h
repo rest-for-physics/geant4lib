@@ -20,6 +20,14 @@ class TRestGeant4GeometryInfo {
     std::map<Int_t, TString> fVolumeNameMap = {};
     std::map<TString, Int_t> fVolumeNameReverseMap = {};
 
+    void PopulateFromGeant4World(const G4VPhysicalVolume*);
+
+    inline void InitializeOnDetectorConstruction(const TString& gdmlFilename,
+                                                 const G4VPhysicalVolume* world) {
+        PopulateFromGdml(gdmlFilename);
+        PopulateFromGeant4World(world);
+    }
+
    public:
     // Insertion order is important for GDML containers. These containers are filled from GDML only not Geant4
     std::vector<TString> fGdmlNewPhysicalNames;
@@ -43,10 +51,6 @@ class TRestGeant4GeometryInfo {
 
     TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
     TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
-
-    // Int_t GetIDFromVolumeName(const TString&) const;
-
-    void PopulateFromGeant4World(const G4VPhysicalVolume*);
 
     std::vector<TString> GetAllLogicalVolumes() const;
     std::vector<TString> GetAllPhysicalVolumes() const;
@@ -77,6 +81,10 @@ class TRestGeant4GeometryInfo {
         return {};
     }
 
+    inline TVector3 GetPosition(const TString& volume) const {
+        return fPhysicalToPositionInWorldMap.at(volume);
+    }
+
     inline bool IsAssembly() const { return fIsAssembly; }
 
     void InsertVolumeName(Int_t id, const TString& volumeName);
@@ -85,6 +93,8 @@ class TRestGeant4GeometryInfo {
     Int_t GetIDFromVolume(const TString& volumeName) const;
 
     void Print() const;
+
+    friend class DetectorConstruction;
 };
 
 #endif  // REST_TRESTGEANT4GEOMETRYINFO_H

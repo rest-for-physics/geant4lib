@@ -72,14 +72,13 @@ ClassImp(TRestGeant4VetoAnalysisProcess);
 TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess() { Initialize(); }
 
 TRestGeant4VetoAnalysisProcess::TRestGeant4VetoAnalysisProcess(const char* configFilename) {
-    Initialize();
-    if (LoadConfigFromFile(configFilename)) LoadDefaultConfig();
+    TRestGeant4VetoAnalysisProcess();
+    if (LoadConfigFromFile(configFilename)) {
+        LoadDefaultConfig();
+    }
 }
 
-///////////////////////////////////////////////
-/// \brief Default destructor
-///
-TRestGeant4VetoAnalysisProcess::~TRestGeant4VetoAnalysisProcess() { delete fOutputG4Event; }
+TRestGeant4VetoAnalysisProcess::~TRestGeant4VetoAnalysisProcess() { delete fOutputEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -91,13 +90,10 @@ void TRestGeant4VetoAnalysisProcess::LoadDefaultConfig() { SetTitle("Default con
 /// section name
 ///
 void TRestGeant4VetoAnalysisProcess::Initialize() {
-    fG4Metadata = nullptr;
-
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputG4Event = nullptr;
-    fOutputG4Event = new TRestGeant4Event();
+    fOutputEvent = new TRestGeant4Event();
 }
 
 ///////////////////////////////////////////////
@@ -120,34 +116,75 @@ void TRestGeant4VetoAnalysisProcess::LoadConfig(const string& configFilename, co
 /// \brief Process initialization.
 ///
 void TRestGeant4VetoAnalysisProcess::InitProcess() {
-    fG4Metadata = GetMetadata<TRestGeant4Metadata>();
-
     // CAREFUL THIS METHOD IS CALLED TWICE!
-    // we need to reset these variables to zero
-    fVetoVolumeIds.clear();
-    fVetoGroupVolumeNames.clear();
+    fVetoVolumes.clear();
+    fVetoDetectorVolumes.clear();
+    fVetoDetectorBoundaryDirection.clear();
+    fVetoDetectorBoundaryPosition.clear();
 
-    // get "veto" volumes
-    for (unsigned int i = 0; i < fG4Metadata->GetNumberOfActiveVolumes(); i++) {
-        string volume_name = (string)fG4Metadata->GetActiveVolumeName(i);
-        volume_name = clean_string(volume_name);
-        if (volume_name.find(clean_string(fVetoKeyword)) != string::npos) {
-            fVetoVolumeIds.push_back(i);
+    if (fGeant4Metadata == nullptr) {
+        // maybe it was manually initialized
+        fGeant4Metadata = GetMetadata<TRestGeant4Metadata>();
+    }
+    if (fGeant4Metadata == nullptr) {
+        cerr << "TRestGeant4VetoAnalysisProcess::InitProcess: Geant4 metadata not found" << endl;
+        exit(1);
+    }
+
+    const auto& geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
+
+    fVetoVolumes = geometryInfo.GetAllPhysicalVolumesMatchingExpression(fVetoVolumesExpression);
+    if (fVetoVolumes.empty()) {
+        const auto logicalVolumes =
+            geometryInfo.GetAllLogicalVolumesMatchingExpression(fVetoVolumesExpression);
+        for (const auto& logicalVolume : logicalVolumes) {
+            for (const auto& physicalVolume : geometryInfo.GetAllPhysicalVolumesFromLogical(logicalVolume)) {
+                fVetoVolumes.push_back(geometryInfo.GetAlternativeNameFromGeant4PhysicalName(physicalVolume));
+            }
+        }
+    }
+    if (fVetoVolumes.empty()) {
+        cerr << "TRestGeant4VetoAnalysisProcess::InitProcess: No veto volumes found" << endl;
+        exit(1);
+    }
+
+    // get detector volumes if requested
+    if (!fVetoDetectorsExpression.IsNull()) {
+        fVetoDetectorVolumes = geometryInfo.GetAllPhysicalVolumesMatchingExpression(fVetoDetectorsExpression);
+        if (fVetoDetectorVolumes.empty()) {
+            const auto logicalVolumes =
+                geometryInfo.GetAllLogicalVolumesMatchingExpression(fVetoDetectorsExpression);
+            for (const auto& logicalVolume : logicalVolumes) {
+                for (const auto& physicalVolume :
+                     geometryInfo.GetAllPhysicalVolumesFromLogical(logicalVolume)) {
+                    fVetoDetectorVolumes.push_back(
+                        geometryInfo.GetAlternativeNameFromGeant4PhysicalName(physicalVolume));
+                }
+            }
+        }
+        if (fVetoDetectorVolumes.empty()) {
+            cerr << "TRestGeant4VetoAnalysisProcess::InitProcess: No detector volumes found" << endl;
+            exit(1);
+        }
+        if (fVetoDetectorVolumes.size() != fVetoVolumes.size()) {
+            cerr << "TRestGeant4VetoAnalysisProcess::InitProcess: Number of detector volumes "
+                 << "does not match number of veto volumes" << endl;
+            exit(1);
         }
     }
 
-    // veto groups (fill fVetoGroupVolumeNames)
-    for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-        string veto_group_keyword = clean_string(fVetoGroupKeywords[i]);
-        fVetoGroupVolumeNames[veto_group_keyword] = std::vector<string>{};
-        for (int& id : fVetoVolumeIds) {
-            string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
-            volume_name = clean_string(volume_name);
-            if (volume_name.find(veto_group_keyword) != string::npos) {
-                fVetoGroupVolumeNames[veto_group_keyword].push_back(
-                    (string)fG4Metadata->GetActiveVolumeName(id));
-            }
-        }
+    for (int i = 0; i < fVetoDetectorVolumes.size(); i++) {
+        const auto& vetoName = fVetoVolumes[i];
+        const auto& vetoPosition = geometryInfo.GetPosition(vetoName);
+
+        const auto& vetoDetectorName = fVetoDetectorVolumes[i];
+        const auto& vetoDetectorPosition = geometryInfo.GetPosition(vetoDetectorName);
+
+        const auto distance = vetoDetectorPosition - vetoPosition;
+        const auto direction = distance.Unit();
+
+        fVetoDetectorBoundaryDirection[vetoName] = direction;
+        fVetoDetectorBoundaryPosition[vetoName] = vetoDetectorPosition - direction * fVetoDetectorOffsetSize;
     }
 
     PrintMetadata();
@@ -157,14 +194,15 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
-    fInputG4Event = (TRestGeant4Event*)inputEvent;
-    *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
+    /*
+    fInputEvent = (TRestGeant4Event*)inputEvent;
+    *fOutputEvent = *((TRestGeant4Event*)inputEvent);
 
     std::map<string, Double_t> volume_energy_map;
 
     for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
         int id = fVetoVolumeIds[i];
-        string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
+        string volume_name = (string)fGeant4Metadata->GetActiveVolumeName(id);
 
         Double_t energy = fOutputG4Event->GetEnergyDepositedInVolume(id);
         volume_energy_map[volume_name] = energy;
@@ -214,7 +252,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
             auto track = fOutputG4Event->GetTrack(i);
             string particle_name = (string)track.GetParticleName();
             for (const auto& id : fVetoVolumeIds) {
-                string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
+                string volume_name = (string)fGeant4Metadata->GetActiveVolumeName(id);
 
                 if (particle_name == "e-" || particle_name == "e+" || particle_name == "gamma") {
                     // no quenching factor
@@ -261,6 +299,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     }
 
     return fOutputG4Event;
+     */
 }
 
 ///////////////////////////////////////////////
@@ -282,29 +321,59 @@ void TRestGeant4VetoAnalysisProcess::EndProcess() {
 ///
 void TRestGeant4VetoAnalysisProcess::InitFromConfigFile() {
     // word to identify active volume as veto (default = "veto" e.g. "vetoTop")
-    string veto_keyword = GetParameter("vetoKeyword", "veto");
-    fVetoKeyword = clean_string(veto_keyword);
-    // comma separated tags: "top, bottom, ..."
-    string veto_group_keywords = GetParameter("vetoGroupKeywords", "");
-    stringstream ss(veto_group_keywords);
-    while (ss.good()) {
-        string substr;
-        getline(ss, substr, ',');
-        fVetoGroupKeywords.push_back(clean_string(substr));
+    fVetoVolumesExpression = GetParameter("vetoVolumesExpression", fVetoVolumesExpression);
+    fVetoDetectorsExpression = GetParameter("vetoDetectorsExpression", fVetoDetectorsExpression);
+
+    fVetoDetectorOffsetSize = GetDblParameterWithUnits("vetoDetectorOffset", fVetoDetectorOffsetSize);
+    fVetoLightAttenuation = GetDblParameterWithUnits("vetoLightAttenuation", fVetoLightAttenuation);
+    fVetoQuenchingFactor = GetDblParameterWithUnits("quenchingFactor", fVetoQuenchingFactor);
+}
+
+void TRestGeant4VetoAnalysisProcess::PrintMetadata() {
+    BeginPrintProcess();
+
+    cout << "Veto volume expression: " << fVetoVolumesExpression << endl;
+    if (!fVetoDetectorsExpression.IsNull()) {
+        cout << "Veto detector expression: " << fVetoDetectorsExpression << endl;
+        cout << "Veto detector offset: " << fVetoDetectorOffsetSize << endl;
+        cout << "Veto light attenuation: " << fVetoLightAttenuation << endl;
+    } else {
+        cout << "Veto detector expression: not set" << endl;
+    }
+    cout << "Veto quenching factor: " << fVetoQuenchingFactor << endl;
+
+    RESTDebug << RESTendl;
+
+    if (fVetoVolumes.empty()) {
+        cout << "Process not initialized yet" << endl;
+        return;
     }
 
-    // comma separated quenching factors: "0.15, 1.00, ..."
-    string quenching_factors = GetParameter("vetoQuenchingFactors", "-1");
-    stringstream ss_qf(quenching_factors);
-    while (ss_qf.good()) {
-        string substr;
-        getline(ss_qf, substr, ',');
-        substr = clean_string(substr);
-        Float_t quenching_factor = (Float_t)std::atof(substr.c_str());
-        if (quenching_factor > 1 || quenching_factor < 0) {
-            cout << "ERROR: quenching factor must be between 0 and 1" << endl;
+    cout << "Number of veto volumes: " << fVetoVolumes.size() << endl;
+    cout << "Number of veto detector volumes: " << fVetoDetectorVolumes.size() << endl;
+
+    const auto& geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
+    for (int i = 0; i < fVetoVolumes.size(); i++) {
+        const auto& vetoName = fVetoVolumes[i];
+        const auto& vetoPosition = geometryInfo.GetPosition(vetoName);
+
+        cout << TString::Format(" - Veto volume: %d - name: '%s' - position: %s mm", i, vetoName.Data(),
+                                VectorToString(vetoPosition).c_str())
+             << endl;
+
+        if (fVetoDetectorVolumes.empty()) {
             continue;
         }
-        fQuenchingFactors.push_back(quenching_factor);
+
+        const auto& vetoDetectorName = fVetoDetectorVolumes[i];
+        const auto& vetoDetectorPosition = geometryInfo.GetPosition(vetoDetectorName);
+
+        cout << TString::Format("   Veto detector name: '%s' - position: %s mm", vetoDetectorName.Data(),
+                                VectorToString(vetoDetectorPosition).c_str())
+             << endl;
+
+        cout << TString::Format("   Boundary position: %s mm - direction: %s",
+                                VectorToString(fVetoDetectorBoundaryPosition.at(vetoName)).c_str(),
+                                VectorToString(fVetoDetectorBoundaryDirection.at(vetoName)).c_str());
     }
 }

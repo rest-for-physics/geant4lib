@@ -29,15 +29,18 @@
 #include <TH2F.h>
 #include <TLegend.h>
 #include <TMultiGraph.h>
-#include <TObject.h>
 #include <TRestEvent.h>
-#include <TRestGeant4Track.h>
 #include <TVector3.h>
 
 #include <iostream>
 #include <map>
 #include <utility>
 
+#include "TRestGeant4Track.h"
+
+class G4Event;
+class G4Track;
+class G4Step;
 class TRestGeant4Metadata;
 
 /// An event class to store geant4 generated event information
@@ -103,54 +106,58 @@ class TRestGeant4Event : public TRestEvent {
     TH1D* GetZHistogram(Int_t gridElement, std::vector<TString> optList);
 #endif
 
-    TVector3 fPrimaryEventOrigin;
+    TVector3 fPrimaryPosition;
+    std::vector<TString> fPrimaryParticleNames;
+    std::vector<Double_t> fPrimaryEnergies;
+    std::vector<TVector3> fPrimaryDirections;
 
-    std::vector<TString> fPrimaryParticleName;
-    std::vector<TVector3> fPrimaryEventDirection;
-    std::vector<Double_t> fPrimaryEventEnergy;
+    TString fSubEventPrimaryParticleName;
+    Double_t fSubEventPrimaryEnergy;
+    TVector3 fSubEventPrimaryPosition;
+    TVector3 fSubEventPrimaryDirection;
 
-    Double_t fTotalDepositedEnergy;
-    Double_t fSensitiveVolumeEnergy;
+    Double_t fTotalDepositedEnergy = 0;
+    Double_t fSensitiveVolumeEnergy = 0;
 
     Int_t fNVolumes;
     std::vector<Int_t> fVolumeStored;
     std::vector<std::string> fVolumeStoredNames;
     std::vector<Double_t> fVolumeDepositedEnergy;
-
-    Int_t fNTracks;
-    std::vector<TRestGeant4Track> fTrack;
-
-    Int_t fMaxSubEventID;
+    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
+        fEnergyInVolumePerParticlePerProcess;
+    std::vector<TRestGeant4Track> fTracks;
 
    public:
     void SetBoundaries();
     void SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
                        Double_t zMax);
 
-    inline TString GetPrimaryEventParticleName(int n) const {
-        if (fPrimaryParticleName.size() > n) {
-            return fPrimaryParticleName[n];
-        }
-        return "Not defined";
-    }
+    inline size_t GetNumberOfPrimaries() const { return fPrimaryParticleNames.size(); }
 
-    TVector3 GetPrimaryEventDirection(Int_t n = 0) const { return fPrimaryEventDirection[n]; }
-    TVector3 GetPrimaryEventOrigin() const { return fPrimaryEventOrigin; }
-    Double_t GetPrimaryEventEnergy(Int_t n = 0) const { return fPrimaryEventEnergy[n]; }
+    inline TString GetPrimaryEventParticleName(size_t n = 0) const { return fPrimaryParticleNames[n]; }
+    inline TVector3 GetPrimaryEventDirection(size_t n = 0) const { return fPrimaryDirections[n]; }
+    inline TVector3 GetPrimaryEventOrigin() const { return fPrimaryPosition; }
+    inline Double_t GetPrimaryEventEnergy(size_t n = 0) const { return fPrimaryEnergies[n]; }
 
-    Int_t GetNumberOfHits(Int_t volID = -1) const;
-    inline Int_t GetNumberOfTracks() const { return fNTracks; }
-    inline Int_t GetNumberOfPrimaries() const { return fPrimaryEventDirection.size(); }
+    inline Bool_t IsSubEvent() const { return fSubEventID > 0; }
+    inline TString GetSubEventPrimaryEventParticleName() const { return fSubEventPrimaryParticleName; }
+    inline TVector3 GetSubEventPrimaryEventDirection() const { return fSubEventPrimaryDirection; }
+    inline TVector3 GetSubEventPrimaryEventOrigin() const { return fSubEventPrimaryPosition; }
+    inline Double_t GetSubEventPrimaryEventEnergy() const { return fSubEventPrimaryEnergy; }
+
+    size_t GetNumberOfHits(Int_t volID = -1) const;
+    size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
+
+    inline const std::vector<TRestGeant4Track>& GetTracks() const { return fTracks; }
+    inline size_t GetNumberOfTracks() const { return fTracks.size(); }
     inline Int_t GetNumberOfActiveVolumes() const { return fNVolumes; }
 
     inline Int_t isVolumeStored(int n) const { return fVolumeStored[n]; }
-    inline const TRestGeant4Track& GetTrack(int n) const { return fTrack[n]; }
-    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTrack[n]; }
-    TRestGeant4Track* GetTrackByID(int id);
-    inline Int_t GetNumberOfSubEventIDTracks() const { return fMaxSubEventID + 1; }
+    inline const TRestGeant4Track& GetTrack(int n) const { return fTracks[n]; }
+    inline TRestGeant4Track* GetTrackPointer(int n) { return &fTracks[n]; }
+    TRestGeant4Track* GetTrackByID(Int_t trackID) const;
 
     inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
-    Double_t GetTotalDepositedEnergyFromTracks() const;
     inline Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }
     inline Double_t GetSensitiveVolumeEnergy() const { return fSensitiveVolumeEnergy; }
     TVector3 GetMeanPositionInVolume(Int_t volID) const;
@@ -158,16 +165,25 @@ class TRestGeant4Event : public TRestEvent {
     TVector3 GetLastPositionInVolume(Int_t volID) const;
     TVector3 GetPositionDeviationInVolume(Int_t volID) const;
 
+    std::map<std::string, std::map<std::string, std::map<std::string, double>>>
+    GetEnergyInVolumePerParticlePerProcessMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerProcessMap() const;
+    std::map<std::string, std::map<std::string, double>> GetEnergyInVolumePerParticleMap() const;
+    std::map<std::string, double> GetEnergyPerProcessMap() const;
+    std::map<std::string, double> GetEnergyPerParticleMap() const;
+    std::map<std::string, double> GetEnergyInVolumeMap() const;
+
+    inline Double_t GetEnergyInVolume(const std::string& volumeName) const {
+        auto energyMap = GetEnergyInVolumeMap();
+        return energyMap[volumeName];
+    }
+
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
     Int_t GetNumberOfTracksForParticle(const TString& parName) const;
     Int_t GetEnergyDepositedByParticle(const TString& parName) const;
 
-    inline void SetPrimaryEventOrigin(const TVector3& pos) { fPrimaryEventOrigin = pos; }
-    inline void SetPrimaryEventDirection(const TVector3& dir) { fPrimaryEventDirection.push_back(dir); }
-    inline void SetPrimaryEventParticleName(const TString& pName) { fPrimaryParticleName.push_back(pName); }
-    inline void SetPrimaryEventEnergy(Double_t en) { fPrimaryEventEnergy.push_back(en); }
     inline void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     inline void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
 
@@ -182,11 +198,11 @@ class TRestGeant4Event : public TRestEvent {
 
     inline Int_t GetLowestTrackID() const {
         Int_t lowestID = 0;
-        if (fNTracks > 0) {
+        if (GetNumberOfTracks() > 0) {
             lowestID = GetTrack(0).GetTrackID();
         }
 
-        for (int i = 0; i < fNTracks; i++) {
+        for (int i = 0; i < GetNumberOfTracks(); i++) {
             auto tr = GetTrack(i);
             if (tr.GetTrackID() < lowestID) lowestID = tr.GetTrackID();
         }
@@ -194,8 +210,7 @@ class TRestGeant4Event : public TRestEvent {
         return lowestID;
     }
 
-    void SetTrackSubEventID(Int_t n, Int_t id);
-    void AddTrack(TRestGeant4Track trk);
+    const std::set<std::string> GetUniqueParticles() const;
 
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }
@@ -226,6 +241,23 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDefOverride(TRestGeant4Event, 7);  // REST event superclass
+    ClassDefOverride(TRestGeant4Event, 8);  // REST event superclass
+
+    // restG4
+   public:
+    TRestGeant4Event(const G4Event*);  //! // Implemented in restG4
+    bool InsertTrack(const G4Track*);  //!
+    void UpdateTrack(const G4Track*);  //!
+    void InsertStep(const G4Step*);    //!
+
+    friend class OutputManager;
+
+   private:
+    std::map<Int_t, Int_t> fTrackIDToTrackIndex = {};
+    TRestGeant4Hits fInitialStep;  //!
+
+    void AddEnergyInVolumeForParticleForProcess(Double_t energy, const std::string& volumeName,
+                                                const std::string& particleName,
+                                                const std::string& processName);
 };
 #endif

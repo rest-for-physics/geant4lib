@@ -18,39 +18,45 @@
 #ifndef RestCore_TRestGeant4Hits
 #define RestCore_TRestGeant4Hits
 
-#include <TArrayF.h>
-#include <TArrayI.h>
 #include <TRestHits.h>
 
 #include <iostream>
 
-#include "TObject.h"
+#include "TRestGeant4Metadata.h"
+
+class G4Step;
+class TRestGeant4Track;
+class TRestGeant4Event;
 
 class TRestGeant4Hits : public TRestHits {
    protected:
-    TArrayI fVolumeID;
-    TArrayI fProcessID;      // [fNHits]
-    TArrayF fKineticEnergy;  // [fNHits]
+    std::vector<Int_t> fProcessID = {};
+    std::vector<Int_t> fVolumeID = {};
+    std::vector<Float_t> fKineticEnergy = {};
+    std::vector<TVector3> fMomentumDirection = {};
+
+    TRestGeant4Track* fTrack = nullptr;  //!
+    TRestGeant4Event* fEvent = nullptr;  //!
 
    public:
-    TArrayF fMomentumDirectionX;
-    TArrayF fMomentumDirectionY;
-    TArrayF fMomentumDirectionZ;
+    TRestGeant4Metadata* GetGeant4Metadata() const;
 
-    TVector3 GetMomentumDirection(int n) const {
-        return {fMomentumDirectionX[n], fMomentumDirectionY[n], fMomentumDirectionZ[n]};
-    }
+    inline const TRestGeant4Track* GetTrack() const { return fTrack; }
+    inline void SetTrack(TRestGeant4Track* track) { fTrack = track; }
 
-    Int_t GetProcess(int n) const { return fProcessID[n]; }
+    inline const TRestGeant4Event* GetEvent() const { return fEvent; }
+    inline void SetEvent(TRestGeant4Event* event) { fEvent = event; }
 
-    void AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process, Int_t volume,
-                  Double_t eKin, TVector3 momentumDirection);
+    inline TVector3 GetMomentumDirection(size_t n) const { return fMomentumDirection[n]; }
+
+    inline Int_t GetProcess(size_t n) const { return fProcessID[n]; }
+
     void RemoveG4Hits();
 
-    Int_t GetHitProcess(int n) const { return fProcessID[n]; }
-    Int_t GetHitVolume(int n) const { return fVolumeID[n]; }
-    Int_t GetVolumeId(int n) const { return fVolumeID[n]; }
-    Double_t GetKineticEnergy(int n) const { return fKineticEnergy[n]; }
+    inline Int_t GetHitProcess(size_t n) const { return fProcessID[n]; }
+    inline Int_t GetHitVolume(size_t n) const { return fVolumeID[n]; }
+    inline Int_t GetVolumeId(size_t n) const { return fVolumeID[n]; }
+    inline Double_t GetKineticEnergy(size_t n) const { return fKineticEnergy[n]; }
 
     Double_t GetEnergyInVolume(Int_t volumeID) const;
 
@@ -65,6 +71,10 @@ class TRestGeant4Hits : public TRestHits {
     // Destructor
     virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestGeant4Hits, 6);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 7);  // REST event superclass
+
+    // restG4
+   public:
+    void InsertStep(const G4Step*);
 };
 #endif

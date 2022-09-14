@@ -17,62 +17,31 @@
 
 #include "TRestGeant4Hits.h"
 
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Track.h"
+
 using namespace std;
 
 ClassImp(TRestGeant4Hits);
 
-TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {
-    // TRestGeant4Hits default constructor
-}
+TRestGeant4Hits::TRestGeant4Hits() : TRestHits() {}
 
-TRestGeant4Hits::~TRestGeant4Hits() {
-    // TRestGeant4Hits destructor
-}
-
-void TRestGeant4Hits::AddG4Hit(TVector3 pos, Double_t en, Double_t hit_global_time, Int_t process,
-                               Int_t volume, Double_t eKin, TVector3 momentumDirection) {
-    AddHit(pos, en, hit_global_time);
-
-    fProcessID.Set(fNHits);
-    fProcessID[fNHits - 1] = process;
-
-    fVolumeID.Set(fNHits);
-    fVolumeID[fNHits - 1] = volume;
-
-    fKineticEnergy.Set(fNHits);
-    fKineticEnergy[fNHits - 1] = eKin;
-
-    momentumDirection = momentumDirection.Unit();
-
-    Float_t x = momentumDirection.X();
-    Float_t y = momentumDirection.Y();
-    Float_t z = momentumDirection.Z();
-
-    fMomentumDirectionX.Set(fNHits);
-    fMomentumDirectionX[fNHits - 1] = x;
-
-    fMomentumDirectionY.Set(fNHits);
-    fMomentumDirectionY[fNHits - 1] = y;
-
-    fMomentumDirectionZ.Set(fNHits);
-    fMomentumDirectionZ[fNHits - 1] = z;
-}
+TRestGeant4Hits::~TRestGeant4Hits() {}
 
 void TRestGeant4Hits::RemoveG4Hits() {
     RemoveHits();
 
-    fProcessID.Set(0);
-
-    fVolumeID.Set(0);
-
-    fKineticEnergy.Set(0);
+    fProcessID.clear();
+    fVolumeID.clear();
+    fKineticEnergy.clear();
 }
 
 Double_t TRestGeant4Hits::GetEnergyInVolume(Int_t volumeID) const {
     Double_t en = 0;
 
-    for (int n = 0; n < fNHits; n++)
+    for (int n = 0; n < fNHits; n++) {
         if (fVolumeID[n] == volumeID) en += GetEnergy(n);
+    }
 
     return en;
 }
@@ -119,4 +88,18 @@ size_t TRestGeant4Hits::GetNumberOfHitsInVolume(Int_t volumeID) const {
         }
     }
     return result;
+}
+
+TRestGeant4Metadata* TRestGeant4Hits::GetGeant4Metadata() const {
+    const TRestGeant4Event* event = nullptr;
+    if (fTrack != nullptr) {
+        event = fTrack->GetEvent();
+    } else {
+        event = fEvent;
+    }
+    if (event == nullptr) {
+        cout << "null event" << endl;
+        return nullptr;
+    }
+    return const_cast<TRestGeant4Metadata*>(event->GetGeant4Metadata());
 }

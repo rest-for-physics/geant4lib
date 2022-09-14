@@ -24,13 +24,9 @@ using namespace std;
 
 ClassImp(TRestGeant4Track);
 
-TRestGeant4Track::TRestGeant4Track() {
-    // TRestGeant4Track default constructor
-}
+TRestGeant4Track::TRestGeant4Track() = default;
 
-TRestGeant4Track::~TRestGeant4Track() {
-    // TRestGeant4Track destructor
-}
+TRestGeant4Track::~TRestGeant4Track() = default;
 
 Int_t TRestGeant4Track::GetProcessID(const TString& processName) const {
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
@@ -86,55 +82,63 @@ EColor TRestGeant4Track::GetParticleColor() const {
 /// the hits of that specific volume will be counted.
 ///
 size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
-    size_t hits = 0;
+    size_t numberOfHits = 0;
     for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
-        if (volID != -1 && fHits.GetVolumeId(n) != volID) continue;
-        hits++;
+        if (volID != -1 && fHits.GetVolumeId(n) != volID) {
+            continue;
+        }
+        numberOfHits++;
     }
-    return hits;
+    return numberOfHits;
 }
 
-Double_t TRestGeant4Track::GetTrackLength() const {
-    Double_t length = 0;
-
-    length = GetDistance(fHits.GetPosition(0), GetTrackOrigin());
-
-    for (int i = 1; i < GetNumberOfHits(); i++) {
-        TVector3 prevHit = fHits.GetPosition(i - 1);
-        TVector3 hit = fHits.GetPosition(i);
-        length += GetDistance(hit, prevHit);
+///////////////////////////////////////////////
+/// \brief Function that returns the number of hit depositions found inside
+/// the TRestGeant4Track with energy > 0. If a specific volume id is given as argument only
+/// the hits of that specific volume will be counted.
+///
+size_t TRestGeant4Track::GetNumberOfPhysicalHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+        if (volID != -1 && fHits.GetVolumeId(n) != volID) {
+            continue;
+        }
+        if (fHits.GetEnergy(n) <= 0) {
+            continue;
+        }
+        numberOfHits++;
     }
-    return length;
+    return numberOfHits;
 }
 
 void TRestGeant4Track::PrintTrack(size_t maxHits) const {
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout.precision(10);
-    cout << " SubEvent ID : " << fSubEventId << " Global timestamp : " << GetGlobalTime() << " seconds"
-         << endl;
-    cout.precision(5);
-    cout << " Track ID : " << GetTrackID() << " Parent ID : " << GetParentID()
-         << " Created by process: " << fCreatorProcess;
-    cout << " Particle : " << GetParticleName() << " Time track length : " << GetTrackTimeLength() << " us"
-         << endl;
-    cout << " Origin : X = " << GetTrackOrigin().X() << "mm Y = " << GetTrackOrigin().Y()
-         << "mm Z = " << GetTrackOrigin().Z() << "mm  Ekin : " << GetKineticEnergy() << " keV" << endl;
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-            "++++++++++++"
-         << endl;
+    cout
+        << " * TrackID: " << fTrackID << " - Particle: " << fParticleName << " - ParentID: " << fParentID
+        << ""
+        << (GetParentTrack() != nullptr
+                ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
+                : "")
+        << " - Created by '" << fCreatorProcess
+        << "' with initial "
+           "KE of "
+        << ToEnergyString(fInitialKineticEnergy) << "" << endl;
 
-    int nHits = GetNumberOfHits();
-    if (maxHits > 0) {
-        nHits = min(maxHits, GetNumberOfHits());
-        cout << " Printing only the first " << nHits << " hits of the track" << endl;
+    cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
+         << ToTimeString(fGlobalTimestamp) << " - Time length of " << ToTimeString(fTimeLength)
+         << " and spatial length of " << ToLengthString(fLength) << endl;
+
+    size_t nHits = GetNumberOfHits();
+    if (maxHits > 0 && maxHits < nHits) {
+        nHits = min(maxHits, nHits);
+        cout << "Printing only the first " << nHits << " hits of the track" << endl;
     }
 
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
     for (int i = 0; i < nHits; i++) {
         TString processName = GetProcessName(fHits.GetHitProcess(i));
         if (processName.IsNull()) {
-            // in case process name is not found, use ID
-            processName = TString(std::to_string(fHits.GetHitProcess(i)));
+            processName =
+                TString(std::to_string(fHits.GetHitProcess(i)));  // in case process name is not found, use ID
         }
 
         TString volumeName = "";
@@ -145,15 +149,12 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
             // in case process name is not found, use ID
             volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
         }
-
-        cout << " # Hit " << i << " # process : " << processName << " volume : " << volumeName
-             << " X : " << fHits.GetX(i) << " Y : " << fHits.GetY(i) << " Z : " << fHits.GetZ(i) << " mm"
-             << endl;
-        cout << " Edep : " << fHits.GetEnergy(i) << " keV Ekin : " << fHits.GetKineticEnergy(i) << " keV"
-             << " Global time : " << fHits.GetTime(i) << " us" << endl;
+        cout << "      - Hit " << i << " - Energy: " << ToEnergyString(fHits.GetEnergy(i))
+             << " - Process: " << processName << " - Volume: " << volumeName
+             << " - Position: " << VectorToString(TVector3(fHits.GetX(i), fHits.GetY(i), fHits.GetZ(i)))
+             << " mm - Time: " << ToTimeString(fHits.GetTime(i))
+             << " - KE: " << ToEnergyString(fHits.GetKineticEnergy(i)) << endl;
     }
-    cout << endl;
-    cout.precision(2);
 }
 
 Bool_t TRestGeant4Track::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
@@ -182,4 +183,80 @@ const TRestGeant4Metadata* TRestGeant4Track::GetGeant4Metadata() const {
         return nullptr;
     }
     return GetEvent()->GetGeant4Metadata();
+}
+
+TRestGeant4Track* TRestGeant4Track::GetParentTrack() const {
+    if (fEvent == nullptr) {
+        return nullptr;
+    }
+    return fEvent->GetTrackByID(GetParentID());
+}
+
+vector<const TRestGeant4Track*> TRestGeant4Track::GetSecondaryTracks() const {
+    vector<const TRestGeant4Track*> secondaryTracks = {};
+    for (const auto trackID : fSecondaryTrackIDs) {
+        const TRestGeant4Track* track = fEvent->GetTrackByID(trackID);
+        if (track != nullptr) {
+            secondaryTracks.push_back(track);
+        }
+    }
+    return secondaryTracks;
+}
+
+TString TRestGeant4Track::GetInitialVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(hits.GetVolumeId(0));
+}
+
+TString TRestGeant4Track::GetFinalVolume() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4GeometryInfo().GetVolumeFromID(
+        hits.GetVolumeId(hits.GetNumberOfHits() - 1));
+}
+
+Double_t TRestGeant4Track::GetEnergyInVolume(const TString& volumeName, bool children) const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return 0;
+    }
+
+    const auto volumeId = metadata->GetGeant4GeometryInfo().GetIDFromVolume(volumeName);
+
+    if (!children) {
+        return GetEnergyInVolume(volumeId);
+    }
+
+    Double_t energy = 0;
+    vector<const TRestGeant4Track*> tracks = {this};
+    while (!tracks.empty()) {
+        const TRestGeant4Track* track = tracks.back();
+        tracks.pop_back();
+        if (track == nullptr) {
+            continue;
+        }
+        energy += track->GetEnergyInVolume(volumeId);
+        for (const TRestGeant4Track* secondaryTrack : track->GetSecondaryTracks()) {
+            tracks.push_back(secondaryTrack);
+        }
+    }
+    return energy;
+}
+
+TString TRestGeant4Track::GetLastProcessName() const {
+    const auto metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return "";
+    }
+
+    const auto& hits = GetHits();
+    return GetGeant4Metadata()->GetGeant4PhysicsInfo().GetProcessName(
+        hits.GetProcess(hits.GetNumberOfHits() - 1));
 }

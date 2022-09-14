@@ -43,13 +43,9 @@ TRestGeant4Event::~TRestGeant4Event() {
 void TRestGeant4Event::Initialize() {
     TRestEvent::Initialize();
 
-    fPrimaryParticleName.clear();
-    fPrimaryEventDirection.clear();
-    fPrimaryEventEnergy.clear();
-    fPrimaryEventOrigin.SetXYZ(0, 0, 0);
+    fPrimaryParticleNames.clear();
 
-    fTrack.clear();
-    fNTracks = 0;
+    fTracks.clear();
 
     // ClearVolumes();
     fXZHitGraph = nullptr;
@@ -76,7 +72,6 @@ void TRestGeant4Event::Initialize() {
 
     fTotalDepositedEnergy = 0;
     fSensitiveVolumeEnergy = 0;
-    fMaxSubEventID = 0;
 
     fMinX = 1e20;
     fMaxX = -1e20;
@@ -107,29 +102,6 @@ void TRestGeant4Event::ClearVolumes() {
 
 void TRestGeant4Event::AddEnergyDepositToVolume(Int_t volID, Double_t eDep) {
     fVolumeDepositedEnergy[volID] += eDep;
-}
-
-void TRestGeant4Event::SetTrackSubEventID(Int_t n, Int_t id) {
-    fTrack[n].SetSubEventID(id);
-    if (fMaxSubEventID < id) fMaxSubEventID = id;
-}
-
-void TRestGeant4Event::AddTrack(TRestGeant4Track trk) {
-    fTrack.push_back(trk);
-    fNTracks = fTrack.size();
-    fTotalDepositedEnergy += trk.GetTotalDepositedEnergy();
-    for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        fVolumeDepositedEnergy[n] += trk.GetEnergyInVolume(n);
-}
-
-Double_t TRestGeant4Event::GetTotalDepositedEnergyFromTracks() const {
-    Double_t eDep = 0;
-
-    for (int tk = 0; tk < GetNumberOfTracks(); tk++) {
-        eDep += GetTrack(tk).GetTotalDepositedEnergy();
-    }
-
-    return eDep;
 }
 
 TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) const {
@@ -216,10 +188,16 @@ TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
     return {nan, nan, nan};
 }
 
-TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
-    for (int i = 0; i < fNTracks; i++)
-        if (fTrack[i].GetTrackID() == id) return &fTrack[i];
-    return nullptr;
+TRestGeant4Track* TRestGeant4Event::GetTrackByID(Int_t trackID) const {
+    TRestGeant4Track* result = nullptr;
+    if (fTrackIDToTrackIndex.count(trackID) > 0) {
+        result = const_cast<TRestGeant4Track*>(&fTracks[fTrackIDToTrackIndex.at(trackID)]);
+        if (result == nullptr || result->GetTrackID() != trackID) {
+            cerr << "TRestGeant4Event::GetTrackByID - ERROR: trackIDToTrackIndex map is corrupted" << endl;
+            exit(1);
+        }
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -227,12 +205,25 @@ TRestGeant4Track* TRestGeant4Event::GetTrackByID(int id) {
 /// a specific volume is given as argument only the hits of that specific volume
 /// will be counted.
 ///
-Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
-    Int_t hits = 0;
-    for (int i = 0; i < fNTracks; i++) {
-        hits += GetTrack(i).GetNumberOfHits(volID);
+size_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (const auto& track : fTracks) {
+        numberOfHits += track.GetNumberOfHits(volID);
     }
-    return hits;
+    return numberOfHits;
+}
+
+///////////////////////////////////////////////
+/// \brief Function that returns the total number of hits with energy > 0 in the Geant4 event. If
+/// a specific volume is given as argument only the hits of that specific volume
+/// will be counted.
+///
+size_t TRestGeant4Event::GetNumberOfPhysicalHits(Int_t volID) const {
+    size_t numberOfHits = 0;
+    for (const auto& track : fTracks) {
+        numberOfHits += track.GetNumberOfPhysicalHits(volID);
+    }
+    return numberOfHits;
 }
 
 ///////////////////////////////////////////////
@@ -242,7 +233,7 @@ Int_t TRestGeant4Event::GetNumberOfHits(Int_t volID) const {
 ///
 TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     TRestHits hits;
-    for (int t = 0; t < fNTracks; t++) {
+    for (int t = 0; t < GetNumberOfTracks(); t++) {
         const auto& g4Hits = GetTrack(t).GetHits();
         for (int n = 0; n < g4Hits.GetNumberOfHits(); n++) {
             if (volID != -1 && g4Hits.GetVolumeId(n) != volID) continue;
@@ -336,7 +327,7 @@ void TRestGeant4Event::SetBoundaries() {
 }
 
 /* {{{ Get{XY,YZ,XZ}MultiGraph methods */
-TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXYHitGraph) {
         delete[] fXYHitGraph;
@@ -428,7 +419,7 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, std::vector<TS
     return fXYMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fYZHitGraph) {
         delete[] fYZHitGraph;
@@ -520,7 +511,7 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, std::vector<TS
     return fYZMultiGraph;
 }
 
-TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TString> pcsList,
+TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString> pcsList,
                                                Double_t minPointSize, Double_t maxPointSize) {
     if (fXZHitGraph) {
         delete[] fXZHitGraph;
@@ -614,7 +605,7 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, std::vector<TS
 /* }}} */
 
 /* {{{ Get{XY,YZ,XZ}Histogram methods */
-TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXYHisto) {
         delete fXYHisto;
         fXYHisto = nullptr;
@@ -673,7 +664,7 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, std::vector<TString> o
     return fXYHisto;
 }
 
-TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXZHisto) {
         delete fXZHisto;
         fXZHisto = nullptr;
@@ -732,7 +723,7 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, std::vector<TString> o
     return fXZHisto;
 }
 
-TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYZHisto) {
         delete fYZHisto;
         fYZHisto = nullptr;
@@ -792,7 +783,7 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, std::vector<TString> o
 }
 /* }}} */
 
-TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, vector<TString> optList) {
     if (fXHisto) {
         delete fXHisto;
         fXHisto = nullptr;
@@ -843,7 +834,7 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, std::vector<TString> op
     return fXHisto;
 }
 
-TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, vector<TString> optList) {
     if (fZHisto) {
         delete fZHisto;
         fZHisto = nullptr;
@@ -894,7 +885,7 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, std::vector<TString> op
     return fZHisto;
 }
 
-TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, std::vector<TString> optList) {
+TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, vector<TString> optList) {
     if (fYHisto) {
         delete fYHisto;
         fYHisto = nullptr;
@@ -1025,7 +1016,7 @@ TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) 
         if (optList[n] == "print") this->PrintEvent();
     }
 
-    optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
+    optList.erase(remove(optList.begin(), optList.end(), "print"), optList.end());
 
     unsigned int nPlots = optList.size();
 
@@ -1126,49 +1117,37 @@ void TRestGeant4Event::PrintActiveVolumes() const {
 void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     TRestEvent::PrintEvent();
 
-    cout.precision(4);
+    cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
+    cout << "- Sensitive detectors total energy: " << ToEnergyString(fSensitiveVolumeEnergy) << endl;
 
-    cout << "Total energy : " << fTotalDepositedEnergy << " keV" << endl;
-    cout << "Sensitive volume energy : " << fSensitiveVolumeEnergy << " keV" << endl;
-    cout << "Source origin : (" << fPrimaryEventOrigin.X() << "," << fPrimaryEventOrigin.Y() << ","
-         << fPrimaryEventOrigin.Z() << ") mm" << endl;
+    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << "{} mm" << endl;
 
-    for (int n = 0; n < GetNumberOfPrimaries(); n++) {
-        const auto dir = &fPrimaryEventDirection[n];
-        cout << "Source " << n << " Particle name : " << GetPrimaryEventParticleName(n) << endl;
-        cout << "Source " << n << " direction : (" << dir->X() << "," << dir->Y() << "," << dir->Z() << ")"
+    for (int i = 0; i < GetNumberOfPrimaries(); i++) {
+        const char* sourceNumberString =
+            GetNumberOfPrimaries() <= 1 ? ""
+                                        : TString::Format(" %d of %zu", i + 1, GetNumberOfPrimaries()).Data();
+        cout << "   - Source" << sourceNumberString << " primary particle: " << fPrimaryParticleNames[i]
              << endl;
-        cout << "Source " << n << " energy : " << fPrimaryEventEnergy[n] << " keV" << endl;
+        cout << "     Direction: " << VectorToString(fPrimaryDirections[i]) << endl;
+        cout << "     Energy: " << ToEnergyString(fPrimaryEnergies[i]) << endl;
     }
 
-    cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
-    for (int i = 0; i < GetNumberOfActiveVolumes(); i++) {
-        if (isVolumeStored(i)) {
-            cout << "Active volume " << i << ":"
-                 << " has been stored." << endl;
-            cout << "Total energy deposit in volume " << i << ":"
-                 << " : " << fVolumeDepositedEnergy[i] << " keV" << endl;
-        } else
-            cout << "Active volume " << i << ":"
-                 << " has not been stored" << endl;
-    }
-
-    cout << "---------------------------------------------------------------------------" << endl;
-    cout << "Total number of tracks : " << fNTracks << endl;
+    cout << endl;
+    cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
-    if (maxTracks > 0) {
-        nTracks = min(maxTracks, GetNumberOfTracks());
-        cout << " Printing only the first " << nTracks << " tracks" << endl;
+    if (maxTracks > 0 && maxTracks < GetNumberOfTracks()) {
+        nTracks = min(maxTracks, int(GetNumberOfTracks()));
+        cout << "Printing only the first " << nTracks << " tracks" << endl;
     }
 
-    for (int n = 0; n < nTracks; n++) {
-        GetTrack(n).PrintTrack(maxHits);
+    for (int i = 0; i < nTracks; i++) {
+        GetTrack(i).PrintTrack(maxHits);
     }
 }
 
 Bool_t TRestGeant4Event::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.ContainsProcessInVolume(processID, volumeID)) {
             return true;
         }
@@ -1182,7 +1161,7 @@ Bool_t TRestGeant4Event::ContainsProcessInVolume(const TString& processName, Int
         return false;
     }
     const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.ContainsProcessInVolume(processID, volumeID)) {
             return true;
         }
@@ -1191,7 +1170,7 @@ Bool_t TRestGeant4Event::ContainsProcessInVolume(const TString& processName, Int
 }
 
 Bool_t TRestGeant4Event::ContainsParticle(const TString& particleName) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.GetParticleName() == particleName) {
             return true;
         }
@@ -1200,7 +1179,7 @@ Bool_t TRestGeant4Event::ContainsParticle(const TString& particleName) const {
 }
 
 Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, Int_t volumeID) const {
-    for (const auto& track : fTrack) {
+    for (const auto& track : fTracks) {
         if (track.GetParticleName() != particleName) {
             continue;
         }
@@ -1221,7 +1200,90 @@ void TRestGeant4Event::InitializeReferences(TRestRun* run) {
     This introduces overhead to event loading, but hopefully its small enough.
     If this is a problem, we could rework this approach
      */
-    for (auto& track : fTrack) {
+    for (auto& track : fTracks) {
         track.SetEvent(this);
     }
+}
+
+const set<string> TRestGeant4Event::GetUniqueParticles() const {
+    set<string> result;
+    for (const auto& track : fTracks) {
+        result.insert(track.GetParticleName().Data());
+    }
+    return result;
+}
+
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerProcessMap() const {
+    map<string, map<string, double>> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume][process] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, map<string, double>> TRestGeant4Event::GetEnergyInVolumePerParticleMap() const {
+    map<string, map<string, double>> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume][particle] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyPerProcessMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[process] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyPerParticleMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[particle] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, double> TRestGeant4Event::GetEnergyInVolumeMap() const {
+    map<string, double> result;
+    for (const auto& [volume, particleProcessMap] : fEnergyInVolumePerParticlePerProcess) {
+        for (const auto& [particle, processMap] : particleProcessMap) {
+            for (const auto& [process, energy] : processMap) {
+                result[volume] += energy;
+            }
+        }
+    }
+    return result;
+}
+
+map<string, map<string, map<string, double>>> TRestGeant4Event::GetEnergyInVolumePerParticlePerProcessMap()
+    const {
+    return fEnergyInVolumePerParticlePerProcess;
+}
+
+void TRestGeant4Event::AddEnergyInVolumeForParticleForProcess(Double_t energy, const string& volumeName,
+                                                              const string& particleName,
+                                                              const string& processName) {
+    if (energy <= 0) {
+        return;
+    }
+    fEnergyInVolumePerParticlePerProcess[volumeName][particleName][processName] += energy;
+    fTotalDepositedEnergy += energy;
 }

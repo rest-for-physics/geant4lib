@@ -37,12 +37,6 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
 void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logicalNames,
                            const vector<TString>& children, map<TString, TString>& nameTable,
                            map<TString, vector<TString>>& childrenTable, const TString& name = "") {
-    /*
-    cout << "called AddVolumesRecursively with name: " << name << endl;
-    for (const auto& child : children) {
-        cout << "\t" << child << endl;
-    }
-     */
     if (children.empty()) {
         physicalNames->push_back(name);
         const auto logicalVolumeName = nameTable[name];
@@ -117,16 +111,21 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
 
     xml.FreeDoc(xmldoc);
 
+    // Checks
+    if (fGdmlNewPhysicalNames.empty()) {
+        cout << "TRestGeant4GeometryInfo::PopulateFromGdml - ERROR - No physical volumes have been added!"
+             << endl;
+        exit(1);
+    }
     // Find duplicates
-    size_t n = fGdmlNewPhysicalNames.size();
     set<TString> s;
     for (const auto& name : fGdmlNewPhysicalNames) {
         s.insert(name);
     }
-    if (s.size() != n) {
-        cout
-            << "TRestGeant4GeometryInfo::PopulateFromGdml - Generated a duplicate name, please check assembly"
-            << endl;
+    if (s.size() != fGdmlNewPhysicalNames.size()) {
+        cout << "TRestGeant4GeometryInfo::PopulateFromGdml - ERROR - Generated a duplicate name, please "
+                "check assembly"
+             << endl;
         exit(1);
     }
 }
@@ -149,28 +148,6 @@ TString TRestGeant4GeometryInfo::GetGeant4PhysicalNameFromAlternativeName(
     return "";
 }
 
-/*
- * DO NOT REMOVE!
-Int_t TRestGeant4GeometryInfo::GetIDFromVolumeName(const TString& volumeName) const {
-    for (int i = 0; i < fGdmlNewPhysicalNames.size(); i++) {
-        if (volumeName.EqualTo(fGdmlNewPhysicalNames[i])) {
-            return i;
-        }
-    }
-
-    int i = 0;
-    for (const auto& physical : GetAllPhysicalVolumes()) {
-        if (volumeName.EqualTo(physical)) {
-            return i;
-        }
-        i++;
-    }
-
-    cout << "TRestGeant4GeometryInfo::GetIDFromPhysicalName - ID not found for " << volumeName << endl;
-    exit(1);
-}
-*/
-
 template <typename T, typename U>
 U GetOrDefaultMapValueFromKey(const map<T, U>* pMap, const T& key) {
     if (pMap->count(key) > 0) {
@@ -184,6 +161,12 @@ TString TRestGeant4GeometryInfo::GetVolumeFromID(Int_t id) const {
 }
 
 Int_t TRestGeant4GeometryInfo::GetIDFromVolume(const TString& volumeName) const {
+    if (fVolumeNameReverseMap.count(volumeName) == 0) {
+        // if we do not find the volume we return -1 instead of default (which is 0 and may be confusing)
+        cout << "TRestGeant4GeometryInfo::GetIDFromVolume - volume '" << volumeName << "' not found in store!"
+             << endl;
+        return -1;
+    }
     return GetOrDefaultMapValueFromKey<TString, Int_t>(&fVolumeNameReverseMap, volumeName);
 }
 
@@ -198,11 +181,15 @@ void TRestGeant4GeometryInfo::Print() const {
     const auto physicalVolumes = GetAllPhysicalVolumes();
     cout << "Physical volumes (" << physicalVolumes.size() << "):" << endl;
     for (const auto& physical : GetAllPhysicalVolumes()) {
-        auto newName = GetAlternativeNameFromGeant4PhysicalName(physical);
-        const auto logical = fPhysicalToLogicalVolumeMap.at(physical);
-        cout << "\t- " << (newName == physical ? physical : newName + " (" + physical + ")")
+        auto geant4Name = GetGeant4PhysicalNameFromAlternativeName(physical);
+        const auto& logical = fPhysicalToLogicalVolumeMap.at(physical);
+        const auto& position = GetPosition(physical);
+        cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
+             << " - ID: " << GetIDFromVolume(physical)
              << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
-             << " - Material: " << fLogicalToMaterialMap.at(logical) << endl;
+             << " - Material: " << fLogicalToMaterialMap.at(logical)                                        //
+             << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"  //
+             << endl;
     }
 
     const auto logicalVolumes = GetAllLogicalVolumes();

@@ -23,58 +23,56 @@
 #ifndef RestCore_TRestGeant4VetoAnalysisProcess
 #define RestCore_TRestGeant4VetoAnalysisProcess
 
-#include <TRestGeant4Event.h>
-#include <TRestGeant4Metadata.h>
+#include <TRestEventProcess.h>
 
-#include "TRestEventProcess.h"
-
-using namespace std;
+#include "TRestGeant4Event.h"
+#include "TRestGeant4Metadata.h"
 
 class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
    private:
-    /// A pointer to the specific TRestGeant4Event input
-    TRestGeant4Event* fInputG4Event;  //!
-    /// A pointer to the specific TRestGeant4Event output
-    TRestGeant4Event* fOutputG4Event;  //!
-    /// A pointer to the simulation metadata information accessible to TRestRun
-    TRestGeant4Metadata* fG4Metadata;  //!
+    TString fVetoVolumesExpression;
+    TString fVetoDetectorsExpression;
+    double fVetoDetectorOffsetSize = 0;
+    double fVetoLightAttenuation = 0;
+    double fVetoQuenchingFactor = 1.0;
 
-    std::vector<int> fVetoVolumeIds;                                        //!
-    std::string fVetoKeyword = "";                                          //!
-    std::vector<std::string> fVetoGroupKeywords;                            //!
-    std::map<std::string, std::vector<std::string>> fVetoGroupVolumeNames;  //!
-    std::vector<Float_t> fQuenchingFactors;                                 //!
+   public:
+    inline TString GetVetoVolumesExpression() const { return fVetoVolumesExpression; }
+    inline TString GetVetoDetectorExpression() const { return fVetoDetectorsExpression; }
+    inline double GetVetoDetectorOffsetSize() const { return fVetoDetectorOffsetSize; }
+    inline double GetVetoLightAttenuation() const { return fVetoLightAttenuation; }
+    inline double GetVetoQuenchingFactor() const { return fVetoQuenchingFactor; }
+
+    inline void SetVetoVolumesExpression(const TString& expression) { fVetoVolumesExpression = expression; }
+    inline void SetVetoDetectorsExpression(const TString& expression) {
+        fVetoDetectorsExpression = expression;
+    }
+    inline void SetVetoDetectorOffsetSize(double offset) { fVetoDetectorOffsetSize = offset; }
+    inline void SetVetoLightAttenuation(double attenuation) { fVetoLightAttenuation = attenuation; }
+    inline void SetVetoQuenchingFactor(double quenchingFactor) { fVetoQuenchingFactor = quenchingFactor; }
+
+   private:
+    TRestGeant4Event* fInputEvent = nullptr;               //!
+    TRestGeant4Event* fOutputEvent = nullptr;              //!
+    const TRestGeant4Metadata* fGeant4Metadata = nullptr;  //!
+
+    std::vector<TString> fVetoVolumes;
+    std::vector<TString> fVetoDetectorVolumes;
+    std::map<TString, TVector3> fVetoDetectorBoundaryPosition;
+    std::map<TString, TVector3> fVetoDetectorBoundaryDirection;
 
     void InitFromConfigFile() override;
     void Initialize() override;
     void LoadDefaultConfig();
 
-    // clean std::string (https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring)
-    inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v") {
-        s.erase(s.find_last_not_of(t) + 1);
-        return s;
-    }
-    // trim from beginning of std::string (left)
-    inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v") {
-        s.erase(0, s.find_first_not_of(t));
-        return s;
-    }
-    // trim from both ends of std::string (right then left)
-    inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v") { return ltrim(rtrim(s, t), t); }
-
-    // final clean std::string: trim and UPPER
-    inline std::string& clean_string(std::string& s) {
-        s = trim(s);
-        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-        return s;
-    }
-
-   protected:
-    // add here the members of your event process
-
    public:
-    any GetInputEvent() const override { return fInputG4Event; }
-    any GetOutputEvent() const override { return fOutputG4Event; }
+    any GetInputEvent() const override { return fInputEvent; }
+    any GetOutputEvent() const override { return fOutputEvent; }
+
+    inline void SetGeant4Metadata(const TRestGeant4Metadata* metadata) {
+        fGeant4Metadata = metadata;
+    }  // TODO: We should not need this! but `GetMetadata<TRestGeant4Metadata>()` is not working early in the
+       // processing (look at the tests for more details)
 
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
@@ -82,52 +80,14 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
 
     void LoadConfig(const std::string& configFilename, const std::string& name = "");
 
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() override {
-        BeginPrintProcess();
+    void PrintMetadata() override;
 
-        RESTDebug << "VETO KEYWORD: " << fVetoKeyword << RESTendl;
-        RESTDebug << RESTendl;
-
-        RESTDebug << "VETO GROUP KEYWORDS:" << RESTendl;
-        for (unsigned int i = 0; i < fVetoGroupKeywords.size(); i++) {
-            RESTDebug << "\t" << fVetoGroupKeywords[i] << RESTendl;
-        }
-        RESTDebug << RESTendl;
-
-        RESTDebug << "Found " << fVetoVolumeIds.size() << " veto volumes:" << RESTendl;
-        for (unsigned int i = 0; i < fVetoVolumeIds.size(); i++) {
-            RESTDebug << "\t" << fG4Metadata->GetActiveVolumeName(fVetoVolumeIds[i]) << RESTendl;
-        }
-        RESTDebug << RESTendl;
-
-        RESTDebug << "GROUPS:" << RESTendl;
-        for (const auto& pair : fVetoGroupVolumeNames) {
-            RESTDebug << "GROUP " << pair.first << " (" << pair.second.size() << " volumes):\n";
-            for (unsigned int i = 0; i < pair.second.size(); i++) {
-                RESTDebug << "\t" << pair.second[i] << RESTendl;
-            }
-        }
-        RESTDebug << RESTendl;
-
-        RESTDebug << "QUENCHING FACTORS (" << fQuenchingFactors.size() << " Total)" << RESTendl;
-        for (unsigned int i = 0; i < fQuenchingFactors.size(); i++) {
-            RESTDebug << "\t" << fQuenchingFactors[i] << RESTendl;
-        }
-        RESTDebug << RESTendl;
-
-        EndPrintProcess();
-    }
-
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestGeant4VetoAnalysisProcess; }
-    /// Returns the name of this process
     const char* GetProcessName() const override { return "geant4VetoAnalysis"; }
 
     TRestGeant4VetoAnalysisProcess();
     TRestGeant4VetoAnalysisProcess(const char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
-    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 1);
+    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 2);
 };
 #endif  // RestCore_TRestGeant4VetoAnalysisProcess
