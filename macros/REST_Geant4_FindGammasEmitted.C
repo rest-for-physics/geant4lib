@@ -1,6 +1,7 @@
+#include <TRestTask.h>
+
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
-#include "TRestTask.h"
 
 #ifndef RestTask_Geant4_FindGammasEmitted
 #define RestTask_Geant4_FindGammasEmitted
@@ -72,10 +73,9 @@ Int_t REST_Geant4_FindGammasEmitted(TString fName) {
         for (int i = 0; i < event->GetNumberOfTracks(); i++) {
             tracks++;
             pName = event->GetTrack(i).GetParticleName();
-            Ek = event->GetTrack(i).GetKineticEnergy();
+            Ek = event->GetTrack(i).GetInitialKineticEnergy();
             if (pName == "gamma" && Ek > 3000 && Ek < 3500) {
                 h->Fill(Ek);
-                //               cout << "Is a gamma. Energy : " << Ek << " keV" << endl;
             }
         }
     }
