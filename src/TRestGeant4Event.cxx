@@ -1120,7 +1120,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
     cout << "- Sensitive detectors total energy: " << ToEnergyString(fSensitiveVolumeEnergy) << endl;
 
-    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << "{} mm" << endl;
+    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << " mm" << endl;
 
     for (int i = 0; i < GetNumberOfPrimaries(); i++) {
         const char* sourceNumberString =
