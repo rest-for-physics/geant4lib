@@ -52,11 +52,11 @@ class TRestGeant4Hits : public TRestHits {
     inline Int_t GetProcessId(size_t n) const { return fProcessID[n]; }
     inline Int_t GetProcess(size_t n) const { return GetProcessId(n); }
     inline Int_t GetHitProcess(size_t n) const { return GetProcessId(n); }
-    const char* GetProcessName(size_t n) const;
+    TString GetProcessName(size_t n) const;
 
     inline Int_t GetVolumeId(size_t n) const { return fVolumeID[n]; }
     inline Int_t GetHitVolume(size_t n) const { return GetVolumeId(n); }
-    const char* GetVolumeName(size_t n) const;
+    TString GetVolumeName(size_t n) const;
 
     void RemoveG4Hits();
 
