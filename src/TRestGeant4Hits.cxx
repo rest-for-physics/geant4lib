@@ -103,3 +103,13 @@ TRestGeant4Metadata* TRestGeant4Hits::GetGeant4Metadata() const {
     }
     return const_cast<TRestGeant4Metadata*>(event->GetGeant4Metadata());
 }
+
+const char* TRestGeant4Hits::GetProcessName(size_t n) const {
+    const auto metadata = GetGeant4Metadata();
+    return metadata == nullptr ? "" : metadata->GetGeant4PhysicsInfo().GetProcessName(GetProcessId(n));
+}
+
+const char* TRestGeant4Hits::GetVolumeName(size_t n) const {
+    const auto metadata = GetGeant4Metadata();
+    return metadata == nullptr ? "" : metadata->GetGeant4GeometryInfo().GetVolumeFromID(GetProcessId(n));
+}
