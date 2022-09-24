@@ -210,7 +210,7 @@ class TRestGeant4Event : public TRestEvent {
         return lowestID;
     }
 
-    const std::set<std::string> GetUniqueParticles() const;
+    std::set<std::string> GetUniqueParticles() const;
 
     Bool_t ContainsProcessInVolume(Int_t processID, Int_t volumeID = -1) const;
     inline Bool_t ContainsProcess(Int_t processID) const { return ContainsProcessInVolume(processID, -1); }

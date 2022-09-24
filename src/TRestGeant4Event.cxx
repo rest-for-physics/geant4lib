@@ -1205,7 +1205,7 @@ void TRestGeant4Event::InitializeReferences(TRestRun* run) {
     }
 }
 
-const set<string> TRestGeant4Event::GetUniqueParticles() const {
+set<string> TRestGeant4Event::GetUniqueParticles() const {
     set<string> result;
     for (const auto& track : fTracks) {
         result.insert(track.GetParticleName().Data());
