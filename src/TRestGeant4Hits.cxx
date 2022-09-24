@@ -91,14 +91,13 @@ size_t TRestGeant4Hits::GetNumberOfHitsInVolume(Int_t volumeID) const {
 }
 
 TRestGeant4Metadata* TRestGeant4Hits::GetGeant4Metadata() const {
-    const TRestGeant4Event* event = nullptr;
+    const TRestGeant4Event* event;
     if (fTrack != nullptr) {
         event = fTrack->GetEvent();
     } else {
         event = fEvent;
     }
     if (event == nullptr) {
-        cout << "null event" << endl;
         return nullptr;
     }
     return const_cast<TRestGeant4Metadata*>(event->GetGeant4Metadata());
