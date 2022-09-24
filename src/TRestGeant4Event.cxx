@@ -1202,6 +1202,8 @@ void TRestGeant4Event::InitializeReferences(TRestRun* run) {
      */
     for (auto& track : fTracks) {
         track.SetEvent(this);
+        track.fHits.SetTrack(&track);
+        track.fHits.SetEvent(this);
     }
 }
 
