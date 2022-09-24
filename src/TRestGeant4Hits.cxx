@@ -110,5 +110,5 @@ const char* TRestGeant4Hits::GetProcessName(size_t n) const {
 
 const char* TRestGeant4Hits::GetVolumeName(size_t n) const {
     const auto metadata = GetGeant4Metadata();
-    return metadata == nullptr ? "" : metadata->GetGeant4GeometryInfo().GetVolumeFromID(GetProcessId(n));
+    return metadata == nullptr ? "" : metadata->GetGeant4GeometryInfo().GetVolumeFromID(GetVolumeId(n));
 }
