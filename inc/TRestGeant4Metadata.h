@@ -337,6 +337,14 @@ class TRestGeant4Metadata : public TRestMetadata {
         return fRemoveUnwantedTracksVolumesToKeep.count(volumeName) > 0;
     }
 
+    inline std::vector<std::string> GetRemoveUnwantedTracksVolumesToKeep() const {
+        std::vector<std::string> result;
+        for (const auto& volume : fRemoveUnwantedTracksVolumesToKeep) {
+            result.emplace_back(volume);
+        }
+        return result;
+    }
+
     /// Returns a std::string with the name of the active volume with index n
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }
 
