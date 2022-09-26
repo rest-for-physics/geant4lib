@@ -49,13 +49,17 @@ class TRestGeant4Hits : public TRestHits {
 
     inline TVector3 GetMomentumDirection(size_t n) const { return fMomentumDirection[n]; }
 
-    inline Int_t GetProcess(size_t n) const { return fProcessID[n]; }
+    inline Int_t GetProcessId(size_t n) const { return fProcessID[n]; }
+    inline Int_t GetProcess(size_t n) const { return GetProcessId(n); }
+    inline Int_t GetHitProcess(size_t n) const { return GetProcessId(n); }
+    TString GetProcessName(size_t n) const;
+
+    inline Int_t GetVolumeId(size_t n) const { return fVolumeID[n]; }
+    inline Int_t GetHitVolume(size_t n) const { return GetVolumeId(n); }
+    TString GetVolumeName(size_t n) const;
 
     void RemoveG4Hits();
 
-    inline Int_t GetHitProcess(size_t n) const { return fProcessID[n]; }
-    inline Int_t GetHitVolume(size_t n) const { return fVolumeID[n]; }
-    inline Int_t GetVolumeId(size_t n) const { return fVolumeID[n]; }
     inline Double_t GetKineticEnergy(size_t n) const { return fKineticEnergy[n]; }
 
     Double_t GetEnergyInVolume(Int_t volumeID) const;

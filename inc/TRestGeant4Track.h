@@ -133,6 +133,8 @@ class TRestGeant4Track {
     // Destructor
     virtual ~TRestGeant4Track();
 
+    friend class TRestGeant4Event;  // allows TRestGeant4Event to access private members
+
     ClassDef(TRestGeant4Track, 5);  // REST event superclass
 
     // restG4

@@ -1120,7 +1120,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
     cout << "- Sensitive detectors total energy: " << ToEnergyString(fSensitiveVolumeEnergy) << endl;
 
-    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << "{} mm" << endl;
+    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << " mm" << endl;
 
     for (int i = 0; i < GetNumberOfPrimaries(); i++) {
         const char* sourceNumberString =
@@ -1202,10 +1202,12 @@ void TRestGeant4Event::InitializeReferences(TRestRun* run) {
      */
     for (auto& track : fTracks) {
         track.SetEvent(this);
+        track.fHits.SetTrack(&track);
+        track.fHits.SetEvent(this);
     }
 }
 
-const set<string> TRestGeant4Event::GetUniqueParticles() const {
+set<string> TRestGeant4Event::GetUniqueParticles() const {
     set<string> result;
     for (const auto& track : fTracks) {
         result.insert(track.GetParticleName().Data());
