@@ -311,6 +311,8 @@ void TRestGeant4Event::SetBoundaries() {
 
             Double_t en = hits.GetEnergy(nhit);
 
+            if (en <= 0) continue;
+
             if (x > maxX) maxX = x;
             if (x < minX) minX = x;
             if (y > maxY) maxY = y;

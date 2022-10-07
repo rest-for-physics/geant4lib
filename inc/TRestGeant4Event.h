@@ -240,6 +240,7 @@ class TRestGeant4Event : public TRestEvent {
 
     // Constructor
     TRestGeant4Event();
+
     // Destructor
     virtual ~TRestGeant4Event();
 
