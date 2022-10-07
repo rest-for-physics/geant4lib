@@ -417,8 +417,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    TString obsName;
-
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -456,8 +454,10 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     SetObservableValue((string) "energyPrimary", energyPrimary);
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
-    obsName = this->GetName() + (TString) ".totalEdep";
     SetObservableValue((string) "totalEdep", energyTotal);
+
+    Double_t size = fOutputG4Event->GetBoundingBoxSize();
+    SetObservableValue((string) "boundingSize", size);
 
     // process names as named by Geant4
     // processes present here will be added to the list of observables which can be used to see if the event
@@ -471,7 +471,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
 
         if (processName.size() > 0) {
             processName[0] = toupper(processName[0]);
-            SetObservableValue("ContainsProcess" + processName, containsProcess);
+            SetObservableValue("containsProcess" + processName, containsProcess);
         }
     }
 
@@ -551,7 +551,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "----------------------------" << endl;
     }
 
-    // These cuts should be in another process or eliminated?!!
+    /// We should use here ApplyCut
     if (energy < fLowEnergyCut) return nullptr;
     if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
 
