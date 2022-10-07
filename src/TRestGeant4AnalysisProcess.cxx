@@ -145,8 +145,11 @@
 ///
 /// * **thetaPrimary**: polar angle of the primary generated particle.
 /// * **phiPrimary**: azimuth angle of the primary generated particle.
-///
 /// * **energyPrimary**: energy of the primary event generated.
+///
+/// * **boundingSize**: It stores a value with the event size calculated
+/// as the size of a bounding box containing all the hits that produced
+/// an energy deposit.
 ///
 /// The following code ilustrates the addition of a primary event
 /// observable.
