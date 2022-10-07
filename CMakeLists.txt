@@ -1,4 +1,4 @@
-set(LibraryVersion "1.8")
+set(LibraryVersion "1.9")
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_DECAY0} MATCHES "ON")
