@@ -281,6 +281,20 @@ void TRestGeant4Event::SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin
     fMaxZ = zMax;
 }
 
+///////////////////////////////////////////////
+/// \brief This method returns the event size as the size of the bounding box
+/// enclosing all hits.
+///
+Double_t TRestGeant4Event::GetBoundingBoxSize() {
+    SetBoundaries();
+
+    Double_t dX = fMaxX - fMinX;
+    Double_t dY = fMaxY - fMinY;
+    Double_t dZ = fMaxZ - fMinZ;
+
+    return TMath::Sqrt(dX * dX + dY * dY + dZ * dZ);
+}
+
 void TRestGeant4Event::SetBoundaries() {
     Double_t maxX = -1e10, minX = 1e10, maxZ = -1e10, minZ = 1e10, maxY = -1e10, minY = 1e10;
     Double_t minEnergy = 1e10, maxEnergy = -1e10;

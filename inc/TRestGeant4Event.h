@@ -132,6 +132,8 @@ class TRestGeant4Event : public TRestEvent {
     void SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax, Double_t zMin,
                        Double_t zMax);
 
+    Double_t GetBoundingBoxSize();
+
     inline size_t GetNumberOfPrimaries() const { return fPrimaryParticleNames.size(); }
 
     inline TString GetPrimaryEventParticleName(size_t n = 0) const { return fPrimaryParticleNames[n]; }
