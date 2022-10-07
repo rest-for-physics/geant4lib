@@ -148,8 +148,8 @@
 /// * **energyPrimary**: energy of the primary event generated.
 ///
 /// * **boundingSize**: It stores a value with the event size calculated
-/// as the size of a bounding box containing all the hits that produced
-/// an energy deposit.
+/// as the diagonal distance of a bounding box defined to contain all the
+/// hits that  produced an energy deposit.
 ///
 /// The following code ilustrates the addition of a primary event
 /// observable.
