@@ -463,12 +463,16 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     // processes present here will be added to the list of observables which can be used to see if the event
     // contains the process of interest.
     vector<string> processNames = {"phot", "compt"};
-    for (const auto& processName : processNames) {
+    for (auto& processName : processNames) {
         Int_t containsProcess = 0;
         if (fOutputG4Event->ContainsProcess(fG4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName))) {
             containsProcess = 1;
         }
-        SetObservableValue("ContainsProcess" + processName, containsProcess);
+
+        if (processName.size() > 0) {
+            processName[0] = toupper(processName[0]);
+            SetObservableValue("ContainsProcess" + processName, containsProcess);
+        }
     }
 
     /*
