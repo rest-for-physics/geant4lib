@@ -145,8 +145,11 @@
 ///
 /// * **thetaPrimary**: polar angle of the primary generated particle.
 /// * **phiPrimary**: azimuth angle of the primary generated particle.
-///
 /// * **energyPrimary**: energy of the primary event generated.
+///
+/// * **boundingSize**: It stores a value with the event size calculated
+/// as the diagonal distance of a bounding box defined to contain all the
+/// hits that  produced an energy deposit.
 ///
 /// The following code ilustrates the addition of a primary event
 /// observable.
@@ -417,8 +420,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    TString obsName;
-
     Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -456,19 +457,25 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     SetObservableValue((string) "energyPrimary", energyPrimary);
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
-    obsName = this->GetName() + (TString) ".totalEdep";
     SetObservableValue((string) "totalEdep", energyTotal);
+
+    Double_t size = fOutputG4Event->GetBoundingBoxSize();
+    SetObservableValue((string) "boundingSize", size);
 
     // process names as named by Geant4
     // processes present here will be added to the list of observables which can be used to see if the event
     // contains the process of interest.
     vector<string> processNames = {"phot", "compt"};
-    for (const auto& processName : processNames) {
+    for (auto& processName : processNames) {
         Int_t containsProcess = 0;
         if (fOutputG4Event->ContainsProcess(fG4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName))) {
             containsProcess = 1;
         }
-        SetObservableValue("ContainsProcess" + processName, containsProcess);
+
+        if (processName.size() > 0) {
+            processName[0] = toupper(processName[0]);
+            SetObservableValue("containsProcess" + processName, containsProcess);
+        }
     }
 
     /*
@@ -547,7 +554,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "----------------------------" << endl;
     }
 
-    // These cuts should be in another process or eliminated?!!
+    /// We should use here ApplyCut
     if (energy < fLowEnergyCut) return nullptr;
     if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
 
