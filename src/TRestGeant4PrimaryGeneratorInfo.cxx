@@ -108,6 +108,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
             return "TH1D";
         case EnergyDistributionTypes::FORMULA:
             return "Formula";
+        case EnergyDistributionTypes::FORMULA2:
+            return "Formula2";
         case EnergyDistributionTypes::MONO:
             return "Mono";
         case EnergyDistributionTypes::FLAT:
@@ -129,6 +131,9 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
     } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::FORMULA;
+    } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::FORMULA2),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionTypes::FORMULA2;
     } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::MONO),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::MONO;
@@ -219,6 +224,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
             return "TH1D";
         case AngularDistributionTypes::FORMULA:
             return "Formula";
+        case AngularDistributionTypes::FORMULA2:
+            return "Formula2";
         case AngularDistributionTypes::ISOTROPIC:
             return "Isotropic";
         case AngularDistributionTypes::FLUX:
@@ -240,6 +247,9 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
     } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::FORMULA;
+    } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::FORMULA2),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionTypes::FORMULA2;
     } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::ISOTROPIC),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::ISOTROPIC;
