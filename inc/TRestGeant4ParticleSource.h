@@ -18,7 +18,7 @@
 #define RestCore_TRestGeant4ParticleSource
 
 #include <TF1.h>
-#include <TRestGeant4PrimaryGeneratorInfo.h>
+#include <TF2.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -27,6 +27,7 @@
 #include <iostream>
 
 #include "TRestGeant4Particle.h"
+#include "TRestGeant4PrimaryGeneratorInfo.h"
 
 class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetadata {
    private:
