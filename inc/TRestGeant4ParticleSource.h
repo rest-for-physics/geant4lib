@@ -46,6 +46,8 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TF1* fEnergyDistributionFunction = nullptr;
     TVector2 fEnergyDistributionRange;
 
+    TF2* fEnergyAndAngularDistributionFunction = nullptr;
+
     TString fGenFilename;
     // store a set of generated particles
     std::vector<TRestGeant4Particle> fParticles;
@@ -80,6 +82,10 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
     inline const TF1* GetAngularDistributionFunction() const { return fAngularDistributionFunction; }
+
+    inline const TF2* GetEnergyAndAngularDistributionFunction() const {
+        return fEnergyAndAngularDistributionFunction;
+    }
 
     inline TString GetGenFilename() const { return fGenFilename; }
 
@@ -129,6 +135,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
                 .Clone();
     }
 
+    inline void SetEnergyAndAngularDistributionFormula(const TString& formula) {
+        fEnergyAndAngularDistributionFunction =
+            (TF2*)TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula(
+                TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(
+                    formula.Data()))
+                .Clone();
+    }
+
     inline void SetGenFilename(const TString& name) { fGenFilename = name; }
 
     inline void SetRandomMethod(double (*method)()) { fRandomMethod = method; }
@@ -149,6 +163,6 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     // Destructor
     virtual ~TRestGeant4ParticleSource();
 
-    ClassDef(TRestGeant4ParticleSource, 4);
+    ClassDef(TRestGeant4ParticleSource, 5);
 };
 #endif

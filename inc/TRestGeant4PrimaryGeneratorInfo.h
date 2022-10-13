@@ -3,6 +3,7 @@
 #define REST_TRESTGEANT4PRIMARYGENERATORINFO_H
 
 #include <TF1.h>
+#include <TF2.h>
 #include <TString.h>
 #include <TVector3.h>
 
@@ -74,6 +75,15 @@ enum class AngularDistributionFormulas {
 std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
 AngularDistributionFormulas StringToAngularDistributionFormulas(const std::string&);
 TF1 AngularDistributionFormulasToRootFormula(const AngularDistributionFormulas&);
+
+enum class EnergyAndAngularDistributionFormulas {
+    COSMIC_MUONS,
+};
+
+std::string EnergyAndAngularDistributionFormulasToString(const EnergyAndAngularDistributionFormulas&);
+EnergyAndAngularDistributionFormulas StringToEnergyAndAngularDistributionFormulas(const std::string&);
+
+TF2 EnergyAndAngularDistributionFormulasToRootFormula(const EnergyAndAngularDistributionFormulas&);
 
 }  // namespace TRestGeant4PrimaryGeneratorTypes
 

@@ -1014,6 +1014,49 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
                 {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
     }
+    if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+            EnergyDistributionTypes::FORMULA2 &&
+        StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+            AngularDistributionTypes::FORMULA2) {
+        const auto empty = TString("");
+        auto energyDistName = GetParameter("name", energyDefinition, empty);
+        auto angularDistName = GetParameter("name", energyDefinition, empty);
+
+        if (energyDistName == empty && angularDistName == empty) {
+            RESTError << "No name specified for energy and angular distribution" << RESTendl;
+            exit(1);
+        }
+        if (energyDistName == empty) {
+            angularDistName = energyDistName;
+            RESTWarning << "No name specified for energy distribution. Using angular distribution name: "
+                        << angularDistName << RESTendl;
+        }
+        if (angularDistName == empty) {
+            energyDistName = energyDistName;
+            RESTWarning << "No name specified for angular distribution. Using energy distribution name: "
+                        << energyDistName << RESTendl;
+        }
+
+        if (energyDistName == empty || angularDistName == empty) {
+            // we should never enter here, just leave this as a check
+            RESTError << "When using 'formula2' the name of energy and angular dist must match" << RESTendl;
+            exit(1);
+        }
+        const auto energyAndAngularDistName = energyDistName;
+        source->SetEnergyAndAngularDistributionFormula(energyAndAngularDistName);
+
+        const auto function = source->GetEnergyAndAngularDistributionFunction();
+        /*
+        if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
+            source->SetEnergyDistributionRange(
+                {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
+        }
+        if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
+            source->SetEnergyDistributionRange(
+                {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
+         */
+    }
     // allow custom configuration from the class
     source->LoadConfigFromElement(sourceDefinition, fElementGlobal, fVariables);
     // AddParticleSource(source);

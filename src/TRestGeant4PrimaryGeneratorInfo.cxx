@@ -5,6 +5,8 @@
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
 #include <TAxis.h>
+#include <TF1.h>
+#include <TF2.h>
 #include <TMath.h>
 #include <TRestStringOutput.h>
 #include <tinyxml.h>
@@ -327,6 +329,60 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "
             "angular distribution formula"
+         << endl;
+    exit(1);
+}
+
+string TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToString(
+    const EnergyAndAngularDistributionFormulas& type) {
+    switch (type) {
+        case EnergyAndAngularDistributionFormulas::COSMIC_MUONS:
+            return "CosmicMuons";
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToString - Error - "
+            "Unknown energy/angular distribution formula"
+         << endl;
+    exit(1);
+}
+
+EnergyAndAngularDistributionFormulas
+TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(const string& type) {
+    if (TString(type).EqualTo(
+            EnergyAndAngularDistributionFormulasToString(EnergyAndAngularDistributionFormulas::COSMIC_MUONS),
+            TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyAndAngularDistributionFormulas::COSMIC_MUONS;
+    } else {
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas - Error - "
+                "Unknown AngularDistributionFormulas: "
+             << type << endl;
+        exit(1);
+    }
+}
+
+TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula(
+    const EnergyAndAngularDistributionFormulas& type) {
+    switch (type) {
+        case EnergyAndAngularDistributionFormulas::COSMIC_MUONS: {
+            // GUAM formula from https://arxiv.org/pdf/1509.06176.pdf
+            const char* title = "Cosmic Muons Energy and Angular";
+            auto f = TF2(title,
+                         "0.14*TMath::Power(x*(1.+3.64/"
+                         "(x*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
+                         "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
+                         ")/(0.982960),0.5),1.29))),-2.7)*(1./"
+                         "(1.+(1.1*x*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                         "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                         "(0.982960),0.5))/115.)+0.054/"
+                         "(1.+(1.1*x*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                         "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                         "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
+                         0, 1000000, 0, TMath::Pi() / 2.);
+            f.SetTitle(title);
+            return f;
+        }
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula - Error - "
+            "Unknown energy and angular distribution formula"
          << endl;
     exit(1);
 }
