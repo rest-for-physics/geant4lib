@@ -156,8 +156,6 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
 string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
     const EnergyDistributionFormulas& type) {
     switch (type) {
-        case EnergyDistributionFormulas::COSMIC_MUONS:
-            return "CosmicMuons";
         case EnergyDistributionFormulas::COSMIC_NEUTRONS:
             return "CosmicNeutrons";
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
@@ -171,12 +169,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
 
 EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(
     const string& type) {
-    if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_MUONS),
+    if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
                               TString::ECaseCompare::kIgnoreCase)) {
-        return EnergyDistributionFormulas::COSMIC_MUONS;
-    } else if (TString(type).EqualTo(
-                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
-                   TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC_NEUTRONS;
     } else if (TString(type).EqualTo(
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_GAMMAS),
@@ -193,8 +187,6 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
 TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
     const EnergyDistributionFormulas& type) {
     switch (type) {
-        case EnergyDistributionFormulas::COSMIC_MUONS:
-            exit(1);
         case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
             // Formula from https://ieeexplore.ieee.org/document/1369506
             const char* title = "Cosmic Neutrons at Sea Level";
