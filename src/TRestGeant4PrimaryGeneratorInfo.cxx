@@ -355,20 +355,23 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
     const EnergyAndAngularDistributionFormulas& type) {
     switch (type) {
         case EnergyAndAngularDistributionFormulas::COSMIC_MUONS: {
-            // GUAM formula from https://arxiv.org/pdf/1509.06176.pdf
+            // GUAN formula from https://arxiv.org/pdf/1509.06176.pdf
+            // muon rest mass is 105.7 MeV
+            // formula returns energy in keV
             const char* title = "Cosmic Muons Energy and Angular";
-            auto f = TF2(title,
-                         "0.14*TMath::Power(x*(1.+3.64/"
-                         "(x*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
-                         "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
-                         ")/(0.982960),0.5),1.29))),-2.7)*(1./"
-                         "(1.+(1.1*x*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
-                         "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
-                         "(0.982960),0.5))/115.)+0.054/"
-                         "(1.+(1.1*x*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
-                         "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
-                         "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
-                         0, 1000000, 0, TMath::Pi() / 2.);
+            auto f =
+                TF2(title,
+                    "0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
+                    "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
+                    ")/(0.982960),0.5),1.29))),-2.7)*(1./"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/115.)+0.054/"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
+                    0.0, 1.0E10, 0, TMath::Pi() / 2.);
             f.SetTitle(title);
             return f;
         }
