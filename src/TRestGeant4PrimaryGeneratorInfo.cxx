@@ -379,8 +379,8 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
              * matter in long simulations
              * If we don't include this, the distribution will be very discrete. Max value is 10000
              */
-            f.SetNpx(10000);
-            f.SetNpy(1000);
+            f.SetNpx(5000);
+            f.SetNpy(500);
             return f;
         }
     }
