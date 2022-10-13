@@ -371,8 +371,16 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
                     "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
                     "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
                     "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
-                    0.0, 1.0E10, 0, TMath::Pi() / 2.);
+                    0.0, 5.0E9, 0, TMath::Pi() / 2.);
             f.SetTitle(title);
+            /*
+             * we need to increase the number of bins to get a smooth distribution
+             * this makes the first random generation slow, but it is only a constant factor which does not
+             * matter in long simulations
+             * If we don't include this, the distribution will be very discrete. Max value is 10000
+             */
+            f.SetNpx(10000);
+            f.SetNpy(1000);
             return f;
         }
     }
