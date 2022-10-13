@@ -250,12 +250,14 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     return hits;
 }
 
-Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& parName) const {
-    Int_t tcks = 0;
-    for (Int_t t = 0; t < GetNumberOfTracks(); t++)
-        if (GetTrack(t).GetParticleName() == parName) tcks++;
-
-    return tcks;
+Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& particleName) const {
+    Int_t nTracks = 0;
+    for (const auto& track : fTracks) {
+        if (particleName.EqualTo(track.GetParticleName())) {
+            nTracks += 1;
+        }
+    }
+    return nTracks;
 }
 
 Double_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& particleName) const {
