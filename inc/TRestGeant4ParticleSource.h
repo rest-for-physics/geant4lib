@@ -46,7 +46,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
     TString fEnergyDistributionNameInFile;
-    size_t fEnergyDistributionFormulaNPoints = 1000;
+    size_t fEnergyDistributionFormulaNPoints = 500;
     TF1* fEnergyDistributionFunction = nullptr;
     TVector2 fEnergyDistributionRange;
 
