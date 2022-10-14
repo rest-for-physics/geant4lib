@@ -979,6 +979,13 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
                 {source->GetAngularDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
     }
+    if ((StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::FORMULA) ||
+        (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::FORMULA2)) {
+        source->SetAngularDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
+            "nPoints", angularDefinition, source->GetAngularDistributionFormulaNPoints())));
+    }
     if (GetNumberOfSources() == 0 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
             AngularDistributionTypes::BACK_TO_BACK) {
@@ -1025,6 +1032,13 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
             source->SetEnergyDistributionRange(
                 {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
+    }
+    if ((StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::FORMULA) ||
+        (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::FORMULA2)) {
+        source->SetEnergyDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
+            "nPoints", energyDefinition, source->GetEnergyDistributionFormulaNPoints())));
     }
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
             EnergyDistributionTypes::FORMULA2 &&

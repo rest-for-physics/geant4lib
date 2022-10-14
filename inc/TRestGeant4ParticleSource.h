@@ -39,12 +39,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TString fAngularDistributionType = "Flux";
     TString fAngularDistributionFilename;
     TString fAngularDistributionNameInFile;
+    size_t fAngularDistributionFormulaNPoints = 200;
     TF1* fAngularDistributionFunction = nullptr;
     TVector2 fAngularDistributionRange;
 
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
     TString fEnergyDistributionNameInFile;
+    size_t fEnergyDistributionFormulaNPoints = 1000;
     TF1* fEnergyDistributionFunction = nullptr;
     TVector2 fEnergyDistributionRange;
 
@@ -76,6 +78,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TVector2 GetEnergyDistributionRange() const { return fEnergyDistributionRange; }
     inline Double_t GetEnergyDistributionRangeMin() const { return fEnergyDistributionRange.X(); }
     inline Double_t GetEnergyDistributionRangeMax() const { return fEnergyDistributionRange.Y(); }
+    inline size_t GetEnergyDistributionFormulaNPoints() const { return fEnergyDistributionFormulaNPoints; }
     inline TString GetEnergyDistributionFilename() const { return fEnergyDistributionFilename; }
     inline TString GetEnergyDistributionNameInFile() const { return fEnergyDistributionNameInFile; }
     inline const TF1* GetEnergyDistributionFunction() const { return fEnergyDistributionFunction; }
@@ -84,6 +87,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TVector2 GetAngularDistributionRange() const { return fAngularDistributionRange; }
     inline Double_t GetAngularDistributionRangeMin() const { return fAngularDistributionRange.X(); }
     inline Double_t GetAngularDistributionRangeMax() const { return fAngularDistributionRange.Y(); }
+    inline size_t GetAngularDistributionFormulaNPoints() const { return fAngularDistributionFormulaNPoints; }
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
     inline const TF1* GetAngularDistributionFunction() const { return fAngularDistributionFunction; }
@@ -115,6 +119,13 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
             fAngularDistributionRange.Set(fAngularDistributionRange.Y(), fAngularDistributionRange.X());
         }
     }
+    inline void SetAngularDistributionFormulaNPoints(size_t nPoints) {
+        const auto nPointsMax = 10000;
+        if (nPoints > nPointsMax) {
+            nPoints = nPointsMax;
+        }
+        fAngularDistributionFormulaNPoints = nPoints;
+    }
     inline void SetAngularDistributionFilename(const TString& filename) {
         fAngularDistributionFilename = filename;
     }
@@ -143,6 +154,13 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         if (fEnergyDistributionRange.X() > fEnergyDistributionRange.Y()) {
             fEnergyDistributionRange.Set(fEnergyDistributionRange.Y(), fEnergyDistributionRange.X());
         }
+    }
+    inline void SetEnergyDistributionFormulaNPoints(size_t nPoints) {
+        const auto nPointsMax = 10000;
+        if (nPoints > nPointsMax) {
+            nPoints = nPointsMax;
+        }
+        fEnergyDistributionFormulaNPoints = nPoints;
     }
     inline void SetEnergyDistributionFilename(const TString& filename) {
         fEnergyDistributionFilename = filename;
