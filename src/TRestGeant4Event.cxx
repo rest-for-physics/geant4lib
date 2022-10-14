@@ -250,21 +250,24 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     return hits;
 }
 
-Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& parName) const {
-    Int_t tcks = 0;
-    for (Int_t t = 0; t < GetNumberOfTracks(); t++)
-        if (GetTrack(t).GetParticleName() == parName) tcks++;
-
-    return tcks;
+Int_t TRestGeant4Event::GetNumberOfTracksForParticle(const TString& particleName) const {
+    Int_t nTracks = 0;
+    for (const auto& track : fTracks) {
+        if (particleName.EqualTo(track.GetParticleName())) {
+            nTracks += 1;
+        }
+    }
+    return nTracks;
 }
 
-Int_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& parName) const {
-    Double_t en = 0;
-    for (Int_t t = 0; t < GetNumberOfTracks(); t++) {
-        if (GetTrack(t).GetParticleName() == parName) en += GetTrack(t).GetEnergy();
+Double_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& particleName) const {
+    Double_t energy = 0;
+    for (const auto& track : fTracks) {
+        if (particleName.EqualTo(track.GetParticleName())) {
+            energy += track.GetEnergy();
+        }
     }
-
-    return en;
+    return energy;
 }
 
 void TRestGeant4Event::SetBoundaries(Double_t xMin, Double_t xMax, Double_t yMin, Double_t yMax,

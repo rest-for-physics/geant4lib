@@ -183,8 +183,8 @@ class TRestGeant4Event : public TRestEvent {
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
-    Int_t GetNumberOfTracksForParticle(const TString& parName) const;
-    Int_t GetEnergyDepositedByParticle(const TString& parName) const;
+    Int_t GetNumberOfTracksForParticle(const TString& particleName) const;
+    Double_t GetEnergyDepositedByParticle(const TString& particleName) const;
 
     inline void ActivateVolumeForStorage(Int_t n) { fVolumeStored[n] = 1; }
     inline void DisableVolumeForStorage(Int_t n) { fVolumeStored[n] = 0; }
