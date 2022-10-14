@@ -963,9 +963,21 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         }
         source->SetAngularDistributionNameInFile(name);
     }
+    source->SetAngularDistributionRange(
+        Get2DVectorParameterWithUnits("range", angularDefinition, {0, TMath::Pi()}));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::FORMULA) {
         source->SetAngularDistributionFormula(GetParameter("name", angularDefinition));
+        // We cannot use an angular range bigger than the range of the formula
+        const auto function = source->GetAngularDistributionFunction();
+        if (source->GetAngularDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
+            source->SetAngularDistributionRange(
+                {function->GetXaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+        }
+        if (source->GetAngularDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
+            source->SetAngularDistributionRange(
+                {source->GetAngularDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
     }
     if (GetNumberOfSources() == 0 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
@@ -1046,7 +1058,8 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         source->SetEnergyAndAngularDistributionFormula(energyAndAngularDistName);
 
         const auto function = source->GetEnergyAndAngularDistributionFunction();
-        /*
+
+        // Set energy range
         if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
             source->SetEnergyDistributionRange(
                 {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
@@ -1055,7 +1068,16 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
             source->SetEnergyDistributionRange(
                 {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
-         */
+
+        // Set angular range
+        if (source->GetAngularDistributionRangeMin() < function->GetYaxis()->GetXmin()) {
+            source->SetAngularDistributionRange(
+                {function->GetYaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+        }
+        if (source->GetAngularDistributionRangeMax() > function->GetYaxis()->GetXmax()) {
+            source->SetAngularDistributionRange(
+                {source->GetAngularDistributionRangeMin(), function->GetYaxis()->GetXmax()});
+        }
     }
     // allow custom configuration from the class
     source->LoadConfigFromElement(sourceDefinition, fElementGlobal, fVariables);

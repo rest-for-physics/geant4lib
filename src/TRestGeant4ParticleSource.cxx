@@ -55,6 +55,14 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         }
         RESTMetadata << "Angular distribution direction: (" << GetDirection().X() << "," << GetDirection().Y()
                      << "," << GetDirection().Z() << ")" << RESTendl;
+        if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+             AngularDistributionTypes::FORMULA) ||
+            StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+                AngularDistributionTypes::FORMULA2) {
+            RESTMetadata << "Angular distribution range (deg): ("
+                         << GetAngularDistributionRangeMin() * TMath::RadToDeg() << ", "
+                         << GetAngularDistributionRangeMax() * TMath::RadToDeg() << ")" << RESTendl;
+        }
         RESTMetadata << "Energy distribution type: " << GetEnergyDistributionType() << RESTendl;
         if (StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
             EnergyDistributionTypes::TH1D) {

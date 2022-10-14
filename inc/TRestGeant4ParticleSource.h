@@ -40,6 +40,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TString fAngularDistributionFilename;
     TString fAngularDistributionNameInFile;
     TF1* fAngularDistributionFunction = nullptr;
+    TVector2 fAngularDistributionRange;
 
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
@@ -80,6 +81,9 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline const TF1* GetEnergyDistributionFunction() const { return fEnergyDistributionFunction; }
 
     inline TString GetAngularDistributionType() const { return fAngularDistributionType; }
+    inline TVector2 GetAngularDistributionRange() const { return fAngularDistributionRange; }
+    inline Double_t GetAngularDistributionRangeMin() const { return fAngularDistributionRange.X(); }
+    inline Double_t GetAngularDistributionRangeMax() const { return fAngularDistributionRange.Y(); }
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
     inline const TF1* GetAngularDistributionFunction() const { return fAngularDistributionFunction; }
@@ -95,6 +99,21 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline void SetAngularDistributionType(const TString& type) {
         fAngularDistributionType = TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
             TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(type.Data()));
+    }
+    inline void SetAngularDistributionRange(const TVector2& range) {
+        fAngularDistributionRange = range;
+        if (fAngularDistributionRange.X() < 0) {
+            fAngularDistributionRange.Set(0, fAngularDistributionRange.Y());
+        }
+        if (fAngularDistributionRange.Y() < 0) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.X(), 0);
+        }
+        if (fAngularDistributionRange.Y() > TMath::Pi()) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.X(), TMath::Pi());
+        }
+        if (fAngularDistributionRange.X() > fAngularDistributionRange.Y()) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.Y(), fAngularDistributionRange.X());
+        }
     }
     inline void SetAngularDistributionFilename(const TString& filename) {
         fAngularDistributionFilename = filename;
