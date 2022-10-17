@@ -401,6 +401,18 @@
 ///     <energy type="Formula" name="CosmicNeutrons" range="(10,100)MeV" nPoints=1000 />
 /// \endcode
 ///
+/// * **Formula2**: It will use one of the predefined formulas to generate the primaries with correlated
+/// energy and angular distribution (ROOT TF2).
+/// The available formulas are: "CosmicMuons".
+/// Since the energy and angular distributions are correlated its necessary to use `formula2` in both energy
+/// and angular distributions. `name` parameter only needs to be defined in either of the distributions, as
+/// one cannot use different formula2 for energy and angular distributions.
+/// The rest of the parameters (`range`, `nPoints`) are the same as in `formula`.
+/// \code
+///     <energy type="formula2" name="CosmicMuons" range="(0,10)GeV" nPoints="1000"/>
+///     <angular type="formula2" direction="(0,-1,0)" nPoints="200"/>
+/// \endcode
+///
 /// #### The source angular distribution
 ///
 /// The momentum direction of a particle is specified by using.
@@ -460,6 +472,19 @@
 /// long simulation its recommended to increase this value.
 /// \code
 ///     <angular type="Formula" name="Cos2" direction="(0,-1,0)" nPoints="500" range="(10,70)deg" />
+/// \endcode
+///
+///
+/// * **Formula2**: It will use one of the predefined formulas to generate the primaries with correlated
+/// energy and angular distribution (ROOT TF2).
+/// The available formulas are: "CosmicMuons".
+/// Since the energy and angular distributions are correlated its necessary to use `formula2` in both energy
+/// and angular distributions. `name` parameter only needs to be defined in either of the distributions, as
+/// one cannot use different formula2 for energy and angular distributions.
+/// The rest of the parameters (`range`, `nPoints`) are the same as in `formula`.
+/// \code
+///     <energy type="formula2" name="CosmicMuons" range="(0,10)GeV" nPoints="1000"/>
+///     <angular type="formula2" direction="(0,-1,0)" nPoints="200"/>
 /// \endcode
 ///
 /// ## 3. The detector section definition
