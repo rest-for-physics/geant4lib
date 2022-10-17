@@ -389,6 +389,18 @@
 ///                 range="(150,400)" units="GeV" />
 /// \endcode
 ///
+/// * **Formula**: It will use one of the predefined formulas to generate the primaries.
+/// The available formulas are: "CosmicNeutrons".
+/// A range parameter can be specified to limit the energy range of the generated primaries.
+/// It will not go over or under the predefined range for the formula `range=(100,200)MeV`.
+/// A parameter `nPoints` can be defined to set the random sampling of the formula.
+/// The default value should be enough for most cases. Increasing this value (max is 10000) will cause an
+/// increase to the initialization time but will not cause an increase in time for primary generation so in a
+/// long simulation its recommended to increase this value.
+/// \code
+///     <energy type="Formula" name="CosmicNeutrons" range="(10,100)MeV" nPoints=1000 />
+/// \endcode
+///
 /// #### The source angular distribution
 ///
 /// The momentum direction of a particle is specified by using.
@@ -435,6 +447,19 @@
 /// \code
 ///     // A TH1D input angular distribution used for cosmic rays
 ///     <angular type="TH1D" file="CosmicAngles.root" name="Theta2" />
+/// \endcode
+///
+///
+/// * **Formula**: It will use one of the predefined formulas to generate the primaries.
+/// The available formulas are: "Cos2", "Cos3".
+/// A range parameter can be specified to limit the zenith angular range of the generated primaries.
+/// It will not go over or under the predefined range for the formula `range=(10,45)deg`.
+/// A parameter `nPoints` can be defined to set the random sampling of the formula.
+/// The default value should be enough for most cases. Increasing this value (max is 10000) will cause an
+/// increase to the initialization time but will not cause an increase in time for primary generation so in a
+/// long simulation its recommended to increase this value.
+/// \code
+///     <angular type="Formula" name="Cos2" direction="(0,-1,0)" nPoints="500" range="(10,70)deg" />
 /// \endcode
 ///
 /// ## 3. The detector section definition
