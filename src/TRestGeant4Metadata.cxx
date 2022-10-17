@@ -57,7 +57,7 @@
 ///     ...
 /// </TRestRun>
 ///
-/// //A TRestGeant4Metadata section defining few parameters, generator, and storage.
+/// //A TRestGeant4Metadata section defining few parameters, generator, and detector.
 /// <TRestGeant4Metadata>
 ///     ...
 /// </TRestGeant4Metadata>
@@ -76,7 +76,7 @@
 /// of TRestGeant4Metadata section defined in the RML.
 ///
 /// This page describes in detail the different parameters, particle generator
-/// types, storage, and other features implemented in restG4, that can be
+/// types, detector, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
 /// required sections, as TRestRun or TRestGeant4PhysicsLists, will be found in their
 /// respective class documentation.
@@ -94,7 +94,7 @@
 /// follow,
 ///
 /// 3. the definition of what event hits will be written to disk, using the
-/// `<storage>` section,
+/// `<detector>` section,
 ///
 /// 4. and the (optional) definition of biasing volumes to simulate particle
 /// transmission through extended detector shieldings, using the `<biasing>`
@@ -108,7 +108,7 @@
 /// be simulated.
 ///
 /// * **nEvents**: The number of primary particles to be generated. The number
-/// of registered events might differ from *nEvents* due to storage definitions.
+/// of registered events might differ from *nEvents* due to detector definitions.
 /// The number of events registered could be even larger than the number of
 /// primaries, as for example when launching full decay chain simulations, where
 /// different isotope decays are stored in different events.
@@ -130,9 +130,9 @@
 ///
 /// * **saveAllEvents**: If active, this parameter will mark all the volumes
 /// of the geometry as active, and it will ignore the energy range definition
-/// in the *storage* section. Any Geant4 simulated track from any event or
+/// in the *detector* section. Any Geant4 simulated track from any event or
 /// subevent will be registered even if no energy deposition have been produced.
-/// In future, this parameter would be better implemented inside `<storage`
+/// In future, this parameter would be better implemented inside `<detector`
 /// definition.
 ///
 /// The following example illustrates the definition of the common simulation
@@ -437,23 +437,21 @@
 ///     <angular type="TH1D" file="CosmicAngles.root" name="Theta2" />
 /// \endcode
 ///
-/// ## 3. The storage section definition
+/// ## 3. The detector section definition
 ///
 /// The information we store in the ROOT file can be defined using the
-/// storage section. The storage section is defined as follows
+/// detector section. The detector section is defined as follows
 ///
 ///  \code
-///  <storage sensitiveVolume="gas">
-///
+///  <detector>
 ///     <parameter name="energyRange" value="(0,5)" units="MeV" />
-///
-///      <activeVolume name="gas" chance="1" />
+///      <volume name="gas" sensitive="true" chance="1" />
+///      <volume name="shielding" chance="1" />
 ///      // Add as many active volumes as needed
-///
-///  </storage>
+///  </detector>
 ///  \endcode
 ///
-/// The storage section defines the `sensitiveVolume`, and the active
+/// The detector section defines the sensitive volumes, and the active
 /// volumes where data will be stored.
 ///
 /// The sensitive, or active, volumes can be any physical volume defined on
@@ -478,12 +476,12 @@
 /// deposit between Ei and Ef, integrated to all the active volumes, will
 /// be stored.
 ///
-/// We should define inside the `<storage>` definition all the physical
-/// volumes where we want hits to be stored using `<activeVolume>`
+/// We should define inside the `<detector>` definition all the physical
+/// volumes where we want hits to be stored using `<volume>`
 /// definition.
 ///
 /// \code
-/// <activeVolume name="gas" chance="1" maxTargetStepSize="1mm"/>
+/// <volume name="gas" chance="1" maxTargetStepSize="1mm"/>
 /// \endcode
 ///
 /// * **maxTargetStepSize**: This is the maximum integration step size allowed
@@ -509,8 +507,8 @@
 /// example,
 ///
 /// \code
-///      <activeVolume name="gas" chance="1" />
-///      <activeVolume name="vessel" chance="0.1" />
+///      <volume name="gas" chance="1" />
+///      <volume name="vessel" chance="0.1" />
 /// \endcode
 ///
 /// will store all the hits produced in the gas, and 10% of the events will
@@ -519,17 +517,17 @@
 /// vessel, but saving some space in disk in case we do not need to use all
 /// the event population.
 ///
-/// \note If we do not specify any *activeVolume*, then all volumes found
-/// in the GDML geometry will be marked as *activeVolume*. If the *chance*
+/// \note If we do not specify any *volume*, then all volumes found
+/// in the GDML geometry will be marked as active volumes. If the *chance*
 /// parameter is not given, the chance will be 1 by default.
 ///
-/// On top of that, each activeVolume may define a user limit on the
+/// On top of that, each volume may define a user limit on the
 /// maximum step size of particles in that particular volume specifying the
 /// *maxStepSize* parameter.
 ///
 /// \code
-///      <activeVolume name="gas" chance="1" maxStepSize="2mm" />
-///      <activeVolume name="vessel" chance="0.1" maxStepSize="1cm" />
+///      <volume name="gas" chance="1" maxStepSize="2mm" />
+///      <volume name="vessel" chance="0.1" maxStepSize="1cm" />
 /// \endcode
 ///
 /// Smaller values will provide a higher amount of detail, but it will require
@@ -542,7 +540,7 @@
 /// volumes, using:
 ///
 /// \code
-/// 	<storage sensitiveVolume="gas" maxStepSize="1mm" />
+/// 	<volume sensitiveVolume="gas" maxStepSize="1mm" />
 /// \endcode
 ///
 ///
