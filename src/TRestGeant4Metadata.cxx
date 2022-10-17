@@ -1128,6 +1128,12 @@ void TRestGeant4Metadata::ReadDetector() {
             isKeepTracks = StringToBool(isKeepTracksValue);
         }
 
+        bool isKill = false;
+        const string isKillValue = GetFieldValue("kill", volumeDefinition);
+        if (isKillValue != "Not defined") {
+            isKill = StringToBool(isKillValue);
+        }
+
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1 || chance < 0) {
             chance = 1.0;
@@ -1146,6 +1152,9 @@ void TRestGeant4Metadata::ReadDetector() {
             }
             if (fRemoveUnwantedTracks && isKeepTracks) {
                 fRemoveUnwantedTracksVolumesToKeep.insert(physical);
+            }
+            if (isKill) {
+                fKillVolumes.insert(physical);
             }
         }
         volumeDefinition = GetNextElement(volumeDefinition);

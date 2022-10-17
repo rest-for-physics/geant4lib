@@ -154,6 +154,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief A container related to fRemoveUnwantedTracks.
     std::set<std::string> fRemoveUnwantedTracksVolumesToKeep;
 
+    std::set<std::string> fKillVolumes;
+
     /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
     Bool_t fPrintProgress = false;  //!
 
@@ -336,6 +338,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline bool IsKeepTracksVolume(const char* volumeName) const {
         return fRemoveUnwantedTracksVolumesToKeep.count(volumeName) > 0;
     }
+
+    inline bool IsKillVolume(const char* volumeName) const { return fKillVolumes.count(volumeName) > 0; }
 
     inline std::vector<std::string> GetRemoveUnwantedTracksVolumesToKeep() const {
         std::vector<std::string> result;
