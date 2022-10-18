@@ -5,6 +5,8 @@
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
 #include <TAxis.h>
+#include <TF1.h>
+#include <TF2.h>
 #include <TMath.h>
 #include <TRestStringOutput.h>
 #include <tinyxml.h>
@@ -108,6 +110,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
             return "TH1D";
         case EnergyDistributionTypes::FORMULA:
             return "Formula";
+        case EnergyDistributionTypes::FORMULA2:
+            return "Formula2";
         case EnergyDistributionTypes::MONO:
             return "Mono";
         case EnergyDistributionTypes::FLAT:
@@ -129,6 +133,9 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
     } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::FORMULA;
+    } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::FORMULA2),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionTypes::FORMULA2;
     } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::MONO),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::MONO;
@@ -149,8 +156,6 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
 string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
     const EnergyDistributionFormulas& type) {
     switch (type) {
-        case EnergyDistributionFormulas::COSMIC_MUONS:
-            return "CosmicMuons";
         case EnergyDistributionFormulas::COSMIC_NEUTRONS:
             return "CosmicNeutrons";
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
@@ -164,12 +169,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
 
 EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(
     const string& type) {
-    if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_MUONS),
+    if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
                               TString::ECaseCompare::kIgnoreCase)) {
-        return EnergyDistributionFormulas::COSMIC_MUONS;
-    } else if (TString(type).EqualTo(
-                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
-                   TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC_NEUTRONS;
     } else if (TString(type).EqualTo(
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_GAMMAS),
@@ -186,8 +187,6 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
 TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
     const EnergyDistributionFormulas& type) {
     switch (type) {
-        case EnergyDistributionFormulas::COSMIC_MUONS:
-            exit(1);
         case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
             // Formula from https://ieeexplore.ieee.org/document/1369506
             const char* title = "Cosmic Neutrons at Sea Level";
@@ -219,6 +218,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
             return "TH1D";
         case AngularDistributionTypes::FORMULA:
             return "Formula";
+        case AngularDistributionTypes::FORMULA2:
+            return "Formula2";
         case AngularDistributionTypes::ISOTROPIC:
             return "Isotropic";
         case AngularDistributionTypes::FLUX:
@@ -240,6 +241,9 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
     } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::FORMULA;
+    } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::FORMULA2),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionTypes::FORMULA2;
     } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::ISOTROPIC),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::ISOTROPIC;
@@ -317,6 +321,69 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "
             "angular distribution formula"
+         << endl;
+    exit(1);
+}
+
+string TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToString(
+    const EnergyAndAngularDistributionFormulas& type) {
+    switch (type) {
+        case EnergyAndAngularDistributionFormulas::COSMIC_MUONS:
+            return "CosmicMuons";
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToString - Error - "
+            "Unknown energy/angular distribution formula"
+         << endl;
+    exit(1);
+}
+
+EnergyAndAngularDistributionFormulas
+TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(const string& type) {
+    if (TString(type).EqualTo(
+            EnergyAndAngularDistributionFormulasToString(EnergyAndAngularDistributionFormulas::COSMIC_MUONS),
+            TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyAndAngularDistributionFormulas::COSMIC_MUONS;
+    } else {
+        cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas - Error - "
+                "Unknown AngularDistributionFormulas: "
+             << type << endl;
+        exit(1);
+    }
+}
+
+TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula(
+    const EnergyAndAngularDistributionFormulas& type) {
+    switch (type) {
+        case EnergyAndAngularDistributionFormulas::COSMIC_MUONS: {
+            // GUAN formula from https://arxiv.org/pdf/1509.06176.pdf
+            // muon rest mass is 105.7 MeV
+            // formula returns energy in keV
+            const char* title = "Cosmic Muons Energy and Angular";
+            auto f =
+                TF2(title,
+                    "0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
+                    "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
+                    ")/(0.982960),0.5),1.29))),-2.7)*(1./"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/115.)+0.054/"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
+                    0.0, 5.0E9, 0, TMath::Pi() / 2.);
+            f.SetTitle(title);
+            /*
+             * we need to increase the number of bins to get a smooth distribution
+             * this makes the first random generation slow, but it is only a constant factor which does not
+             * matter in long simulations
+             * If we don't include this, the distribution will be very discrete. Max value is 10000
+             */
+            return f;
+        }
+    }
+    cout << "TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula - Error - "
+            "Unknown energy and angular distribution formula"
          << endl;
     exit(1);
 }

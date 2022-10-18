@@ -35,7 +35,7 @@ TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 void TRestGeant4ParticleSource::PrintParticleSource() {
     RESTMetadata << "---------------------------------------" << RESTendl;
     RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;
-    if (fParticlesTemplate.size() > 0 || fGenFilename != "NO_SUCH_PARA") {
+    if (!fParticlesTemplate.empty() || fGenFilename != "NO_SUCH_PARA") {
         RESTMetadata << "Generator file: " << GetGenFilename() << RESTendl;
         RESTMetadata << "Stored templates: " << fParticlesTemplate.size() << RESTendl;
         RESTMetadata << "Particles: ";
@@ -55,6 +55,16 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         }
         RESTMetadata << "Angular distribution direction: (" << GetDirection().X() << "," << GetDirection().Y()
                      << "," << GetDirection().Z() << ")" << RESTendl;
+        if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+             AngularDistributionTypes::FORMULA) ||
+            StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+                AngularDistributionTypes::FORMULA2) {
+            RESTMetadata << "Angular distribution range (deg): ("
+                         << GetAngularDistributionRangeMin() * TMath::RadToDeg() << ", "
+                         << GetAngularDistributionRangeMax() * TMath::RadToDeg() << ")" << RESTendl;
+            RESTMetadata << "Angular distribution random sampling grid size: "
+                         << GetAngularDistributionFormulaNPoints() << RESTendl;
+        }
         RESTMetadata << "Energy distribution type: " << GetEnergyDistributionType() << RESTendl;
         if (StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
             EnergyDistributionTypes::TH1D) {
@@ -68,6 +78,13 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         } else {
             RESTMetadata << "Energy distribution range (keV): (" << GetEnergyDistributionRangeMin() << ", "
                          << GetEnergyDistributionRangeMax() << ")" << RESTendl;
+        }
+        if ((StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
+             EnergyDistributionTypes::FORMULA) ||
+            StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
+                EnergyDistributionTypes::FORMULA2) {
+            RESTMetadata << "Energy distribution random sampling grid size: "
+                         << GetEnergyDistributionFormulaNPoints() << RESTendl;
         }
     }
 }
