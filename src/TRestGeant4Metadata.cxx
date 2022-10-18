@@ -604,7 +604,7 @@
 /// 'keepZeroEnergyTracks' can be set to true so that all processes are registered, for example a neutron
 /// capture taking place in one of the volumes which does not result in energy deposition.
 ///
-/// The `kill="true"` option can be used in the volume definition (<volume name="shield" keepTracks="true" />)
+/// The `kill="true"` option can be used in the volume definition (<volume name="shield" kill="true" />)
 /// to stop a track after entering the volume. The track will be immediately killed and its energy deposition
 /// won't be computed. This is useful to speed up certain kinds of simulations.
 ///
