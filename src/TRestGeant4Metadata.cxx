@@ -57,7 +57,7 @@
 ///     ...
 /// </TRestRun>
 ///
-/// //A TRestGeant4Metadata section defining few parameters, generator, and storage.
+/// //A TRestGeant4Metadata section defining few parameters, generator, and detector.
 /// <TRestGeant4Metadata>
 ///     ...
 /// </TRestGeant4Metadata>
@@ -76,7 +76,7 @@
 /// of TRestGeant4Metadata section defined in the RML.
 ///
 /// This page describes in detail the different parameters, particle generator
-/// types, storage, and other features implemented in restG4, that can be
+/// types, detector, and other features implemented in restG4, that can be
 /// defined inside the section TRestGeant4Metadata. The description of other
 /// required sections, as TRestRun or TRestGeant4PhysicsLists, will be found in their
 /// respective class documentation.
@@ -94,7 +94,7 @@
 /// follow,
 ///
 /// 3. the definition of what event hits will be written to disk, using the
-/// `<storage>` section,
+/// `<detector>` section,
 ///
 /// 4. and the (optional) definition of biasing volumes to simulate particle
 /// transmission through extended detector shieldings, using the `<biasing>`
@@ -108,7 +108,7 @@
 /// be simulated.
 ///
 /// * **nEvents**: The number of primary particles to be generated. The number
-/// of registered events might differ from *nEvents* due to storage definitions.
+/// of registered events might differ from *nEvents* due to detector definitions.
 /// The number of events registered could be even larger than the number of
 /// primaries, as for example when launching full decay chain simulations, where
 /// different isotope decays are stored in different events.
@@ -130,9 +130,9 @@
 ///
 /// * **saveAllEvents**: If active, this parameter will mark all the volumes
 /// of the geometry as active, and it will ignore the energy range definition
-/// in the *storage* section. Any Geant4 simulated track from any event or
+/// in the *detector* section. Any Geant4 simulated track from any event or
 /// subevent will be registered even if no energy deposition have been produced.
-/// In future, this parameter would be better implemented inside `<storage`
+/// In future, this parameter would be better implemented inside `<detector`
 /// definition.
 ///
 /// The following example illustrates the definition of the common simulation
@@ -389,6 +389,30 @@
 ///                 range="(150,400)" units="GeV" />
 /// \endcode
 ///
+/// * **Formula**: It will use one of the predefined formulas to generate the primaries.
+/// The available formulas are: "CosmicNeutrons".
+/// A range parameter can be specified to limit the energy range of the generated primaries.
+/// It will not go over or under the predefined range for the formula `range=(100,200)MeV`.
+/// A parameter `nPoints` can be defined to set the random sampling of the formula.
+/// The default value should be enough for most cases. Increasing this value (max is 10000) will cause an
+/// increase to the initialization time but will not cause an increase in time for primary generation so in a
+/// long simulation its recommended to increase this value.
+/// \code
+///     <energy type="Formula" name="CosmicNeutrons" range="(10,100)MeV" nPoints=1000 />
+/// \endcode
+///
+/// * **Formula2**: It will use one of the predefined formulas to generate the primaries with correlated
+/// energy and angular distribution (ROOT TF2).
+/// The available formulas are: "CosmicMuons".
+/// Since the energy and angular distributions are correlated its necessary to use `formula2` in both energy
+/// and angular distributions. `name` parameter only needs to be defined in either of the distributions, as
+/// one cannot use different formula2 for energy and angular distributions.
+/// The rest of the parameters (`range`, `nPoints`) are the same as in `formula`.
+/// \code
+///     <energy type="formula2" name="CosmicMuons" range="(0,10)GeV" nPoints="1000"/>
+///     <angular type="formula2" direction="(0,-1,0)" nPoints="200"/>
+/// \endcode
+///
 /// #### The source angular distribution
 ///
 /// The momentum direction of a particle is specified by using.
@@ -437,23 +461,47 @@
 ///     <angular type="TH1D" file="CosmicAngles.root" name="Theta2" />
 /// \endcode
 ///
-/// ## 3. The storage section definition
+///
+/// * **Formula**: It will use one of the predefined formulas to generate the primaries.
+/// The available formulas are: "Cos2", "Cos3".
+/// A range parameter can be specified to limit the zenith angular range of the generated primaries.
+/// It will not go over or under the predefined range for the formula `range=(10,45)deg`.
+/// A parameter `nPoints` can be defined to set the random sampling of the formula.
+/// The default value should be enough for most cases. Increasing this value (max is 10000) will cause an
+/// increase to the initialization time but will not cause an increase in time for primary generation so in a
+/// long simulation its recommended to increase this value.
+/// \code
+///     <angular type="Formula" name="Cos2" direction="(0,-1,0)" nPoints="500" range="(10,70)deg" />
+/// \endcode
+///
+///
+/// * **Formula2**: It will use one of the predefined formulas to generate the primaries with correlated
+/// energy and angular distribution (ROOT TF2).
+/// The available formulas are: "CosmicMuons".
+/// Since the energy and angular distributions are correlated its necessary to use `formula2` in both energy
+/// and angular distributions. `name` parameter only needs to be defined in either of the distributions, as
+/// one cannot use different formula2 for energy and angular distributions.
+/// The rest of the parameters (`range`, `nPoints`) are the same as in `formula`.
+/// \code
+///     <energy type="formula2" name="CosmicMuons" range="(0,10)GeV" nPoints="1000"/>
+///     <angular type="formula2" direction="(0,-1,0)" nPoints="200"/>
+/// \endcode
+///
+/// ## 3. The detector section definition
 ///
 /// The information we store in the ROOT file can be defined using the
-/// storage section. The storage section is defined as follows
+/// detector section. The detector section is defined as follows
 ///
 ///  \code
-///  <storage sensitiveVolume="gas">
-///
+///  <detector>
 ///     <parameter name="energyRange" value="(0,5)" units="MeV" />
-///
-///      <activeVolume name="gas" chance="1" />
+///      <volume name="gas" sensitive="true" chance="1" />
+///      <volume name="shielding" chance="1" />
 ///      // Add as many active volumes as needed
-///
-///  </storage>
+///  </detector>
 ///  \endcode
 ///
-/// The storage section defines the `sensitiveVolume`, and the active
+/// The detector section defines the sensitive volumes, and the active
 /// volumes where data will be stored.
 ///
 /// The sensitive, or active, volumes can be any physical volume defined on
@@ -478,12 +526,12 @@
 /// deposit between Ei and Ef, integrated to all the active volumes, will
 /// be stored.
 ///
-/// We should define inside the `<storage>` definition all the physical
-/// volumes where we want hits to be stored using `<activeVolume>`
+/// We should define inside the `<detector>` definition all the physical
+/// volumes where we want hits to be stored using `<volume>`
 /// definition.
 ///
 /// \code
-/// <activeVolume name="gas" chance="1" maxTargetStepSize="1mm"/>
+/// <volume name="gas" chance="1" maxTargetStepSize="1mm"/>
 /// \endcode
 ///
 /// * **maxTargetStepSize**: This is the maximum integration step size allowed
@@ -509,8 +557,8 @@
 /// example,
 ///
 /// \code
-///      <activeVolume name="gas" chance="1" />
-///      <activeVolume name="vessel" chance="0.1" />
+///      <volume name="gas" chance="1" />
+///      <volume name="vessel" chance="0.1" />
 /// \endcode
 ///
 /// will store all the hits produced in the gas, and 10% of the events will
@@ -519,17 +567,17 @@
 /// vessel, but saving some space in disk in case we do not need to use all
 /// the event population.
 ///
-/// \note If we do not specify any *activeVolume*, then all volumes found
-/// in the GDML geometry will be marked as *activeVolume*. If the *chance*
+/// \note If we do not specify any *volume*, then all volumes found
+/// in the GDML geometry will be marked as active volumes. If the *chance*
 /// parameter is not given, the chance will be 1 by default.
 ///
-/// On top of that, each activeVolume may define a user limit on the
+/// On top of that, each volume may define a user limit on the
 /// maximum step size of particles in that particular volume specifying the
 /// *maxStepSize* parameter.
 ///
 /// \code
-///      <activeVolume name="gas" chance="1" maxStepSize="2mm" />
-///      <activeVolume name="vessel" chance="0.1" maxStepSize="1cm" />
+///      <volume name="gas" chance="1" maxStepSize="2mm" />
+///      <volume name="vessel" chance="0.1" maxStepSize="1cm" />
 /// \endcode
 ///
 /// Smaller values will provide a higher amount of detail, but it will require
@@ -542,7 +590,7 @@
 /// volumes, using:
 ///
 /// \code
-/// 	<storage sensitiveVolume="gas" maxStepSize="1mm" />
+/// 	<volume sensitiveVolume="gas" maxStepSize="1mm" />
 /// \endcode
 ///
 ///
@@ -963,9 +1011,28 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         }
         source->SetAngularDistributionNameInFile(name);
     }
+    source->SetAngularDistributionRange(
+        Get2DVectorParameterWithUnits("range", angularDefinition, {0, TMath::Pi()}));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::FORMULA) {
         source->SetAngularDistributionFormula(GetParameter("name", angularDefinition));
+        // We cannot use an angular range bigger than the range of the formula
+        const auto function = source->GetAngularDistributionFunction();
+        if (source->GetAngularDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
+            source->SetAngularDistributionRange(
+                {function->GetXaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+        }
+        if (source->GetAngularDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
+            source->SetAngularDistributionRange(
+                {source->GetAngularDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
+    }
+    if ((StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::FORMULA) ||
+        (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::FORMULA2)) {
+        source->SetAngularDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
+            "nPoints", angularDefinition, source->GetAngularDistributionFormulaNPoints())));
     }
     if (GetNumberOfSources() == 0 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
@@ -1012,6 +1079,66 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
             source->SetEnergyDistributionRange(
                 {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
+    }
+    if ((StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::FORMULA) ||
+        (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::FORMULA2)) {
+        source->SetEnergyDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
+            "nPoints", energyDefinition, source->GetEnergyDistributionFormulaNPoints())));
+    }
+    if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+            EnergyDistributionTypes::FORMULA2 &&
+        StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+            AngularDistributionTypes::FORMULA2) {
+        const auto empty = TString("");
+        auto energyDistName = GetParameter("name", energyDefinition, empty);
+        auto angularDistName = GetParameter("name", energyDefinition, empty);
+
+        if (energyDistName == empty && angularDistName == empty) {
+            RESTError << "No name specified for energy and angular distribution" << RESTendl;
+            exit(1);
+        }
+        if (energyDistName == empty) {
+            angularDistName = energyDistName;
+            RESTWarning << "No name specified for energy distribution. Using angular distribution name: "
+                        << angularDistName << RESTendl;
+        }
+        if (angularDistName == empty) {
+            energyDistName = energyDistName;
+            RESTWarning << "No name specified for angular distribution. Using energy distribution name: "
+                        << energyDistName << RESTendl;
+        }
+
+        if (energyDistName == empty || angularDistName == empty) {
+            // we should never enter here, just leave this as a check
+            RESTError << "When using 'formula2' the name of energy and angular dist must match" << RESTendl;
+            exit(1);
+        }
+        const auto energyAndAngularDistName = energyDistName;
+        source->SetEnergyAndAngularDistributionFormula(energyAndAngularDistName);
+
+        const auto function = source->GetEnergyAndAngularDistributionFunction();
+
+        // Set energy range
+        if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
+            source->SetEnergyDistributionRange(
+                {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
+        }
+        if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
+            source->SetEnergyDistributionRange(
+                {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+        }
+
+        // Set angular range
+        if (source->GetAngularDistributionRangeMin() < function->GetYaxis()->GetXmin()) {
+            source->SetAngularDistributionRange(
+                {function->GetYaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+        }
+        if (source->GetAngularDistributionRangeMax() > function->GetYaxis()->GetXmax()) {
+            source->SetAngularDistributionRange(
+                {source->GetAngularDistributionRangeMin(), function->GetYaxis()->GetXmax()});
         }
     }
     // allow custom configuration from the class

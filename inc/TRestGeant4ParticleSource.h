@@ -18,7 +18,7 @@
 #define RestCore_TRestGeant4ParticleSource
 
 #include <TF1.h>
-#include <TRestGeant4PrimaryGeneratorInfo.h>
+#include <TF2.h>
 #include <TRestMetadata.h>
 #include <TString.h>
 #include <TVector2.h>
@@ -27,6 +27,7 @@
 #include <iostream>
 
 #include "TRestGeant4Particle.h"
+#include "TRestGeant4PrimaryGeneratorInfo.h"
 
 class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetadata {
    private:
@@ -38,13 +39,18 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TString fAngularDistributionType = "Flux";
     TString fAngularDistributionFilename;
     TString fAngularDistributionNameInFile;
+    size_t fAngularDistributionFormulaNPoints = 200;
     TF1* fAngularDistributionFunction = nullptr;
+    TVector2 fAngularDistributionRange;
 
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
     TString fEnergyDistributionNameInFile;
+    size_t fEnergyDistributionFormulaNPoints = 500;
     TF1* fEnergyDistributionFunction = nullptr;
     TVector2 fEnergyDistributionRange;
+
+    TF2* fEnergyAndAngularDistributionFunction = nullptr;
 
     TString fGenFilename;
     // store a set of generated particles
@@ -72,14 +78,23 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TVector2 GetEnergyDistributionRange() const { return fEnergyDistributionRange; }
     inline Double_t GetEnergyDistributionRangeMin() const { return fEnergyDistributionRange.X(); }
     inline Double_t GetEnergyDistributionRangeMax() const { return fEnergyDistributionRange.Y(); }
+    inline size_t GetEnergyDistributionFormulaNPoints() const { return fEnergyDistributionFormulaNPoints; }
     inline TString GetEnergyDistributionFilename() const { return fEnergyDistributionFilename; }
     inline TString GetEnergyDistributionNameInFile() const { return fEnergyDistributionNameInFile; }
     inline const TF1* GetEnergyDistributionFunction() const { return fEnergyDistributionFunction; }
 
     inline TString GetAngularDistributionType() const { return fAngularDistributionType; }
+    inline TVector2 GetAngularDistributionRange() const { return fAngularDistributionRange; }
+    inline Double_t GetAngularDistributionRangeMin() const { return fAngularDistributionRange.X(); }
+    inline Double_t GetAngularDistributionRangeMax() const { return fAngularDistributionRange.Y(); }
+    inline size_t GetAngularDistributionFormulaNPoints() const { return fAngularDistributionFormulaNPoints; }
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
     inline const TF1* GetAngularDistributionFunction() const { return fAngularDistributionFunction; }
+
+    inline const TF2* GetEnergyAndAngularDistributionFunction() const {
+        return fEnergyAndAngularDistributionFunction;
+    }
 
     inline TString GetGenFilename() const { return fGenFilename; }
 
@@ -88,6 +103,28 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline void SetAngularDistributionType(const TString& type) {
         fAngularDistributionType = TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
             TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(type.Data()));
+    }
+    inline void SetAngularDistributionRange(const TVector2& range) {
+        fAngularDistributionRange = range;
+        if (fAngularDistributionRange.X() < 0) {
+            fAngularDistributionRange.Set(0, fAngularDistributionRange.Y());
+        }
+        if (fAngularDistributionRange.Y() < 0) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.X(), 0);
+        }
+        if (fAngularDistributionRange.Y() > TMath::Pi()) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.X(), TMath::Pi());
+        }
+        if (fAngularDistributionRange.X() > fAngularDistributionRange.Y()) {
+            fAngularDistributionRange.Set(fAngularDistributionRange.Y(), fAngularDistributionRange.X());
+        }
+    }
+    inline void SetAngularDistributionFormulaNPoints(size_t nPoints) {
+        const auto nPointsMax = 10000;
+        if (nPoints > nPointsMax) {
+            nPoints = nPointsMax;
+        }
+        fAngularDistributionFormulaNPoints = nPoints;
     }
     inline void SetAngularDistributionFilename(const TString& filename) {
         fAngularDistributionFilename = filename;
@@ -118,6 +155,13 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
             fEnergyDistributionRange.Set(fEnergyDistributionRange.Y(), fEnergyDistributionRange.X());
         }
     }
+    inline void SetEnergyDistributionFormulaNPoints(size_t nPoints) {
+        const auto nPointsMax = 10000;
+        if (nPoints > nPointsMax) {
+            nPoints = nPointsMax;
+        }
+        fEnergyDistributionFormulaNPoints = nPoints;
+    }
     inline void SetEnergyDistributionFilename(const TString& filename) {
         fEnergyDistributionFilename = filename;
     }
@@ -126,6 +170,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         fEnergyDistributionFunction =
             (TF1*)TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
                 TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(formula.Data()))
+                .Clone();
+    }
+
+    inline void SetEnergyAndAngularDistributionFormula(const TString& formula) {
+        fEnergyAndAngularDistributionFunction =
+            (TF2*)TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula(
+                TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(
+                    formula.Data()))
                 .Clone();
     }
 
@@ -149,6 +201,6 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     // Destructor
     virtual ~TRestGeant4ParticleSource();
 
-    ClassDef(TRestGeant4ParticleSource, 4);
+    ClassDef(TRestGeant4ParticleSource, 5);
 };
 #endif
