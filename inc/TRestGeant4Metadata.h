@@ -341,6 +341,14 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline bool IsKillVolume(const char* volumeName) const { return fKillVolumes.count(volumeName) > 0; }
 
+    inline std::vector<std::string> GetKillVolumes() const {
+        std::vector<std::string> result;
+        for (const auto& volume : fKillVolumes) {
+            result.emplace_back(volume);
+        }
+        return result;
+    }
+
     inline std::vector<std::string> GetRemoveUnwantedTracksVolumesToKeep() const {
         std::vector<std::string> result;
         for (const auto& volume : fRemoveUnwantedTracksVolumesToKeep) {
