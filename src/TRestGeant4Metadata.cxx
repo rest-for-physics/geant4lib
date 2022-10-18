@@ -593,6 +593,16 @@
 /// 	<volume sensitiveVolume="gas" maxStepSize="1mm" />
 /// \endcode
 ///
+/// The option `removeUnwantedTracks` can optionally be enabled inside detector section:
+///
+/// <detector><removeUnwantedTracks enabled="true" keepZeroEnergyTracks="true"/></detector>
+///
+/// This option will remove all tracks that do not deposit energy in any of the sensitive volumes or in any of
+/// the volumes marked as 'keepTracks' (for instance <volume name="veto" keepTracks="true" />).
+///
+/// By default tracks are removed if they do not deposit energy in these volumes but the parameter
+/// 'keepZeroEnergyTracks' can be set to true so that all processes are registered, for example a neutron
+/// capture taking place in one of the volumes which does not result in energy deposition.
 ///
 /// ## 4. The biasing volumes section (optional)
 ///
