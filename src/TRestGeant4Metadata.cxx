@@ -593,6 +593,20 @@
 /// 	<volume sensitiveVolume="gas" maxStepSize="1mm" />
 /// \endcode
 ///
+/// The option `removeUnwantedTracks` can optionally be enabled inside detector section:
+///
+/// <detector><removeUnwantedTracks enabled="true" keepZeroEnergyTracks="true"/></detector>
+///
+/// This option will remove all tracks that do not deposit energy in any of the sensitive volumes or in any of
+/// the volumes marked as 'keepTracks' (for instance <volume name="veto" keepTracks="true" />).
+///
+/// By default tracks are removed if they do not deposit energy in these volumes but the parameter
+/// 'keepZeroEnergyTracks' can be set to true so that all processes are registered, for example a neutron
+/// capture taking place in one of the volumes which does not result in energy deposition.
+///
+/// The `kill="true"` option can be used in the volume definition (<volume name="shield" kill="true" />)
+/// to stop a track after entering the volume. The track will be immediately killed and its energy deposition
+/// won't be computed. This is useful to speed up certain kinds of simulations.
 ///
 /// ## 4. The biasing volumes section (optional)
 ///
@@ -1255,6 +1269,12 @@ void TRestGeant4Metadata::ReadDetector() {
             isKeepTracks = StringToBool(isKeepTracksValue);
         }
 
+        bool isKill = false;
+        const string isKillValue = GetFieldValue("kill", volumeDefinition);
+        if (isKillValue != "Not defined") {
+            isKill = StringToBool(isKillValue);
+        }
+
         Double_t chance = StringToDouble(GetFieldValue("chance", volumeDefinition));
         if (chance == -1 || chance < 0) {
             chance = 1.0;
@@ -1273,6 +1293,9 @@ void TRestGeant4Metadata::ReadDetector() {
             }
             if (fRemoveUnwantedTracks && isKeepTracks) {
                 fRemoveUnwantedTracksVolumesToKeep.insert(physical);
+            }
+            if (isKill) {
+                fKillVolumes.insert(physical);
             }
         }
         volumeDefinition = GetNextElement(volumeDefinition);
