@@ -128,12 +128,15 @@
 /// registered as a fully independent event. Therefore, the total number of
 /// registered events could be higher than the initial number of events.
 ///
-/// * **saveAllEvents**: If active, this parameter will mark all the volumes
+/// * **saveAllEvents**: If enabled, this parameter will mark all the volumes
 /// of the geometry as active, and it will ignore the energy range definition
 /// in the *detector* section. Any Geant4 simulated track from any event or
 /// subevent will be registered even if no energy deposition have been produced.
 /// In future, this parameter would be better implemented inside `<detector`
 /// definition.
+///
+/// * **printProgress**: if enabled, a message showing the progress of the simulation will be printed
+/// periodically. This option is enabled by default.
 ///
 /// The following example illustrates the definition of the common simulation
 /// parameters.
@@ -822,8 +825,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
 
-    fPrintProgress = ToUpper(GetParameter("printProgress", "false")) == "TRUE" ||
-                     ToUpper(GetParameter("printProgress", "off")) == "ON";
+    fPrintProgress = ToUpper(GetParameter("printProgress", "true")) == "TRUE" ||
+                     ToUpper(GetParameter("printProgress", "on")) == "ON";
 
     fRegisterEmptyTracks = ToUpper(GetParameter("registerEmptyTracks", "false")) == "TRUE" ||
                            ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
