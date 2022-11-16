@@ -16,6 +16,7 @@ enum class SpatialGeneratorTypes {
     VOLUME,
     SURFACE,
     POINT,
+    COSMIC,
 };
 
 std::string SpatialGeneratorTypesToString(const SpatialGeneratorTypes&);
@@ -46,7 +47,6 @@ std::string EnergyDistributionTypesToString(const EnergyDistributionTypes&);
 EnergyDistributionTypes StringToEnergyDistributionTypes(const std::string&);
 
 enum class EnergyDistributionFormulas {
-    COSMIC_MUONS,
     COSMIC_NEUTRONS,
     COSMIC_GAMMAS,
 };
