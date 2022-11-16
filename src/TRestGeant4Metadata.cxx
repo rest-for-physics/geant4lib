@@ -822,6 +822,10 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
     fNEvents = nEventsString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(nEventsString);
 
+    const auto fNRequestedEntriesString = GetParameter("nRequestedEntries");
+    fNRequestedEntries =
+        fNRequestedEntriesString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(fNRequestedEntriesString);
+
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
 
