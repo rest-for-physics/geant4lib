@@ -219,6 +219,16 @@
 ///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
 /// \endcode
 ///
+/// * **cosmic**: This is a special type of generator that is used to simulate cosmic particles.
+/// It takes no parameters. It uses the world size to produce an homogeneous cosmic ray flux (according to
+/// energy and angular distribution, which can be correlated) in the whole world volume. It is recommended to
+/// use this instead of other approaches such as an infinite plane above as this generator will be
+/// significantly more efficient since all particles are directed roughly towards the detector.
+/// A working example can be found in the `restG4/examples/12.Generators` directory.
+///  \code
+///     <generator type="cosmic"> ... </generator>
+/// \endcode
+///
 /// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the
 /// center of the cylinder, while the three elements of "size" defines respectively
 /// radius, length, nothing of the cylinder.
