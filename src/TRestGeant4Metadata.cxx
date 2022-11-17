@@ -898,6 +898,45 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 /// Check for more details in the general description of this class.
 ///
+
+inline Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
+    if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
+            fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
+        RESTError
+            << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'cosmic' generator"
+            << RESTendl;
+        exit(1);
+    }
+    const auto source = GetParticleSource();
+    if (TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
+            source->GetEnergyDistributionType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypes::FORMULA2) {
+        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula2' "
+                     "energy distribution"
+                  << RESTendl;
+        exit(1);
+    }
+    if (TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+            source->GetAngularDistributionType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::FORMULA2) {
+        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula' "
+                     "angular distribution"
+                  << RESTendl;
+        exit(1);
+    }
+    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTerm();
+    const auto energyRange = source->GetEnergyDistributionRange();
+    const auto angularRange = source->GetAngularDistributionRange();
+    auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
+    // counts per second per cm2 (we multiply by 2Pi to integrate over phi)
+    const auto countsPerSecondPerCm2 =
+        M_2_PI * function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y());
+    const auto countsPerSecond = countsPerSecondPerCm2 / surface;
+    const auto seconds = fNEvents / countsPerSecond;
+    return seconds;
+}
+
 void TRestGeant4Metadata::ReadBiasing() {
     TiXmlElement* biasingDefinition = GetElement("biasing");
     if (biasingDefinition == nullptr) {

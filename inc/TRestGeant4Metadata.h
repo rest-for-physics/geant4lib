@@ -348,6 +348,7 @@ class TRestGeant4Metadata : public TRestMetadata {
         return result;
     }
 
+    Double_t GetEquivalentSimulatedTime() const;
     /// Returns a std::string with the name of the active volume with index n
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }
 

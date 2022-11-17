@@ -129,6 +129,10 @@ class TRestGeant4PrimaryGeneratorInfo {
     /// \brief The size of the world volume (box half lengths for x, y and z)
     TVector3 fSpatialGeneratorWorldSize;
 
+
+    std::tuple<Double_t, Double_t> fSpatialGeneratorCosmicEnergyRange;
+    std::tuple<Double_t, Double_t> fSpatialGeneratorCosmicAngularRange;
+
    public:
     /// \brief Returns a std::string specifying the generator type (volume, surface, point, virtualWall, etc )
     inline TString GetSpatialGeneratorType() const { return fSpatialGeneratorType; }
@@ -144,8 +148,8 @@ class TRestGeant4PrimaryGeneratorInfo {
     /// meaning only when using point and virtual generator types.
     inline TVector3 GetSpatialGeneratorPosition() const { return fSpatialGeneratorPosition; }
 
-    /// \brief Returns a 3d-std::vector, fGenRotation, with the XYZ rotation angle values in degrees. This
-    /// value is used by virtualWall, virtualCircleWall and virtualCylinder generator types.
+    /// \brief Returns a 3d-std::vector, fGenRotation, with the XYZ rotation angle values in degrees.
+    /// This value is used by virtualWall, virtualCircleWall and virtualCylinder generator types.
     inline TVector3 GetSpatialGeneratorRotationAxis() const { return fSpatialGeneratorRotationAxis; }
 
     /// \brief Returns the degree of rotation
