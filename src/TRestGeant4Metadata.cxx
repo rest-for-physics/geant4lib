@@ -899,7 +899,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 /// Check for more details in the general description of this class.
 ///
 
-inline Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
+Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
             fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
         TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {

@@ -23,6 +23,7 @@ class TRestGeant4PhysicsInfo {
     std::map<TString, TString> fProcessTypesMap = {};  // process name -> process type
 
     std::mutex fMutex;  //!
+
    public:
     TString GetProcessName(Int_t id) const;
     Int_t GetProcessID(const TString& processName) const;

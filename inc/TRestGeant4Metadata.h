@@ -170,13 +170,13 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns an immutable reference to the geometry info
-    inline TRestGeant4GeometryInfo GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
+    inline const TRestGeant4GeometryInfo& GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
 
     /// \brief Returns an immutable reference to the physics info
     inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
 
     /// \brief Returns an immutable reference to the primary generator info
-    inline TRestGeant4PrimaryGeneratorInfo GetGeant4PrimaryGeneratorInfo() const {
+    inline const TRestGeant4PrimaryGeneratorInfo& GetGeant4PrimaryGeneratorInfo() const {
         return fGeant4PrimaryGeneratorInfo;
     }
 
