@@ -129,10 +129,6 @@ class TRestGeant4PrimaryGeneratorInfo {
     /// \brief The size of the world volume (box half lengths for x, y and z)
     TVector3 fSpatialGeneratorWorldSize;
 
-
-    std::tuple<Double_t, Double_t> fSpatialGeneratorCosmicEnergyRange;
-    std::tuple<Double_t, Double_t> fSpatialGeneratorCosmicAngularRange;
-
    public:
     /// \brief Returns a std::string specifying the generator type (volume, surface, point, virtualWall, etc )
     inline TString GetSpatialGeneratorType() const { return fSpatialGeneratorType; }
@@ -159,7 +155,11 @@ class TRestGeant4PrimaryGeneratorInfo {
     inline TVector3 GetSpatialGeneratorSize() const { return fSpatialGeneratorSize; }
 
     inline TVector3 GetSpatialGeneratorWorldSize() const { return fSpatialGeneratorWorldSize; }
-    inline Double_t GetSpatialGeneratorCosmicRadius() const { return fSpatialGeneratorWorldSize.Mag(); }
+
+    /// \brief Returns cosmic generator radius (cm)
+    inline Double_t GetSpatialGeneratorCosmicRadius() const { return fSpatialGeneratorWorldSize.Mag() / 10.; }
+
+    /// \brief Returns cosmic surface term (cm2) for simulation time computation
     inline Double_t GetSpatialGeneratorCosmicSurfaceTerm() const {
         const auto radius = GetSpatialGeneratorCosmicRadius();
         return M_PI * radius * radius;
