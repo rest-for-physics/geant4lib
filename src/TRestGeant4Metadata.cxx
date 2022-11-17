@@ -207,15 +207,14 @@
 /// * **gdml**: Bound the generator to a certain gdml component. No need to define size
 /// and position. Needs another "from" parameter. If the "from" parameter is defined,
 /// we can omit `shape="gdml"` parameter.
-///  \code
-///     // We launch particles from random positions inside the vessel
-///     // volume defined in our GDML geometry
+/// \code
+///     // We launch particles from random positions inside the vessel volume defined in our GDML geometry
 ///     <generator type="volume" from="vessel" > ... </generator>
 /// \endcode
 ///
 /// * **box**: Bound the generator to a virtual box area. "position" defines the center of the
 /// box, while the three elements of "size" defines respectively x, y, z length of the box.
-///  \code
+/// \code
 ///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
 /// \endcode
 ///
@@ -224,8 +223,12 @@
 /// energy and angular distribution, which can be correlated) in the whole world volume. It is recommended to
 /// use this instead of other approaches such as an infinite plane above as this generator will be
 /// significantly more efficient since all particles are directed roughly towards the detector.
+/// To retrieve the surface term for computing the equivalent surface area (to use for equivalent simulation
+/// time calculation etc.), use the helper method
+/// `TRestGeant4PrimaryGeneratorInfo::GetSpatialGeneratorCosmicSurfaceTerm()`, which can be called (from this
+/// class) via `GetGeant4PrimaryGeneratorInfo().GetSpatialGeneratorCosmicSurfaceTerm()`.
 /// A working example can be found in the `restG4/examples/12.Generators` directory.
-///  \code
+/// \code
 ///     <generator type="cosmic"> ... </generator>
 /// \endcode
 ///
@@ -505,7 +508,7 @@
 /// The information we store in the ROOT file can be defined using the
 /// detector section. The detector section is defined as follows
 ///
-///  \code
+/// \code
 ///  <detector>
 ///     <parameter name="energyRange" value="(0,5)" units="MeV" />
 ///      <volume name="gas" sensitive="true" chance="1" />
