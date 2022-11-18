@@ -82,34 +82,30 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// A GDML materials reference introduced in the header of the GDML of materials definition
     TString fMaterialsReference;
 
-    /// \brief A 2d-std::vector storing the energy range, in keV, to decide if a particular
-    /// event should be written to disk or not.
+    /// \brief A 2d-std::vector storing the energy range, in keV, to decide if a particular event should be
+    /// written to disk or not.
     TVector2 fEnergyRangeStored = {0, 1E20};
 
     /// \brief A std::vector to store the names of the active volumes.
     std::vector<TString> fActiveVolumes;
 
-    /// \brief A std::vector to store the probability value to write to disk the hits in a
-    /// particular event.
+    /// \brief A std::vector to store the probability value to write to disk the hits in a particular event.
     std::vector<Double_t> fChance;
 
     /// \brief A std::vector to store the maximum step size at a particular volume.
     std::vector<Double_t> fMaxStepSize;
 
-    /// \brief It the defines the primary source properties, particle type, momentum,
-    /// energy, etc.
+    /// \brief It the defines the primary source properties, particle type, momentum, energy, etc.
     std::vector<TRestGeant4ParticleSource*> fParticleSource;  //->
 
-    /// \brief The number of biasing volumes used in the simulation. If zero, no biasing
-    /// technique is used.
+    /// \brief The number of biasing volumes used in the simulation. If zero, no biasing technique is used.
     Int_t fNBiasingVolumes = 0;
 
     /// A std::vector containing the biasing volume properties.
     std::vector<TRestGeant4BiasingVolume> fBiasingVolumes;
 
     /// \brief The maximum target step size, in mm, allowed in Geant4 for the target
-    /// volume (usually the gas volume). It is obsolete now. We define it at the active
-    /// volume.
+    /// volume (usually the gas volume). It is obsolete now. We define it at the active volume.
     Double_t fMaxTargetStepSize = 0;  //!
 
     /// \brief A time gap, in us, determining if an energy hit should be considered (and
@@ -161,7 +157,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
     /// behaviour. If it is disabled then empty tracks will not be written to disk at the risk of loosing
-    /// traceability, but saving disk space and likely improving computing performance for extense events.
+    /// traceability, but saving disk space and likely improving computing performance for large events.
     Bool_t fRegisterEmptyTracks = true;
 
     /// The world magnetic field
@@ -170,8 +166,7 @@ class TRestGeant4Metadata : public TRestMetadata {
    public:
     std::set<std::string> fActiveVolumesSet = {};  //! // Used for faster lookup
 
-    /// \brief Returns the random seed that was used to generate the corresponding
-    /// geant4 dataset.
+    /// \brief Returns the random seed that was used to generate the corresponding geant4 dataset.
     inline Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns an immutable reference to the geometry info
@@ -185,8 +180,7 @@ class TRestGeant4Metadata : public TRestMetadata {
         return fGeant4PrimaryGeneratorInfo;
     }
 
-    /// \brief Returns a std::string with the version of Geant4 used on the event data
-    /// simulation
+    /// \brief Returns a std::string with the version of Geant4 used on the event data simulation
     inline TString GetGeant4Version() const { return fGeant4Version; }
 
     size_t GetGeant4VersionMajor() const;
@@ -225,8 +219,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// It returns false if `registerEmptyTracks` parameter was set to false.
     inline Bool_t RegisterEmptyTracks() const { return fRegisterEmptyTracks; }
 
-    /// \brief Used exclusively by restG4 to set the value of the random seed used on
-    /// Geant4 simulation.
+    /// \brief Used exclusively by restG4 to set the value of the random seed used on Geant4 simulation.
     inline void SetSeed(Long_t seed) { fSeed = seed; }
 
     /// Enables or disables the save all events feature
@@ -257,9 +250,8 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
 
-    ///////////////////////////////////////////////////////////
-
     // Direct access to sources definition in primary generator
+    ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
     inline Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
@@ -282,8 +274,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Return the biasing volume with index n
     inline TRestGeant4BiasingVolume GetBiasingVolume(int n) { return fBiasingVolumes[n]; }
 
-    /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique
-    /// is not being used.
+    /// \brief Returns the number of biasing volumes defined. If 0 the biasing technique is not being used.
     inline Int_t isBiasingActive() const { return fBiasingVolumes.size(); }
 
     /// Returns a std::string with the name of the sensitive volume.
@@ -311,12 +302,12 @@ class TRestGeant4Metadata : public TRestMetadata {
         fSensitiveVolumes.push_back(volume);
     }
 
-    /// \brief Returns the probability per event to register (write to disk) hits in the
-    /// storage volume with index n.
+    /// \brief Returns the probability per event to register (write to disk) hits in the storage volume with
+    /// index n.
     inline Double_t GetStorageChance(Int_t n) const { return fChance[n]; }
 
-    /// Returns the probability per event to register (write to disk) hits in a
-    /// GDML volume given its geometry name.
+    /// Returns the probability per event to register (write to disk) hits in a GDML volume given its geometry
+    /// name.
     Double_t GetStorageChance(TString volume);
 
     Double_t GetMaxStepSize(const TString& volume);
@@ -356,6 +347,8 @@ class TRestGeant4Metadata : public TRestMetadata {
         }
         return result;
     }
+
+    Double_t GetEquivalentSimulatedTime() const;
 
     /// Returns a std::string with the name of the active volume with index n
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }

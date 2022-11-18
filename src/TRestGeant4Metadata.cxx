@@ -207,16 +207,29 @@
 /// * **gdml**: Bound the generator to a certain gdml component. No need to define size
 /// and position. Needs another "from" parameter. If the "from" parameter is defined,
 /// we can omit `shape="gdml"` parameter.
-///  \code
-///     // We launch particles from random positions inside the vessel
-///     // volume defined in our GDML geometry
+/// \code
+///     // We launch particles from random positions inside the vessel volume defined in our GDML geometry
 ///     <generator type="volume" from="vessel" > ... </generator>
 /// \endcode
 ///
 /// * **box**: Bound the generator to a virtual box area. "position" defines the center of the
 /// box, while the three elements of "size" defines respectively x, y, z length of the box.
-///  \code
+/// \code
 ///     <generator type="volume" shape="box" size="(10,20,20)" position="(0,0,5)" > ... </generator>
+/// \endcode
+///
+/// * **cosmic**: This is a special type of generator that is used to simulate cosmic particles.
+/// It takes no parameters. It uses the world size to produce an homogeneous cosmic ray flux (according to
+/// energy and angular distribution, which can be correlated) in the whole world volume. It is recommended to
+/// use this instead of other approaches such as an infinite plane above as this generator will be
+/// significantly more efficient since all particles are directed roughly towards the detector.
+/// To retrieve the surface term for computing the equivalent surface area (to use for equivalent simulation
+/// time calculation etc.), use the helper method
+/// `TRestGeant4PrimaryGeneratorInfo::GetSpatialGeneratorCosmicSurfaceTerm()`, which can be called (from this
+/// class) via `GetGeant4PrimaryGeneratorInfo().GetSpatialGeneratorCosmicSurfaceTerm()`.
+/// A working example can be found in the `restG4/examples/12.Generators` directory.
+/// \code
+///     <generator type="cosmic"> ... </generator>
 /// \endcode
 ///
 /// * **cylinder**: Bound the generator to a virtual cylinder area. "position" defines the
@@ -495,7 +508,7 @@
 /// The information we store in the ROOT file can be defined using the
 /// detector section. The detector section is defined as follows
 ///
-///  \code
+/// \code
 ///  <detector>
 ///     <parameter name="energyRange" value="(0,5)" units="MeV" />
 ///      <volume name="gas" sensitive="true" chance="1" />
@@ -822,6 +835,10 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
     fNEvents = nEventsString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(nEventsString);
 
+    const auto fNRequestedEntriesString = GetParameter("nRequestedEntries");
+    fNRequestedEntries =
+        fNRequestedEntriesString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(fNRequestedEntriesString);
+
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
 
@@ -881,6 +898,45 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 /// Check for more details in the general description of this class.
 ///
+
+Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
+    if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
+            fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
+        RESTError
+            << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'cosmic' generator"
+            << RESTendl;
+        exit(1);
+    }
+    const auto source = GetParticleSource();
+    if (TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
+            source->GetEnergyDistributionType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypes::FORMULA2) {
+        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula2' "
+                     "energy distribution"
+                  << RESTendl;
+        exit(1);
+    }
+    if (TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+            source->GetAngularDistributionType().Data()) !=
+        TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::FORMULA2) {
+        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula' "
+                     "angular distribution"
+                  << RESTendl;
+        exit(1);
+    }
+    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTerm();
+    const auto energyRange = source->GetEnergyDistributionRange();
+    const auto angularRange = source->GetAngularDistributionRange();
+    auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
+    // counts per second per cm2 (we multiply by 2Pi to integrate over phi)
+    const auto countsPerSecondPerCm2 =
+        M_2_PI * function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y());
+    const auto countsPerSecond = countsPerSecondPerCm2 / surface;
+    const auto seconds = fNEvents / countsPerSecond;
+    return seconds;
+}
+
 void TRestGeant4Metadata::ReadBiasing() {
     TiXmlElement* biasingDefinition = GetElement("biasing");
     if (biasingDefinition == nullptr) {
