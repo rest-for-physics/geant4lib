@@ -225,10 +225,9 @@
 /// significantly more efficient since all particles are directed roughly towards the detector.
 /// To retrieve the surface term for computing the equivalent surface area (to use for equivalent simulation
 /// time calculation etc.), use the helper method
-/// `TRestGeant4PrimaryGeneratorInfo::GetSpatialGeneratorCosmicSurfaceTerm()`, which can be called (from this
-/// class) via `GetGeant4PrimaryGeneratorInfo().GetSpatialGeneratorCosmicSurfaceTerm()`.
-/// A working example can be found in the `restG4/examples/12.Generators` directory.
-/// \code
+/// `TRestGeant4PrimaryGeneratorInfo::GetSpatialGeneratorCosmicSurfaceTermCm2()`, which can be called (from
+/// this class) via `GetGeant4PrimaryGeneratorInfo().GetSpatialGeneratorCosmicSurfaceTermCm2()`. A working
+/// example can be found in the `restG4/examples/12.Generators` directory. \code
 ///     <generator type="cosmic"> ... </generator>
 /// \endcode
 ///
@@ -925,7 +924,7 @@ Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
                   << RESTendl;
         exit(1);
     }
-    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTerm();
+    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
     const auto energyRange = source->GetEnergyDistributionRange();
     const auto angularRange = source->GetAngularDistributionRange();
     auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
