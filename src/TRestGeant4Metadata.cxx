@@ -898,7 +898,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 /// Check for more details in the general description of this class.
 ///
 
-Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
+Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
     if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
             fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
         TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
@@ -924,14 +924,25 @@ Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
                   << RESTendl;
         exit(1);
     }
-    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
+
     const auto energyRange = source->GetEnergyDistributionRange();
     const auto angularRange = source->GetAngularDistributionRange();
     auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
     // counts per second per cm2 (we multiply by 2Pi to integrate over phi)
     const auto countsPerSecondPerCm2 =
         M_2_PI * function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y());
+    return countsPerSecondPerCm2;
+}
+
+Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
+    const auto countsPerSecondPerCm2 = GetCosmicFluxInCountsPerCm2PerSecond();
+    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
     const auto countsPerSecond = countsPerSecondPerCm2 * surface;
+    return countsPerSecond;
+}
+
+Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
+    const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond();
     const auto seconds = fNEvents / countsPerSecond;
     return seconds;
 }
