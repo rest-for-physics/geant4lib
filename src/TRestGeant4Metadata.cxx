@@ -932,7 +932,7 @@ Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     // counts per second per cm2 (we multiply by 2Pi to integrate over phi)
     const auto countsPerSecondPerCm2 =
         M_2_PI * function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y());
-    const auto countsPerSecond = countsPerSecondPerCm2 / surface;
+    const auto countsPerSecond = countsPerSecondPerCm2 * surface;
     const auto seconds = fNEvents / countsPerSecond;
     return seconds;
 }
