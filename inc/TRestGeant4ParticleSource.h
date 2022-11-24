@@ -39,14 +39,14 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     TString fAngularDistributionType = "Flux";
     TString fAngularDistributionFilename;
     TString fAngularDistributionNameInFile;
-    size_t fAngularDistributionFormulaNPoints = 200;
+    size_t fAngularDistributionFormulaNPoints = 500;
     TF1* fAngularDistributionFunction = nullptr;
     TVector2 fAngularDistributionRange;
 
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
     TString fEnergyDistributionNameInFile;
-    size_t fEnergyDistributionFormulaNPoints = 500;
+    size_t fEnergyDistributionFormulaNPoints = 5000;
     TF1* fEnergyDistributionFunction = nullptr;
     TVector2 fEnergyDistributionRange;
 

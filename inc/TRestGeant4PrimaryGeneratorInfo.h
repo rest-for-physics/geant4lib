@@ -156,12 +156,12 @@ class TRestGeant4PrimaryGeneratorInfo {
 
     inline TVector3 GetSpatialGeneratorWorldSize() const { return fSpatialGeneratorWorldSize; }
 
-    /// \brief Returns cosmic generator radius (cm)
-    inline Double_t GetSpatialGeneratorCosmicRadius() const { return fSpatialGeneratorWorldSize.Mag() / 10.; }
+    /// \brief Returns cosmic generator radius (mm)
+    inline Double_t GetSpatialGeneratorCosmicRadius() const { return fSpatialGeneratorWorldSize.Mag(); }
 
     /// \brief Returns cosmic surface term (cm2) for simulation time computation
-    inline Double_t GetSpatialGeneratorCosmicSurfaceTerm() const {
-        const auto radius = GetSpatialGeneratorCosmicRadius();
+    inline Double_t GetSpatialGeneratorCosmicSurfaceTermCm2() const {
+        const auto radius = GetSpatialGeneratorCosmicRadius() / 10.;
         return M_PI * radius * radius;
     }
 

@@ -360,13 +360,14 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
     const EnergyAndAngularDistributionFormulas& type) {
     switch (type) {
         case EnergyAndAngularDistributionFormulas::COSMIC_MUONS: {
-            // GUAN formula from https://arxiv.org/pdf/1509.06176.pdf
+            // Guan formula from https://arxiv.org/pdf/1509.06176.pdf
             // muon rest mass is 105.7 MeV
-            // formula returns energy in keV
+            // energy in keV
+            // already integrated in phi (*2pi): formula returns (counts/cm2/s)/keV/rad(theta)
             const char* title = "Cosmic Muons Energy and Angular";
             auto f =
                 TF2(title,
-                    "0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "2*TMath::Pi()*1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
                     "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
                     "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
                     ")/(0.982960),0.5),1.29))),-2.7)*(1./"
@@ -376,7 +377,7 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
                     "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
                     "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
                     "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
-                    0.0, 5.0E9, 0, TMath::Pi() / 2.);
+                    2.0E5, 5.0E9, 0, TMath::Pi() / 2.);
             f.SetTitle(title);
             /*
              * we need to increase the number of bins to get a smooth distribution
