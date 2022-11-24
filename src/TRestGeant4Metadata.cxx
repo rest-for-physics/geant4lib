@@ -227,7 +227,8 @@
 /// time calculation etc.), use the helper method
 /// `TRestGeant4PrimaryGeneratorInfo::GetSpatialGeneratorCosmicSurfaceTermCm2()`, which can be called (from
 /// this class) via `GetGeant4PrimaryGeneratorInfo().GetSpatialGeneratorCosmicSurfaceTermCm2()`. A working
-/// example can be found in the `restG4/examples/12.Generators` directory. \code
+/// example can be found in the `restG4/examples/12.Generators` directory
+/// \code
 ///     <generator type="cosmic"> ... </generator>
 /// \endcode
 ///
