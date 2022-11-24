@@ -366,7 +366,7 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
             const char* title = "Cosmic Muons Energy and Angular";
             auto f =
                 TF2(title,
-                    "0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
                     "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
                     "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
                     ")/(0.982960),0.5),1.29))),-2.7)*(1./"
