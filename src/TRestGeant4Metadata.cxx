@@ -928,9 +928,9 @@ Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
     const auto energyRange = source->GetEnergyDistributionRange();
     const auto angularRange = source->GetAngularDistributionRange();
     auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
-    // counts per second per cm2 (we multiply by 2Pi to integrate over phi)
+    // counts per second per cm2 (distribution is already integrated over uniform phi)
     const auto countsPerSecondPerCm2 =
-        M_2_PI * function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y());
+        function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y(), 1E-9);
     return countsPerSecondPerCm2;
 }
 
