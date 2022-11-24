@@ -348,6 +348,8 @@ class TRestGeant4Metadata : public TRestMetadata {
         return result;
     }
 
+    Double_t GetCosmicFluxInCountsPerCm2PerSecond() const;
+    Double_t GetCosmicIntensityInCountsPerSecond() const;
     Double_t GetEquivalentSimulatedTime() const;
 
     /// Returns a std::string with the name of the active volume with index n
