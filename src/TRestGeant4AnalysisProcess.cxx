@@ -29,27 +29,6 @@
 /// and metadata information and it will add the observables defined by
 /// the user to the analysisTree.
 ///
-/// ### Parameters
-///
-/// This process receives two optional parameters to define the energy
-/// range  of the events to be processed. Only the events that are within
-/// the range `(lowEnergyCut, highEnergyCut)` will be further
-/// considered. The events outside this energy range will be rejected, and
-/// will be not processed in future steps. The processing continues
-/// immediately to the next event.
-///
-/// The following lines of code ilustrate how to implement these
-/// parameters inside the TRestGeant4AnalysisProcess metadata section.
-///
-/// \code
-///    // Only events between 100keV-1MeV will be further considered
-///    <parameter name="lowEnergyCut" value="100" units="keV" >
-///    <parameter name="highEnergyCut" value="1" units="MeV" >
-/// \endcode
-///
-/// \note If these parameters are not defined the low and/or high energy
-/// cuts will be just ignored.
-///
 /// ### Observables
 ///
 /// This process includes generic observables by using a common pattern
@@ -426,10 +405,8 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
         cout << "Sensitive volume Energy : " << energy << endl;
         cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;
-        ;
     }
 
-    /* {{{ Event origin variables */
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
     SetObservableValue("xOriginPrimary", xOrigin);
 
@@ -477,43 +454,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
     }
 
-    /*
-    for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
-        string obsName = fProcessObservables[n];
-        TString processName = fProcessName[n];
-        if ((processName == "RadiactiveDecay") && (fOutputG4Event->isRadiactiveDecayInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Photoelectric") && (fOutputG4Event->isPhotoElectricInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        // else if((processName=="PhotonNuclear")&&(
-        // fOutputG4Event->isPhotonNuclearInVolume(fVolumeID3[n]) ))
-        // SetObservableValue( obsName, 1 );
-        else if ((processName == "Bremstralung") && (fOutputG4Event->isBremstralungInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "HadElastic") && (fOutputG4Event->isHadElasticInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "NInelastic") && (fOutputG4Event->isNeutronInelasticInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "NCapture") && (fOutputG4Event->isNCaptureInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Compton") && (fOutputG4Event->isComptonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Neutron") && (fOutputG4Event->isNeutronInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Alpha") && (fOutputG4Event->isAlphaInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Argon") && (fOutputG4Event->isArgonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Xenon") && (fOutputG4Event->isXenonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-        else if ((processName == "Neon") && (fOutputG4Event->isNeonInVolume(fVolumeID3[n])))
-            SetObservableValue(obsName, 1);
-
-        else
-            SetObservableValue(obsName, 0);
-    }
-     */
-
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
         string obsName = fTrackCounterObservables[n];
@@ -553,38 +493,9 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "----------------------------" << endl;
     }
 
-    /// We should use here ApplyCut
-    if (energy < fLowEnergyCut) return nullptr;
-    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
-
     return fOutputG4Event;
 }
 
 ///////////////////////////////////////////////
-/// \brief Function to include required actions after all events have been
-/// processed.
-///
-void TRestGeant4AnalysisProcess::EndProcess() {
-    // Function to be executed once at the end of the process
-    // (after all events have been processed)
-
-    // Start by calling the EndProcess function of the abstract class.
-    // Comment this if you don't want it.
-    // TRestEventProcess::EndProcess();
-}
-
-///////////////////////////////////////////////
-/// \brief Function to read input parameters from the RML
-/// TRestGeant4AnalysisProcess metadata section
-///
-void TRestGeant4AnalysisProcess::InitFromConfigFile() {
-    fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
-    fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
-
-    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") {
-        fPerProcessSensitiveEnergy = true;
-    }
-    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true") {
-        fPerProcessSensitiveEnergyNorm = true;
-    }
-}
+/// \brief Function to include required actions after all events have been processed.
+void TRestGeant4AnalysisProcess::EndProcess() {}
