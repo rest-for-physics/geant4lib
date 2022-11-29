@@ -77,19 +77,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// A std::vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
     std::vector<std::string> fParticleTrackEdep;  //!
 
-    // TODO these two thresholds should become OBSOLETE. We must use now the more generic
-    // way ApplyCut() with the <cut ...> definition at the RML process definition.
-
-    /// A low energy cut. Events below the threshold will be not further processed.
-    Double_t fLowEnergyCut;
-
-    /// A high energy cut. Events above the threshold will be not further processed.
-    Double_t fHighEnergyCut;
-
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
-
-    void InitFromConfigFile() override;
 
     void Initialize() override;
 
@@ -112,9 +101,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        RESTMetadata << "Low energy cut : " << fLowEnergyCut << " keV" << RESTendl;
-        RESTMetadata << "High energy cut : " << fHighEnergyCut << " keV" << RESTendl;
-
         EndPrintProcess();
     }
 
@@ -128,6 +114,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestGeant4AnalysisProcess(const char* configFilename);
     ~TRestGeant4AnalysisProcess();
 
-    ClassDefOverride(TRestGeant4AnalysisProcess, 2);
+    ClassDefOverride(TRestGeant4AnalysisProcess, 3);
 };
 #endif

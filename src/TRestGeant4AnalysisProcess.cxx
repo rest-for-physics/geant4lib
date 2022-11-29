@@ -29,27 +29,6 @@
 /// and metadata information and it will add the observables defined by
 /// the user to the analysisTree.
 ///
-/// ### Parameters
-///
-/// This process receives two optional parameters to define the energy
-/// range  of the events to be processed. Only the events that are within
-/// the range `(lowEnergyCut, highEnergyCut)` will be further
-/// considered. The events outside this energy range will be rejected, and
-/// will be not processed in future steps. The processing continues
-/// immediately to the next event.
-///
-/// The following lines of code ilustrate how to implement these
-/// parameters inside the TRestGeant4AnalysisProcess metadata section.
-///
-/// \code
-///    // Only events between 100keV-1MeV will be further considered
-///    <parameter name="lowEnergyCut" value="100" units="keV" >
-///    <parameter name="highEnergyCut" value="1" units="MeV" >
-/// \endcode
-///
-/// \note If these parameters are not defined the low and/or high energy
-/// cuts will be just ignored.
-///
 /// ### Observables
 ///
 /// This process includes generic observables by using a common pattern
@@ -554,10 +533,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "----------------------------" << endl;
     }
 
-    /// We should use here ApplyCut
-    if (energy < fLowEnergyCut) return nullptr;
-    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
-
     return fOutputG4Event;
 }
 
@@ -572,17 +547,4 @@ void TRestGeant4AnalysisProcess::EndProcess() {
     // Start by calling the EndProcess function of the abstract class.
     // Comment this if you don't want it.
     // TRestEventProcess::EndProcess();
-}
-
-///////////////////////////////////////////////
-/// \brief Function to read input parameters from the RML
-/// TRestGeant4AnalysisProcess metadata section
-///
-void TRestGeant4AnalysisProcess::InitFromConfigFile() {
-    fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
-    fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
-
-    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") fPerProcessSensitiveEnergy = true;
-    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true")
-        fPerProcessSensitiveEnergyNorm = true;
 }
