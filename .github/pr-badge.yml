@@ -15,7 +15,3 @@
   when: "$additions < 100"
 - imageUrl: "https://gitlab.cern.ch/rest-for-physics/geant4lib/badges/$branchName/pipeline.svg"
   url: "https://gitlab.cern.ch/rest-for-physics/geant4lib/-/commits/$branchName"
-- imageUrl: "https://gitlab.cern.ch/rest-for-physics/restG4/badges/$branchName/pipeline.svg"
-  url: "https://gitlab.cern.ch/rest-for-physics/restG4/-/commits/$branchName"
-- imageUrl: "https://gitlab.cern.ch/rest-for-physics/framework/badges/$branchName/pipeline.svg"
-  url: "https://gitlab.cern.ch/rest-for-physics/framework/-/commits/$branchName"
