@@ -554,10 +554,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         cout << "----------------------------" << endl;
     }
 
-    /// We should use here ApplyCut
-    if (energy < fLowEnergyCut) return nullptr;
-    if (fHighEnergyCut > 0 && energy > fHighEnergyCut) return nullptr;
-
     return fOutputG4Event;
 }
 
@@ -579,9 +575,6 @@ void TRestGeant4AnalysisProcess::EndProcess() {
 /// TRestGeant4AnalysisProcess metadata section
 ///
 void TRestGeant4AnalysisProcess::InitFromConfigFile() {
-    fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
-    fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
-
     if (GetParameter("perProcessSensitiveEnergy", "false") == "true") fPerProcessSensitiveEnergy = true;
     if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true")
         fPerProcessSensitiveEnergyNorm = true;
