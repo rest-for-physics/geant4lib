@@ -29,27 +29,6 @@
 /// and metadata information and it will add the observables defined by
 /// the user to the analysisTree.
 ///
-/// ### Parameters
-///
-/// This process receives two optional parameters to define the energy
-/// range  of the events to be processed. Only the events that are within
-/// the range `(lowEnergyCut, highEnergyCut)` will be further
-/// considered. The events outside this energy range will be rejected, and
-/// will be not processed in future steps. The processing continues
-/// immediately to the next event.
-///
-/// The following lines of code ilustrate how to implement these
-/// parameters inside the TRestGeant4AnalysisProcess metadata section.
-///
-/// \code
-///    // Only events between 100keV-1MeV will be further considered
-///    <parameter name="lowEnergyCut" value="100" units="keV" >
-///    <parameter name="highEnergyCut" value="1" units="MeV" >
-/// \endcode
-///
-/// \note If these parameters are not defined the low and/or high energy
-/// cuts will be just ignored.
-///
 /// ### Observables
 ///
 /// This process includes generic observables by using a common pattern
