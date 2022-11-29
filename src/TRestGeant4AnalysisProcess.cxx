@@ -548,13 +548,3 @@ void TRestGeant4AnalysisProcess::EndProcess() {
     // Comment this if you don't want it.
     // TRestEventProcess::EndProcess();
 }
-
-///////////////////////////////////////////////
-/// \brief Function to read input parameters from the RML
-/// TRestGeant4AnalysisProcess metadata section
-///
-void TRestGeant4AnalysisProcess::InitFromConfigFile() {
-    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") fPerProcessSensitiveEnergy = true;
-    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true")
-        fPerProcessSensitiveEnergyNorm = true;
-}
