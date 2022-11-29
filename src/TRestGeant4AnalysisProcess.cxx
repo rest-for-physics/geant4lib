@@ -212,6 +212,7 @@
 ///
 /// <hr>
 ///
+
 #include "TRestGeant4AnalysisProcess.h"
 
 using namespace std;
@@ -292,16 +293,16 @@ void TRestGeant4AnalysisProcess::InitProcess() {
     fObservables = TRestEventProcess::ReadObservables();
 
     if (fPerProcessSensitiveEnergy) {
-        fObservables.push_back("PerProcessPhotoelectric");
-        fObservables.push_back("PerProcessCompton");
-        fObservables.push_back("PerProcessElectronicIoni");
-        fObservables.push_back("PerProcessAlphaIoni");
-        fObservables.push_back("PerProcessIonIoni");
-        fObservables.push_back("PerProcessHadronicIoni");
-        fObservables.push_back("PerProcessProtonIoni");
-        fObservables.push_back("PerProcessMsc");
-        fObservables.push_back("PerProcessHadronElastic");
-        fObservables.push_back("PerProcessNeutronElastic");
+        fObservables.emplace_back("PerProcessPhotoelectric");
+        fObservables.emplace_back("PerProcessCompton");
+        fObservables.emplace_back("PerProcessElectronicIoni");
+        fObservables.emplace_back("PerProcessAlphaIoni");
+        fObservables.emplace_back("PerProcessIonIoni");
+        fObservables.emplace_back("PerProcessHadronicIoni");
+        fObservables.emplace_back("PerProcessProtonIoni");
+        fObservables.emplace_back("PerProcessMsc");
+        fObservables.emplace_back("PerProcessHadronElastic");
+        fObservables.emplace_back("PerProcessNeutronElastic");
     }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
         cout << "fObservables[" << i << "] = " << fObservables[i] << endl;
@@ -334,7 +335,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 
         if (fObservables[i].find("MeanPos") != string::npos) {
             TString volName2 = fObservables[i].substr(0, fObservables[i].length() - 8).c_str();
-            std::string dirId = fObservables[i].substr(fObservables[i].length() - 1, 1).c_str();
+            std::string dirId = fObservables[i].substr(fObservables[i].length() - 1, 1);
 
             Int_t volId2 = fG4Metadata->GetActiveVolumeID(volName2);
             if (volId2 >= 0) {
@@ -394,21 +395,19 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             if (volId3 >= 0) {
                 fProcessObservables.push_back(fObservables[i]);
                 fVolumeID3.push_back(volId3);
-                fProcessName.push_back((string)processName);
+                fProcessName.emplace_back(processName.Data());
             }
         }
         if (fObservables[i].find("TracksCounter") != string::npos) {
-            TString partName = fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
-
+            TString particleName = fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
             fTrackCounterObservables.push_back(fObservables[i]);
-            fParticleTrackCounter.push_back((string)partName);
+            fParticleTrackCounter.emplace_back(particleName.Data());
         }
 
         if (fObservables[i].find("TracksEDep") != string::npos) {
-            TString partName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
-
+            TString particleName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
             fTracksEDepObservables.push_back(fObservables[i]);
-            fParticleTrackEdep.push_back((string)partName);
+            fParticleTrackEdep.emplace_back(particleName.Data());
         }
     }
 }
@@ -432,35 +431,35 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
 
     /* {{{ Event origin variables */
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
-    SetObservableValue((string) "xOriginPrimary", xOrigin);
+    SetObservableValue("xOriginPrimary", xOrigin);
 
     Double_t yOrigin = fOutputG4Event->GetPrimaryEventOrigin().Y();
-    SetObservableValue((string) "yOriginPrimary", yOrigin);
+    SetObservableValue("yOriginPrimary", yOrigin);
 
     Double_t zOrigin = fOutputG4Event->GetPrimaryEventOrigin().Z();
-    SetObservableValue((string) "zOriginPrimary", zOrigin);
+    SetObservableValue("zOriginPrimary", zOrigin);
 
     Double_t xDirection = fOutputG4Event->GetPrimaryEventDirection(0).X();
-    SetObservableValue((string) "xDirectionPrimary", xDirection);
+    SetObservableValue("xDirectionPrimary", xDirection);
 
     Double_t yDirection = fOutputG4Event->GetPrimaryEventDirection(0).Y();
-    SetObservableValue((string) "yDirectionPrimary", yDirection);
+    SetObservableValue("yDirectionPrimary", yDirection);
 
     Double_t zDirection = fOutputG4Event->GetPrimaryEventDirection(0).Z();
-    SetObservableValue((string) "zDirectionPrimary", zDirection);
+    SetObservableValue("zDirectionPrimary", zDirection);
 
     TVector3 v(xDirection, yDirection, zDirection);
-    SetObservableValue((string) "thetaPrimary", v.Theta());
-    SetObservableValue((string) "phiPrimary", v.Phi());
+    SetObservableValue("thetaPrimary", v.Theta());
+    SetObservableValue("phiPrimary", v.Phi());
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
-    SetObservableValue((string) "energyPrimary", energyPrimary);
+    SetObservableValue("energyPrimary", energyPrimary);
 
     Double_t energyTotal = fOutputG4Event->GetTotalDepositedEnergy();
-    SetObservableValue((string) "totalEdep", energyTotal);
+    SetObservableValue("totalEdep", energyTotal);
 
     Double_t size = fOutputG4Event->GetBoundingBoxSize();
-    SetObservableValue((string) "boundingSize", size);
+    SetObservableValue("boundingSize", size);
 
     // process names as named by Geant4
     // processes present here will be added to the list of observables which can be used to see if the event
@@ -472,7 +471,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
             containsProcess = 1;
         }
 
-        if (processName.size() > 0) {
+        if (!processName.empty()) {
             processName[0] = toupper(processName[0]);
             SetObservableValue("containsProcess" + processName, containsProcess);
         }
@@ -518,19 +517,19 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
         string obsName = fTrackCounterObservables[n];
-        SetObservableValue((string)obsName, nT);
+        SetObservableValue(obsName, nT);
     }
 
     for (unsigned int n = 0; n < fTracksEDepObservables.size(); n++) {
         Double_t energy = fOutputG4Event->GetEnergyDepositedByParticle(fParticleTrackEdep[n]);
         string obsName = fTracksEDepObservables[n];
-        SetObservableValue((string)obsName, energy);
+        SetObservableValue(obsName, energy);
     }
 
     for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
         Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
         string obsName = fEnergyInObservables[n];
-        SetObservableValue((string)obsName, en);
+        SetObservableValue(obsName, en);
     }
 
     for (unsigned int n = 0; n < fMeanPosObservables.size(); n++) {
@@ -546,7 +545,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         else if (fDirID[n] == (TString) "Z")
             mpos = fOutputG4Event->GetMeanPositionInVolume(fVolumeID2[n]).Z();
 
-        SetObservableValue((string)obsName, mpos);
+        SetObservableValue(obsName, mpos);
     }
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
@@ -582,7 +581,10 @@ void TRestGeant4AnalysisProcess::InitFromConfigFile() {
     fLowEnergyCut = GetDblParameterWithUnits("lowEnergyCut", (double)0);
     fHighEnergyCut = GetDblParameterWithUnits("highEnergyCut", (double)0);
 
-    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") fPerProcessSensitiveEnergy = true;
-    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true")
+    if (GetParameter("perProcessSensitiveEnergy", "false") == "true") {
+        fPerProcessSensitiveEnergy = true;
+    }
+    if (GetParameter("perProcessSensitiveEnergyNorm", "false") == "true") {
         fPerProcessSensitiveEnergyNorm = true;
+    }
 }
