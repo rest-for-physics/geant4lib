@@ -518,19 +518,19 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     for (unsigned int n = 0; n < fParticleTrackCounter.size(); n++) {
         Int_t nT = fOutputG4Event->GetNumberOfTracksForParticle(fParticleTrackCounter[n]);
         string obsName = fTrackCounterObservables[n];
-        SetObservableValue(obsName, nT);
+        SetObservableValue((string)obsName, nT);
     }
 
     for (unsigned int n = 0; n < fTracksEDepObservables.size(); n++) {
         Double_t energy = fOutputG4Event->GetEnergyDepositedByParticle(fParticleTrackEdep[n]);
         string obsName = fTracksEDepObservables[n];
-        SetObservableValue(obsName, energy);
+        SetObservableValue((string)obsName, energy);
     }
 
     for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
         Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
         string obsName = fEnergyInObservables[n];
-        SetObservableValue(obsName, en);
+        SetObservableValue((string)obsName, en);
     }
 
     for (unsigned int n = 0; n < fMeanPosObservables.size(); n++) {
