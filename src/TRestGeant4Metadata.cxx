@@ -1264,7 +1264,7 @@ void TRestGeant4Metadata::ReadDetector() {
     }
 
     const bool activateAllVolumes =
-        StringToBool(GetParameter("activateAllVolumes", detectorDefinition, "false"));
+        StringToBool(GetParameter("activateAllVolumes", detectorDefinition, "true"));
     RESTInfo << "TRestGeant4Metadata: Setting 'fActivateAllVolumes' to " << fActivateAllVolumes << RESTendl;
     fActivateAllVolumes = activateAllVolumes;
 
@@ -1400,8 +1400,8 @@ void TRestGeant4Metadata::ReadDetector() {
 
     // If the user did not add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
-    if (fActivateAllVolumes || GetNumberOfActiveVolumes() == 0) {
-        for (auto& name : fGeant4GeometryInfo.fGdmlNewPhysicalNames) {
+    if (fActivateAllVolumes) {
+        for (const auto& name : fGeant4GeometryInfo.GetAllPhysicalVolumes()) {
             if (!IsActiveVolume(name)) {
                 SetActiveVolume(name, 1, defaultStep);
                 RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1
@@ -1411,6 +1411,11 @@ void TRestGeant4Metadata::ReadDetector() {
     }
 
     fDetectorSectionInitialized = true;
+
+    if (GetNumberOfActiveVolumes() == 0) {
+        RESTError << "No active volumes defined. Please check the detector section" << RESTendl;
+        exit(1);
+    }
 }
 
 ///////////////////////////////////////////////
