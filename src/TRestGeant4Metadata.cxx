@@ -1286,7 +1286,7 @@ void TRestGeant4Metadata::ReadDetector() {
     TiXmlElement* volumeDefinition = GetElement("volume", detectorDefinition);
     while (volumeDefinition != nullptr) {
         string name = GetFieldValue("name", volumeDefinition);
-        if (name.empty() || name == "Not defined") {
+        if (name.empty()) {
             RESTError << "volume inside detector section defined without name" << RESTendl;
             exit(1);
         }
@@ -1329,19 +1329,19 @@ void TRestGeant4Metadata::ReadDetector() {
 
         bool isSensitive = false;
         const string isSensitiveValue = GetFieldValue("sensitive", volumeDefinition);
-        if (isSensitiveValue != "Not defined") {
+        if (isSensitiveValue.empty()) {
             isSensitive = StringToBool(isSensitiveValue);
         }
 
         bool isKeepTracks = isSensitive;
         const string isKeepTracksValue = GetFieldValue("keepTracks", volumeDefinition);
-        if (isKeepTracksValue != "Not defined") {
+        if (isKeepTracksValue.empty()) {
             isKeepTracks = StringToBool(isKeepTracksValue);
         }
 
         bool isKill = false;
         const string isKillValue = GetFieldValue("kill", volumeDefinition);
-        if (isKillValue != "Not defined") {
+        if (isKillValue.empty()) {
             isKill = StringToBool(isKillValue);
         }
 
