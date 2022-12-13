@@ -300,6 +300,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
 
     return fOutputG4Event;
      */
+    return fInputEvent;
 }
 
 ///////////////////////////////////////////////
