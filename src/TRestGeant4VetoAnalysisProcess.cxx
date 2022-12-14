@@ -173,7 +173,7 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
         }
     }
 
-    for (int i = 0; i < fVetoDetectorVolumes.size(); i++) {
+    for (unsigned int i = 0; i < fVetoDetectorVolumes.size(); i++) {
         const auto& vetoName = fVetoVolumes[i];
         const auto& vetoPosition = geometryInfo.GetPosition(vetoName);
 
@@ -354,7 +354,7 @@ void TRestGeant4VetoAnalysisProcess::PrintMetadata() {
     cout << "Number of veto detector volumes: " << fVetoDetectorVolumes.size() << endl;
 
     const auto& geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
-    for (int i = 0; i < fVetoVolumes.size(); i++) {
+    for (unsigned int i = 0; i < fVetoVolumes.size(); i++) {
         const auto& vetoName = fVetoVolumes[i];
         const auto& vetoPosition = geometryInfo.GetPosition(vetoName);
 

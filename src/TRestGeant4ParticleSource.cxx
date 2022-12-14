@@ -90,7 +90,7 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
 }
 
 TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string model) {
-    if (model.empty() || model == "geant4" || model.find(".dat") != -1) {
+    if (model.empty() || model == "geant4" || model.find(".dat") != string::npos) {
         // use default generator
         return new TRestGeant4ParticleSource();
     } else {
@@ -113,7 +113,7 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
 
 void TRestGeant4ParticleSource::InitFromConfigFile() {
     TString modelUse = GetParameter("use");
-    if (((string)modelUse).find(".dat") != -1) {
+    if (((string)modelUse).find(".dat") != string::npos) {
         string fullPathName = SearchFile((string)modelUse);
         if (fullPathName == "") {
             RESTError << "File not found: " << modelUse << RESTendl;
@@ -279,8 +279,8 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
     int headerFound = 0;
     for (int i = 0; i < 30; i++) {
         getline(infile, s);
-        if (s.find("#!bxdecay0 1.0.0") != -1) return false;
-        if (s.find("First event and full number of events:") != -1) {
+        if (s.find("#!bxdecay0 1.0.0") != string::npos) return false;
+        if (s.find("First event and full number of events:") != string::npos) {
             headerFound = 1;
             break;
         }
@@ -317,7 +317,7 @@ bool TRestGeant4ParticleSource::ReadOldDecay0File(TString fileName) {
             Int_t pID;
             Double_t momx, momy, momz, mass;
             Double_t energy = -1, momentum2;
-            Double_t x, y, z;
+            Double_t x = 0, y = 0, z = 0;
 
             infile >> pID >> momx >> momy >> momz >> time;
             // infile >> x >> y >> z;
