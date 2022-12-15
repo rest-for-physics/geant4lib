@@ -37,6 +37,7 @@
 #include <iostream>
 #include <vector>
 
+#include "TRestGeant4BiasingInfo.h"
 #include "TRestGeant4BiasingVolume.h"
 #include "TRestGeant4GeometryInfo.h"
 #include "TRestGeant4ParticleSource.h"
@@ -63,6 +64,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Class used to store and retrieve physics info such as process names or particle names
     TRestGeant4PhysicsInfo fGeant4PhysicsInfo;
+
+    /// Class used to store and retrieve biasing info
+    TRestGeant4BiasingInfo fGeant4BiasingInfo;
 
     /// Class used to store and retrieve Geant4 primary generator info
     TRestGeant4PrimaryGeneratorInfo fGeant4PrimaryGeneratorInfo;
@@ -174,6 +178,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns an immutable reference to the physics info
     inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
+
+    /// \brief Returns an immutable reference to the biasing info
+    inline const TRestGeant4BiasingInfo& GetGeant4BiasingInfo() const { return fGeant4BiasingInfo; }
 
     /// \brief Returns an immutable reference to the primary generator info
     inline const TRestGeant4PrimaryGeneratorInfo& GetGeant4PrimaryGeneratorInfo() const {
@@ -379,7 +386,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     ~TRestGeant4Metadata();
 
-    ClassDefOverride(TRestGeant4Metadata, 13);
+    ClassDefOverride(TRestGeant4Metadata, 14);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;
