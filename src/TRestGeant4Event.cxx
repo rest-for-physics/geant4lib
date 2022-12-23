@@ -108,7 +108,7 @@ TVector3 TRestGeant4Event::GetMeanPositionInVolume(Int_t volID) const {
     TVector3 pos;
     Double_t eDep = 0;
 
-    for (int t = 0; t < GetNumberOfTracks(); t++) {
+    for (unsigned int t = 0; t < GetNumberOfTracks(); t++) {
         const auto tck = GetTrack(t);
         if (tck.GetEnergyInVolume(volID) > 0) {
             pos += tck.GetMeanPositionInVolume(volID) * tck.GetEnergyInVolume(volID);
@@ -143,7 +143,7 @@ TVector3 TRestGeant4Event::GetPositionDeviationInVolume(Int_t volID) const {
     Double_t edep = 0;
     TVector3 deviation = TVector3(0, 0, 0);
 
-    for (int n = 0; n < hitsInVolume.GetNumberOfHits(); n++) {
+    for (unsigned int n = 0; n < hitsInVolume.GetNumberOfHits(); n++) {
         Double_t en = hitsInVolume.GetEnergy(n);
         TVector3 diff = meanPos - hitsInVolume.GetPosition(n);
         diff.SetXYZ(diff.X() * diff.X(), diff.Y() * diff.Y(), diff.Z() * diff.Z());
@@ -164,7 +164,7 @@ TVector3 TRestGeant4Event::GetPositionDeviationInVolume(Int_t volID) const {
 /// \param volID Int_t specifying volume ID
 ///
 TVector3 TRestGeant4Event::GetFirstPositionInVolume(Int_t volID) const {
-    for (int t = 0; t < GetNumberOfTracks(); t++)
+    for (unsigned int t = 0; t < GetNumberOfTracks(); t++)
         if (GetTrack(t).GetEnergyInVolume(volID) > 0) return GetTrack(t).GetFirstPositionInVolume(volID);
 
     Double_t nan = TMath::QuietNaN();
@@ -233,9 +233,9 @@ size_t TRestGeant4Event::GetNumberOfPhysicalHits(Int_t volID) const {
 ///
 TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
     TRestHits hits;
-    for (int t = 0; t < GetNumberOfTracks(); t++) {
+    for (unsigned int t = 0; t < GetNumberOfTracks(); t++) {
         const auto& g4Hits = GetTrack(t).GetHits();
-        for (int n = 0; n < g4Hits.GetNumberOfHits(); n++) {
+        for (unsigned int n = 0; n < g4Hits.GetNumberOfHits(); n++) {
             if (volID != -1 && g4Hits.GetVolumeId(n) != volID) continue;
 
             Double_t x = g4Hits.GetX(n);
@@ -303,7 +303,7 @@ void TRestGeant4Event::SetBoundaries() {
     Double_t minEnergy = 1e10, maxEnergy = -1e10;
 
     Int_t nTHits = 0;
-    for (int ntck = 0; ntck < this->GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < this->GetNumberOfTracks(); ntck++) {
         Int_t nHits = GetTrack(ntck).GetNumberOfHits();
         const auto& hits = GetTrack(ntck).GetHits();
 
@@ -380,12 +380,12 @@ TMultiGraph* TRestGeant4Event::GetXYMultiGraph(Int_t gridElement, vector<TString
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto hits = GetTrack(ntck).GetHits();
 
         EColor color = GetTrack(ntck).GetParticleColor();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t xPos = hits.GetX(nhit);
             Double_t yPos = hits.GetY(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -472,12 +472,12 @@ TMultiGraph* TRestGeant4Event::GetYZMultiGraph(Int_t gridElement, vector<TString
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
         EColor color = GetTrack(ntck).GetParticleColor();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t yPos = hits.GetY(nhit);
             Double_t zPos = hits.GetZ(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -564,12 +564,12 @@ TMultiGraph* TRestGeant4Event::GetXZMultiGraph(Int_t gridElement, vector<TString
     for (unsigned int p = 0; p < pcsList.size(); p++) legendAdded.push_back(0);
 
     Int_t cnt = 0;
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
         EColor color = GetTrack(ntck).GetParticleColor();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t xPos = hits.GetX(nhit);
             Double_t zPos = hits.GetZ(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -647,10 +647,10 @@ TH2F* TRestGeant4Event::GetXYHistogram(Int_t gridElement, vector<TString> optLis
     fXYHisto = new TH2F("XY", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX, nBinsY, fMinY - 10,
                         fMinY + pitch * nBinsY);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t xPos = hits.GetX(nhit);
             Double_t yPos = hits.GetY(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -706,10 +706,10 @@ TH2F* TRestGeant4Event::GetXZHistogram(Int_t gridElement, vector<TString> optLis
     fXZHisto = new TH2F("XZ", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX, nBinsZ, fMinZ - 10,
                         fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t xPos = hits.GetX(nhit);
             Double_t zPos = hits.GetZ(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -765,10 +765,10 @@ TH2F* TRestGeant4Event::GetYZHistogram(Int_t gridElement, vector<TString> optLis
     fYZHisto = new TH2F("YZ", "", nBinsY, fMinY - 10, fMinY + pitch * nBinsY, nBinsZ, fMinZ - 10,
                         fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t yPos = hits.GetY(nhit);
             Double_t zPos = hits.GetZ(nhit);
             Double_t energy = hits.GetEnergy(nhit);
@@ -823,10 +823,10 @@ TH1D* TRestGeant4Event::GetXHistogram(Int_t gridElement, vector<TString> optList
 
     fXHisto = new TH1D("X", "", nBinsX, fMinX - 10, fMinX + pitch * nBinsX);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t xPos = hits.GetX(nhit);
             Double_t energy = hits.GetEnergy(nhit);
 
@@ -874,10 +874,10 @@ TH1D* TRestGeant4Event::GetZHistogram(Int_t gridElement, vector<TString> optList
 
     fZHisto = new TH1D("Z", "", nBinsZ, fMinZ - 10, fMinZ + pitch * nBinsZ);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t zPos = hits.GetZ(nhit);
             Double_t energy = hits.GetEnergy(nhit);
 
@@ -925,10 +925,10 @@ TH1D* TRestGeant4Event::GetYHistogram(Int_t gridElement, vector<TString> optList
 
     fYHisto = new TH1D("Y", "", nBinsY, fMinY - 10, fMinY + pitch * nBinsY);
 
-    for (int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
+    for (unsigned int ntck = 0; ntck < GetNumberOfTracks(); ntck++) {
         const auto& hits = GetTrack(ntck).GetHits();
 
-        for (int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
+        for (unsigned int nhit = 0; nhit < hits.GetNumberOfHits(); nhit++) {
             Double_t yPos = hits.GetY(nhit);
             Double_t energy = hits.GetEnergy(nhit);
 
@@ -1123,7 +1123,7 @@ TPad* TRestGeant4Event::DrawEvent(const TString& option, Bool_t autoBoundaries) 
 }
 void TRestGeant4Event::PrintActiveVolumes() const {
     cout << "Number of active volumes : " << GetNumberOfActiveVolumes() << endl;
-    for (int i = 0; i < fVolumeStoredNames.size(); i++) {
+    for (unsigned int i = 0; i < fVolumeStoredNames.size(); i++) {
         if (isVolumeStored(i)) {
             cout << "Active volume " << i << ":" << fVolumeStoredNames[i] << " has been stored." << endl;
             cout << "Total energy deposit in volume " << i << ":" << fVolumeStoredNames[i] << " : "
@@ -1141,7 +1141,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
 
     cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << " mm" << endl;
 
-    for (int i = 0; i < GetNumberOfPrimaries(); i++) {
+    for (unsigned int i = 0; i < GetNumberOfPrimaries(); i++) {
         const char* sourceNumberString =
             GetNumberOfPrimaries() <= 1 ? ""
                                         : TString::Format(" %d of %zu", i + 1, GetNumberOfPrimaries()).Data();
@@ -1155,7 +1155,7 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
-    if (maxTracks > 0 && maxTracks < GetNumberOfTracks()) {
+    if (maxTracks > 0 && (unsigned int)maxTracks < GetNumberOfTracks()) {
         nTracks = min(maxTracks, int(GetNumberOfTracks()));
         cout << "Printing only the first " << nTracks << " tracks" << endl;
     }

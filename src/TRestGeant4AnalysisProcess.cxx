@@ -305,7 +305,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << "List of active volumes : " << endl;
                 cout << "------------------------ " << endl;
 
-                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
                     cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;
@@ -334,7 +334,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << "List of active volumes : " << endl;
                 cout << "------------------------ " << endl;
 
-                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
                     cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;

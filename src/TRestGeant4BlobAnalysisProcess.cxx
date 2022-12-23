@@ -76,7 +76,7 @@ TRestEvent* TRestGeant4BlobAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     Double_t xBlob1 = 0, yBlob1 = 0, zBlob1 = 0;
     Double_t xBlob2 = 0, yBlob2 = 0, zBlob2 = 0;
 
-    for (int tck = 0; tck < fG4Event->GetNumberOfTracks(); tck++) {
+    for (unsigned int tck = 0; tck < fG4Event->GetNumberOfTracks(); tck++) {
         const auto& track = fG4Event->GetTrack(tck);
         if (track.GetParentID() == 0) {
             if (track.GetParticleName() != "e-") {
