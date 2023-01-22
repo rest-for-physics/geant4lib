@@ -284,7 +284,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         fObservables.emplace_back("PerProcessNeutronElastic");
     }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
-        cout << "fObservables[" << i << "] = " << fObservables[i] << endl;
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
 
