@@ -305,6 +305,7 @@ void TRestGeant4Event::SetBoundaries() {
     Int_t nTHits = 0;
     for (unsigned int ntck = 0; ntck < this->GetNumberOfTracks(); ntck++) {
         Int_t nHits = GetTrack(ntck).GetNumberOfHits();
+        nTHits += nHits;
         const auto& hits = GetTrack(ntck).GetHits();
 
         for (int nhit = 0; nhit < nHits; nhit++) {
@@ -325,8 +326,6 @@ void TRestGeant4Event::SetBoundaries() {
 
             if (en > maxEnergy) maxEnergy = en;
             if (en < minEnergy) minEnergy = en;
-
-            nTHits++;
         }
     }
 
