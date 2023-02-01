@@ -40,6 +40,16 @@ Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
         cout << "File is not supported!" << endl;
     }
 
+    if (geo == nullptr) {
+        RESTError << "Geometry initialization failed!" << RESTendl;
+        return 0;
+    }
+
+    if (geo->GetMasterVolume() == nullptr) {
+        RESTError << "No master volume found in the geometry!" << RESTendl;
+        return 0;
+    }
+
     if (option == "") {
         geo->GetMasterVolume()->Draw();
     } else if (ToUpper((string)option) == "EVE") {
