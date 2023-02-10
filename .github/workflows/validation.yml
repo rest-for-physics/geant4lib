@@ -25,7 +25,7 @@ jobs:
       - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
         with:
           branch: ${{ env.BRANCH_NAME }}
-          repository: rest-for-physics/rawlib
+          repository: rest-for-physics/geant4lib
           path: ${{ env.G4_LIB_PATH }}
       - run: python3 ${{ env.G4_LIB_PATH }}/pipeline/validateLibrary.py .
 
