@@ -26,7 +26,7 @@ jobs:
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/rawlib
-          path: ${{ env.RAW_LIB_PATH }}
+          path: ${{ env.G4_LIB_PATH }}
       - run: python3 ${{ env.G4_LIB_PATH }}/pipeline/validateLibrary.py .
 
   build-geant4lib:
