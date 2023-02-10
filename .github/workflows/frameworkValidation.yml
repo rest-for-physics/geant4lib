@@ -21,4 +21,3 @@ defaults:
 jobs:
   framework-validation:
     uses: rest-for-physics/framework/.github/workflows/validation.yml@submodule-validation
-
