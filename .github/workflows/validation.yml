@@ -12,6 +12,7 @@ on:
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/geant4lib/install
+  G4_LIB_PATH: geant4lib
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
@@ -19,8 +20,6 @@ defaults:
     shell: bash
 
 jobs:
-  framework-validation:
-    uses: rest-for-physics/framework/.github/workflows/validation.yml@master
 
   check-library:
     name: Validate library
