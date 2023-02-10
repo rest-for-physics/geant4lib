@@ -43,6 +43,10 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON"
           branch: ${{ env.BRANCH_NAME }}
+      - name: Verify pre-commit config files match
+        run: |
+          cd $GITHUB_WORKSPACE
+          python ${{ env.REST_PATH }}/scripts/validatePreCommitConfig.py
       - name: Load REST libraries
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
