@@ -29,6 +29,23 @@ jobs:
           path: ${{ env.G4_LIB_PATH }}
       - run: python3 ${{ env.G4_LIB_PATH }}/pipeline/validateLibrary.py .
 
+  precommit-config:
+    name: Validate pre-commit config
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    steps:
+      - name: Checkout geant4lib
+        uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          repository: rest-for-physics/geant4lib
+          path: ${{ env.G4_LIB_PATH }}
+      - name: Verify pre-commit config files match
+        run: |
+          cd ${{ env.G4_LIB_PATH }}
+          curl https://raw.githubusercontent.com/rest-for-physics/framework/master/scripts/validatePreCommitConfig.py | python
+
   build-geant4lib:
     name: Build only geant4lib
     runs-on: ubuntu-latest
@@ -41,10 +58,6 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_GEANT4=ON"
           branch: ${{ env.BRANCH_NAME }}
-      - name: Verify pre-commit config files match
-        run: |
-          cd $GITHUB_WORKSPACE
-          curl https://raw.githubusercontent.com/rest-for-physics/framework/master/scripts/validatePreCommitConfig.py | python
       - name: Load REST libraries
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
