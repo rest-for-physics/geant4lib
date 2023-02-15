@@ -22,7 +22,7 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/geant4lib
@@ -36,7 +36,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
       - name: Checkout geant4lib
-        uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+        uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/geant4lib
