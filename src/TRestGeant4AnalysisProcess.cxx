@@ -284,7 +284,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
         fObservables.emplace_back("PerProcessNeutronElastic");
     }
     for (unsigned int i = 0; i < fObservables.size(); i++) {
-        cout << "fObservables[" << i << "] = " << fObservables[i] << endl;
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
 
@@ -305,7 +304,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << "List of active volumes : " << endl;
                 cout << "------------------------ " << endl;
 
-                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
                     cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;
@@ -334,7 +333,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << "List of active volumes : " << endl;
                 cout << "------------------------ " << endl;
 
-                for (int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
                     cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
                 cout << "??????????????????????????????????????????????????" << endl;
                 cout << endl;

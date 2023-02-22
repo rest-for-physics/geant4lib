@@ -204,7 +204,7 @@ class TRestGeant4Event : public TRestEvent {
             lowestID = GetTrack(0).GetTrackID();
         }
 
-        for (int i = 0; i < GetNumberOfTracks(); i++) {
+        for (unsigned int i = 0; i < GetNumberOfTracks(); i++) {
             auto tr = GetTrack(i);
             if (tr.GetTrackID() < lowestID) lowestID = tr.GetTrackID();
         }

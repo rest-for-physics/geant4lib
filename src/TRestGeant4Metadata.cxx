@@ -817,7 +817,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
-    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 || ((string)fGdmlFilename).find("/") == -1) &&
+    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
+         ((string)fGdmlFilename).find("/") == string::npos) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
@@ -1455,14 +1456,14 @@ void TRestGeant4Metadata::PrintMetadata() {
             RESTMetadata << "Sensitive volume: " << sensitiveVolume << RESTendl;
         }
         RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
-        for (int n = 0; n < GetNumberOfActiveVolumes(); n++) {
+        for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
             RESTMetadata << "Name: " << GetActiveVolumeName(n)
                          << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
                          << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
                          << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
         }
     }
-    for (int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
+    for (unsigned int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
 
@@ -1526,7 +1527,7 @@ void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, 
 /// data storage.
 ///
 Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
-    for (int n = 0; n < GetNumberOfActiveVolumes(); n++)
+    for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++)
         if (GetActiveVolumeName(n) == volume) return true;
 
     return false;

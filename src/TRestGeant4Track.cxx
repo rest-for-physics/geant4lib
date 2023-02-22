@@ -83,7 +83,7 @@ EColor TRestGeant4Track::GetParticleColor() const {
 ///
 size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
     size_t numberOfHits = 0;
-    for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+    for (unsigned int n = 0; n < fHits.GetNumberOfHits(); n++) {
         if (volID != -1 && fHits.GetVolumeId(n) != volID) {
             continue;
         }
@@ -99,7 +99,7 @@ size_t TRestGeant4Track::GetNumberOfHits(Int_t volID) const {
 ///
 size_t TRestGeant4Track::GetNumberOfPhysicalHits(Int_t volID) const {
     size_t numberOfHits = 0;
-    for (int n = 0; n < fHits.GetNumberOfHits(); n++) {
+    for (unsigned int n = 0; n < fHits.GetNumberOfHits(); n++) {
         if (volID != -1 && fHits.GetVolumeId(n) != volID) {
             continue;
         }
@@ -134,7 +134,7 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
     }
 
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
-    for (int i = 0; i < nHits; i++) {
+    for (unsigned int i = 0; i < nHits; i++) {
         TString processName = GetProcessName(fHits.GetHitProcess(i));
         if (processName.IsNull()) {
             processName =
@@ -158,7 +158,7 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
 }
 
 Bool_t TRestGeant4Track::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
-    for (int i = 0; i < GetNumberOfHits(); i++) {
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
         if (fHits.GetHitProcess(i) != processID) continue;
         if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
     }
@@ -171,7 +171,7 @@ Bool_t TRestGeant4Track::ContainsProcessInVolume(const TString& processName, Int
         return false;
     }
     const auto& processID = metadata->GetGeant4PhysicsInfo().GetProcessID(processName);
-    for (int i = 0; i < GetNumberOfHits(); i++) {
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
         if (fHits.GetHitProcess(i) != processID) continue;
         if (volumeID == -1 || fHits.GetVolumeId(i) == volumeID) return true;
     }

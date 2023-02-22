@@ -100,7 +100,7 @@ TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track) {
                         ToEnergyString(track.GetInitialKineticEnergy()).c_str()));
 
     const auto& hits = track.GetHits();
-    for (int i = 0; i < hits.GetNumberOfHits() - 1; i++) {
+    for (unsigned int i = 0; i < hits.GetNumberOfHits() - 1; i++) {
         lineSet->AddLine({static_cast<float>(GEOM_SCALE * hits.GetPosition(i).x()),
                           static_cast<float>(GEOM_SCALE * hits.GetPosition(i).y()),
                           static_cast<float>(GEOM_SCALE * hits.GetPosition(i).z())},  //
@@ -193,7 +193,7 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* event) {
         trackCounter++;
 
         const auto& hits = track.GetHits();
-        for (int i = 0; i < hits.GetNumberOfHits(); i++) {
+        for (unsigned int i = 0; i < hits.GetNumberOfHits(); i++) {
             const auto& processName = physicsInfo.GetProcessName(hits.GetProcess(i));
             const auto& processType = physicsInfo.GetProcessType(processName);
             const auto& position = hits.GetPosition(i);
@@ -273,7 +273,7 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
 
     fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
 
-    if (fHitConnectors.size() > parentID)
+    if (parentID >= 0 && fHitConnectors.size() > (unsigned int)parentID)
         fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
     else {
         RESTWarning << "Parent ID: " << parentID << " of track " << trkID << " was not found!" << RESTendl;

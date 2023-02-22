@@ -327,7 +327,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns the number of active volumes, or geometry volumes that have been
     /// selected for data storage.
-    inline Int_t GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
+    inline unsigned int GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
     inline bool IsActiveVolume(const char* volumeName) const {
         return fActiveVolumesSet.count(volumeName) > 0;
