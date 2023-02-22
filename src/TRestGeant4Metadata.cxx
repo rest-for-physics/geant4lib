@@ -1007,10 +1007,8 @@ void TRestGeant4Metadata::ReadBiasing() {
     fGeant4BiasingInfo.SetSplittingFactor(splittingFactor);
 
     const TVector3 center = StringTo3DVector(GetParameter("center", biasingDefinition, "(0,0,0)"));
-
     fGeant4BiasingInfo.SetBiasingCenter(center);
 
-    std::set<std::string> biasingVolumes;
     TiXmlElement* volumeDefinition = GetElement("volume", biasingDefinition);
     while (volumeDefinition != nullptr) {
         string name = GetFieldValue("name", volumeDefinition);
@@ -1018,13 +1016,8 @@ void TRestGeant4Metadata::ReadBiasing() {
             RESTError << "volume inside biasing section defined without name" << RESTendl;
             exit(1);
         }
-        biasingVolumes.insert(name);
-
+        fGeant4BiasingInfo.AddBiasingVolume(name);
         volumeDefinition = GetNextElement(volumeDefinition);
-    }
-
-    for (const auto& volume : biasingVolumes) {
-        fGeant4BiasingInfo.AddBiasingVolume(volume);
     }
 }
 
