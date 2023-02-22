@@ -46,14 +46,14 @@
 
 /// The main class to store the *Geant4* simulation conditions that will be used by *restG4*.
 class TRestGeant4Metadata : public TRestMetadata {
-private:
+   private:
     void Initialize() override;
 
     void InitFromConfigFile() override;
 
     void ReadGenerator();
 
-    void ReadParticleSource(TRestGeant4ParticleSource *src, TiXmlElement *sourceDefinition);
+    void ReadParticleSource(TRestGeant4ParticleSource* src, TiXmlElement* sourceDefinition);
 
     void ReadDetector();
 
@@ -102,7 +102,7 @@ private:
     std::vector<Double_t> fMaxStepSize;
 
     /// \brief It the defines the primary source properties, particle type, momentum, energy, etc.
-    std::vector<TRestGeant4ParticleSource *> fParticleSource;  //->
+    std::vector<TRestGeant4ParticleSource*> fParticleSource;  //->
 
     /// \brief The number of biasing volumes used in the simulation. If zero, no biasing technique is used.
     Int_t fNBiasingVolumes = 0;
@@ -169,23 +169,23 @@ private:
     /// The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
 
-public:
+   public:
     std::set<std::string> fActiveVolumesSet = {};  //! // Used for faster lookup
 
     /// \brief Returns the random seed that was used to generate the corresponding geant4 dataset.
     inline Long_t GetSeed() const { return fSeed; }
 
     /// \brief Returns an immutable reference to the geometry info
-    inline const TRestGeant4GeometryInfo &GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
+    inline const TRestGeant4GeometryInfo& GetGeant4GeometryInfo() const { return fGeant4GeometryInfo; }
 
     /// \brief Returns an immutable reference to the physics info
-    inline const TRestGeant4PhysicsInfo &GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
+    inline const TRestGeant4PhysicsInfo& GetGeant4PhysicsInfo() const { return fGeant4PhysicsInfo; }
 
     /// \brief Returns an immutable reference to the biasing info
-    inline const TRestGeant4BiasingInfo &GetGeant4BiasingInfo() const { return fGeant4BiasingInfo; }
+    inline const TRestGeant4BiasingInfo& GetGeant4BiasingInfo() const { return fGeant4BiasingInfo; }
 
     /// \brief Returns an immutable reference to the primary generator info
-    inline const TRestGeant4PrimaryGeneratorInfo &GetGeant4PrimaryGeneratorInfo() const {
+    inline const TRestGeant4PrimaryGeneratorInfo& GetGeant4PrimaryGeneratorInfo() const {
         return fGeant4PrimaryGeneratorInfo;
     }
 
@@ -235,7 +235,7 @@ public:
     inline void SetSaveAllEvents(const Bool_t value) { fSaveAllEvents = value; }
 
     /// Sets the value of the Geant4 version
-    inline void SetGeant4Version(const TString &versionString) { fGeant4Version = versionString; }
+    inline void SetGeant4Version(const TString& versionString) { fGeant4Version = versionString; }
 
     ///  Enables/disables the full chain decay generation.
     inline void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
@@ -265,13 +265,13 @@ public:
     inline Int_t GetNumberOfSources() const { return fParticleSource.size(); }
 
     /// Returns the name of the particle source with index n (Geant4 based names).
-    inline TRestGeant4ParticleSource *GetParticleSource(size_t n = 0) const { return fParticleSource[n]; }
+    inline TRestGeant4ParticleSource* GetParticleSource(size_t n = 0) const { return fParticleSource[n]; }
 
     /// Remove all the particle sources.
     void RemoveParticleSources();
 
     /// Adds a new particle source.
-    void AddParticleSource(TRestGeant4ParticleSource *src);
+    void AddParticleSource(TRestGeant4ParticleSource* src);
     ///////////////////////////////////////////////////////////
 
     // Direct access to biasing volumes definition
@@ -291,7 +291,7 @@ public:
 
     inline size_t GetNumberOfSensitiveVolumes() const { return fSensitiveVolumes.size(); }
 
-    inline const std::vector<TString> &GetSensitiveVolumes() const { return fSensitiveVolumes; }
+    inline const std::vector<TString>& GetSensitiveVolumes() const { return fSensitiveVolumes; }
 
     /// Sets the name of the sensitive volume
     inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
@@ -301,8 +301,8 @@ public:
     inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
     /// Sets the name of the sensitive volume
-    inline void InsertSensitiveVolume(const TString &volume) {
-        for (const auto &sensitiveVolume: fSensitiveVolumes) {
+    inline void InsertSensitiveVolume(const TString& volume) {
+        for (const auto& sensitiveVolume : fSensitiveVolumes) {
             // Do not add duplicate volumes
             if (volume == sensitiveVolume) {
                 return;
@@ -319,7 +319,7 @@ public:
     /// name.
     Double_t GetStorageChance(TString volume);
 
-    Double_t GetMaxStepSize(const TString &volume);
+    Double_t GetMaxStepSize(const TString& volume);
 
     /// Returns the minimum event energy required for an event to be stored.
     inline Double_t GetMinimumEnergyStored() const { return fEnergyRangeStored.X(); }
@@ -331,19 +331,19 @@ public:
     /// selected for data storage.
     inline unsigned int GetNumberOfActiveVolumes() const { return fActiveVolumes.size(); }
 
-    inline bool IsActiveVolume(const char *volumeName) const {
+    inline bool IsActiveVolume(const char* volumeName) const {
         return fActiveVolumesSet.count(volumeName) > 0;
     }  //!
 
-    inline bool IsKeepTracksVolume(const char *volumeName) const {
+    inline bool IsKeepTracksVolume(const char* volumeName) const {
         return fRemoveUnwantedTracksVolumesToKeep.count(volumeName) > 0;
     }
 
-    inline bool IsKillVolume(const char *volumeName) const { return fKillVolumes.count(volumeName) > 0; }
+    inline bool IsKillVolume(const char* volumeName) const { return fKillVolumes.count(volumeName) > 0; }
 
     inline std::vector<std::string> GetKillVolumes() const {
         std::vector<std::string> result;
-        for (const auto &volume: fKillVolumes) {
+        for (const auto& volume : fKillVolumes) {
             result.emplace_back(volume);
         }
         return result;
@@ -351,7 +351,7 @@ public:
 
     inline std::vector<std::string> GetRemoveUnwantedTracksVolumesToKeep() const {
         std::vector<std::string> result;
-        for (const auto &volume: fRemoveUnwantedTracksVolumesToKeep) {
+        for (const auto& volume : fRemoveUnwantedTracksVolumesToKeep) {
             result.emplace_back(volume);
         }
         return result;
@@ -379,19 +379,19 @@ public:
 
     Int_t GetActiveVolumeID(TString name);
 
-    Bool_t isVolumeStored(const TString &volume) const;
+    Bool_t isVolumeStored(const TString& volume) const;
 
-    void SetActiveVolume(const TString &name, Double_t chance, Double_t maxStep = 0);
+    void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
     void PrintMetadata() override;
 
     TRestGeant4Metadata();
 
-    TRestGeant4Metadata(const char *configFilename, const std::string &name = "");
+    TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
 
     ~TRestGeant4Metadata();
 
-ClassDefOverride(TRestGeant4Metadata, 14);
+    ClassDefOverride(TRestGeant4Metadata, 14);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;
