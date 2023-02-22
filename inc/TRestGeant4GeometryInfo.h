@@ -12,29 +12,29 @@
 class G4VPhysicalVolume;
 
 class TRestGeant4GeometryInfo {
-    ClassDef(TRestGeant4GeometryInfo, 3);
+ClassDef(TRestGeant4GeometryInfo, 3);
 
-   private:
+private:
     bool fIsAssembly = false;
 
     std::map<Int_t, TString> fVolumeNameMap = {};
     std::map<TString, Int_t> fVolumeNameReverseMap = {};
 
-    void PopulateFromGeant4World(const G4VPhysicalVolume*);
+    void PopulateFromGeant4World(const G4VPhysicalVolume *);
 
-    inline void InitializeOnDetectorConstruction(const TString& gdmlFilename,
-                                                 const G4VPhysicalVolume* world) {
+    inline void InitializeOnDetectorConstruction(const TString &gdmlFilename,
+                                                 const G4VPhysicalVolume *world) {
         PopulateFromGdml(gdmlFilename);
         PopulateFromGeant4World(world);
     }
 
-   public:
+public:
     // Insertion order is important for GDML containers. These containers are filled from GDML only not Geant4
     std::vector<TString> fGdmlNewPhysicalNames;
     std::vector<TString> fGdmlLogicalNames;
 
     std::map<TString, TString>
-        fGeant4PhysicalNameToNewPhysicalNameMap; /*
+            fGeant4PhysicalNameToNewPhysicalNameMap; /*
                                                   * only makes sense when using assembly
                                                   */
 
@@ -44,23 +44,27 @@ class TRestGeant4GeometryInfo {
     std::map<TString, TString> fLogicalToMaterialMap;
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
 
-   public:
+public:
     inline TRestGeant4GeometryInfo() = default;
 
-    void PopulateFromGdml(const TString&);
+    void PopulateFromGdml(const TString &);
 
-    TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
-    TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
+    TString GetAlternativeNameFromGeant4PhysicalName(const TString &) const;
+
+    TString GetGeant4PhysicalNameFromAlternativeName(const TString &) const;
 
     std::vector<TString> GetAllLogicalVolumes() const;
+
     std::vector<TString> GetAllPhysicalVolumes() const;
+
     std::vector<TString> GetAllAlternativePhysicalVolumes() const;
 
-    std::vector<TString> GetAllLogicalVolumesMatchingExpression(const TString&) const;
-    std::vector<TString> GetAllPhysicalVolumesMatchingExpression(const TString&) const;
+    std::vector<TString> GetAllLogicalVolumesMatchingExpression(const TString &) const;
 
-    inline bool IsValidGdmlName(const TString& volume) const {
-        for (const auto& name : fGdmlNewPhysicalNames) {
+    std::vector<TString> GetAllPhysicalVolumesMatchingExpression(const TString &) const;
+
+    inline bool IsValidGdmlName(const TString &volume) const {
+        for (const auto &name: fGdmlNewPhysicalNames) {
             if (name == volume) {
                 return true;
             }
@@ -68,29 +72,39 @@ class TRestGeant4GeometryInfo {
         return false;
     }
 
-    inline bool IsValidPhysicalVolume(const TString& volume) const {
+    inline bool IsValidPhysicalVolume(const TString &volume) const {
         return fPhysicalToLogicalVolumeMap.count(volume) > 0;
     }
-    inline bool IsValidLogicalVolume(const TString& volume) const {
+
+    inline bool IsValidLogicalVolume(const TString &volume) const {
         return fLogicalToPhysicalMap.count(volume) > 0;
     }
-    inline std::vector<TString> GetAllPhysicalVolumesFromLogical(const TString& logicalVolume) const {
+
+    inline std::vector<TString> GetAllPhysicalVolumesFromLogical(const TString &logicalVolume) const {
         if (IsValidLogicalVolume(logicalVolume)) {
             return fLogicalToPhysicalMap.at(logicalVolume);
         }
         return {};
     }
 
-    inline TVector3 GetPosition(const TString& volume) const {
+    inline TString GetLogicalVolumeFromPhysical(const TString &physicalVolume) const {
+        if (IsValidPhysicalVolume(physicalVolume)) {
+            return fPhysicalToLogicalVolumeMap.at(physicalVolume);
+        }
+        return {};
+    }
+
+    inline TVector3 GetPosition(const TString &volume) const {
         return fPhysicalToPositionInWorldMap.at(volume);
     }
 
     inline bool IsAssembly() const { return fIsAssembly; }
 
-    void InsertVolumeName(Int_t id, const TString& volumeName);
+    void InsertVolumeName(Int_t id, const TString &volumeName);
 
     TString GetVolumeFromID(Int_t id) const;
-    Int_t GetIDFromVolume(const TString& volumeName) const;
+
+    Int_t GetIDFromVolume(const TString &volumeName) const;
 
     void Print() const;
 
