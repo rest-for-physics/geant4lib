@@ -758,8 +758,8 @@ TRestGeant4Metadata::TRestGeant4Metadata() : TRestMetadata() { Initialize(); }
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
-TRestGeant4Metadata::TRestGeant4Metadata(const char *configFilename, const string &name)
-        : TRestMetadata(configFilename) {
+TRestGeant4Metadata::TRestGeant4Metadata(const char* configFilename, const string& name)
+    : TRestMetadata(configFilename) {
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
@@ -808,17 +808,17 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     if (ToUpper(seedString) == "RANDOM" || ToUpper(seedString) == "RAND" || ToUpper(seedString) == "AUTO" ||
         seedString == "0") {
         auto dd = new double();
-        fSeed = (uintptr_t) dd + (uintptr_t) this;
+        fSeed = (uintptr_t)dd + (uintptr_t)this;
         delete dd;
     } else {
-        fSeed = (Long_t) StringToInteger(seedString);
+        fSeed = (Long_t)StringToInteger(seedString);
     }
     gRandom->SetSeed(fSeed);
 
     // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
-    if ((((string) fGdmlFilename).find_first_not_of("./~") == 0 ||
-         ((string) fGdmlFilename).find("/") == string::npos) &&
+    if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
+         ((string)fGdmlFilename).find("/") == string::npos) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
@@ -838,7 +838,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     const auto fNRequestedEntriesString = GetParameter("nRequestedEntries");
     fNRequestedEntries =
-            fNRequestedEntriesString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(fNRequestedEntriesString);
+        fNRequestedEntriesString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(fNRequestedEntriesString);
 
     fSaveAllEvents = ToUpper(GetParameter("saveAllEvents", "false")) == "TRUE" ||
                      ToUpper(GetParameter("saveAllEvents", "off")) == "ON";
@@ -905,8 +905,8 @@ Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
             fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
         TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
         RESTError
-                << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'cosmic' generator"
-                << RESTendl;
+            << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'cosmic' generator"
+            << RESTendl;
         exit(1);
     }
     const auto source = GetParticleSource();
@@ -929,10 +929,10 @@ Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
 
     const auto energyRange = source->GetEnergyDistributionRange();
     const auto angularRange = source->GetAngularDistributionRange();
-    auto function = (TF2 *) source->GetEnergyAndAngularDistributionFunction()->Clone();
+    auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
     // counts per second per cm2 (distribution is already integrated over uniform phi)
     const auto countsPerSecondPerCm2 =
-            function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y(), 1E-9);
+        function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y(), 1E-9);
     return countsPerSecondPerCm2;
 }
 
@@ -958,8 +958,7 @@ void TRestGeant4Metadata::ReadBiasing() {
 */
 
 void TRestGeant4Metadata::ReadBiasing() {
-
-    TiXmlElement *biasingDefinition = GetElement("biasing");
+    TiXmlElement* biasingDefinition = GetElement("biasing");
     if (biasingDefinition == nullptr) {
         fNBiasingVolumes = 0;
         fGeant4BiasingInfo.SetEnabled(false);
@@ -994,7 +993,7 @@ void TRestGeant4Metadata::ReadBiasing() {
         const TVector3 center = StringTo3DVector(GetParameter("center", biasingDefinition, "(0,0,0)"));
         fGeant4BiasingInfo.SetBiasingCenter(center);
 
-        TiXmlElement *volumeDefinition = GetElement("volume", biasingDefinition);
+        TiXmlElement* volumeDefinition = GetElement("volume", biasingDefinition);
         while (volumeDefinition != nullptr) {
             string name = GetFieldValue("name", volumeDefinition);
             if (name.empty() || name == "Not defined") {
@@ -1006,14 +1005,14 @@ void TRestGeant4Metadata::ReadBiasing() {
         }
     } else {
         // default implementation
-        TiXmlElement *biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
+        TiXmlElement* biasVolumeDefinition = GetElement("biasingVolume", biasingDefinition);
         Int_t n = 0;
         while (biasVolumeDefinition) {
             TRestGeant4BiasingVolume biasVolume;
             RESTDebug << "Def: " << biasVolumeDefinition << RESTendl;
 
             biasVolume.SetBiasingVolumePosition(
-                    Get3DVectorParameterWithUnits("position", biasVolumeDefinition));
+                Get3DVectorParameterWithUnits("position", biasVolumeDefinition));
             biasVolume.SetBiasingFactor(StringToDouble(GetParameter("factor", biasVolumeDefinition)));
             biasVolume.SetBiasingVolumeSize(GetDblParameterWithUnits("size", biasVolumeDefinition));
             biasVolume.SetEnergyRange(Get2DVectorParameterWithUnits("energyRange", biasVolumeDefinition));
@@ -1061,35 +1060,35 @@ void TRestGeant4Metadata::ReadGenerator() {
     // center of the volume (i.e. gasTarget) but if i.e rotation or side are
     // defined and not relevant we should set it to -1
 
-    TiXmlElement *generatorDefinition = GetElement("generator");
+    TiXmlElement* generatorDefinition = GetElement("generator");
 
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorType =
-            SpatialGeneratorTypesToString(StringToSpatialGeneratorTypes(GetParameter(
-                    "type", generatorDefinition, SpatialGeneratorTypesToString(SpatialGeneratorTypes::VOLUME))));
+        SpatialGeneratorTypesToString(StringToSpatialGeneratorTypes(GetParameter(
+            "type", generatorDefinition, SpatialGeneratorTypesToString(SpatialGeneratorTypes::VOLUME))));
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape =
-            SpatialGeneratorShapesToString(StringToSpatialGeneratorShapes(GetParameter(
-                    "shape", generatorDefinition, SpatialGeneratorShapesToString(SpatialGeneratorShapes::BOX))));
+        SpatialGeneratorShapesToString(StringToSpatialGeneratorShapes(GetParameter(
+            "shape", generatorDefinition, SpatialGeneratorShapesToString(SpatialGeneratorShapes::BOX))));
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom = GetParameter("from", generatorDefinition);
     if (fGeant4PrimaryGeneratorInfo.fSpatialGeneratorFrom != PARAMETER_NOT_FOUND_STR) {
         fGeant4PrimaryGeneratorInfo.fSpatialGeneratorShape =
-                SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML);
+            SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML);
     }
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSize =
-            Get3DVectorParameterWithUnits("size", generatorDefinition, {0, 0, 0});
+        Get3DVectorParameterWithUnits("size", generatorDefinition, {0, 0, 0});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorPosition =
-            Get3DVectorParameterWithUnits("position", generatorDefinition, {0, 0, 0});
+        Get3DVectorParameterWithUnits("position", generatorDefinition, {0, 0, 0});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationAxis =
-            Get3DVectorParameterWithUnits("rotationAxis", generatorDefinition, {0, 0, 1});
+        Get3DVectorParameterWithUnits("rotationAxis", generatorDefinition, {0, 0, 1});
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorRotationValue =
-            GetDblParameterWithUnits("rotationAngle", generatorDefinition, 0);
+        GetDblParameterWithUnits("rotationAngle", generatorDefinition, 0);
     fGeant4PrimaryGeneratorInfo.fSpatialGeneratorSpatialDensityFunction =
-            GetParameter("densityFunc", generatorDefinition, "1");
+        GetParameter("densityFunc", generatorDefinition, "1");
 
-    TiXmlElement *sourceDefinition = GetElement("source", generatorDefinition);
+    TiXmlElement* sourceDefinition = GetElement("source", generatorDefinition);
     while (sourceDefinition) {
         string use = GetParameter("use", sourceDefinition, "");
 
-        TRestGeant4ParticleSource *source = TRestGeant4ParticleSource::instantiate(use);
+        TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
         ReadParticleSource(source, sourceDefinition);
         AddParticleSource(source);
 
@@ -1106,8 +1105,8 @@ void TRestGeant4Metadata::ReadGenerator() {
 ///////////////////////////////////////////////
 /// \brief It reads the <source definition given by argument
 ///
-void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, TiXmlElement *definition) {
-    TiXmlElement *sourceDefinition = definition;
+void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, TiXmlElement* definition) {
+    TiXmlElement* sourceDefinition = definition;
 
     source->SetParticleName(GetParameter("particle", sourceDefinition));
     source->SetExcitationLevel(StringToDouble(GetParameter("excitedLevel", sourceDefinition)));
@@ -1120,12 +1119,12 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
     }
 
     // Angular distribution parameters
-    TiXmlElement *angularDefinition = GetElement("angular", sourceDefinition);
+    TiXmlElement* angularDefinition = GetElement("angular", sourceDefinition);
     if (angularDefinition == nullptr) {
         angularDefinition = GetElement("angularDist", sourceDefinition);  // old name
     }
     source->SetAngularDistributionType(GetParameter(
-            "type", angularDefinition, AngularDistributionTypesToString(AngularDistributionTypes::FLUX)));
+        "type", angularDefinition, AngularDistributionTypesToString(AngularDistributionTypes::FLUX)));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::TH1D) {
         source->SetAngularDistributionFilename(SearchFile(GetParameter("file", angularDefinition)));
@@ -1136,7 +1135,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         source->SetAngularDistributionNameInFile(name);
     }
     source->SetAngularDistributionRange(
-            Get2DVectorParameterWithUnits("range", angularDefinition, {0, TMath::Pi()}));
+        Get2DVectorParameterWithUnits("range", angularDefinition, {0, TMath::Pi()}));
     if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
         AngularDistributionTypes::FORMULA) {
         source->SetAngularDistributionFormula(GetParameter("name", angularDefinition));
@@ -1144,11 +1143,11 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         const auto function = source->GetAngularDistributionFunction();
         if (source->GetAngularDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
             source->SetAngularDistributionRange(
-                    {function->GetXaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+                {function->GetXaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
         }
         if (source->GetAngularDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
             source->SetAngularDistributionRange(
-                    {source->GetAngularDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+                {source->GetAngularDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
     }
     if ((StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
@@ -1156,24 +1155,24 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
          AngularDistributionTypes::FORMULA2)) {
         source->SetAngularDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
-                "nPoints", angularDefinition, source->GetAngularDistributionFormulaNPoints())));
+            "nPoints", angularDefinition, source->GetAngularDistributionFormulaNPoints())));
     }
     if (GetNumberOfSources() == 0 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
-        AngularDistributionTypes::BACK_TO_BACK) {
+            AngularDistributionTypes::BACK_TO_BACK) {
         cout << "WARNING: First source cannot be backtoback. Setting it to isotropic" << endl;
         source->SetAngularDistributionType(
-                AngularDistributionTypesToString(AngularDistributionTypes::ISOTROPIC));
+            AngularDistributionTypesToString(AngularDistributionTypes::ISOTROPIC));
     }
     source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
 
     // Energy distribution parameters
-    TiXmlElement *energyDefinition = GetElement("energy", sourceDefinition);
+    TiXmlElement* energyDefinition = GetElement("energy", sourceDefinition);
     if (energyDefinition == nullptr) {
         energyDefinition = GetElement("energyDist", sourceDefinition);  // old name
     }
     source->SetEnergyDistributionType(GetParameter(
-            "type", energyDefinition, EnergyDistributionTypesToString(EnergyDistributionTypes::MONO)));
+        "type", energyDefinition, EnergyDistributionTypesToString(EnergyDistributionTypes::MONO)));
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
         EnergyDistributionTypes::TH1D) {
         source->SetEnergyDistributionFilename(SearchFile(GetParameter("file", energyDefinition)));
@@ -1198,11 +1197,11 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         const auto function = source->GetEnergyDistributionFunction();
         if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
             source->SetEnergyDistributionRange(
-                    {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
+                {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
         }
         if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
             source->SetEnergyDistributionRange(
-                    {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+                {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
     }
     if ((StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
@@ -1210,12 +1209,12 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
          EnergyDistributionTypes::FORMULA2)) {
         source->SetEnergyDistributionFormulaNPoints(static_cast<size_t>(GetDblParameterWithUnits(
-                "nPoints", energyDefinition, source->GetEnergyDistributionFormulaNPoints())));
+            "nPoints", energyDefinition, source->GetEnergyDistributionFormulaNPoints())));
     }
     if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
-        EnergyDistributionTypes::FORMULA2 &&
+            EnergyDistributionTypes::FORMULA2 &&
         StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
-        AngularDistributionTypes::FORMULA2) {
+            AngularDistributionTypes::FORMULA2) {
         const auto empty = TString("");
         auto energyDistName = GetParameter("name", energyDefinition, empty);
         auto angularDistName = GetParameter("name", energyDefinition, empty);
@@ -1248,21 +1247,21 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
         // Set energy range
         if (source->GetEnergyDistributionRangeMin() < function->GetXaxis()->GetXmin()) {
             source->SetEnergyDistributionRange(
-                    {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
+                {function->GetXaxis()->GetXmin(), source->GetEnergyDistributionRangeMax()});
         }
         if (source->GetEnergyDistributionRangeMax() > function->GetXaxis()->GetXmax()) {
             source->SetEnergyDistributionRange(
-                    {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
+                {source->GetEnergyDistributionRangeMin(), function->GetXaxis()->GetXmax()});
         }
 
         // Set angular range
         if (source->GetAngularDistributionRangeMin() < function->GetYaxis()->GetXmin()) {
             source->SetAngularDistributionRange(
-                    {function->GetYaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
+                {function->GetYaxis()->GetXmin(), source->GetAngularDistributionRangeMax()});
         }
         if (source->GetAngularDistributionRangeMax() > function->GetYaxis()->GetXmax()) {
             source->SetAngularDistributionRange(
-                    {source->GetAngularDistributionRangeMin(), function->GetYaxis()->GetXmax()});
+                {source->GetAngularDistributionRangeMin(), function->GetYaxis()->GetXmax()});
         }
     }
     // allow custom configuration from the class
@@ -1271,13 +1270,13 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource *source, 
 }
 
 void TRestGeant4Metadata::RemoveParticleSources() {
-    for (auto source: fParticleSource) {
+    for (auto source : fParticleSource) {
         delete source;
     }
     fParticleSource.clear();
 }
 
-void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource *src) {
+void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
     fParticleSource.push_back(src);
 }
 
@@ -1297,22 +1296,22 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource *src) {
 ///
 void TRestGeant4Metadata::ReadDetector() {
     RESTInfo << "TRestGeant4Metadata: Processing detector section" << RESTendl;
-    TiXmlElement *detectorDefinition = GetElement("detector");
+    TiXmlElement* detectorDefinition = GetElement("detector");
     if (detectorDefinition == nullptr) {
         RESTError << "Detector section (<detector>) is not present in metadata!" << RESTendl;
         exit(1);
     }
 
     const bool activateAllVolumes =
-            StringToBool(GetParameter("activateAllVolumes", detectorDefinition, "true"));
+        StringToBool(GetParameter("activateAllVolumes", detectorDefinition, "true"));
     RESTInfo << "TRestGeant4Metadata: Setting 'fActivateAllVolumes' to " << fActivateAllVolumes << RESTendl;
     fActivateAllVolumes = activateAllVolumes;
 
-    TiXmlElement *removeUnwantedTracksDefinition = GetElement("removeUnwantedTracks", detectorDefinition);
+    TiXmlElement* removeUnwantedTracksDefinition = GetElement("removeUnwantedTracks", detectorDefinition);
     if (removeUnwantedTracksDefinition != nullptr) {
         fRemoveUnwantedTracks = StringToBool(GetParameter("enabled", removeUnwantedTracksDefinition, "true"));
         fRemoveUnwantedTracksKeepZeroEnergyTracks =
-                StringToBool(GetParameter("keepZeroEnergyTracks", removeUnwantedTracksDefinition, "false"));
+            StringToBool(GetParameter("keepZeroEnergyTracks", removeUnwantedTracksDefinition, "false"));
         RESTInfo << "TRestGeant4Metadata: Setting 'fRemoveUnwantedTracks' to " << fRemoveUnwantedTracks
                  << " with 'keepZeroEnergyTracks' option set to " << fRemoveUnwantedTracksKeepZeroEnergyTracks
                  << RESTendl;
@@ -1323,7 +1322,7 @@ void TRestGeant4Metadata::ReadDetector() {
         defaultStep = 0;
     }
 
-    TiXmlElement *volumeDefinition = GetElement("volume", detectorDefinition);
+    TiXmlElement* volumeDefinition = GetElement("volume", detectorDefinition);
     while (volumeDefinition != nullptr) {
         string name = GetFieldValue("name", volumeDefinition);
         if (name.empty() || name == "Not defined") {
@@ -1333,25 +1332,25 @@ void TRestGeant4Metadata::ReadDetector() {
         vector<string> physicalVolumes;
         if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
             if (fGeant4GeometryInfo.IsValidLogicalVolume(name)) {
-                for (const auto &physical: fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
+                for (const auto& physical : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
                     physicalVolumes.emplace_back(
-                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
                 }
             }
             // does not match a explicit (gdml) physical name or a logical name, perhaps its a regular exp
             if (physicalVolumes.empty()) {
-                for (const auto &physical:
-                        fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
+                for (const auto& physical :
+                     fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
                     physicalVolumes.emplace_back(
-                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
                 }
             }
             if (physicalVolumes.empty()) {
-                for (const auto &logical: fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
-                    for (const auto &physical:
-                            fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
+                for (const auto& logical : fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
+                    for (const auto& physical :
+                         fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
                         physicalVolumes.emplace_back(
-                                fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
                     }
                 }
             }
@@ -1361,9 +1360,9 @@ void TRestGeant4Metadata::ReadDetector() {
 
         if (physicalVolumes.empty()) {
             RESTError
-                    << "volume '" << name
-                    << "' is not defined in the geometry. Could not match to a physical, logical volume or regex"
-                    << RESTendl;
+                << "volume '" << name
+                << "' is not defined in the geometry. Could not match to a physical, logical volume or regex"
+                << RESTendl;
             exit(1);
         }
 
@@ -1394,7 +1393,7 @@ void TRestGeant4Metadata::ReadDetector() {
             maxStep = defaultStep;
         }
 
-        for (const auto &physical: physicalVolumes) {
+        for (const auto& physical : physicalVolumes) {
             RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '"
                      << physical << (chance != 1 ? " with change: " + to_string(chance) : " ") << RESTendl;
             SetActiveVolume(physical, chance, maxStep);
@@ -1441,7 +1440,7 @@ void TRestGeant4Metadata::ReadDetector() {
     // If the user did not add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
     if (fActivateAllVolumes) {
-        for (const auto &name: fGeant4GeometryInfo.GetAllPhysicalVolumes()) {
+        for (const auto& name : fGeant4GeometryInfo.GetAllPhysicalVolumes()) {
             if (!IsActiveVolume(name)) {
                 SetActiveVolume(name, 1, defaultStep);
                 RESTInfo << "Automatically adding active volume: '" << name << "' with chance: " << 1
@@ -1491,7 +1490,7 @@ void TRestGeant4Metadata::PrintMetadata() {
         RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", "
                      << GetMaximumEnergyStored() << ")" << RESTendl;
         RESTMetadata << "Number of sensitive volumes: " << GetNumberOfSensitiveVolumes() << RESTendl;
-        for (const auto &sensitiveVolume: fSensitiveVolumes) {
+        for (const auto& sensitiveVolume : fSensitiveVolumes) {
             RESTMetadata << "Sensitive volume: " << sensitiveVolume << RESTendl;
         }
         RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
@@ -1526,7 +1525,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 /// \brief Returns the id of an active volume giving as parameter its name.
 Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
     Int_t id;
-    for (id = 0; id < (Int_t) fActiveVolumes.size(); id++) {
+    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == name) return id;
     }
     return -1;
@@ -1546,7 +1545,7 @@ Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
 /// The aim of this parameter is to define control volumes. Usually the volume
 /// of interest will be always registered (chance=1).
 ///
-void TRestGeant4Metadata::SetActiveVolume(const TString &name, Double_t chance, Double_t maxStep) {
+void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep) {
     for (size_t i = 0; i < fActiveVolumes.size(); i++) {
         const auto activeVolumeName = fActiveVolumes[i];
         if (name == activeVolumeName) {
@@ -1565,7 +1564,7 @@ void TRestGeant4Metadata::SetActiveVolume(const TString &name, Double_t chance, 
 /// \brief Returns true if the volume named *volName* has been registered for
 /// data storage.
 ///
-Bool_t TRestGeant4Metadata::isVolumeStored(const TString &volume) const {
+Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
     for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++)
         if (GetActiveVolumeName(n) == volume) return true;
 
@@ -1577,7 +1576,7 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString &volume) const {
 ///
 Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
     Int_t id;
-    for (id = 0; id < (Int_t) fActiveVolumes.size(); id++) {
+    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == volume) return fChance[id];
     }
     RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << volume << " not found" << RESTendl;
@@ -1588,8 +1587,8 @@ Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
 ///////////////////////////////////////////////
 /// \brief Returns the maximum step at a particular active volume
 ///
-Double_t TRestGeant4Metadata::GetMaxStepSize(const TString &volume) {
-    for (Int_t i = 0; i < (Int_t) fActiveVolumes.size(); i++) {
+Double_t TRestGeant4Metadata::GetMaxStepSize(const TString& volume) {
+    for (Int_t i = 0; i < (Int_t)fActiveVolumes.size(); i++) {
         if (volume.EqualTo(fActiveVolumes[i], TString::kIgnoreCase)) {
             return fMaxStepSize[i];
         }
