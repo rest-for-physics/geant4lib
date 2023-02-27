@@ -18,21 +18,21 @@ using namespace std;
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Geant4_ViewGeometry(const char* filename, const char* option = "") {
+Int_t REST_Geant4_ViewGeometry(const char *filename, const char *option = "") {
     cout << "REST View Geometry Macro called with input: " << filename << endl;
 
-    TGeoManager* geo = nullptr;
+    TGeoManager *geo = nullptr;
     if (TRestTools::isRootFile(filename)) {
-        TFile* fFile = new TFile(filename);
+        TFile *fFile = TFile::Open(filename);
 
         TIter nextkey(fFile->GetListOfKeys());
-        TKey* key;
-        while ((key = (TKey*)nextkey()) != nullptr) {
+        TKey *key;
+        while ((key = (TKey *) nextkey()) != nullptr) {
             if (key->GetClassName() == (TString) "TGeoManager") {
                 if (geo == nullptr)
-                    geo = (TGeoManager*)fFile->Get(key->GetName());
+                    geo = (TGeoManager *) fFile->Get(key->GetName());
                 else if (key->GetName() == (TString) "Geometry")
-                    geo = (TGeoManager*)fFile->Get(key->GetName());
+                    geo = (TGeoManager *) fFile->Get(key->GetName());
             }
         }
     } else if (string(filename).find(".gdml") != string::npos) {
@@ -57,7 +57,7 @@ Int_t REST_Geant4_ViewGeometry(const char* filename, const char* option = "") {
     if (string(option).empty()) {
         cout << "Launching ROOT viewer..." << endl;
         geo->GetTopVolume()->Draw("ogl");
-    } else if (ToUpper((string)option) == "EVE") {
+    } else if (ToUpper((string) option) == "EVE") {
         cout << "Launching EVE viewer..." << endl;
         /*
         TRestEventViewer *view = (TRestEventViewer *) REST_Reflection::Assembly("TRestGeant4EventViewer");
