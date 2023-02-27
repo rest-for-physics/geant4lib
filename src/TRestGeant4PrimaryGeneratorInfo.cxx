@@ -16,7 +16,7 @@
 using namespace std;
 using namespace TRestGeant4PrimaryGeneratorTypes;
 
-string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const SpatialGeneratorTypes &type) {
+string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const SpatialGeneratorTypes& type) {
     switch (type) {
         case SpatialGeneratorTypes::CUSTOM:
             return "Custom";
@@ -35,7 +35,7 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const Spa
     exit(1);
 }
 
-SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(const string &type) {
+SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(const string& type) {
     if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::CUSTOM),
                               TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorTypes::CUSTOM;
@@ -59,7 +59,7 @@ SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerator
     }
 }
 
-string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString(const SpatialGeneratorShapes &type) {
+string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString(const SpatialGeneratorShapes& type) {
     switch (type) {
         case SpatialGeneratorShapes::GDML:
             return "GDML";
@@ -80,7 +80,7 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorShapesToString(const Sp
     exit(1);
 }
 
-SpatialGeneratorShapes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorShapes(const string &type) {
+SpatialGeneratorShapes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorShapes(const string& type) {
     if (TString(type).EqualTo(SpatialGeneratorShapesToString(SpatialGeneratorShapes::GDML),
                               TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorShapes::GDML;
@@ -109,7 +109,7 @@ SpatialGeneratorShapes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerato
 }
 
 string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
-        const EnergyDistributionTypes &type) {
+    const EnergyDistributionTypes& type) {
     switch (type) {
         case EnergyDistributionTypes::TH1D:
             return "TH1D";
@@ -131,7 +131,7 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
 }
 
 EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
-        const string &type) {
+    const string& type) {
     if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::TH1D;
@@ -159,7 +159,7 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
 }
 
 string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
-        const EnergyDistributionFormulas &type) {
+    const EnergyDistributionFormulas& type) {
     switch (type) {
         case EnergyDistributionFormulas::COSMIC_NEUTRONS:
             return "CosmicNeutrons";
@@ -173,13 +173,12 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
 }
 
 EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas(
-        const string &type) {
+    const string& type) {
     if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
                               TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC_NEUTRONS;
-    } else if (TString(type).EqualTo(
-            EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC),
-            TString::ECaseCompare::kIgnoreCase)) {
+    } else if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC),
+                                     TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
@@ -190,29 +189,26 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
 }
 
 TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
-        const EnergyDistributionFormulas &type) {
+    const EnergyDistributionFormulas& type) {
     switch (type) {
         case EnergyDistributionFormulas::COSMIC_NEUTRONS: {
             // Formula from https://ieeexplore.ieee.org/document/1369506
-            const char *title = "Cosmic Neutrons at Sea Level";
+            const char* title = "Cosmic Neutrons at Sea Level";
             auto distribution =
-                    TF1(title,
-                        "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x * 1E-3), 2) + 2.1451 * "
-                        "TMath::Log(x * 1E-3)) + "
-                        "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x * 1E-3), 2) - 0.6670 * "
-                        "TMath::Log(x * 1E-3))",
-                        1E2, 1E7);
+                TF1(title,
+                    "1.006E-6 * TMath::Exp(-0.3500 * TMath::Power(TMath::Log(x * 1E-3), 2) + 2.1451 * "
+                    "TMath::Log(x * 1E-3)) + "
+                    "1.011E-3 * TMath::Exp(-0.4106 * TMath::Power(TMath::Log(x * 1E-3), 2) - 0.6670 * "
+                    "TMath::Log(x * 1E-3))",
+                    1E2, 1E7);
             distribution.SetNormalized(true);  // Normalized, not really necessary
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
             return distribution;
         }
         case EnergyDistributionFormulas::COSMIC:
-            const char *title = "Cosmic distribution aproximation";
-            auto distribution =
-                    TF1(title,
-                        "TMath::Power(x, -2.7)",
-                        1E2, 1E9);
+            const char* title = "Cosmic distribution aproximation";
+            auto distribution = TF1(title, "TMath::Power(x, -2.7)", 1E2, 1E9);
             distribution.SetNormalized(true);  // Normalized, not really necessary
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
@@ -225,7 +221,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
 }
 
 string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
-        const AngularDistributionTypes &type) {
+    const AngularDistributionTypes& type) {
     switch (type) {
         case AngularDistributionTypes::TH1D:
             return "TH1D";
@@ -247,7 +243,7 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
 }
 
 AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
-        const string &type) {
+    const string& type) {
     if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::TH1D;
@@ -275,7 +271,7 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
 }
 
 string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
-        const AngularDistributionFormulas &type) {
+    const AngularDistributionFormulas& type) {
     switch (type) {
         case AngularDistributionFormulas::COS2:
             return "Cos2";
@@ -289,7 +285,7 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
 }
 
 AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas(
-        const string &type) {
+    const string& type) {
     if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS2),
                               TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::COS2;
@@ -305,28 +301,28 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
 }
 
 TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
-        const AngularDistributionFormulas &type) {
+    const AngularDistributionFormulas& type) {
     switch (type) {
         case AngularDistributionFormulas::COS2: {
-            auto cos2 = [](double *xs, double *ps) {
+            auto cos2 = [](double* xs, double* ps) {
                 if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
                     return TMath::Power(TMath::Cos(xs[0]), 2);
                 }
                 return 0.0;
             };
-            const char *title = "AngularDistribution: Cos2";
+            const char* title = "AngularDistribution: Cos2";
             auto f = TF1(title, cos2, 0.0, TMath::Pi());
             f.SetTitle(title);
             return f;
         }
         case AngularDistributionFormulas::COS3: {
-            auto cos3 = [](double *xs, double *ps) {
+            auto cos3 = [](double* xs, double* ps) {
                 if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
                     return TMath::Power(TMath::Cos(xs[0]), 3);
                 }
                 return 0.0;
             };
-            const char *title = "AngularDistribution: Cos3";
+            const char* title = "AngularDistribution: Cos3";
             auto f = TF1(title, cos3, 0.0, TMath::Pi());
             f.SetTitle(title);
             return f;
@@ -339,7 +335,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
 }
 
 string TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToString(
-        const EnergyAndAngularDistributionFormulas &type) {
+    const EnergyAndAngularDistributionFormulas& type) {
     switch (type) {
         case EnergyAndAngularDistributionFormulas::COSMIC_MUONS:
             return "CosmicMuons";
@@ -351,7 +347,7 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToS
 }
 
 EnergyAndAngularDistributionFormulas
-TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(const string &type) {
+TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(const string& type) {
     if (TString(type).EqualTo(
             EnergyAndAngularDistributionFormulasToString(EnergyAndAngularDistributionFormulas::COSMIC_MUONS),
             TString::ECaseCompare::kIgnoreCase)) {
@@ -365,27 +361,27 @@ TRestGeant4PrimaryGeneratorTypes::StringToEnergyAndAngularDistributionFormulas(c
 }
 
 TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRootFormula(
-        const EnergyAndAngularDistributionFormulas &type) {
+    const EnergyAndAngularDistributionFormulas& type) {
     switch (type) {
         case EnergyAndAngularDistributionFormulas::COSMIC_MUONS: {
             // Guan formula from https://arxiv.org/pdf/1509.06176.pdf
             // muon rest mass is 105.7 MeV
             // energy in keV
             // already integrated in phi (*2pi): formula returns (counts/cm2/s)/keV/rad(theta)
-            const char *title = "Cosmic Muons Energy and Angular";
+            const char* title = "Cosmic Muons Energy and Angular";
             auto f =
-                    TF2(title,
-                        "2*TMath::Pi()*1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
-                        "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
-                        "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
-                        ")/(0.982960),0.5),1.29))),-2.7)*(1./"
-                        "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
-                        "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
-                        "(0.982960),0.5))/115.)+0.054/"
-                        "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
-                        "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
-                        "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
-                        2.0E5, 5.0E9, 0, TMath::Pi() / 2.);
+                TF2(title,
+                    "2*TMath::Pi()*1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
+                    "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
+                    ")/(0.982960),0.5),1.29))),-2.7)*(1./"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/115.)+0.054/"
+                    "(1.+(1.1*x*1E-6*TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*TMath::"
+                    "Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285))/"
+                    "(0.982960),0.5))/850.))*(2.*TMath::Sin(y)*TMath::Pi())",
+                    2.0E5, 5.0E9, 0, TMath::Pi() / 2.);
             f.SetTitle(title);
             /*
              * we need to increase the number of bins to get a smooth distribution
