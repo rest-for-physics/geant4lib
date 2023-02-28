@@ -624,6 +624,8 @@
 /// to stop a track after entering the volume. The track will be immediately killed and its energy deposition
 /// won't be computed. This is useful to speed up certain kinds of simulations.
 ///
+/// If "killVolumesComputeEnergy" option is enabled,
+/// the energy deposition in the volumes marked as kill will be computed towards the sensitive volume.
 /// ## 4. The biasing volumes section (optional)
 ///
 /// The REST Geant4 toolkit (*restG4*) implements a particular biasing
