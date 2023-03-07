@@ -768,7 +768,13 @@ TRestGeant4Metadata::TRestGeant4Metadata(const char* configFilename, const strin
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4Metadata::~TRestGeant4Metadata() { RemoveParticleSources(); }
+TRestGeant4Metadata::~TRestGeant4Metadata() {
+    /*
+     * Problem with the merge macro
+     * TODO: Why?
+    RemoveParticleSources();
+     */
+}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestGeant4Metadata members
@@ -1233,7 +1239,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
 
 void TRestGeant4Metadata::RemoveParticleSources() {
     for (auto source : fParticleSource) {
-        // delete source;
+        delete source;
     }
     fParticleSource.clear();
 }
