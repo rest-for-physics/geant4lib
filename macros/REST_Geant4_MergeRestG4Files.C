@@ -5,8 +5,8 @@
 #include "TRestGeant4Metadata.h"
 #include "TRestTask.h"
 
-#ifndef RestTask_Geant4_MergeFiles
-#define RestTask_Geant4_MergeFiles
+#ifndef RestTask_Geant4_MergeRestG4Files
+#define RestTask_Geant4_MergeRestG4Files
 
 //*******************************************************************************************************
 //***
@@ -24,7 +24,7 @@
 
 using namespace std;
 
-void REST_Geant4_MergeFiles(const char* outputFilename, const char* inputFilesDirectory) {
+void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputFilesDirectory) {
     // TODO: use glob pattern instead of directory. Already tried this but conflicts with TRestTask...
 
     cout << "Output file: " << outputFilename << endl;
