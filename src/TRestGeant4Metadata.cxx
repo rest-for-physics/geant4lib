@@ -768,13 +768,7 @@ TRestGeant4Metadata::TRestGeant4Metadata(const char* configFilename, const strin
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestGeant4Metadata::~TRestGeant4Metadata() {
-    /*
-     * Problem with the merge macro
-     * TODO: Why?
-    RemoveParticleSources();
-     */
-}
+TRestGeant4Metadata::~TRestGeant4Metadata() { RemoveParticleSources(); }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestGeant4Metadata members
@@ -1601,7 +1595,7 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fActiveVolumes = metadata.fActiveVolumes;
     fChance = metadata.fChance;
     fMaxStepSize = metadata.fMaxStepSize;
-    fParticleSource = metadata.fParticleSource;  //->
+    // fParticleSource = metadata.fParticleSource; // segfaults (pointers!)
     fNBiasingVolumes = metadata.fNBiasingVolumes;
     fBiasingVolumes = metadata.fBiasingVolumes;
     fMaxTargetStepSize = metadata.fMaxTargetStepSize;
