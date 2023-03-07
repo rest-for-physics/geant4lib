@@ -1233,7 +1233,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
 
 void TRestGeant4Metadata::RemoveParticleSources() {
     for (auto source : fParticleSource) {
-        delete source;
+        // delete source;
     }
     fParticleSource.clear();
 }
