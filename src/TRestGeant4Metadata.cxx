@@ -1485,7 +1485,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
-Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
+Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == name) return id;
@@ -1580,7 +1580,9 @@ void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
     fSeed = 0;  // seed makes no sense in a merged file
 }
 
-TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) {
+TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
+
+TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
     fIsMerge = metadata.fIsMerge;
     fDetectorSectionInitialized = metadata.fDetectorSectionInitialized;
     fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
@@ -1611,9 +1613,5 @@ TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) {
     fKillVolumes = metadata.fKillVolumes;
     fRegisterEmptyTracks = metadata.fRegisterEmptyTracks;
     fMagneticField = metadata.fMagneticField;
-}
-
-TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
-    // use copy constructor
-    TRestGeant4Metadata tmp(metadata);
+    return *this;
 }

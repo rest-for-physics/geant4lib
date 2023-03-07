@@ -369,7 +369,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
 
-    Int_t GetActiveVolumeID(TString name);
+    Int_t GetActiveVolumeID(const TString& name);
 
     Bool_t isVolumeStored(const TString& volume) const;
 
