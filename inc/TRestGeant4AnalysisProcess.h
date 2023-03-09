@@ -80,6 +80,9 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
+    TVector3 fPrismCenter;
+    TVector3 fPrismSize;
+
     void Initialize() override;
 
     void LoadDefaultConfig();
