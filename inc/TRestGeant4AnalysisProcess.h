@@ -80,8 +80,9 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
-    TVector3 fPrismCenter;
-    TVector3 fPrismSize;
+    // vectors for size and dimensions of prism used to compute "primaryOriginDistanceToPrism"
+    TVector3 fPrismCenter = {0, 0, 0};
+    TVector3 fPrismSize = {0, 0, 0};
 
     void Initialize() override;
 
