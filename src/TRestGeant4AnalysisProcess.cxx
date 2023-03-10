@@ -387,6 +387,11 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             fTracksEDepObservables.push_back(fObservables[i]);
             fParticleTrackEdep.emplace_back(particleName.Data());
         }
+
+        if (fObservables[i].find("primaryOriginDistanceToPrism") != string::npos) {
+            fPrismCenter = Get3DVectorParameterWithUnits("prismCenter");
+            fPrismSize = Get3DVectorParameterWithUnits("prismSizeXYZ");
+        }
     }
 }
 
@@ -436,6 +441,28 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
 
     Double_t size = fOutputG4Event->GetBoundingBoxSize();
     SetObservableValue("boundingSize", size);
+
+    std::string eventPrimaryParticleName = fOutputG4Event->GetPrimaryEventParticleName(0).Data();
+    SetObservableValue("eventPrimaryParticleName", eventPrimaryParticleName);
+
+    std::string subEventPrimaryParticleName = fOutputG4Event->GetSubEventPrimaryEventParticleName().Data();
+    SetObservableValue("subEventPrimaryParticleName", subEventPrimaryParticleName);
+
+    auto observables = TRestEventProcess::ReadObservables();
+    auto it = std::find(observables.begin(), observables.end(), "primaryOriginDistanceToPrism");
+    if (it != observables.end()) {
+        TVector3 positionCentered = fOutputG4Event->GetPrimaryEventOrigin() - fPrismCenter;
+        double mx = TMath::Max(0., TMath::Max(-fPrismSize.X() / 2 - positionCentered.X(),
+                                              -fPrismSize.X() / 2 + positionCentered.X()));
+        double my = TMath::Max(0., TMath::Max(-fPrismSize.Y() / 2 - positionCentered.Y(),
+                                              -fPrismSize.Y() / 2 + positionCentered.Y()));
+        double mz = TMath::Max(0., TMath::Max(-fPrismSize.Z() / 2 - positionCentered.Z(),
+                                              -fPrismSize.Z() / 2 + positionCentered.Z()));
+
+        auto distance = TMath::Sqrt(mx * mx + my * my + mz * mz);
+
+        SetObservableValue("primaryOriginDistanceToPrism", distance);
+    }
 
     // process names as named by Geant4
     // processes present here will be added to the list of observables which can be used to see if the event
