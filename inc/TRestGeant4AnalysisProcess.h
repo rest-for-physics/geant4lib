@@ -80,9 +80,22 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
-    // vectors for size and dimensions of prism used to compute "primaryOriginDistanceToPrism"
+    /// Center of prism used to compute "primaryOriginDistanceToPrism"
     TVector3 fPrismCenter = {0, 0, 0};
+    /// Size (XYZ) of prism used to compute "primaryOriginDistanceToPrism"
     TVector3 fPrismSize = {0, 0, 0};
+
+    /// Stores the name of the particles entering the volume
+    std::vector<std::string> fParticlesEnteringVolumeParticleName = {};  //!
+    /// Stores the energy of the particles entering the volume
+    std::vector<double> fParticlesEnteringVolumeParticleEnergy = {};  //!
+    /// Stores the position of the particles entering the volume (at point of entrance)
+    std::vector<TVector3> fParticlesEnteringVolumeParticlePosition = {};  //!
+    /// Stores the creator process of the particles entering the volume
+    std::vector<std::string> fParticlesEnteringVolumeParticleCreatorProcess = {};  //!
+
+    /// Which volume to track particles entering
+    std::string fParticlesEnteringVolumeName = "";
 
     void Initialize() override;
 
@@ -104,7 +117,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// It prints out the process parameters stored in the metadata structure
     void PrintMetadata() override {
         BeginPrintProcess();
-
         EndPrintProcess();
     }
 
@@ -118,6 +130,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     TRestGeant4AnalysisProcess(const char* configFilename);
     ~TRestGeant4AnalysisProcess();
 
-    ClassDefOverride(TRestGeant4AnalysisProcess, 3);
+    ClassDefOverride(TRestGeant4AnalysisProcess, 4);
 };
 #endif

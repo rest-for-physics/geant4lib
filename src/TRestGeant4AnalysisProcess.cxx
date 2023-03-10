@@ -392,6 +392,32 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             fPrismCenter = Get3DVectorParameterWithUnits("prismCenter");
             fPrismSize = Get3DVectorParameterWithUnits("prismSizeXYZ");
         }
+
+        if (std::find(fObservables.begin(), fObservables.end(), "particlesEnteringVolumeParticleName") !=
+                fObservables.end() ||
+            std::find(fObservables.begin(), fObservables.end(), "fParticlesEnteringVolumeParticleEnergy") !=
+                fObservables.end() ||
+            std::find(fObservables.begin(), fObservables.end(), "fParticlesEnteringVolumeParticlePosition") !=
+                fObservables.end() ||
+            std::find(fObservables.begin(), fObservables.end(),
+                      "fParticlesEnteringVolumeParticleCreatorProcess") != fObservables.end()) {
+            fParticlesEnteringVolumeName = GetParameter("particlesEnteringVolumeName");
+            if (fParticlesEnteringVolumeName == PARAMETER_NOT_FOUND_STR) {
+                cerr << "You must specify the name of the volume to be analyzed with the parameter "
+                        "'particlesEnteringVolumeName'"
+                     << endl;
+                exit(1);
+            }
+            // check if fParticlesEnteringVolumeName is an active volume
+            if (fG4Metadata->GetActiveVolumeID(fParticlesEnteringVolumeName) == -1) {
+                cerr << "The volume " << fParticlesEnteringVolumeName << " is not an active volume" << endl;
+                cerr << "List of active volumes : " << endl;
+                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++) {
+                    cerr << "- Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
+                }
+                exit(1);
+            }
+        }
     }
 }
 
@@ -449,8 +475,8 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     SetObservableValue("subEventPrimaryParticleName", subEventPrimaryParticleName);
 
     auto observables = TRestEventProcess::ReadObservables();
-    auto it = std::find(observables.begin(), observables.end(), "primaryOriginDistanceToPrism");
-    if (it != observables.end()) {
+    if (std::find(observables.begin(), observables.end(), "primaryOriginDistanceToPrism") !=
+        observables.end()) {
         TVector3 positionCentered = fOutputG4Event->GetPrimaryEventOrigin() - fPrismCenter;
         double mx = TMath::Max(0., TMath::Max(-fPrismSize.X() / 2 - positionCentered.X(),
                                               -fPrismSize.X() / 2 + positionCentered.X()));
@@ -462,6 +488,52 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         auto distance = TMath::Sqrt(mx * mx + my * my + mz * mz);
 
         SetObservableValue("primaryOriginDistanceToPrism", distance);
+    }
+
+    if (std::find(observables.begin(), observables.end(), "particlesEnteringVolumeParticleName") !=
+            observables.end() ||
+        std::find(observables.begin(), observables.end(), "fParticlesEnteringVolumeParticleEnergy") !=
+            observables.end() ||
+        std::find(observables.begin(), observables.end(), "fParticlesEnteringVolumeParticlePosition") !=
+            observables.end() ||
+        std::find(observables.begin(), observables.end(), "fParticlesEnteringVolumeParticleCreatorProcess") !=
+            observables.end()) {
+        fParticlesEnteringVolumeParticleEnergy.clear();
+        fParticlesEnteringVolumeParticleName.clear();
+        fParticlesEnteringVolumeParticlePosition.clear();
+        fParticlesEnteringVolumeParticleCreatorProcess.clear();
+
+        for (const auto& track : fOutputG4Event->GetTracks()) {
+            const auto& hits = track.GetHits();
+            for (int i = 0; i < hits.GetNumberOfHits(); i++) {
+                const auto& processId =
+                    hits.GetProcessId(i);  // get process name not working here for some reason, track is not
+                                           // properly connected to the metadata. TODO: fix this
+                const auto& geometryInfo = fG4Metadata->GetGeant4GeometryInfo();
+                const auto& volumeName = geometryInfo.GetVolumeFromID(hits.GetVolumeId(i));
+                TString nextVolumeName = "";
+                if (i != hits.GetNumberOfHits() - 1) {
+                    nextVolumeName = geometryInfo.GetVolumeFromID(hits.GetVolumeId(i + 1));
+                }
+                if (processId == 1091 /* "Transportation" */ &&
+                    nextVolumeName == fParticlesEnteringVolumeName) {
+                    fParticlesEnteringVolumeParticleEnergy.emplace_back(hits.GetKineticEnergy(i));
+                    fParticlesEnteringVolumeParticleName.emplace_back(track.GetParticleName());
+                    fParticlesEnteringVolumeParticlePosition.emplace_back(hits.GetPosition(i));
+                    fParticlesEnteringVolumeParticleCreatorProcess.emplace_back(
+                        track.GetCreatorProcess().Data());
+                }
+            }
+        }
+
+        SetObservableValue("particlesEntering" + fParticlesEnteringVolumeName + "ParticleName",
+                           fParticlesEnteringVolumeParticleName);
+        SetObservableValue("particlesEntering" + fParticlesEnteringVolumeName + "ParticleEnergy",
+                           fParticlesEnteringVolumeParticleEnergy);
+        SetObservableValue("particlesEntering" + fParticlesEnteringVolumeName + "ParticlePosition",
+                           fParticlesEnteringVolumeParticlePosition);
+        SetObservableValue("particlesEntering" + fParticlesEnteringVolumeName + "ParticleCreatorProcess",
+                           fParticlesEnteringVolumeParticleCreatorProcess);
     }
 
     // process names as named by Geant4
