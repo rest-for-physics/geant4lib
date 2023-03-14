@@ -1411,8 +1411,6 @@ void TRestGeant4Metadata::ReadDetector() {
         }
     }
 
-    fDetectorSectionInitialized = true;
-
     if (GetNumberOfActiveVolumes() == 0) {
         RESTError << "No active volumes defined. Please check the detector section" << RESTendl;
         exit(1);
@@ -1454,22 +1452,20 @@ void TRestGeant4Metadata::PrintMetadata() {
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
-    if (fDetectorSectionInitialized) {
-        RESTMetadata << " " << RESTendl;
-        RESTMetadata << "   ++++++++++ Detector +++++++++++   " << RESTendl;
-        RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", "
-                     << GetMaximumEnergyStored() << ")" << RESTendl;
-        RESTMetadata << "Number of sensitive volumes: " << GetNumberOfSensitiveVolumes() << RESTendl;
-        for (const auto& sensitiveVolume : fSensitiveVolumes) {
-            RESTMetadata << "Sensitive volume: " << sensitiveVolume << RESTendl;
-        }
-        RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
-        for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-            RESTMetadata << "Name: " << GetActiveVolumeName(n)
-                         << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
-                         << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                         << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
-        }
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "   ++++++++++ Detector +++++++++++   " << RESTendl;
+    RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", " << GetMaximumEnergyStored()
+                 << ")" << RESTendl;
+    RESTMetadata << "Number of sensitive volumes: " << GetNumberOfSensitiveVolumes() << RESTendl;
+    for (const auto& sensitiveVolume : fSensitiveVolumes) {
+        RESTMetadata << "Sensitive volume: " << sensitiveVolume << RESTendl;
+    }
+    RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
+    for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
+        RESTMetadata << "Name: " << GetActiveVolumeName(n)
+                     << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
+                     << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
+                     << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
     }
 
     for (unsigned int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
