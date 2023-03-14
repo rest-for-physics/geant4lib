@@ -1449,7 +1449,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 
     RESTMetadata << " " << RESTendl;
     RESTMetadata << "   ++++++++++ Active volumes +++++++++++   " << RESTendl;
-    for (int n = 0; n < fActiveVolumes.size(); n++)
+    for (unsigned int n = 0; n < fActiveVolumes.size(); n++)
         RESTMetadata << " - Volume id : " << n << " name : " << fActiveVolumes[n] << RESTendl;
 
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
