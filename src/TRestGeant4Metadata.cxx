@@ -1445,11 +1445,6 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "Number of generated events: " << GetNumberOfEvents() << RESTendl;
     fGeant4PrimaryGeneratorInfo.Print();
 
-    RESTMetadata << " " << RESTendl;
-    RESTMetadata << "   ++++++++++ Active volumes +++++++++++   " << RESTendl;
-    for (unsigned int n = 0; n < fActiveVolumes.size(); n++)
-        RESTMetadata << " - Volume id : " << n << " name : " << fActiveVolumes[n] << RESTendl;
-
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
     RESTMetadata << " " << RESTendl;
