@@ -1441,13 +1441,21 @@ void TRestGeant4Metadata::PrintMetadata() {
     } else {
         RESTMetadata << "Register empty tracks was NOT enabled" << RESTendl;
     }
+
+    RESTMetadata << " " << RESTendl;
     RESTMetadata << "   ++++++++++ Generator +++++++++++   " << RESTendl;
     RESTMetadata << "Number of generated events: " << GetNumberOfEvents() << RESTendl;
     fGeant4PrimaryGeneratorInfo.Print();
 
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "   ++++++++++ Active volumes +++++++++++   " << RESTendl;
+    for (int n = 0; n < fActiveVolumes.size(); n++)
+        RESTMetadata << " - Volume id : " << n << " name : " << fActiveVolumes[n] << RESTendl;
+
     for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
 
     if (fDetectorSectionInitialized) {
+        RESTMetadata << " " << RESTendl;
         RESTMetadata << "   ++++++++++ Detector +++++++++++   " << RESTendl;
         RESTMetadata << "Energy range (keV): (" << GetMinimumEnergyStored() << ", "
                      << GetMaximumEnergyStored() << ")" << RESTendl;
@@ -1463,6 +1471,7 @@ void TRestGeant4Metadata::PrintMetadata() {
                          << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
         }
     }
+
     for (unsigned int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
         GetBiasingVolume(n).PrintBiasingVolume();
     }
