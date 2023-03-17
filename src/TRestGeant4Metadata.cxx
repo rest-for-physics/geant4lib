@@ -1458,8 +1458,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
     for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
         const auto name = GetActiveVolumeName(n);
-        RESTMetadata << "Name: " << name
-                     << ", ID: " << fGeant4GeometryInfo.GetIDFromVolume(name)
+        RESTMetadata << "Name: " << name << ", ID: " << fGeant4GeometryInfo.GetIDFromVolume(name)
                      << ", maxStep: " << GetMaxStepSize(name) << "mm "
                      << ", chance: " << GetStorageChance(name) << RESTendl;
     }
