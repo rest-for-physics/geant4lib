@@ -1457,10 +1457,11 @@ void TRestGeant4Metadata::PrintMetadata() {
     }
     RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
     for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-        RESTMetadata << "Name: " << GetActiveVolumeName(n)
-                     << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
-                     << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                     << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+        const auto name = GetActiveVolumeName(n);
+        RESTMetadata << "Name: " << name
+                     << ", ID: " << fGeant4GeometryInfo.GetIDFromVolume(name)
+                     << ", maxStep: " << GetMaxStepSize(name) << "mm "
+                     << ", chance: " << GetStorageChance(name) << RESTendl;
     }
 
     for (unsigned int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
