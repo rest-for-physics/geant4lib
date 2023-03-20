@@ -1486,11 +1486,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
 Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
-    Int_t id;
-    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == name) return id;
-    }
-    return -1;
+    return fGeant4GeometryInfo.GetIDFromVolume(name);
 }
 
 ///////////////////////////////////////////////
