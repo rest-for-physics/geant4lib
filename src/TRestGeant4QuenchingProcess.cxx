@@ -107,13 +107,13 @@ void TRestGeant4QuenchingProcess::InitFromConfigFile() {
                 cerr << "TRestGeant4QuenchingProcess: No particle name specified" << endl;
                 exit(1);
             }
-            const auto quenchingFactor = stod(GetParameter("quenchingFactor", particleElement, -1.0));
+            const auto quenchingFactor = stof(GetParameter("quenchingFactor", particleElement, -1.0));
             // if no value is specified, give error
             if (quenchingFactor < 0.0 || quenchingFactor > 1.0) {
                 cerr << "TRestGeant4QuenchingProcess: Quenching factor must be between 0 and 1" << endl;
                 exit(1);
             }
-            fVolumeParticleQuenchingFactor[volumeName][particleName] = quenchingFactor;
+            fUserVolumeParticleQuenchingFactor[volumeName][particleName] = quenchingFactor;
             particleElement = GetNextElement(particleElement);
         }
         volumeElement = GetNextElement(volumeElement);
@@ -130,6 +130,41 @@ void TRestGeant4QuenchingProcess::InitProcess() {
     if (fGeant4Metadata == nullptr) {
         cerr << "TRestGeant4QuenchingProcess: No TRestGeant4Metadata found" << endl;
         exit(1);
+    }
+
+    const auto geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
+    // check all the user volume expressions are valid and correspond to at least a volume
+    for (const auto& [userVolume, particleToQuenchingMap] : fUserVolumeParticleQuenchingFactor) {
+        set<string> physicalVolumes = {};
+        for (const auto& volume : geometryInfo.GetAllPhysicalVolumesMatchingExpression(userVolume)) {
+            physicalVolumes.insert(volume.Data());
+        }
+        if (!physicalVolumes.empty()) {
+            continue;
+        }
+        // maybe it refers to a logical volume
+        for (const auto& logicalVolume : geometryInfo.GetAllLogicalVolumesMatchingExpression(userVolume)) {
+            for (const auto& volume : geometryInfo.GetAllPhysicalVolumesFromLogical(logicalVolume.Data())) {
+                physicalVolumes.insert(volume.Data());
+            }
+        }
+
+        if (physicalVolumes.empty()) {
+            cerr << "TRestGeant4QuenchingProcess: No volume found matching expression " << userVolume << endl;
+            exit(1);
+        }
+
+        for (const auto& physicalVolume : physicalVolumes) {
+            fVolumeParticleQuenchingFactor[physicalVolume] = particleToQuenchingMap;
+        }
+    }
+
+    RESTInfo << "TRestGeant4QuenchingProcess initialized with volumes" << RESTendl;
+    for (const auto& [volume, particleToQuenchingMap] : fVolumeParticleQuenchingFactor) {
+        RESTInfo << volume << RESTendl;
+        for (const auto& [particle, quenchingFactor] : particleToQuenchingMap) {
+            RESTInfo << "\t" << particle << " " << quenchingFactor << RESTendl;
+        }
     }
 }
 
@@ -152,11 +187,14 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         auto& energy = hits->GetEnergyRef();
         for (int hitIndex = 0; hitIndex < hits->GetNumberOfHits(); hitIndex++) {
             const auto& volumeName = hits->GetVolumeName(hitIndex);
-            energy[hitIndex] *= 0;
+            const float_t quenchingFactor =
+                GetQuenchingFactorForVolumeAndParticle(volumeName.Data(), particleName.Data());
+            // default is 1.0, so no quenching
+            energy[hitIndex] *= quenchingFactor;
         }
     }
 
-    fOutputG4Event->PrintEvent();
+    // fOutputG4Event->PrintEvent();
     return fOutputG4Event;
 }
 
@@ -173,9 +211,9 @@ vector<string> TRestGeant4QuenchingProcess::GetUserVolumeExpressions() const {
     return userVolumeExpressions;
 }
 
-Double_t TRestGeant4QuenchingProcess::GetQuenchingFactorForVolumeAndParticle(
+float_t TRestGeant4QuenchingProcess::GetQuenchingFactorForVolumeAndParticle(
     const string& volumeName, const string& particleName) const {
-    Double_t quenchingFactor = 1.0;
+    float_t quenchingFactor = 1.0;
     // check if the volume is in the map
     if (fVolumeParticleQuenchingFactor.find(volumeName) != fVolumeParticleQuenchingFactor.end()) {
         // check if the particle is in the map
@@ -190,7 +228,7 @@ Double_t TRestGeant4QuenchingProcess::GetQuenchingFactorForVolumeAndParticle(
 void TRestGeant4QuenchingProcess::PrintMetadata() {
     BeginPrintProcess();
     cout << "Printing TRestGeant4QuenchingProcess user configuration" << endl;
-    for (auto const& [volume, particleQuenchingFactorMap] : fVolumeParticleQuenchingFactor) {
+    for (auto const& [volume, particleQuenchingFactorMap] : fUserVolumeParticleQuenchingFactor) {
         cout << "Volume: " << volume << endl;
         for (auto const& [particle, quenchingFactor] : particleQuenchingFactorMap) {
             cout << "  - Particle: " << particle << " Quenching factor: " << quenchingFactor << endl;
