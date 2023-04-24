@@ -206,7 +206,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
 
         auto hits = track->GetHitsPointer();
         auto& energy = hits->GetEnergyRef();
-        for (int hitIndex = 0; hitIndex < hits->GetNumberOfHits(); hitIndex++) {
+        for (int hitIndex = 0; hitIndex < int(hits->GetNumberOfHits()); hitIndex++) {
             const auto& volumeName = hits->GetVolumeName(hitIndex);
             const float_t quenchingFactor =
                 GetQuenchingFactorForVolumeAndParticle(volumeName.Data(), particleName.Data());
