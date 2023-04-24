@@ -20,6 +20,30 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
+//////////////////////////////////////////////////////////////////////////
+/// The TRestGeant4QuenchingProcess modifies the energy deposits of the simulation by multiplying by a
+/// user-defined quenching factor. This quenching factor is specified by volume and by particle and has the
+/// value 1.0 by default (no change). Physical volumes, logical volumes, or expressions (to be matched to
+/// either physical or logical) can be used for volumes. Example usage: \code
+///< TRestGeant4QuenchingProcess>
+///
+///    <volume name="^scintillatorVolume">
+///    <particle name="gamma" quenchingFactor="1.0"/>
+///    <particle name="e-" quenchingFactor="0.5"/>
+///    <particle name="e+" quenchingFactor="0.9"/>
+///    <particle name="mu-" quenchingFactor="0.2"/>
+///    <particle name="neutron" quenchingFactor="0.1"/>
+///    </volume>
+///
+///    <volume name="gasVolume">
+///    <particle name="gamma" quenchingFactor="0.2"/>
+///    <particle name="e-" quenchingFactor="0.2"/>
+///    </volume>
+///
+///    </TRestGeant4QuenchingProcess>
+/// \endcode
+///
+
 #include "TRestGeant4QuenchingProcess.h"
 
 using namespace std;
@@ -121,10 +145,7 @@ void TRestGeant4QuenchingProcess::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Process initialization. Observable names are interpreted and auxiliar
-/// observable members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep
-/// observables defined in TRestGeant4QuenchingProcess are filled at this stage.
-///
+/// \brief Process initialization. User volume expressions are matched to physical volumes
 void TRestGeant4QuenchingProcess::InitProcess() {
     fGeant4Metadata = GetMetadata<TRestGeant4Metadata>();
     if (fGeant4Metadata == nullptr) {
@@ -159,11 +180,11 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
     }
 
-    RESTInfo << "TRestGeant4QuenchingProcess initialized with volumes" << RESTendl;
+    RESTDebug << "TRestGeant4QuenchingProcess initialized with volumes" << RESTendl;
     for (const auto& [volume, particleToQuenchingMap] : fVolumeParticleQuenchingFactor) {
-        RESTInfo << volume << RESTendl;
+        RESTDebug << volume << RESTendl;
         for (const auto& [particle, quenchingFactor] : particleToQuenchingMap) {
-            RESTInfo << "\t" << particle << " " << quenchingFactor << RESTendl;
+            RESTDebug << "\t" << particle << " " << quenchingFactor << RESTendl;
         }
     }
 }
@@ -194,7 +215,6 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
     }
 
-    // fOutputG4Event->PrintEvent();
     return fOutputG4Event;
 }
 

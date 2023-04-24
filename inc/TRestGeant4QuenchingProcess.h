@@ -32,13 +32,13 @@
 class TRestGeant4QuenchingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestGeant4Event input
-    TRestGeant4Event* fInputG4Event;  //!
+    TRestGeant4Event* fInputG4Event{};  //!
 
     /// A pointer to the specific TRestGeant4Event output
-    TRestGeant4Event* fOutputG4Event;  //!
+    TRestGeant4Event* fOutputG4Event{};  //!
 
     /// A pointer to the simulation metadata information accessible to TRestRun
-    TRestGeant4Metadata* fGeant4Metadata;  //!
+    TRestGeant4Metadata* fGeant4Metadata{};  //!
 
     /// It stores the quenching factor for each particle for each user volume expression
     std::map<std::string, std::map<std::string, float_t>> fUserVolumeParticleQuenchingFactor = {};
