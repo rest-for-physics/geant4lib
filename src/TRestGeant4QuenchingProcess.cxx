@@ -125,7 +125,13 @@ void TRestGeant4QuenchingProcess::InitFromConfigFile() {
 /// observable members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep
 /// observables defined in TRestGeant4QuenchingProcess are filled at this stage.
 ///
-void TRestGeant4QuenchingProcess::InitProcess() { fGeant4Metadata = GetMetadata<TRestGeant4Metadata>(); }
+void TRestGeant4QuenchingProcess::InitProcess() {
+    fGeant4Metadata = GetMetadata<TRestGeant4Metadata>();
+    if (fGeant4Metadata == nullptr) {
+        cerr << "TRestGeant4QuenchingProcess: No TRestGeant4Metadata found" << endl;
+        exit(1);
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
@@ -134,6 +140,23 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
+    fOutputG4Event->InitializeReferences(GetRunInfo());
+
+    // loop over all tracks
+    for (int trackIndex = 0; trackIndex < fOutputG4Event->GetNumberOfTracks(); trackIndex++) {
+        // get the track
+        TRestGeant4Track* track = fOutputG4Event->GetTrackPointer(trackIndex);
+        const auto& particleName = track->GetParticleName();
+
+        auto hits = track->GetHitsPointer();
+        auto& energy = hits->GetEnergyRef();
+        for (int hitIndex = 0; hitIndex < hits->GetNumberOfHits(); hitIndex++) {
+            const auto& volumeName = hits->GetVolumeName(hitIndex);
+            energy[hitIndex] *= 0;
+        }
+    }
+
+    fOutputG4Event->PrintEvent();
     return fOutputG4Event;
 }
 
