@@ -63,6 +63,4 @@ TEST(TRestGeant4QuenchingProcess, Simulation) {
     process.PrintMetadata();
 
     EXPECT_TRUE(process.GetUserVolumeExpressions().size() == 2);
-
-
 }
