@@ -224,8 +224,8 @@ void TRestGeant4QuenchingProcess::EndProcess() {}
 
 vector<string> TRestGeant4QuenchingProcess::GetUserVolumeExpressions() const {
     vector<string> userVolumeExpressions;
-    userVolumeExpressions.reserve(fVolumeParticleQuenchingFactor.size());
-    for (auto const& x : fVolumeParticleQuenchingFactor) {
+    userVolumeExpressions.reserve(fUserVolumeParticleQuenchingFactor.size());
+    for (auto const& x : fUserVolumeParticleQuenchingFactor) {
         userVolumeExpressions.push_back(x.first);
     }
     return userVolumeExpressions;
@@ -252,6 +252,16 @@ void TRestGeant4QuenchingProcess::PrintMetadata() {
         cout << "Volume: " << volume << endl;
         for (auto const& [particle, quenchingFactor] : particleQuenchingFactorMap) {
             cout << "  - Particle: " << particle << " Quenching factor: " << quenchingFactor << endl;
+        }
+    }
+
+    if (!fVolumeParticleQuenchingFactor.empty()) {
+        cout << "Printing TRestGeant4QuenchingProcess configuration with actual volumes" << endl;
+        for (auto const& [volume, particleQuenchingFactorMap] : fVolumeParticleQuenchingFactor) {
+            cout << "Volume: " << volume << endl;
+            for (auto const& [particle, quenchingFactor] : particleQuenchingFactorMap) {
+                cout << "  - Particle: " << particle << " Quenching factor: " << quenchingFactor << endl;
+            }
         }
     }
     EndPrintProcess();

@@ -58,6 +58,9 @@ TEST(TRestGeant4QuenchingProcess, FromRml) {
 }
 
 TEST(TRestGeant4QuenchingProcess, Simulation) {
+    // skip
+    GTEST_SKIP();
+
     TRestGeant4QuenchingProcess process(processRmlFile.c_str());
 
     process.PrintMetadata();

@@ -44,7 +44,7 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     std::map<std::string, std::map<std::string, float_t>> fUserVolumeParticleQuenchingFactor = {};
 
     /// It stores the quenching factor for each particle for each volume of the simulation
-    std::map<std::string, std::map<std::string, float_t>> fVolumeParticleQuenchingFactor = {};  //!
+    std::map<std::string, std::map<std::string, float_t>> fVolumeParticleQuenchingFactor = {};
 
     void Initialize() override;
     void InitFromConfigFile() override;
