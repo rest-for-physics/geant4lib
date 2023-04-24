@@ -199,7 +199,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     fOutputG4Event->InitializeReferences(GetRunInfo());
 
     // loop over all tracks
-    for (int trackIndex = 0; trackIndex < fOutputG4Event->GetNumberOfTracks(); trackIndex++) {
+    for (int trackIndex = 0; trackIndex < int(fOutputG4Event->GetNumberOfTracks()); trackIndex++) {
         // get the track
         TRestGeant4Track* track = fOutputG4Event->GetTrackPointer(trackIndex);
         const auto& particleName = track->GetParticleName();
