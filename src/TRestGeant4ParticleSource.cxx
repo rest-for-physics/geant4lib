@@ -57,6 +57,14 @@ void TRestGeant4ParticleSource::PrintParticleSource() {
         RESTMetadata << "Angular distribution direction: (" << GetDirection().X() << "," << GetDirection().Y()
                      << "," << GetDirection().Z() << ")" << RESTendl;
         if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+             AngularDistributionTypes::ISOTROPIC)) {
+            if (GetAngularDistributionIsotropicConeHalfAngle() != 0) {
+                RESTMetadata << "Angular distribution isotropic cone half angle (deg): "
+                             << GetAngularDistributionIsotropicConeHalfAngle() * TMath::RadToDeg()
+                             << RESTendl;
+            }
+        }
+        if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
              AngularDistributionTypes::FORMULA) ||
             StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
                 AngularDistributionTypes::FORMULA2) {
@@ -146,6 +154,18 @@ void TRestGeant4ParticleSource::Update() {
     }
 }
 
+TVector3 TRestGeant4ParticleSource::GetDirection() const {
+    // direction should be unit (normalized) vector with a tolerance of 0.001
+
+    const double magnitude = fDirection.Mag();
+    constexpr double tolerance = 0.001;
+    if (TMath::Abs(magnitude - 1) > tolerance) {
+        cerr << "TRestGeant4ParticleSource::GetDirection: Direction must be unit vector" << endl;
+        exit(1);
+    }
+
+    return fDirection;
+}
 ///////////////////////////////////////////////
 /// \brief Reads an input file produced by Decay0.
 ///
