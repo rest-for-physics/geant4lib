@@ -460,7 +460,7 @@
 ///
 /// Additionally a direction and a cone angle can be specified to generate the particles in a cone around the
 /// direction. The angle specified is the half opening angle of the cone. \code
-///     <angular type="isotropic" direction="(0,1,0)" coneHalfAngle="30"/>
+///     <angular type="isotropic" direction="(0,1,0)" coneHalfAngle="30deg"/>
 /// \endcode
 ///
 /// * **backtoback**: The source momentum direction will be opposite to
