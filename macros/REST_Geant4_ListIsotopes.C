@@ -70,8 +70,8 @@ Int_t REST_Geant4_ListIsotopes(TString fName, TString fOutName) {
                             }
                         }
                         if (kaux != 1) {
-                            // cout<<"new isotope "<<event->GetTrack(i).GetParticleName()<<" in track "<<i<<"and
-                            // entry"<<n<<endl;
+                            // cout<<"new isotope "<<event->GetTrack(i).GetParticleName()<<" in track
+                            // "<<i<<"and entry"<<n<<endl;
                             isotope[k] = event->GetTrack(i).GetParticleName();
                             ni[k] = 1;
                             // cout<<"k "<<k<<" isotope "<<isotope[k]<<endl;

@@ -11,7 +11,8 @@ TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
 
 void TRestGeant4ParticleSourceDecay0::PrintParticleSource() {
     metadata << "---------------------------------------" << endl;
-    metadata << "Particle Source Name: " << fParticleName << endl;
+    if (!fParticleName.empty() && fParticleName != "NO_SUCH_PARA")
+        metadata << "Particle Source Name: " << fParticleName << endl;
     metadata << "Parent Nuclide: " << fParentName << endl;
     metadata << "Decay Mode: " << fDecayType << endl;
     metadata << "Daughter Level: " << fDaughterLevel << endl;

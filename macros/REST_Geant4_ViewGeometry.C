@@ -1,6 +1,9 @@
 #include <iostream>
 
+#include "TEveGeoNode.h"
+#include "TEveManager.h"
 #include "TRestBrowser.h"
+#include "TRestGDMLParser.h"
 #include "TRestGeant4Event.h"
 #include "TRestTask.h"
 
@@ -15,12 +18,12 @@ using namespace std;
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
-    cout << "Filename : " << fName << endl;
+Int_t REST_Geant4_ViewGeometry(const char* filename, const char* option = "") {
+    cout << "REST View Geometry Macro called with input: " << filename << endl;
 
     TGeoManager* geo = nullptr;
-    if (TRestTools::isRootFile((string)fName)) {
-        TFile* fFile = new TFile(fName);
+    if (TRestTools::isRootFile(filename)) {
+        TFile* fFile = TFile::Open(filename);
 
         TIter nextkey(fFile->GetListOfKeys());
         TKey* key;
@@ -32,58 +35,65 @@ Int_t REST_Geant4_ViewGeometry(TString fName, TString option = "") {
                     geo = (TGeoManager*)fFile->Get(key->GetName());
             }
         }
-    } else if (((string)fName).find(".gdml") != string::npos) {
-        TRestGDMLParser* p = new TRestGDMLParser();
-        p->Load((string)fName);
-        geo = p->CreateGeoManager();
+    } else if (string(filename).find(".gdml") != string::npos) {
+        auto parser = new TRestGDMLParser();
+        parser->Load(filename);
+        geo = parser->CreateGeoManager();
     } else {
-        cout << "File is not supported!" << endl;
+        cout << "File type is not supported. Only .root and .gdml files are supported" << endl;
+        return 1;
     }
 
-    if (option == "") {
-        geo->GetMasterVolume()->Draw();
+    if (geo == nullptr) {
+        RESTError << "Geometry initialization failed!" << RESTendl;
+        return 1;
+    }
+
+    if (geo->GetTopVolume() == nullptr) {
+        RESTError << "No master volume found in the geometry!" << RESTendl;
+        return 1;
+    }
+
+    if (string(option).empty()) {
+        cout << "Launching ROOT viewer..." << endl;
+        geo->GetTopVolume()->Draw("ogl");
     } else if (ToUpper((string)option) == "EVE") {
-        TRestEventViewer* view = (TRestEventViewer*)REST_Reflection::Assembly("TRestGeant4EventViewer");
+        cout << "Launching EVE viewer..." << endl;
+        /*
+        TRestEventViewer *view = (TRestEventViewer *) REST_Reflection::Assembly("TRestGeant4EventViewer");
         if (view == nullptr) return -1;
         view->SetGeometry(geo);
         view->AddEvent(new TRestGeant4Event());
+        */
 
-        // TEveManager::Create();
+        auto eve = TEveManager::Create();
 
-        // TGeoNode* node = geo->GetTopNode();
+        auto node = geo->GetTopNode();
+        auto eveTopNode = new TEveGeoTopNode(geo, node);
+        eveTopNode->SetVisLevel(10);
+        eve->AddGlobalElement(eveTopNode);
 
-        // TObjArray* arr = geo->GetListOfVolumes();
-        // Int_t nVolumes = arr->GetEntries();
-        // for (int i = 0; i < nVolumes; i++) geo->GetVolume(i)->SetTransparency(50);
+        for (int i = 0; i < geo->GetListOfVolumes()->GetEntries(); i++) {
+            auto volume = geo->GetVolume(i);
+            auto material = volume->GetMaterial();
+            if (material->GetDensity() <= 0.01) {
+                volume->SetTransparency(95);
+                if (material->GetDensity() <= 0.001) {
+                    // We consider this vacuum for display purposes
+                    volume->SetVisibility(kFALSE);
+                }
+            } else {
+                volume->SetTransparency(50);
+            }
+        }
 
-        // geo->CheckOverlaps(0.0000001);
-        // geo->PrintOverlaps();
-
-        // TEveGeoTopNode* vol = new TEveGeoTopNode(geo, node);
-
-        // vol->SetVisLevel(3);
-
-        // gEve->AddGlobalElement(vol);
-
-        // gEve->FullRedraw3D(kTRUE);
-
-        // TGLViewer* v = gEve->GetDefaultGLViewer();
-        // v->GetClipSet()->SetClipType((TGLClip::EType)1);
-        // v->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kFALSE, 0);
-        // v->SetStyle(TGLRnrCtx::kOutline);
-        // v->RefreshPadEditor(v);
-
-        //// v->CurrentCamera().RotateRad(-.7, 0.5);
-        // v->DoDraw();
+        eve->FullRedraw3D(kTRUE);
     }
-// when we run this macro from restManager from bash,
-// we need to call TRestMetadata::GetChar() to prevent returning,
-// while keeping GUI alive.
-#ifdef REST_Geant4_MANAGER
-    TRestRun* run = new TRestRun();
-    GetChar("Running...\nPress a key to exit");
-#endif
+    // when we run this macro from restManager from bash,
+    // we need to call TRestMetadata::GetChar() to prevent returning,
+    // while keeping GUI alive.
 
+    GetChar("Running...\nPress a key to exit");
     return 0;
 }
 
