@@ -59,8 +59,6 @@ class TRestGeant4Metadata : public TRestMetadata {
     // Metadata is the result of a merge of other metadata
     bool fIsMerge = false;
 
-    bool fDetectorSectionInitialized = false;  //!
-
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
 

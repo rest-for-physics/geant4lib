@@ -33,9 +33,10 @@ TRestGeant4ParticleSource::TRestGeant4ParticleSource() = default;
 TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 
 void TRestGeant4ParticleSource::PrintParticleSource() {
-    RESTMetadata << "---------------------------------------" << RESTendl;
-    RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;
-    if (!fParticlesTemplate.empty() || fGenFilename != "NO_SUCH_PARA") {
+    RESTMetadata << " " << RESTendl;
+    if (GetParticleName() != "" && GetParticleName() != "NO_SUCH_PARA")
+        RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;
+    if (!fParticlesTemplate.empty() && fGenFilename != "NO_SUCH_PARA") {
         RESTMetadata << "Generator file: " << GetGenFilename() << RESTendl;
         RESTMetadata << "Stored templates: " << fParticlesTemplate.size() << RESTendl;
         RESTMetadata << "Particles: ";
