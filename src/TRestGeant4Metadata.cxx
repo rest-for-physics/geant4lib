@@ -1584,7 +1584,6 @@ TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { 
 
 TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
     fIsMerge = metadata.fIsMerge;
-    fDetectorSectionInitialized = metadata.fDetectorSectionInitialized;
     fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
     fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
     fGeant4PrimaryGeneratorInfo = metadata.fGeant4PrimaryGeneratorInfo;
