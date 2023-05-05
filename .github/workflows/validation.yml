@@ -33,7 +33,7 @@ jobs:
     name: Validate pre-commit config
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - name: Checkout geant4lib
         uses: rest-for-physics/framework/.github/actions/checkout@master
