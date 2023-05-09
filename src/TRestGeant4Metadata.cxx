@@ -1394,10 +1394,10 @@ void TRestGeant4Metadata::ReadDetector() {
         exit(1);
     }
 
-    auto gdml = new TRestGDMLParser();
-    gdml->Load(GetGdmlFilename().Data());
+    TRestGDMLParser gdml;
+    gdml.Load(GetGdmlFilename().Data());
 
-    fGeant4GeometryInfo.PopulateFromGdml(gdml->GetOutputGDMLFile());
+    fGeant4GeometryInfo.PopulateFromGdml(gdml.GetOutputGDMLFile());
 
     // If the user did not add explicitly any volume to the storage section we understand
     // the user wants to register all the volumes
