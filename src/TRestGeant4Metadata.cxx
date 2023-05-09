@@ -1328,6 +1328,19 @@ void TRestGeant4Metadata::ReadDetector() {
             exit(1);
         }
 
+        const string material = GetFieldValue("material", volumeDefinition);
+        if (material != "Not defined") {
+            // new material defined by the user
+            set<string> logicalVolumes;
+            for (const auto &logical: fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
+                logicalVolumes.insert(logical.Data());
+            }
+
+            for (const auto &logical: logicalVolumes) {
+                fUserLogicalVolumeToMaterials[logical] = material;
+            }
+        }
+
         bool isSensitive = false;
         const string isSensitiveValue = GetFieldValue("sensitive", volumeDefinition);
         if (isSensitiveValue != "Not defined") {

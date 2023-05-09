@@ -161,7 +161,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
 
-   public:
+    /// user-defined material update for volumes (maps logical volume name to material name)
+    std::map<std::string, std::string> fUserLogicalVolumeToMaterials; //!
+
+public:
     std::set<std::string> fActiveVolumesSet = {};  //! // Used for faster lookup
 
     /// \brief Returns the random seed that was used to generate the corresponding geant4 dataset.
