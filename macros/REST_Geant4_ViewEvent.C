@@ -10,8 +10,8 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Geant4_ViewEvent(TString fName) {
-    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer");
+Int_t REST_Geant4_ViewEvent(TString fName, Double_t geomScale = 0.1) {
+    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer", geomScale);
 
     TRestEvent* eve = new TRestGeant4Event();
     browser->SetInputEvent(eve);
