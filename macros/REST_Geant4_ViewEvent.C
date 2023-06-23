@@ -10,7 +10,8 @@
 //*** This macro might need update/revision.
 //***
 //*******************************************************************************************************
-Int_t REST_Geant4_ViewEvent(TString fName) {
+Int_t REST_Geant4_ViewEvent(TString fName, Double_t geomScale = 0.1) {
+
     TFile* f = TFile::Open(fName);
 
     TIter nextkey(f->GetListOfKeys());
@@ -28,7 +29,7 @@ Int_t REST_Geant4_ViewEvent(TString fName) {
         RESTWarning << "Are you opening the file generated direcly with restG4?" << RESTendl;
     }
 
-    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer");
+    TRestBrowser* browser = new TRestBrowser("TRestGeant4EventViewer", geomScale);
 
     TRestEvent* eve = new TRestGeant4Event();
     browser->SetInputEvent(eve);
