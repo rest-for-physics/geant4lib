@@ -11,7 +11,6 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Geant4_ViewEvent(TString fName, Double_t geomScale = 0.1) {
-
     TFile* f = TFile::Open(fName);
 
     TIter nextkey(f->GetListOfKeys());
