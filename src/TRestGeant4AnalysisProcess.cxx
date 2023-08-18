@@ -291,6 +291,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             if (volId >= 0) {
                 fEnergyInObservables.push_back(fObservables[i]);
                 fVolumeID.push_back(volId);
+                fVolumeName.push_back(volName.Data());
             }
 
             if (volId == -1) {
@@ -466,7 +467,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     }
 
     for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
-        Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
+        Double_t en = fOutputG4Event->GetEnergyInVolume(fVolumeName[n]);
         string obsName = fEnergyInObservables[n];
         SetObservableValue(obsName, en);
     }
