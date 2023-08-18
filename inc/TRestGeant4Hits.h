@@ -70,6 +70,9 @@ class TRestGeant4Hits : public TRestHits {
 
     size_t GetNumberOfHitsInVolume(Int_t volumeID) const;
 
+    // non-const methods (should only be used on the analysis, carefully)
+    std::vector<Float_t>& GetEnergyRef() { return fEnergy; }
+
     // Constructor
     TRestGeant4Hits();
     // Destructor
