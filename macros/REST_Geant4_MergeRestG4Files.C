@@ -22,6 +22,9 @@
  * They can only differ in the random seed, run number or number of events.
  */
 
+// Usage:
+// restGeant4_MergeRestG4Files merge_result.root /path/to/directory/with/files/*.root
+
 using namespace std;
 
 void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputFilesDirectory) {
