@@ -76,12 +76,12 @@ using namespace std;
 
 ClassImp(TRestGeant4VetoAnalysisProcess);
 
-int findMostFrequent(const std::vector<int>& nums) {
+int findMostFrequent(const vector<int>& nums) {
     if (nums.empty()) {
         return 0;
     }
 
-    std::unordered_map<int, int> freqMap;
+    unordered_map<int, int> freqMap;
 
     // Count the frequency of each element
     for (int num : nums) {
@@ -142,13 +142,13 @@ Veto ExtractVetoFromString(const TString& input) {
                 veto.length = length.Atof();
 
             } else {
-                std::cout << "No match found." << std::endl;
+                cout << "No match found." << endl;
             }
         } else {
-            std::cout << "No match found." << std::endl;
+            cout << "No match found." << endl;
         }
     } else {
-        std::cout << "No match found." << std::endl;
+        cout << "No match found." << endl;
     }
 
     delete parts;
@@ -244,9 +244,9 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     fInputEvent = (TRestGeant4Event*)inputEvent;
     *fOutputEvent = *((TRestGeant4Event*)inputEvent);
 
-    std::map<string, double> vetoEnergyMap;
-    std::map<string, double> vetoGroupEnergyMap;
-    std::map<std::pair<string, int>, double> vetoGroupLayerEnergyMap;
+    map<string, double> vetoEnergyMap;
+    map<string, double> vetoGroupEnergyMap;
+    map<pair<string, int>, double> vetoGroupLayerEnergyMap;
     double totalVetoEnergy = 0;
 
     for (const auto& veto : fVetoVolumes) {
@@ -255,7 +255,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
         totalVetoEnergy += energy;
         vetoEnergyMap[veto.name] = energy;
         vetoGroupEnergyMap[veto.group] += energy;
-        vetoGroupLayerEnergyMap[std::make_pair(veto.group, veto.layer)] += energy;
+        vetoGroupLayerEnergyMap[make_pair(veto.group, veto.layer)] += energy;
 
         SetObservableValue("EnergyVeto_" + veto.alias, energy);
     }
@@ -265,7 +265,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     }
 
     for (const auto& [groupLayer, energy] : vetoGroupLayerEnergyMap) {
-        SetObservableValue("EnergyGroupLayer_" + groupLayer.first + "_" + std::to_string(groupLayer.second),
+        SetObservableValue("EnergyGroupLayer_" + groupLayer.first + "_" + to_string(groupLayer.second),
                            energy);
     }
 
@@ -280,15 +280,53 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     }
     SetObservableValue("EnergyMax", maxEnergy);
 
+    // compute max energy for each group
+    map<string, double> vetoGroupMaxEnergyMap;
+    for (const auto& [name, energy] : vetoEnergyMap) {
+        const auto veto = ExtractVetoFromString(name);
+        if (vetoGroupMaxEnergyMap[veto.group] < energy) {
+            vetoGroupMaxEnergyMap[veto.group] = energy;
+        }
+    }
+    for (const auto& [group, energy] : vetoGroupMaxEnergyMap) {
+        SetObservableValue("EnergyGroupMax_" + group, energy);
+    }
+
+    // compute max energy for each group layer
+    map<pair<string, int>, double> vetoGroupLayerMaxEnergyMap;
+    for (const auto& [name, energy] : vetoEnergyMap) {
+        const auto veto = ExtractVetoFromString(name);
+        if (vetoGroupLayerMaxEnergyMap[make_pair(veto.group, veto.layer)] < energy) {
+            vetoGroupLayerMaxEnergyMap[make_pair(veto.group, veto.layer)] = energy;
+        }
+    }
+
+    for (const auto& [groupLayer, energy] : vetoGroupLayerMaxEnergyMap) {
+        SetObservableValue("EnergyGroupLayerMax_" + groupLayer.first + "_" + to_string(groupLayer.second),
+                           energy);
+    }
+
+    // compute max energy for each layer (all groups)
+    map<int, double> vetoLayerMaxEnergyMap;
+    for (const auto& [name, energy] : vetoEnergyMap) {
+        const auto veto = ExtractVetoFromString(name);
+        if (vetoLayerMaxEnergyMap[veto.layer] < energy) {
+            vetoLayerMaxEnergyMap[veto.layer] = energy;
+        }
+    }
+    for (const auto& [layer, energy] : vetoLayerMaxEnergyMap) {
+        SetObservableValue("EnergyLayerMax_" + to_string(layer), energy);
+    }
+
     // compute neutron capture observables
     int nCaptures = 0;
     int nCapturesInCaptureVolumes = 0;
     int nCapturesInVetoVolumes = 0;
 
-    std::vector<float> nCapturesInCaptureVolumesTimes;
-    std::vector<std::vector<float>> nCapturesInCaptureVolumesChildGammaEnergies;
-    std::vector<float> nCapturesInCaptureVolumesChildGammasEnergyInVetos;
-    std::vector<int> nCapturesInCaptureVolumesNumberOfVetoesHitByCapture;
+    vector<float> nCapturesInCaptureVolumesTimes;
+    vector<vector<float>> nCapturesInCaptureVolumesChildGammaEnergies;
+    vector<float> nCapturesInCaptureVolumesChildGammasEnergyInVetos;
+    vector<int> nCapturesInCaptureVolumesNumberOfVetoesHitByCapture;
 
     for (const auto& track : fInputEvent->GetTracks()) {
         if (track.GetParticleName() == "neutron") {
@@ -302,10 +340,10 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
                 const string volumeName = hits.GetVolumeName(hitIndex).Data();
                 const double time = hits.GetTime(hitIndex);
 
-                if (volumeName.find("captureLayerVolume") != std::string::npos) {
+                if (volumeName.find("captureLayerVolume") != string::npos) {
                     nCapturesInCaptureVolumes++;
                     nCapturesInCaptureVolumesTimes.push_back(time);
-                    std::vector<float> childrenEnergy;
+                    vector<float> childrenEnergy;
                     const auto children = track.GetChildrenTracks();
                     for (const auto& child : children) {
                         if (child->GetParticleName() != "gamma") {
@@ -332,7 +370,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
                     }
                     nCapturesInCaptureVolumesNumberOfVetoesHitByCapture.push_back(numberOfVetoesHitByCapture);
                 }
-                if (volumeName.find("scintillatorVolume") != std::string::npos) {
+                if (volumeName.find("scintillatorVolume") != string::npos) {
                     nCapturesInVetoVolumes++;
                 }
             }
@@ -347,8 +385,8 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     // Set capture time observables
     SetObservableValue("nCapturesInCaptureVolumesTimes", nCapturesInCaptureVolumesTimes);
     // cannot insert a vector of vectors, need to flatten it
-    std::vector<float> nCapturesInCaptureVolumesChildGammaEnergiesFlat;
-    std::vector<int> nCapturesInCaptureVolumesChildGammaCount;
+    vector<float> nCapturesInCaptureVolumesChildGammaEnergiesFlat;
+    vector<int> nCapturesInCaptureVolumesChildGammaCount;
     for (const auto& v : nCapturesInCaptureVolumesChildGammaEnergies) {
         nCapturesInCaptureVolumesChildGammaEnergiesFlat.insert(
             nCapturesInCaptureVolumesChildGammaEnergiesFlat.end(), v.begin(), v.end());
