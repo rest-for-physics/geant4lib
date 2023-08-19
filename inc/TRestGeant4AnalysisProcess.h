@@ -47,7 +47,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     std::vector<Int_t> fVolumeID;  //!
 
     std::vector<std::string> fVolumeName;  //! A std::vector storing the name of active volumes.
-    
+
     /// It stores the name of observables (xxxMeanPosX,Y,Z) related to mean hits position in volume `xxx`.
     std::vector<std::string> fMeanPosObservables;  //!
 
