@@ -78,11 +78,11 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
             Int_t eventId = mergeEvent->GetID();
             if (eventIds.find(eventId) != eventIds.end()) {
-                const maxEventId = *max_element(eventIds.begin(), eventIds.end());
+                const Int_t maxEventId = *max_element(eventIds.begin(), eventIds.end());
                 eventId = maxEventId + 1;
             }
-            eventIds.insert(eventId);
             mergeEvent->SetID(eventId);
+            eventIds.insert(mergeEvent->GetID());
 
             mergeEventTree->Fill();
             mergeRun->GetAnalysisTree()->Fill();
