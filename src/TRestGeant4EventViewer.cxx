@@ -14,7 +14,6 @@
 
 #include "TRestGeant4EventViewer.h"
 
-#include <TEveStraightLineSet.h>
 #include <TRestStringOutput.h>
 
 using namespace std;
@@ -93,7 +92,7 @@ TrackVisualConfiguration GetTrackVisualConfiguration(const TRestGeant4Track& tra
     return config;
 }
 
-TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track) {
+TEveStraightLineSet* TRestGeant4EventViewer::GetTrackEveDrawable(const TRestGeant4Track& track) {
     auto lineSet = new TEveStraightLineSet(
         TString::Format("ID %d | %s | Created by %s | KE: %s",  //
                         track.GetTrackID(), track.GetParticleName().Data(), track.GetCreatorProcess().Data(),
@@ -101,12 +100,12 @@ TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track) {
 
     const auto& hits = track.GetHits();
     for (unsigned int i = 0; i < hits.GetNumberOfHits() - 1; i++) {
-        lineSet->AddLine({static_cast<float>(GEOM_SCALE * hits.GetPosition(i).x()),
-                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i).y()),
-                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i).z())},  //
-                         {static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).x()),
-                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).y()),
-                          static_cast<float>(GEOM_SCALE * hits.GetPosition(i + 1).z())});
+        lineSet->AddLine({static_cast<float>(fGeomScale * hits.GetPosition(i).x()),
+                          static_cast<float>(fGeomScale * hits.GetPosition(i).y()),
+                          static_cast<float>(fGeomScale * hits.GetPosition(i).z())},  //
+                         {static_cast<float>(fGeomScale * hits.GetPosition(i + 1).x()),
+                          static_cast<float>(fGeomScale * hits.GetPosition(i + 1).y()),
+                          static_cast<float>(fGeomScale * hits.GetPosition(i + 1).z())});
 
         const auto config = GetTrackVisualConfiguration(track);
         lineSet->SetMainColor(config.fColor);
@@ -213,8 +212,8 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* event) {
                 gEve->AddElement(hitPoints, hitsType[processType]);
             }
             hitsPoints.at(processName)
-                ->SetNextPoint(GEOM_SCALE * position.X(), GEOM_SCALE * position.Y(),
-                               GEOM_SCALE * position.Z());
+                ->SetNextPoint(fGeomScale * position.X(), fGeomScale * position.Y(),
+                               fGeomScale * position.Z());
             hitsCounter++;
         }
     }
@@ -237,8 +236,8 @@ void TRestGeant4EventViewer::AddText(TString text, TVector3 at) {
     TEveText* evText = new TEveText(text);
     evText->SetName("Event title");
     evText->SetFontSize(12);
-    evText->RefMainTrans().SetPos((at.X() + 15) * GEOM_SCALE, (at.Y() + 15) * GEOM_SCALE,
-                                  (at.Z() + 15) * GEOM_SCALE);
+    evText->RefMainTrans().SetPos((at.X() + 15) * fGeomScale, (at.Y() + 15) * fGeomScale,
+                                  (at.Z() + 15) * fGeomScale);
 
     gEve->AddElement(evText);
 }
@@ -248,13 +247,13 @@ void TRestGeant4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     marker->SetName(name);
     marker->SetMarkerColor(kMagenta);
     marker->SetMarkerStyle(3);
-    marker->SetPoint(0, at.X() * GEOM_SCALE, at.Y() * GEOM_SCALE, at.Z() * GEOM_SCALE);
+    marker->SetPoint(0, at.X() * fGeomScale, at.Y() * fGeomScale, at.Z() * fGeomScale);
     marker->SetMarkerSize(0.4);
     fHitConnectors[trkID]->AddElement(marker);
 }
 
 void TRestGeant4EventViewer::NextTrackVertex(Int_t trkID, TVector3 to) {
-    fHitConnectors[trkID]->SetNextPoint(to.X() * GEOM_SCALE, to.Y() * GEOM_SCALE, to.Z() * GEOM_SCALE);
+    fHitConnectors[trkID]->SetNextPoint(to.X() * fGeomScale, to.Y() * fGeomScale, to.Z() * fGeomScale);
 }
 
 void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name) {
@@ -271,7 +270,7 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
     if (name.Contains("alpha")) fHitConnectors[trkID]->SetMainColor(kYellow);
     if (name.Contains("neutron")) fHitConnectors[trkID]->SetMainColor(kBlue);
 
-    fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
+    fHitConnectors[trkID]->SetNextPoint(from.X() * fGeomScale, from.Y() * fGeomScale, from.Z() * fGeomScale);
 
     if (parentID >= 0 && fHitConnectors.size() > (unsigned int)parentID)
         fHitConnectors[parentID]->AddElement(fHitConnectors[trkID]);
@@ -289,7 +288,7 @@ void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString 
 
     fHitConnectors[trkID]->SetMainColor(kWhite);
     fHitConnectors[trkID]->SetLineWidth(4);
-    fHitConnectors[trkID]->SetNextPoint(from.X() * GEOM_SCALE, from.Y() * GEOM_SCALE, from.Z() * GEOM_SCALE);
+    fHitConnectors[trkID]->SetNextPoint(from.X() * fGeomScale, from.Y() * fGeomScale, from.Z() * fGeomScale);
 
     gEve->AddElement(fHitConnectors[trkID]);
 }

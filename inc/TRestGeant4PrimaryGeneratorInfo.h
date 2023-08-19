@@ -48,7 +48,7 @@ EnergyDistributionTypes StringToEnergyDistributionTypes(const std::string&);
 
 enum class EnergyDistributionFormulas {
     COSMIC_NEUTRONS,
-    COSMIC,
+    COSMIC_GAMMAS,
 };
 
 std::string EnergyDistributionFormulasToString(const EnergyDistributionFormulas&);
