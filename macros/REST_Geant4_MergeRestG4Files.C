@@ -58,6 +58,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     auto mergeEventTree = mergeRun->GetEventTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
 
+    set<Int_t> eventIds;
+
     // iterate over all other files
     for (int i = 0; i < inputFiles.size(); i++) {
         auto run = TRestRun(inputFiles[i].c_str());
@@ -72,6 +74,13 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
+            Int_t eventId = event->GetID();
+            if (eventIds.find(eventId) != eventIds.end()) {
+                const maxEventId = *max_element(eventIds.begin(), eventIds.end());
+                eventId = maxEventId + 1;
+            }
+            eventIds.insert(eventId);
+            event->SetID(eventId);
             *mergeEvent = *event;
             mergeEventTree->Fill();
             mergeRun->GetAnalysisTree()->Fill();
