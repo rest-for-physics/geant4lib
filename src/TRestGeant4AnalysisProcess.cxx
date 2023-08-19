@@ -398,14 +398,39 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
+    const auto sensitiveVolumeName = fG4Metadata->GetSensitiveVolume();
+
+    Double_t sensitiveVolumeEnergy = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName.Data());
+    // Get time of the first hit in the sensitive volume
+    double hitTime = std::numeric_limits<double>::infinity();
+    for (const auto& track : fOutputG4Event->GetTracks()) {
+        const auto hits = track.GetHits();
+        for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
+            const auto volumeName = hits.GetVolumeName(hitIndex);
+            if (volumeName != sensitiveVolumeName) {
+                continue;
+            }
+            const double energy = hits.GetEnergy(hitIndex);
+            if (energy <= 0) {
+                continue;
+            }
+
+            const double time = hits.GetTime(hitIndex);
+            if (time < hitTime) {
+                hitTime = time;
+            }
+        }
+    }
+    SetObservableValue("sensitiveVolumeFirstHitTime", hitTime);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "----------------------------" << endl;
         cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
-        cout << "Sensitive volume Energy : " << energy << endl;
+        cout << "Sensitive volume Energy : " << sensitiveVolumeEnergy << endl;
         cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;
     }
+
+    SetObservableValue("sensitiveVolumeEnergy", sensitiveVolumeEnergy);
 
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
     SetObservableValue("xOriginPrimary", xOrigin);

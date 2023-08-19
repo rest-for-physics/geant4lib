@@ -348,13 +348,27 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     SetObservableValue("nCapturesInCaptureVolumesTimes", nCapturesInCaptureVolumesTimes);
     // cannot insert a vector of vectors, need to flatten it
     std::vector<float> nCapturesInCaptureVolumesChildGammaEnergiesFlat;
+    std::vector<int> nCapturesInCaptureVolumesChildGammaCount;
     for (const auto& v : nCapturesInCaptureVolumesChildGammaEnergies) {
         nCapturesInCaptureVolumesChildGammaEnergiesFlat.insert(
             nCapturesInCaptureVolumesChildGammaEnergiesFlat.end(), v.begin(), v.end());
+        nCapturesInCaptureVolumesChildGammaCount.push_back(v.size());
     }
+
+    float nCapturesInCaptureVolumesChildGammaCountAverage = 0;
+    for (const auto& v : nCapturesInCaptureVolumesChildGammaCount) {
+        nCapturesInCaptureVolumesChildGammaCountAverage +=
+            float(v) / nCapturesInCaptureVolumesChildGammaCount.size();
+    }
+
     SetObservableValue("nCapturesInCaptureVolumesChildGammaEnergies",
                        nCapturesInCaptureVolumesChildGammaEnergiesFlat);
-    SetObservableValue("nCapturesInCaptureVolumesChildGammaCount",
+    SetObservableValue("nCapturesInCaptureVolumesChildGammaCount", nCapturesInCaptureVolumesChildGammaCount);
+    SetObservableValue("nCapturesInCaptureVolumesChildGammaCountAverage",
+                       nCapturesInCaptureVolumesChildGammaCountAverage);
+    SetObservableValue("nCapturesInCaptureVolumesChildGammaCountMostFrequent",
+                       findMostFrequent(nCapturesInCaptureVolumesChildGammaCount));
+    SetObservableValue("nCapturesInCaptureVolumesChildGammaCountTotal",
                        nCapturesInCaptureVolumesChildGammaEnergiesFlat.size());
 
     SetObservableValue("nCapturesInCaptureVolumesChildGammasEnergyInVetos",
