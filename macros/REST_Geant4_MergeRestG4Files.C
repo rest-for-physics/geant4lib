@@ -65,6 +65,9 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     // iterate over all other files
     for (int i = 0; i < inputFiles.size(); i++) {
+        map<Int_t, Int_t>
+            eventIdUpdates;  // repeatedId -> newId. Make sure if there are repeated event ids in a file
+                             // (because of sub-events) they keep the same event id after modification
         auto run = TRestRun(inputFiles[i].c_str());
         auto metadata = (TRestGeant4Metadata*)run.GetMetadataClass("TRestGeant4Metadata");
         if (i == 0) {
@@ -80,9 +83,17 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
             *mergeEvent = *event;
 
             Int_t eventId = mergeEvent->GetID();
-            if (eventIds.find(eventId) != eventIds.end()) {
+            if (eventIdUpdates.find(eventId) != eventIdUpdates.end()) {
+                eventId = eventIdUpdates[eventId];
+                cout << "WARNING: event ID " << mergeEvent->GetID() << " with sub-event ID "
+                     << mergeEvent->GetSubID() << " already exists. It was already changed to " << eventId
+                     << endl;
+            } else if (eventIds.find(eventId) != eventIds.end()) {
                 const Int_t maxEventId = *max_element(eventIds.begin(), eventIds.end());
                 eventId = maxEventId + 1;
+                eventIdUpdates[mergeEvent->GetID()] = eventId;
+                cout << "WARNING: event ID " << mergeEvent->GetID() << " with sub-event ID "
+                     << mergeEvent->GetSubID() " already exists. Changing to " << eventId << endl;
             }
             mergeEvent->SetID(eventId);
             eventIds.insert(mergeEvent->GetID());
