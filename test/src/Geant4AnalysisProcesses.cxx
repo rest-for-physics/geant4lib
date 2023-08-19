@@ -32,11 +32,7 @@ TEST(TRestGeant4VetoAnalysisProcess, Default) {
 
     process.PrintMetadata();
 
-    EXPECT_TRUE(process.GetVetoVolumesExpression().IsNull());
-    EXPECT_TRUE(process.GetVetoDetectorExpression().IsNull());
-    EXPECT_TRUE(process.GetVetoDetectorOffsetSize() == 0);
-    EXPECT_TRUE(process.GetVetoLightAttenuation() == 0);
-    EXPECT_TRUE(process.GetVetoQuenchingFactor() == 1.0);
+    EXPECT_TRUE(process.GetVetoVolumesExpression().empty());
 }
 
 TEST(TRestGeant4VetoAnalysisProcess, FromRml) {
@@ -45,10 +41,6 @@ TEST(TRestGeant4VetoAnalysisProcess, FromRml) {
     process.PrintMetadata();
 
     EXPECT_TRUE(process.GetVetoVolumesExpression() == "^scintillatorVolume");
-    EXPECT_TRUE(process.GetVetoDetectorExpression() == "^scintillatorLightGuideVolume");
-    EXPECT_TRUE(process.GetVetoDetectorOffsetSize() == 0);
-    EXPECT_TRUE(process.GetVetoLightAttenuation() == 0);
-    EXPECT_TRUE(process.GetVetoQuenchingFactor() == 0);
 }
 
 TEST(TRestGeant4VetoAnalysisProcess, Simulation) {
@@ -57,10 +49,6 @@ TEST(TRestGeant4VetoAnalysisProcess, Simulation) {
     TRestGeant4VetoAnalysisProcess process(processRmlFile.c_str());
 
     EXPECT_TRUE(process.GetVetoVolumesExpression() == "^scintillatorVolume");
-    EXPECT_TRUE(process.GetVetoDetectorExpression() == "^scintillatorLightGuideVolume");
-    EXPECT_TRUE(process.GetVetoDetectorOffsetSize() == 0);
-    EXPECT_TRUE(process.GetVetoLightAttenuation() == 0);
-    EXPECT_TRUE(process.GetVetoQuenchingFactor() == 0);
 
     TRestRun run(simulationFile.c_str());
     run.GetInputFile()->ls();

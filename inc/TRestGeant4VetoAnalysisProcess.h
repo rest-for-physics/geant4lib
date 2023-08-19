@@ -25,41 +25,34 @@
 
 #include <TRestEventProcess.h>
 
+#include <string>
+
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
+struct Veto {
+    std::string name;
+    std::string alias{};
+    std::string group{};
+    int layer{};
+    int number{};
+    TVector3 position{};
+    double length{};
+};
+
 class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
    private:
-    TString fVetoVolumesExpression;
-    TString fVetoDetectorsExpression;
-    double fVetoDetectorOffsetSize = 0;
-    double fVetoLightAttenuation = 0;
-    double fVetoQuenchingFactor = 1.0;
+    std::string fVetoVolumesExpression;  // identify veto volumes
 
    public:
-    inline TString GetVetoVolumesExpression() const { return fVetoVolumesExpression; }
-    inline TString GetVetoDetectorExpression() const { return fVetoDetectorsExpression; }
-    inline double GetVetoDetectorOffsetSize() const { return fVetoDetectorOffsetSize; }
-    inline double GetVetoLightAttenuation() const { return fVetoLightAttenuation; }
-    inline double GetVetoQuenchingFactor() const { return fVetoQuenchingFactor; }
-
-    inline void SetVetoVolumesExpression(const TString& expression) { fVetoVolumesExpression = expression; }
-    inline void SetVetoDetectorsExpression(const TString& expression) {
-        fVetoDetectorsExpression = expression;
-    }
-    inline void SetVetoDetectorOffsetSize(double offset) { fVetoDetectorOffsetSize = offset; }
-    inline void SetVetoLightAttenuation(double attenuation) { fVetoLightAttenuation = attenuation; }
-    inline void SetVetoQuenchingFactor(double quenchingFactor) { fVetoQuenchingFactor = quenchingFactor; }
+    inline std::string GetVetoVolumesExpression() const { return fVetoVolumesExpression; }
 
    private:
     TRestGeant4Event* fInputEvent = nullptr;               //!
     TRestGeant4Event* fOutputEvent = nullptr;              //!
     const TRestGeant4Metadata* fGeant4Metadata = nullptr;  //!
 
-    std::vector<TString> fVetoVolumes;
-    std::vector<TString> fVetoDetectorVolumes;
-    std::map<TString, TVector3> fVetoDetectorBoundaryPosition;
-    std::map<TString, TVector3> fVetoDetectorBoundaryDirection;
+    std::vector<Veto> fVetoVolumes;
 
     void InitFromConfigFile() override;
     void Initialize() override;
@@ -88,6 +81,6 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     TRestGeant4VetoAnalysisProcess(const char* configFilename);
     ~TRestGeant4VetoAnalysisProcess();
 
-    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 2);
+    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 4);
 };
 #endif  // RestCore_TRestGeant4VetoAnalysisProcess
