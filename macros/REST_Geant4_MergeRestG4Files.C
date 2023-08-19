@@ -74,14 +74,16 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
-            Int_t eventId = event->GetID();
+            *mergeEvent = *event;
+
+            Int_t eventId = mergeEvent->GetID();
             if (eventIds.find(eventId) != eventIds.end()) {
                 const maxEventId = *max_element(eventIds.begin(), eventIds.end());
                 eventId = maxEventId + 1;
             }
             eventIds.insert(eventId);
-            event->SetID(eventId);
-            *mergeEvent = *event;
+            mergeEvent->SetID(eventId);
+
             mergeEventTree->Fill();
             mergeRun->GetAnalysisTree()->Fill();
         }
@@ -93,7 +95,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     mergeRun->GetOutputFile()->cd();
 
     gGeoManager->Write("Geometry", TObject::kOverwrite);
-    // mergeRun->AddMetadata(static_cast<TRestMetadata*>(&mergeMetadata));
+
     mergeMetadata.SetName("geant4Metadata");
     mergeMetadata.Write();
     mergeRun->UpdateOutputFile();
