@@ -56,6 +56,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadDetector();
     void ReadBiasing();
 
+    // Metadata is the result of a merge of other metadata
+    bool fIsMerge = false;
+
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
 
@@ -306,7 +309,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Returns the probability per event to register (write to disk) hits in a GDML volume given its geometry
     /// name.
-    Double_t GetStorageChance(TString volume);
+    Double_t GetStorageChance(const TString& volume);
 
     Double_t GetMaxStepSize(const TString& volume);
 
@@ -364,7 +367,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
 
-    Int_t GetActiveVolumeID(TString name);
+    Int_t GetActiveVolumeID(const TString& name);
 
     Bool_t isVolumeStored(const TString& volume) const;
 
@@ -372,12 +375,17 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void PrintMetadata() override;
 
+    void Merge(const TRestGeant4Metadata&);
+
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
 
     ~TRestGeant4Metadata();
 
-    ClassDefOverride(TRestGeant4Metadata, 13);
+    TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
+    TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
+
+    ClassDefOverride(TRestGeant4Metadata, 14);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;

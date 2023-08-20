@@ -11,7 +11,7 @@
 class G4VProcess;
 
 class TRestGeant4PhysicsInfo {
-    ClassDef(TRestGeant4PhysicsInfo, 2);
+    ClassDef(TRestGeant4PhysicsInfo, 3);
 
    private:
     std::map<Int_t, TString> fProcessNamesMap = {};
@@ -21,8 +21,6 @@ class TRestGeant4PhysicsInfo {
     std::map<TString, Int_t> fParticleNamesReverseMap = {};
 
     std::map<TString, TString> fProcessTypesMap = {};  // process name -> process type
-
-    std::mutex fMutex;  //!
 
    public:
     TString GetProcessName(Int_t id) const;
