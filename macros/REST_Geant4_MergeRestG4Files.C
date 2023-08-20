@@ -65,6 +65,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     // iterate over all other files
     for (int i = 0; i < inputFiles.size(); i++) {
+        cout << "Processing file " << i + 1 << "/" << inputFiles.size() << endl;
+
         map<Int_t, Int_t>
             eventIdUpdates;  // repeatedId -> newId. Make sure if there are repeated event ids in a file
                              // (because of sub-events) they keep the same event id after modification
