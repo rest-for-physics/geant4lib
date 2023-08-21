@@ -328,6 +328,12 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     vector<float> nCapturesInCaptureVolumesChildGammasEnergyInVetos;
     vector<int> nCapturesInCaptureVolumesNumberOfVetoesHitByCapture;
 
+    set<int> nCapturesInCaptureVolumesNeutronTrackIds;
+
+    vector<float> nCapturesInCaptureVolumesPositionX;
+    vector<float> nCapturesInCaptureVolumesPositionY;
+    vector<float> nCapturesInCaptureVolumesPositionZ;
+
     for (const auto& track : fInputEvent->GetTracks()) {
         if (track.GetParticleName() == "neutron") {
             const auto hits = track.GetHits();
@@ -342,7 +348,12 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
 
                 if (volumeName.find("captureLayerVolume") != string::npos) {
                     nCapturesInCaptureVolumes++;
+                    nCapturesInCaptureVolumesNeutronTrackIds.insert(track.GetTrackID());
                     nCapturesInCaptureVolumesTimes.push_back(time);
+                    const TVector3& position = hits.GetPosition(hitIndex);
+                    nCapturesInCaptureVolumesPositionX.push_back(position.X());
+                    nCapturesInCaptureVolumesPositionY.push_back(position.Y());
+                    nCapturesInCaptureVolumesPositionZ.push_back(position.Z());
                     vector<float> childrenEnergy;
                     const auto children = track.GetChildrenTracks();
                     for (const auto& child : children) {
@@ -376,6 +387,53 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
             }
         }
     }
+
+    SetObservableValue("nCapturesInCaptureVolumesPositionX", nCapturesInCaptureVolumesPositionX);
+    SetObservableValue("nCapturesInCaptureVolumesPositionY", nCapturesInCaptureVolumesPositionY);
+    SetObservableValue("nCapturesInCaptureVolumesPositionZ", nCapturesInCaptureVolumesPositionZ);
+
+    vector<float> nCapturesInCaptureVolumesPositionOriginX;
+    vector<float> nCapturesInCaptureVolumesPositionOriginY;
+    vector<float> nCapturesInCaptureVolumesPositionOriginZ;
+
+    // compute observables for neutrons in capture volumes
+    vector<double> nCapturesInCaptureVolumesNeutronInitialEnergy;
+    vector<int> nCapturesInCaptureVolumesNeutronGeneration;  // Number of inelastic interactions leading to
+                                                             // neutron (primary neutron has generation 0)
+    for (const auto& neutronCaptureTrackId : nCapturesInCaptureVolumesNeutronTrackIds) {
+        auto track = fInputEvent->GetTrackByID(neutronCaptureTrackId);
+        if (track->GetParticleName() != "neutron") {
+            cerr << "TRestGeant4VetoAnalysisProcess::ProcessEvent: track is not a neutron" << endl;
+            exit(1);
+        }
+
+        int generation = 0;
+        double energy = track->GetInitialKineticEnergy();
+
+        while (track->GetParentTrack() != nullptr) {
+            track = track->GetParentTrack();
+            if (track->GetParticleName() == "neutron") {
+                generation++;
+            }
+        }
+
+        const TVector3& origin = track->GetTrackOrigin();
+        nCapturesInCaptureVolumesPositionOriginX.push_back(origin.X());
+        nCapturesInCaptureVolumesPositionOriginY.push_back(origin.Y());
+        nCapturesInCaptureVolumesPositionOriginZ.push_back(origin.Z());
+
+        nCapturesInCaptureVolumesNeutronInitialEnergy.push_back(energy);
+        nCapturesInCaptureVolumesNeutronGeneration.push_back(generation);
+    }
+
+    SetObservableValue("nCapturesInCaptureVolumesPositionOriginX", nCapturesInCaptureVolumesPositionOriginX);
+    SetObservableValue("nCapturesInCaptureVolumesPositionOriginY", nCapturesInCaptureVolumesPositionOriginY);
+    SetObservableValue("nCapturesInCaptureVolumesPositionOriginZ", nCapturesInCaptureVolumesPositionOriginZ);
+
+    SetObservableValue("nCapturesInCaptureVolumesNeutronInitialEnergy",
+                       nCapturesInCaptureVolumesNeutronInitialEnergy);
+    SetObservableValue("nCapturesInCaptureVolumesNeutronGeneration",
+                       nCapturesInCaptureVolumesNeutronGeneration);
 
     // Set capture observables
     SetObservableValue("nCaptures", nCaptures);
