@@ -102,14 +102,14 @@ int findMostFrequent(const vector<int>& nums) {
     return mostFrequent;
 }
 
-Veto ExtractVetoFromString(const TString& input) {
+Veto TRestGeant4VetoAnalysisProcess::GetVetoFromString(const string& input) {
     // example input:
     // VetoSystem_vetoSystemEast_vetoLayerEast2_assembly-13.veto2_scintillatorVolume-1500.0mm-f1a5df68
 
     Veto veto;
     veto.name = input;
 
-    TObjArray* parts = input.Tokenize("_");
+    TObjArray* parts = TString(input).Tokenize("_");
 
     if (parts->GetEntries() >= 5) {
         TString group = ((TObjString*)parts->At(1))->GetString();
@@ -227,7 +227,7 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
             for (const auto& physicalVolume : geometryInfo.GetAllPhysicalVolumesFromLogical(logicalVolume)) {
                 const string name =
                     geometryInfo.GetAlternativeNameFromGeant4PhysicalName(physicalVolume).Data();
-                Veto veto = ExtractVetoFromString(name);
+                Veto veto = GetVetoFromString(name);
                 veto.position = geometryInfo.GetPosition(name);
                 fVetoVolumes.push_back(veto);
             }
@@ -283,7 +283,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     // compute max energy for each group
     map<string, double> vetoGroupMaxEnergyMap;
     for (const auto& [name, energy] : vetoEnergyMap) {
-        const auto veto = ExtractVetoFromString(name);
+        const auto veto = GetVetoFromString(name);
         if (vetoGroupMaxEnergyMap[veto.group] < energy) {
             vetoGroupMaxEnergyMap[veto.group] = energy;
         }
@@ -295,7 +295,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     // compute max energy for each group layer
     map<pair<string, int>, double> vetoGroupLayerMaxEnergyMap;
     for (const auto& [name, energy] : vetoEnergyMap) {
-        const auto veto = ExtractVetoFromString(name);
+        const auto veto = GetVetoFromString(name);
         if (vetoGroupLayerMaxEnergyMap[make_pair(veto.group, veto.layer)] < energy) {
             vetoGroupLayerMaxEnergyMap[make_pair(veto.group, veto.layer)] = energy;
         }
@@ -309,7 +309,7 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     // compute max energy for each layer (all groups)
     map<int, double> vetoLayerMaxEnergyMap;
     for (const auto& [name, energy] : vetoEnergyMap) {
-        const auto veto = ExtractVetoFromString(name);
+        const auto veto = GetVetoFromString(name);
         if (vetoLayerMaxEnergyMap[veto.layer] < energy) {
             vetoLayerMaxEnergyMap[veto.layer] = energy;
         }

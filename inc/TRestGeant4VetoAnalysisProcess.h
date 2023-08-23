@@ -62,6 +62,8 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
     any GetInputEvent() const override { return fInputEvent; }
     any GetOutputEvent() const override { return fOutputEvent; }
 
+    static Veto GetVetoFromString(const std::string& vetoString);
+
     inline void SetGeant4Metadata(const TRestGeant4Metadata* metadata) {
         fGeant4Metadata = metadata;
     }  // TODO: We should not need this! but `GetMetadata<TRestGeant4Metadata>()` is not working early in the
