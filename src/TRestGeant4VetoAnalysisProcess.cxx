@@ -197,7 +197,9 @@ void TRestGeant4VetoAnalysisProcess::Initialize() {
 /// corresponding TRestGeant4VetoAnalysisProcess section inside the RML.
 ///
 void TRestGeant4VetoAnalysisProcess::LoadConfig(const string& configFilename, const string& name) {
-    if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
+    if (LoadConfigFromFile(configFilename, name)) {
+        LoadDefaultConfig();
+    }
 }
 
 ///////////////////////////////////////////////
