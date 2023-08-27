@@ -99,7 +99,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
                 }
                 eventIdUpdates[mergeEvent->GetID()] = eventId;
                 cout << "WARNING: event ID " << mergeEvent->GetID() << " with sub-event ID "
-                     << mergeEvent->GetSubID() << " already exists. Changing to " << eventId << endl;
+                     << mergeEvent->GetSubID() << " already exists. Updating all instances of "
+                     << mergeEvent->GetID() << " to " << eventId << endl;
             }
             mergeEvent->SetID(eventId);
             eventIds.insert(mergeEvent->GetID());
