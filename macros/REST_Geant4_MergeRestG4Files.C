@@ -61,8 +61,9 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     auto mergeEventTree = mergeRun->GetEventTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
 
-    set<Int_t> eventIds;
+    set<Int_t> eventIds;  // std::set is sorted from lower to higher automatically
 
+    long long eventCounter = 0;
     // iterate over all other files
     for (int i = 0; i < inputFiles.size(); i++) {
         cout << "Processing file " << i + 1 << "/" << inputFiles.size() << endl;
@@ -91,8 +92,11 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
                      << mergeEvent->GetSubID() << " already exists. It was already changed to " << eventId
                      << endl;
             } else if (eventIds.find(eventId) != eventIds.end()) {
-                const Int_t maxEventId = *max_element(eventIds.begin(), eventIds.end());
-                eventId = maxEventId + 1;
+                // set the new ID a number that is not in the set
+                eventId = 1;
+                while (eventIds.find(eventId) != eventIds.end()) {
+                    eventId++;
+                }
                 eventIdUpdates[mergeEvent->GetID()] = eventId;
                 cout << "WARNING: event ID " << mergeEvent->GetID() << " with sub-event ID "
                      << mergeEvent->GetSubID() << " already exists. Changing to " << eventId << endl;
@@ -102,6 +106,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
             mergeEventTree->Fill();
             mergeRun->GetAnalysisTree()->Fill();
+
+            eventCounter++;
         }
     }
 
@@ -116,6 +122,16 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     mergeMetadata.Write();
     mergeRun->UpdateOutputFile();
     mergeRun->CloseFile();
+
+    // Open the file again to check the number of events
+    TRestRun runCheck(outputFilename);
+    if (runCheck.GetEntries() != eventCounter) {
+        cerr << "ERROR: number of events in the output file (" << runCheck.GetEntries()
+             << ") does not match the number of events in the input files (" << eventCounter << ")" << endl;
+        exit(1);
+    }
+    cout << "Number of events in the output file: " << runCheck.GetEntries() << " matches internal count"
+         << endl;
 }
 
 #endif
