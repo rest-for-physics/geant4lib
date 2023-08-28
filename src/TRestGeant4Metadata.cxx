@@ -1574,10 +1574,11 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
 
 void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
     fIsMerge = true;
+    fSeed = 0;  // seed makes no sense in a merged file
 
     fNEvents += metadata.fNEvents;
     fNRequestedEntries += metadata.fNRequestedEntries;
-    fSeed = 0;  // seed makes no sense in a merged file
+    fSimulationTime += metadata.fSimulationTime;
 }
 
 TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }

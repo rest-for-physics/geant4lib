@@ -176,7 +176,8 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
 
         for (const auto& physicalVolume : physicalVolumes) {
-            fVolumeParticleQuenchingFactor[physicalVolume] = particleToQuenchingMap;
+            const auto volumeName = geometryInfo.GetAlternativeNameFromGeant4PhysicalName(physicalVolume);
+            fVolumeParticleQuenchingFactor[volumeName.Data()] = particleToQuenchingMap;
         }
     }
 
@@ -197,6 +198,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
     fOutputG4Event->InitializeReferences(GetRunInfo());
+    fOutputG4Event->fEnergyInVolumePerParticlePerProcess.clear();
 
     // loop over all tracks
     for (int trackIndex = 0; trackIndex < int(fOutputG4Event->GetNumberOfTracks()); trackIndex++) {
@@ -212,8 +214,20 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
                 GetQuenchingFactorForVolumeAndParticle(volumeName.Data(), particleName.Data());
             // default is 1.0, so no quenching
             energy[hitIndex] *= quenchingFactor;
+
+            // cout << "TRestGeant4QuenchingProcess: Quenching " << particleName << " in " << volumeName
+            //      << " by " << quenchingFactor << endl;
+
+            const string processName = hits->GetProcessName(hitIndex).Data();
+
+            if (energy[hitIndex] > 0) {
+                fOutputG4Event->fEnergyInVolumePerParticlePerProcess[volumeName.Data()][particleName.Data()]
+                                                                    [processName] += energy[hitIndex];
+            }
         }
     }
+
+    // Update the stores for energy in volumes (this should be automatic and not duplicated)
 
     return fOutputG4Event;
 }
