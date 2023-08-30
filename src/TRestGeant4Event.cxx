@@ -243,7 +243,7 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
             Double_t z = g4Hits.GetZ(n);
             Double_t en = g4Hits.GetEnergy(n);
 
-            hits.AddHit(x, y, z, en);
+            hits.AddHit({x, y, z}, en);
         }
     }
 
