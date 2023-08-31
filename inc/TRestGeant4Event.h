@@ -160,7 +160,7 @@ class TRestGeant4Event : public TRestEvent {
     TRestGeant4Track* GetTrackByID(Int_t trackID) const;
 
     inline Double_t GetTotalDepositedEnergy() const { return fTotalDepositedEnergy; }
-    inline Double_t GetEnergyDepositedInVolume(Int_t volID) const { return fVolumeDepositedEnergy[volID]; }
+
     inline Double_t GetSensitiveVolumeEnergy() const { return fSensitiveVolumeEnergy; }
     TVector3 GetMeanPositionInVolume(Int_t volID) const;
     TVector3 GetFirstPositionInVolume(Int_t volID) const;
@@ -254,6 +254,7 @@ class TRestGeant4Event : public TRestEvent {
     void InsertStep(const G4Step*);    //!
 
     friend class OutputManager;
+    friend class TRestGeant4QuenchingProcess;
 
    private:
     std::map<Int_t, Int_t> fTrackIDToTrackIndex = {};

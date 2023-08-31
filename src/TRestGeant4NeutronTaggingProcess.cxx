@@ -228,7 +228,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
         int id = fVetoVolumeIds[i];
         string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
 
-        Double_t energy = fOutputG4Event->GetEnergyDepositedInVolume(id);
+        Double_t energy = fOutputG4Event->GetEnergyInVolume(volume_name);
         volume_energy_map[volume_name] = energy;
     }
 

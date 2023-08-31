@@ -7,6 +7,8 @@ using namespace std;
 
 ClassImp(TRestGeant4PhysicsInfo);
 
+std::mutex insertMutex;
+
 set<TString> TRestGeant4PhysicsInfo::GetAllParticles() const {
     set<TString> particles = {};
     for (const auto& [_, name] : fParticleNamesMap) {
@@ -59,7 +61,7 @@ void TRestGeant4PhysicsInfo::InsertProcessName(Int_t id, const TString& processN
     if (fProcessNamesMap.count(id) > 0) {
         return;
     }
-    std::lock_guard<std::mutex> lock(fMutex);
+    std::lock_guard<std::mutex> lock(insertMutex);
     fProcessNamesMap[id] = processName;
     fProcessNamesReverseMap[processName] = id;
 
@@ -70,7 +72,7 @@ void TRestGeant4PhysicsInfo::InsertParticleName(Int_t id, const TString& particl
     if (fParticleNamesMap.count(id) > 0) {
         return;
     }
-    std::lock_guard<std::mutex> lock(fMutex);
+    std::lock_guard<std::mutex> lock(insertMutex);
     fParticleNamesMap[id] = particleName;
     fParticleNamesReverseMap[particleName] = id;
 }
