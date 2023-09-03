@@ -236,7 +236,7 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
         }
     }
 
-    PrintMetadata();
+    // PrintMetadata();
 }
 
 ///////////////////////////////////////////////
