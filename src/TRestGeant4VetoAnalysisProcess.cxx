@@ -327,8 +327,9 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
 
     vector<float> nCapturesInCaptureVolumesTimes;
     vector<vector<float>> nCapturesInCaptureVolumesChildGammaEnergies;
+    // for each child gamma, how much energy was deposited in all vetoes
     vector<float> nCapturesInCaptureVolumesChildGammasEnergyInVetos;
-    vector<int> nCapturesInCaptureVolumesNumberOfVetoesHitByCapture;
+    vector<vector<float>> nCapturesInCaptureVolumesEnergyInVetoesForCapture;
 
     set<int> nCapturesInCaptureVolumesNeutronTrackIds;
 
@@ -374,14 +375,14 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
                     }
                     nCapturesInCaptureVolumesChildGammaEnergies.push_back(childrenEnergy);
 
-                    int numberOfVetoesHitByCapture = 0;
+                    vector<float> energyInVetoesForCapture;
                     for (const auto& veto : fVetoVolumes) {
                         const double energyInVeto = track.GetEnergyInVolume(veto.name, true);
-                        if (energyInVeto > 100) {  // soft limit of 100 keV
-                            numberOfVetoesHitByCapture++;
+                        if (energyInVeto > 0) {  // soft limit of 100 keV
+                            energyInVetoesForCapture.push_back(energyInVeto);
                         }
                     }
-                    nCapturesInCaptureVolumesNumberOfVetoesHitByCapture.push_back(numberOfVetoesHitByCapture);
+                    nCapturesInCaptureVolumesEnergyInVetoesForCapture.push_back(energyInVetoesForCapture);
                 }
                 if (volumeName.find("scintillatorVolume") != string::npos) {
                     nCapturesInVetoVolumes++;
@@ -480,24 +481,8 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     SetObservableValue("nCapturesInCaptureVolumesChildGammasEnergyInVetosTotal",
                        nCapturesInCaptureVolumesChildGammasEnergyInVetosTotal);
 
-    SetObservableValue("nCapturesInCaptureVolumesNumberOfVetoesHitByCapture",
-                       nCapturesInCaptureVolumesNumberOfVetoesHitByCapture);
-
-    int nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureTotal = 0;
-    float nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureAverage = 0;
-    for (const auto& n : nCapturesInCaptureVolumesNumberOfVetoesHitByCapture) {
-        nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureTotal += n;
-        nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureAverage +=
-            float(n) / nCapturesInCaptureVolumesNumberOfVetoesHitByCapture.size();
-    }
-    SetObservableValue("nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureTotal",
-                       nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureTotal);
-
-    SetObservableValue("nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureAverage",
-                       nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureAverage);
-
-    SetObservableValue("nCapturesInCaptureVolumesNumberOfVetoesHitByCaptureMostFrequent",
-                       findMostFrequent(nCapturesInCaptureVolumesNumberOfVetoesHitByCapture));
+    SetObservableValue("nCapturesInCaptureVolumesEnergyInVetoesForCapture",
+                       nCapturesInCaptureVolumesEnergyInVetoesForCapture);
 
     return fOutputEvent;
 }
