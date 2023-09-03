@@ -484,6 +484,23 @@ TRestEvent* TRestGeant4VetoAnalysisProcess::ProcessEvent(TRestEvent* inputEvent)
     SetObservableValue("nCapturesInCaptureVolumesEnergyInVetoesForCapture",
                        nCapturesInCaptureVolumesEnergyInVetoesForCapture);
 
+    const vector<float> energyInVetoesThresholds = {0, 100, 250, 500, 1000, 1500};
+    for (const auto& threshold : energyInVetoesThresholds) {
+        vector<vector<int>> nCapturesInCaptureVolumesEnergyInVetoesForCaptureThreshold;
+        for (const auto& captureForNeutronEnergies : nCapturesInCaptureVolumesEnergyInVetoesForCapture) {
+            int nCapturesInCaptureVolumesVetoesAboveThresholdForCapture = 0;
+            for (const auto& energy : captureForNeutronEnergies) {
+                if (energy > threshold) {
+                    nCapturesInCaptureVolumesVetoesAboveThresholdForCapture++;
+                }
+            }
+            nCapturesInCaptureVolumesEnergyInVetoesForCaptureThreshold.push_back(
+                {nCapturesInCaptureVolumesVetoesAboveThresholdForCapture});
+        }
+        SetObservableValue(
+            "nCapturesInCaptureVolumesVetoesAboveThresholdForCapture" + to_string(int(threshold)) + "keV",
+            nCapturesInCaptureVolumesEnergyInVetoesForCaptureThreshold);
+    }
     return fOutputEvent;
 }
 
