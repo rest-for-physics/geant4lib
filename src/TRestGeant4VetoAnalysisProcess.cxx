@@ -218,7 +218,7 @@ void TRestGeant4VetoAnalysisProcess::InitProcess() {
         exit(1);
     }
 
-    cout << "Expression: " << fVetoVolumesExpression << endl;
+    RESTDebug << "Expression: " << fVetoVolumesExpression << RESTendl;
     const auto& geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
 
     auto vetoVolumes = geometryInfo.GetAllPhysicalVolumesMatchingExpression(fVetoVolumesExpression);
