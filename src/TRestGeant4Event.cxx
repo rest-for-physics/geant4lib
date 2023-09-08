@@ -264,7 +264,7 @@ Double_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& particleN
     Double_t energy = 0;
     for (const auto& track : fTracks) {
         if (particleName.EqualTo(track.GetParticleName())) {
-            energy += track.GetEnergy();
+            energy += track.GetTotalEnergy();
         }
     }
     return energy;
