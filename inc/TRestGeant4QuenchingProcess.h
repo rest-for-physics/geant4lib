@@ -56,8 +56,8 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
                                                    const std::string& particleName) const;
 
     //
-    any GetInputEvent() const override { return fInputG4Event; }
-    any GetOutputEvent() const override { return fOutputG4Event; }
+    RESTValue GetInputEvent() const override { return fInputG4Event; }
+    RESTValue GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
