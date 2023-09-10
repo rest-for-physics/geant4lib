@@ -291,6 +291,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             if (volId >= 0) {
                 fEnergyInObservables.push_back(fObservables[i]);
                 fVolumeID.push_back(volId);
+                fVolumeName.push_back(volName.Data());
             }
 
             if (volId == -1) {
@@ -387,11 +388,6 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             fTracksEDepObservables.push_back(fObservables[i]);
             fParticleTrackEdep.emplace_back(particleName.Data());
         }
-
-        if (fObservables[i].find("primaryOriginDistanceToPrism") != string::npos) {
-            fPrismCenter = Get3DVectorParameterWithUnits("prismCenter");
-            fPrismSize = Get3DVectorParameterWithUnits("prismSizeXYZ");
-        }
     }
 }
 
@@ -402,14 +398,39 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    Double_t energy = fOutputG4Event->GetSensitiveVolumeEnergy();
+    const auto sensitiveVolumeName = fG4Metadata->GetSensitiveVolume();
+
+    Double_t sensitiveVolumeEnergy = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName.Data());
+    // Get time of the first hit in the sensitive volume
+    double hitTime = std::numeric_limits<double>::infinity();
+    for (const auto& track : fOutputG4Event->GetTracks()) {
+        const auto hits = track.GetHits();
+        for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
+            const auto volumeName = hits.GetVolumeName(hitIndex);
+            if (volumeName != sensitiveVolumeName) {
+                continue;
+            }
+            const double energy = hits.GetEnergy(hitIndex);
+            if (energy <= 0) {
+                continue;
+            }
+
+            const double time = hits.GetTime(hitIndex);
+            if (time < hitTime) {
+                hitTime = time;
+            }
+        }
+    }
+    SetObservableValue("sensitiveVolumeFirstHitTime", hitTime);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "----------------------------" << endl;
         cout << "TRestGeant4Event : " << fOutputG4Event->GetID() << endl;
-        cout << "Sensitive volume Energy : " << energy << endl;
+        cout << "Sensitive volume Energy : " << sensitiveVolumeEnergy << endl;
         cout << "Total energy : " << fOutputG4Event->GetTotalDepositedEnergy() << endl;
     }
+
+    SetObservableValue("sensitiveVolumeEnergy", sensitiveVolumeEnergy);
 
     Double_t xOrigin = fOutputG4Event->GetPrimaryEventOrigin().X();
     SetObservableValue("xOriginPrimary", xOrigin);
@@ -442,28 +463,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     Double_t size = fOutputG4Event->GetBoundingBoxSize();
     SetObservableValue("boundingSize", size);
 
-    std::string eventPrimaryParticleName = fOutputG4Event->GetPrimaryEventParticleName(0).Data();
-    SetObservableValue("eventPrimaryParticleName", eventPrimaryParticleName);
-
-    std::string subEventPrimaryParticleName = fOutputG4Event->GetSubEventPrimaryEventParticleName().Data();
-    SetObservableValue("subEventPrimaryParticleName", subEventPrimaryParticleName);
-
-    auto observables = TRestEventProcess::ReadObservables();
-    auto it = std::find(observables.begin(), observables.end(), "primaryOriginDistanceToPrism");
-    if (it != observables.end()) {
-        TVector3 positionCentered = fOutputG4Event->GetPrimaryEventOrigin() - fPrismCenter;
-        double mx = TMath::Max(0., TMath::Max(-fPrismSize.X() / 2 - positionCentered.X(),
-                                              -fPrismSize.X() / 2 + positionCentered.X()));
-        double my = TMath::Max(0., TMath::Max(-fPrismSize.Y() / 2 - positionCentered.Y(),
-                                              -fPrismSize.Y() / 2 + positionCentered.Y()));
-        double mz = TMath::Max(0., TMath::Max(-fPrismSize.Z() / 2 - positionCentered.Z(),
-                                              -fPrismSize.Z() / 2 + positionCentered.Z()));
-
-        auto distance = TMath::Sqrt(mx * mx + my * my + mz * mz);
-
-        SetObservableValue("primaryOriginDistanceToPrism", distance);
-    }
-
     // process names as named by Geant4
     // processes present here will be added to the list of observables which can be used to see if the event
     // contains the process of interest.
@@ -493,7 +492,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     }
 
     for (unsigned int n = 0; n < fEnergyInObservables.size(); n++) {
-        Double_t en = fOutputG4Event->GetEnergyDepositedInVolume(fVolumeID[n]);
+        Double_t en = fOutputG4Event->GetEnergyInVolume(fVolumeName[n]);
         string obsName = fEnergyInObservables[n];
         SetObservableValue(obsName, en);
     }

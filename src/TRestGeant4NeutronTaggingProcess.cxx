@@ -228,7 +228,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
         int id = fVetoVolumeIds[i];
         string volume_name = (string)fG4Metadata->GetActiveVolumeName(id);
 
-        Double_t energy = fOutputG4Event->GetEnergyDepositedInVolume(id);
+        Double_t energy = fOutputG4Event->GetEnergyInVolume(volume_name);
         volume_energy_map[volume_name] = energy;
     }
 
@@ -361,24 +361,24 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
                     double neutronsCapturedEDepByNeutronAndChildrenInVeto = 0;
 
                     std::set<int> parents = {track.GetTrackID()};
-                    std::map<int, double> energy_in_veto;
+                    std::map<int, double> energyInVeto;
                     for (unsigned int child = 0; child < fOutputG4Event->GetNumberOfTracks(); child++) {
-                        const auto& track_child = fOutputG4Event->GetTrack(child);
-                        if ((parents.count(track_child.GetParentID()) > 0) ||
-                            parents.count(track_child.GetTrackID()) > 0) {
+                        const auto& trackChild = fOutputG4Event->GetTrack(child);
+                        if ((parents.count(trackChild.GetParentID()) > 0) ||
+                            parents.count(trackChild.GetTrackID()) > 0) {
                             // track or parent is in list of tracks, we add to list and add energy
-                            parents.insert(track_child.GetTrackID());
-                            neutronsCapturedEDepByNeutronAndChildren += track_child.GetEnergy();
-                            if (track_child.GetTrackID() == track.GetTrackID()) {
-                                neutronsCapturedEDepByNeutron += track_child.GetEnergy();
+                            parents.insert(trackChild.GetTrackID());
+                            neutronsCapturedEDepByNeutronAndChildren += trackChild.GetTotalEnergy();
+                            if (trackChild.GetTrackID() == track.GetTrackID()) {
+                                neutronsCapturedEDepByNeutron += trackChild.GetTotalEnergy();
                             }
                             for (const auto& vetoId : fVetoVolumeIds) {
                                 neutronsCapturedEDepByNeutronAndChildrenInVeto +=
-                                    track_child.GetEnergyInVolume(vetoId);
-                                energy_in_veto[vetoId] += track_child.GetEnergyInVolume(vetoId);
-                                if (track_child.GetTrackID() == track.GetTrackID()) {
+                                    trackChild.GetEnergyInVolume(vetoId);
+                                energyInVeto[vetoId] += trackChild.GetEnergyInVolume(vetoId);
+                                if (trackChild.GetTrackID() == track.GetTrackID()) {
                                     neutronsCapturedEDepByNeutronInVeto +=
-                                        track_child.GetEnergyInVolume(vetoId);
+                                        trackChild.GetEnergyInVolume(vetoId);
                                 }
                             }
                         }
@@ -394,7 +394,7 @@ TRestEvent* TRestGeant4NeutronTaggingProcess::ProcessEvent(TRestEvent* inputEven
                     // get max and min energy in each veto (to compare with energy in ALL vetoes)
                     double energyMaxVeto = 0;
                     double energyMinVeto = -1;
-                    for (const auto& pair : energy_in_veto) {
+                    for (const auto& pair : energyInVeto) {
                         auto E = pair.second;
                         if (E > energyMaxVeto) energyMaxVeto = E;
                         if (E < energyMaxVeto || energyMinVeto == -1) energyMinVeto = E;

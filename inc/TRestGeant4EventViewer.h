@@ -15,6 +15,7 @@
 #ifndef RestCore_TRestGeant4EventViewer
 #define RestCore_TRestGeant4EventViewer
 
+#include "TEveStraightLineSet.h"
 #include "TRestEveEventViewer.h"
 #include "TRestGeant4Event.h"
 
@@ -24,6 +25,8 @@ class TRestGeant4EventViewer : public TRestEveEventViewer {
 
     TRestGeant4Event* fG4Event = nullptr;
     const TRestGeant4Metadata* fG4Metadata = nullptr;
+
+    TEveStraightLineSet* GetTrackEveDrawable(const TRestGeant4Track& track);
 
    public:
     void Initialize();

@@ -1485,8 +1485,12 @@ void TRestGeant4Metadata::PrintMetadata() {
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
-Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
-    return fGeant4GeometryInfo.GetIDFromVolume(name);
+Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
+    Int_t id;
+    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
+        if (fActiveVolumes[id] == name) return id;
+    }
+    return -1;
 }
 
 ///////////////////////////////////////////////
@@ -1532,7 +1536,7 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
+Double_t TRestGeant4Metadata::GetStorageChance(const TString& volume) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == volume) return fChance[id];
@@ -1566,4 +1570,48 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
         majorVersion += c;
     }
     return std::stoi(majorVersion.Data());
+}
+
+void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
+    fIsMerge = true;
+    fSeed = 0;  // seed makes no sense in a merged file
+
+    fNEvents += metadata.fNEvents;
+    fNRequestedEntries += metadata.fNRequestedEntries;
+    fSimulationTime += metadata.fSimulationTime;
+}
+
+TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
+
+TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
+    fIsMerge = metadata.fIsMerge;
+    fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
+    fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
+    fGeant4PrimaryGeneratorInfo = metadata.fGeant4PrimaryGeneratorInfo;
+    fGeant4Version = metadata.fGeant4Version;
+    fGdmlReference = metadata.fGdmlReference;
+    fMaterialsReference = metadata.fMaterialsReference;
+    fEnergyRangeStored = metadata.fEnergyRangeStored;
+    fActiveVolumes = metadata.fActiveVolumes;
+    fChance = metadata.fChance;
+    fMaxStepSize = metadata.fMaxStepSize;
+    // fParticleSource = metadata.fParticleSource; // segfaults (pointers!)
+    fNBiasingVolumes = metadata.fNBiasingVolumes;
+    fBiasingVolumes = metadata.fBiasingVolumes;
+    fMaxTargetStepSize = metadata.fMaxTargetStepSize;
+    fSubEventTimeDelay = metadata.fSubEventTimeDelay;
+    fFullChain = metadata.fFullChain;
+    fSensitiveVolumes = metadata.fSensitiveVolumes;
+    fNEvents = metadata.fNEvents;
+    fNRequestedEntries = metadata.fNRequestedEntries;
+    fSimulationMaxTimeSeconds = metadata.fSimulationMaxTimeSeconds;
+    fSeed = metadata.fSeed;
+    fSaveAllEvents = metadata.fSaveAllEvents;
+    fRemoveUnwantedTracks = metadata.fRemoveUnwantedTracks;
+    fRemoveUnwantedTracksKeepZeroEnergyTracks = metadata.fRemoveUnwantedTracksKeepZeroEnergyTracks;
+    fRemoveUnwantedTracksVolumesToKeep = metadata.fRemoveUnwantedTracksVolumesToKeep;
+    fKillVolumes = metadata.fKillVolumes;
+    fRegisterEmptyTracks = metadata.fRegisterEmptyTracks;
+    fMagneticField = metadata.fMagneticField;
+    return *this;
 }

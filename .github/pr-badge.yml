@@ -13,7 +13,5 @@
   message: "Ok: $additions"
   color: "green"
   when: "$additions < 100"
-- imageUrl: "https://gitlab.cern.ch/rest-for-physics/geant4lib/badges/$branchName/pipeline.svg"
-  url: "https://gitlab.cern.ch/rest-for-physics/geant4lib/-/commits/$branchName"
-- imageUrl: "https://github.com/rest-for-physics/geant4lib/actions/workflows/validation.yml/badge.svg?branch=$branchName"
+- imageUrl: "https://github.com/rest-for-physics/geant4lib/actions/workflows/frameworkValidation.yml/badge.svg?branch=$branchName"
   url: "https://github.com/rest-for-physics/geant4lib/commits/$branchName"

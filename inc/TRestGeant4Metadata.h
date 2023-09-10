@@ -56,6 +56,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     void ReadDetector();
     void ReadBiasing();
 
+    // Metadata is the result of a merge of other metadata
+    bool fIsMerge = false;
+
     /// Class used to store and retrieve geometry info
     TRestGeant4GeometryInfo fGeant4GeometryInfo;
 
@@ -118,14 +121,17 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// deposit a non-zero energy on this volume will be registered.
     std::vector<TString> fSensitiveVolumes;
 
-    /// The number of events simulated, or to be simulated.
-    Int_t fNEvents = 0;
+    /// \brief The number of events simulated, or to be simulated.
+    Long64_t fNEvents = 0;
 
-    /// The number of events the user requested to be on the file
-    Int_t fNRequestedEntries = 0;
+    /// \brief The number of events the user requested to be on the file
+    Long64_t fNRequestedEntries = 0;
 
-    /// Time before simulation is ended and saved
+    /// \brief Time before simulation is ended and saved
     Int_t fSimulationMaxTimeSeconds = 0;
+
+    /// \brief The time, in seconds, that the simulation took to complete.
+    Long64_t fSimulationTime = 0;
 
     /// \brief The seed value used for Geant4 random event generator.
     /// If it is zero its value will be assigned using the system timestamp.
@@ -150,7 +156,8 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     std::set<std::string> fKillVolumes;
 
-    /// If this parameter is set to 'true' it will print out on screen every time 10k events are reached.
+    /// \brief If this parameter is set to 'true' it will print out on screen every time 10k events are
+    /// reached.
     Bool_t fPrintProgress = false;  //!
 
     /// \brief If this parameter is enabled it will register tracks with no hits inside. This is the default
@@ -158,7 +165,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// traceability, but saving disk space and likely improving computing performance for large events.
     Bool_t fRegisterEmptyTracks = true;
 
-    /// The world magnetic field
+    /// \brief The world magnetic field
     TVector3 fMagneticField = TVector3(0, 0, 0);
 
    public:
@@ -242,11 +249,13 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline void SetMaterialsReference(std::string reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
-    inline Int_t GetNumberOfEvents() const { return fNEvents; }
+    inline Long64_t GetNumberOfEvents() const { return fNEvents; }
 
-    inline Int_t GetNumberOfRequestedEntries() const { return fNRequestedEntries; }
+    inline Long64_t GetNumberOfRequestedEntries() const { return fNRequestedEntries; }
 
     inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
+
+    inline Long64_t GetSimulationTime() const { return fSimulationTime; }
 
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
@@ -283,9 +292,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline const std::vector<TString>& GetSensitiveVolumes() const { return fSensitiveVolumes; }
 
     /// Sets the name of the sensitive volume
-    inline void SetNumberOfEvents(Int_t n) { fNEvents = n; }
+    inline void SetNumberOfEvents(Long64_t n) { fNEvents = n; }
 
-    inline void SetNumberOfRequestedEntries(Int_t n) { fNRequestedEntries = n; }
+    inline void SetNumberOfRequestedEntries(Long64_t n) { fNRequestedEntries = n; }
 
     inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
@@ -306,7 +315,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// Returns the probability per event to register (write to disk) hits in a GDML volume given its geometry
     /// name.
-    Double_t GetStorageChance(TString volume);
+    Double_t GetStorageChance(const TString& volume);
 
     Double_t GetMaxStepSize(const TString& volume);
 
@@ -364,20 +373,27 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// Returns the world magnetic field in Tesla
     inline TVector3 GetMagneticField() const { return fMagneticField; }
 
-    Int_t GetActiveVolumeID(TString name);
+    Int_t GetActiveVolumeID(const TString& name);
 
     Bool_t isVolumeStored(const TString& volume) const;
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
+    void SetSimulationTime(Long64_t time) { fSimulationTime = time; }
+
     void PrintMetadata() override;
+
+    void Merge(const TRestGeant4Metadata&);
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
 
     ~TRestGeant4Metadata();
 
-    ClassDefOverride(TRestGeant4Metadata, 13);
+    TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
+    TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
+
+    ClassDefOverride(TRestGeant4Metadata, 15);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;

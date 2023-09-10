@@ -1,4 +1,4 @@
-set(LibraryVersion "2.0")
+set_library_version(LibraryVersion)
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_DECAY0} MATCHES "ON")
@@ -59,6 +59,7 @@ install(FILES ${MAC} DESTINATION ./macros/geant4)
 
 set(rest_macros ${rest_macros} "restGeant4_ViewEvent")
 set(rest_macros ${rest_macros} "restGeant4_ViewGeometry")
+set(rest_macros ${rest_macros} "restGeant4_MergeRestG4Files")
 set(rest_macros
     ${rest_macros}
     PARENT_SCOPE)

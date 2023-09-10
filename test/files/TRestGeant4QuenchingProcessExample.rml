@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<test>
+
+    <TRestGeant4QuenchingProcess>
+
+        <volume name="^scintillatorVolume">
+            <particle name="gamma" quenchingFactor="1.0"/>
+            <particle name="e-" quenchingFactor="0.5"/>
+            <particle name="e+" quenchingFactor="0.9"/>
+            <particle name="mu-" quenchingFactor="0.2"/>
+            <particle name="neutron" quenchingFactor="0.1"/>
+        </volume>
+
+        <volume name="gasVolume">
+            <particle name="gamma" quenchingFactor="0.2"/>
+            <particle name="e-" quenchingFactor="0.2"/>
+        </volume>
+
+    </TRestGeant4QuenchingProcess>
+
+</test>

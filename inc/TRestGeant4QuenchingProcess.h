@@ -1,7 +1,7 @@
 /*************************************************************************
  * This file is part of the REST software framework.                     *
  *                                                                       *
- * Copyright (C) 2020 GIFNA/TREX (University of Zaragoza)                *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
  * For more information see http://gifna.unizar.es/trex                  *
  *                                                                       *
  * REST is free software: you can redistribute it and/or modify          *
@@ -20,54 +20,44 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestGeant4VetoAnalysisProcess
-#define RestCore_TRestGeant4VetoAnalysisProcess
+#ifndef RestCore_TRestGeant4QuenchingProcess
+#define RestCore_TRestGeant4QuenchingProcess
 
 #include <TRestEventProcess.h>
-
-#include <string>
 
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
-struct Veto {
-    std::string name;
-    std::string alias{};
-    std::string group{};
-    int layer{};
-    int number{};
-    TVector3 position{};
-    double length{};
-};
-
-class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
+//! Recomputes the energy of every hit based on quenching factor for each particle and volume
+class TRestGeant4QuenchingProcess : public TRestEventProcess {
    private:
-    std::string fVetoVolumesExpression;  // identify veto volumes
+    /// A pointer to the specific TRestGeant4Event input
+    TRestGeant4Event* fInputG4Event{};  //!
 
-   public:
-    inline std::string GetVetoVolumesExpression() const { return fVetoVolumesExpression; }
+    /// A pointer to the specific TRestGeant4Event output
+    TRestGeant4Event* fOutputG4Event{};  //!
 
-   private:
-    TRestGeant4Event* fInputEvent = nullptr;               //!
-    TRestGeant4Event* fOutputEvent = nullptr;              //!
-    const TRestGeant4Metadata* fGeant4Metadata = nullptr;  //!
+    /// A pointer to the simulation metadata information accessible to TRestRun
+    TRestGeant4Metadata* fGeant4Metadata{};  //!
 
-    std::vector<Veto> fVetoVolumes;
+    /// It stores the quenching factor for each particle for each user volume expression
+    std::map<std::string, std::map<std::string, float_t>> fUserVolumeParticleQuenchingFactor = {};
 
-    void InitFromConfigFile() override;
+    /// It stores the quenching factor for each particle for each volume of the simulation
+    std::map<std::string, std::map<std::string, float_t>> fVolumeParticleQuenchingFactor = {};
+
     void Initialize() override;
+    void InitFromConfigFile() override;
     void LoadDefaultConfig();
 
    public:
-    RESTValue GetInputEvent() const override { return fInputEvent; }
-    RESTValue GetOutputEvent() const override { return fOutputEvent; }
+    std::vector<std::string> GetUserVolumeExpressions() const;
+    float_t GetQuenchingFactorForVolumeAndParticle(const std::string& volumeName,
+                                                   const std::string& particleName) const;
 
-    static Veto GetVetoFromString(const std::string& vetoString);
-
-    inline void SetGeant4Metadata(const TRestGeant4Metadata* metadata) {
-        fGeant4Metadata = metadata;
-    }  // TODO: We should not need this! but `GetMetadata<TRestGeant4Metadata>()` is not working early in the
-       // processing (look at the tests for more details)
+    //
+    RESTValue GetInputEvent() const override { return fInputG4Event; }
+    RESTValue GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
@@ -77,12 +67,16 @@ class TRestGeant4VetoAnalysisProcess : public TRestEventProcess {
 
     void PrintMetadata() override;
 
-    const char* GetProcessName() const override { return "geant4VetoAnalysis"; }
+    /// Returns a new instance of this class
+    TRestEventProcess* Maker() { return new TRestGeant4QuenchingProcess; }
 
-    TRestGeant4VetoAnalysisProcess();
-    TRestGeant4VetoAnalysisProcess(const char* configFilename);
-    ~TRestGeant4VetoAnalysisProcess();
+    /// Returns the name of this process
+    const char* GetProcessName() const override { return "Geant4Quenching"; }
 
-    ClassDefOverride(TRestGeant4VetoAnalysisProcess, 4);
+    TRestGeant4QuenchingProcess();
+    explicit TRestGeant4QuenchingProcess(const char* configFilename);
+    ~TRestGeant4QuenchingProcess() override;
+
+    ClassDefOverride(TRestGeant4QuenchingProcess, 1);
 };
-#endif  // RestCore_TRestGeant4VetoAnalysisProcess
+#endif
