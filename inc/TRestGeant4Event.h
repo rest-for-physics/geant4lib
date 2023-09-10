@@ -229,7 +229,7 @@ class TRestGeant4Event : public TRestEvent {
 
     void InitializeReferences(TRestRun* run) override;
 
-    const TRestGeant4Metadata* GetGeant4Metadata(const char* name = "TRestGeant4Metadata") const;
+    const TRestGeant4Metadata* GetGeant4Metadata() const;
 
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;

@@ -1208,8 +1208,12 @@ Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, I
     return false;
 }
 
-const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata(const char* name) const {
-    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass(name));
+const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata() const {
+    if (fRun == nullptr) {
+        RESTError << "TRestGeant4Event::GetGeant4Metadata: fRun is nullptr" << RESTendl;
+        return nullptr;
+    }
+    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass("TRestGeant4Metadata"));
 }
 
 void TRestGeant4Event::InitializeReferences(TRestRun* run) {
