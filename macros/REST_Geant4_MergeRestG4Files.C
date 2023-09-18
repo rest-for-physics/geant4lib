@@ -119,8 +119,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     gGeoManager->Write("Geometry", TObject::kOverwrite);
 
-    mergeMetadata.SetName("geant4Metadata");
     mergeMetadata.Write();
+
     mergeRun->UpdateOutputFile();
     mergeRun->CloseFile();
 

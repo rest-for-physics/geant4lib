@@ -1576,6 +1576,10 @@ void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
     fIsMerge = true;
     fSeed = 0;  // seed makes no sense in a merged file
 
+    if (fName.IsNull()) {
+        fName = metadata.fName;
+    }
+
     fNEvents += metadata.fNEvents;
     fNRequestedEntries += metadata.fNRequestedEntries;
     fSimulationTime += metadata.fSimulationTime;
@@ -1585,6 +1589,7 @@ TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { 
 
 TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
     fIsMerge = metadata.fIsMerge;
+    fName = metadata.fName;
     fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
     fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
     fGeant4PrimaryGeneratorInfo = metadata.fGeant4PrimaryGeneratorInfo;
