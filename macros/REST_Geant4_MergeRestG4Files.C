@@ -59,6 +59,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     TRestGeant4Event* mergeEvent = nullptr;
     auto mergeEventTree = mergeRun->GetEventTree();
+    auto mergeAnalysisTree = mergeRun->GetAnalysisTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
 
     set<Int_t> eventIds;  // std::set is sorted from lower to higher automatically
@@ -80,6 +81,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         }
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
+        // auto analysisTree = run.GetAnalysisTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
@@ -106,7 +108,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
             eventIds.insert(mergeEvent->GetID());
 
             mergeEventTree->Fill();
-            mergeRun->GetAnalysisTree()->Fill();
+            // TODO: this just adds empty entries to the analysis tree. It should be merged
+            mergeAnalysisTree->Fill();
 
             eventCounter++;
         }
@@ -123,9 +126,9 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
                         // This is merged and added later
                         continue;
                     }
-                    const auto metadata = (TRestMetadata*)obj;
+                    const auto metadataKey = (TRestMetadata*)obj;
                     mergeRun->GetOutputFile()->cd();
-                    metadata->Write(metadata->GetName(), TObject::kOverwrite);
+                    metadataKey->Write();
                 }
             }
         }
