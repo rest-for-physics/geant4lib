@@ -110,6 +110,25 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
             eventCounter++;
         }
+
+        // add the remaining metadata of the first file to the merged file
+        if (i == 0) {
+            // iterate over all keys of the file to find inheritance of TRestMetadata
+            TIter nextkey(run.GetInputFile()->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                const auto obj = key->ReadObj();
+                if (obj->InheritsFrom("TRestMetadata")) {
+                    if (obj->InheritsFrom("TRestGeant4Metadata")) {
+                        // This is merged and added later
+                        continue;
+                    }
+                    const auto metadata = (TRestMetadata*)obj;
+                    mergeRun->GetOutputFile()->cd();
+                    metadata->Write(metadata->GetName(), TObject::kOverwrite);
+                }
+            }
+        }
     }
 
     cout << "Output filename: " << mergeRun->GetOutputFileName() << endl;
