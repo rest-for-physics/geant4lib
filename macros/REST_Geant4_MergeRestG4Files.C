@@ -136,7 +136,9 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     mergeRun->GetOutputFile()->cd();
 
-    gGeoManager->Write("Geometry", TObject::kOverwrite);
+    if (gGeoManager != nullptr) {
+        gGeoManager->Write("Geometry", TObject::kOverwrite);
+    }
 
     mergeMetadata.Write();
 
@@ -150,8 +152,6 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
              << ") does not match the number of events in the input files (" << eventCounter << ")" << endl;
         exit(1);
     }
-    cout << "Number of events in the output file: " << runCheck.GetEntries() << " matches internal count"
-         << endl;
 }
 
 #endif
