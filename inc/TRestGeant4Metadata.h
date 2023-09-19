@@ -383,7 +383,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void PrintMetadata() override;
 
-    void Merge(const TRestGeant4Metadata&);
+    void Merge(const TRestMetadata&) override;
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");

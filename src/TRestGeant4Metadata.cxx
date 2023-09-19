@@ -1572,17 +1572,16 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
     return std::stoi(majorVersion.Data());
 }
 
-void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
+void TRestGeant4Metadata::Merge(const TRestMetadata& metadata) {
+    TRestMetadata::Merge(metadata);
+
     fIsMerge = true;
     fSeed = 0;  // seed makes no sense in a merged file
 
-    if (fName.IsNull()) {
-        fName = metadata.fName;
-    }
-
-    fNEvents += metadata.fNEvents;
-    fNRequestedEntries += metadata.fNRequestedEntries;
-    fSimulationTime += metadata.fSimulationTime;
+    const auto geant4Metadata = dynamic_cast<const TRestGeant4Metadata*>(&metadata);
+    fNEvents += geant4Metadata->fNEvents;
+    fNRequestedEntries += geant4Metadata->fNRequestedEntries;
+    fSimulationTime += geant4Metadata->fSimulationTime;
 }
 
 TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
