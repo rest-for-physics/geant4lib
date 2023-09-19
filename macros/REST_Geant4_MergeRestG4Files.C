@@ -1,3 +1,5 @@
+#include <TFileMerger.h>
+
 #include <string>
 #include <vector>
 
@@ -61,6 +63,18 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     auto mergeEventTree = mergeRun->GetEventTree();
     auto mergeAnalysisTree = mergeRun->GetAnalysisTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
+
+    const string outputTempFilename =
+        string(outputFilename).substr(0, string(outputFilename).size() - 5) + ".temp.root";
+    {
+        TFileMerger merger;
+        merger.OutputFile(outputTempFilename.c_str());
+        merger.AddObjectNames("EventTree AnalysisTree");
+        for (int i = 0; i < inputFiles.size(); i++) {
+            merger.AddFile(inputFiles[i].c_str());
+        }
+        merger.PartialMerge(TFileMerger::kAll | TFileMerger::kIncremental | TFileMerger::kOnlyListed);
+    }
 
     set<Int_t> eventIds;  // std::set is sorted from lower to higher automatically
 
