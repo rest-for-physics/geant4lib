@@ -95,9 +95,11 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         }
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
-        // auto analysisTree = run.GetAnalysisTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
         for (unsigned int j = 0; j < eventTree->GetEntries(); j++) {
+            eventCounter++;
+            continue;  // not working at this time (this logic works, but we are using TFileMerger which does
+                       // not work with this)
             eventTree->GetEntry(j);
             *mergeEvent = *event;
 
@@ -124,8 +126,6 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
             mergeEventTree->Fill();
             // TODO: this just adds empty entries to the analysis tree. It should be merged
             mergeAnalysisTree->Fill();
-
-            eventCounter++;
         }
 
         // add the remaining metadata of the first file to the merged file
@@ -162,7 +162,35 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     mergeRun->UpdateOutputFile();
     mergeRun->CloseFile();
 
-    // Open the file again to check the number of events
+    // At this point we have two files: the "mergeRun" file with the updated metadata and the "temp" file with
+    // the event and analysis tree (the event tree here does not have updated event ids) Open the file again
+
+    {
+        auto fileWithMetadata = TFile::Open(mergeRun->GetOutputFileName());
+        auto fileWithTrees = TFile::Open(outputTempFilename.c_str(), "UPDATE");
+
+        // copy all objects from the file with metadata except "EventTree" and "AnalysisTree"
+        TIter nextkey(fileWithMetadata->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            const auto obj = key->ReadObj();
+            if (obj->InheritsFrom("TTree")) {
+                continue;
+            }
+            fileWithTrees->cd();
+            obj->Write();
+        }
+
+        // close files
+        fileWithMetadata->Close();
+        fileWithTrees->Close();
+    }
+
+    // replace the "run" file by the temp file
+    remove(mergeRun->GetOutputFileName());
+    rename(outputTempFilename.c_str(), mergeRun->GetOutputFileName());
+
+    // to check the number of events
     TRestRun runCheck(outputFilename);
     if (runCheck.GetEntries() != eventCounter) {
         cerr << "ERROR: number of events in the output file (" << runCheck.GetEntries()
