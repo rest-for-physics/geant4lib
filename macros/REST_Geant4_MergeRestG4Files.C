@@ -70,7 +70,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         TFileMerger merger;
         merger.OutputFile(outputTempFilename.c_str());
         merger.AddObjectNames("EventTree AnalysisTree");
-        for (int i = 0; i < inputFiles.size(); i++) {
+        for (unsigned int i = 0; i < inputFiles.size(); i++) {
             merger.AddFile(inputFiles[i].c_str());
         }
         merger.PartialMerge(TFileMerger::kAll | TFileMerger::kIncremental | TFileMerger::kOnlyListed);
@@ -80,7 +80,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     long long eventCounter = 0;
     // iterate over all other files
-    for (int i = 0; i < inputFiles.size(); i++) {
+    for (unsigned int i = 0; i < inputFiles.size(); i++) {
         cout << "Processing file " << i + 1 << "/" << inputFiles.size() << endl;
 
         map<Int_t, Int_t>
@@ -97,7 +97,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         auto eventTree = run.GetEventTree();
         // auto analysisTree = run.GetAnalysisTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
-        for (int j = 0; j < eventTree->GetEntries(); j++) {
+        for (unsigned int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
             *mergeEvent = *event;
 
