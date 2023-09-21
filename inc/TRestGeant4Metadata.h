@@ -387,8 +387,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
-    void SetSimulationTime(Long64_t time) { fSimulationTime = time; }
-
     void PrintMetadata() override;
 
     void Merge(const TRestMetadata&) override;
