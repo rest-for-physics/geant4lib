@@ -801,6 +801,14 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         cout << "\"gdmlFile\" parameter is not defined!" << endl;
         exit(1);
     }
+    if (TRestTools::isURL(fGdmlFilename.Data())) {
+        fGeometryPath = "";
+        fGdmlFilename = TRestTools::DownloadRemoteFile(fGdmlFilename.Data());
+        if (fGdmlFilename == "") {
+            cout << "Error downloading geometry file from URL: " << fGdmlFilename << endl;
+            exit(1);
+        }
+    }
 
     fGeometryPath = GetParameter("geometryPath", "");
 
@@ -818,7 +826,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
     if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
-         ((string)fGdmlFilename).find("/") == string::npos) &&
+         ((string)fGdmlFilename).find('/') == string::npos) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
@@ -945,7 +953,7 @@ Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
 
 Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond();
-    const auto seconds = fNEvents / countsPerSecond;
+    const auto seconds = double(fNEvents) / countsPerSecond;
     return seconds;
 }
 
