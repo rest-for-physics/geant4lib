@@ -1496,7 +1496,9 @@ void TRestGeant4Metadata::PrintMetadata() {
 Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == name) return id;
+        if (fActiveVolumes[id] == name) {
+            return id;
+        }
     }
     return -1;
 }
@@ -1547,7 +1549,9 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
 Double_t TRestGeant4Metadata::GetStorageChance(const TString& volume) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == volume) return fChance[id];
+        if (fActiveVolumes[id] == volume) {
+            return fChance[id];
+        }
     }
     RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << volume << " not found" << RESTendl;
 
