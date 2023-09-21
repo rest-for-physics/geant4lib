@@ -148,9 +148,6 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         }
     }
 
-    cout << "Output filename: " << mergeRun->GetOutputFileName() << endl;
-    cout << "Output file: " << mergeRun->GetOutputFile() << endl;
-
     mergeRun->GetOutputFile()->cd();
 
     if (gGeoManager != nullptr) {

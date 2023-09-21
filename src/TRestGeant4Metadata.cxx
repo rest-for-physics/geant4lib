@@ -1433,7 +1433,15 @@ void TRestGeant4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Geant4 version: " << GetGeant4Version() << RESTendl;
-    RESTMetadata << "Random seed: " << GetSeed() << RESTendl;
+    if (!fIsMerge) {
+        RESTMetadata << "Random seed: " << GetSeed() << RESTendl;
+    } else {
+        RESTMetadata << "This Geant4 simulation is a merge of " << fMergeSeeds.size() << " files" << RESTendl;
+        for (unsigned int i = 0; i < fMergeSeeds.size(); i++) {
+            RESTMetadata << " - File " << i << " Random seed: " << fMergeSeeds[i]
+                         << " - Number of primaries: " << fMergeNEvents[i] << RESTendl;
+        }
+    }
     RESTMetadata << "GDML geometry: " << GetGdmlReference() << RESTendl;
     RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
     RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
@@ -1629,5 +1637,7 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fKillVolumes = metadata.fKillVolumes;
     fRegisterEmptyTracks = metadata.fRegisterEmptyTracks;
     fMagneticField = metadata.fMagneticField;
+    fMergeNEvents = metadata.fMergeNEvents;
+    fMergeSeeds = metadata.fMergeSeeds;
     return *this;
 }
