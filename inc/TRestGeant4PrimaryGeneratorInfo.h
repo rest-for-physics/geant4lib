@@ -17,6 +17,7 @@ enum class SpatialGeneratorTypes {
     SURFACE,
     POINT,
     COSMIC,
+	CRY,
 };
 
 std::string SpatialGeneratorTypesToString(const SpatialGeneratorTypes&);
