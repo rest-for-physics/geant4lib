@@ -87,10 +87,11 @@ void TRestGeant4ParticleSourceCry::Update() {
     ev->clear();
     fCRYGenerator->genEvent(ev);
 
-    std::cout << "CRY particles : " << ev->size() << std::endl;
-    std::cout << "-----" << std::endl;
+    // std::cout << "CRY particles : " << ev->size() << std::endl;
+    // std::cout << "-----" << std::endl;
 
     for (const auto& cryParticle : *ev) {
+		/*
         std::cout << "id: " << cryParticle->id() << std::endl;
 
         std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z()
@@ -98,6 +99,7 @@ void TRestGeant4ParticleSourceCry::Update() {
         std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w()
                   << std::endl;
         std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
+		*/
 
         TRestGeant4Particle particle;
 
@@ -162,7 +164,7 @@ void TRestGeant4ParticleSourceCry::Update() {
 
         AddParticle(particle);
     }
-    std::cout << "-----" << std::endl;
+    //std::cout << "-----" << std::endl;
 #else
     cout << "TRestGeant4ParticleSourceCry - ERROR: Geant4lib was not linked to CRY libraries" << endl;
     cout << "  " << endl;
