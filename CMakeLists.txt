@@ -52,6 +52,33 @@ if (NOT ${REST_EVE} MATCHES "ON")
     set(excludes ${excludes} TRestGeant4EventViewer)
 endif ()
 
+if (DEFINED REST_CRY_PATH)
+    find_path(CRY_LIB_PATH libCRY.a HINTS ${REST_CRY_PATH}/lib)
+
+    find_path(CRY_INC_PATH CRYGenerator.h HINTS ${REST_CRY_PATH}/src)
+
+    if (CRY_LIB_PATH AND CRY_INC_PATH)
+        message(STATUS "Found CRY includes in ${CRY_INC_PATH}")
+        message(STATUS "Found CRY library in ${CRY_LIB_PATH}")
+
+		add_compile_definitions("USE_CRY")
+        add_compile_definitions("CRY_DATA_PATH=\"${REST_CRY_PATH}/data\"")
+
+		set(external_include_dirs ${external_include_dirs} ${CRY_INC_PATH})
+		set(external_libs "${external_libs} -L${CRY_LIB_PATH} -lCRY")
+
+		set(feature_added "Cry")
+		set(feature_added
+			${feature_added}
+			PARENT_SCOPE)
+    else ()
+        message(
+            FATAL_ERROR
+                "REST_CRY_PATH was defined with path ${REST_CRY_PATH}, but CRY library was not found there!\n"
+        )
+    endif ()
+endif (DEFINED REST_CRY_PATH)
+
 compilelib("")
 
 file(GLOB_RECURSE MAC "${CMAKE_CURRENT_SOURCE_DIR}/macros/*")
