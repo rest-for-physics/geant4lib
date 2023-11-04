@@ -97,13 +97,13 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
     } else {
         // use specific generator
         // naming convention: TRestGeant4ParticleSourceXXX
-        // currently supported generator: decay0
-        // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
+        // currently supported generators: decay0, cry
+        // in future we may add wrapper of generators: pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestGeant4ParticleSource" + model).c_str());
         if (c)  // this means we have the package installed
         {
-            return (TRestGeant4ParticleSource*)c->New();
+            return (TRestGeant4ParticleSource*) c->New();
         } else {
             std::cout << "REST ERROR! generator wrapper \"" << ("TRestGeant4ParticleSource" + model)
                       << "\" not found!" << std::endl;
