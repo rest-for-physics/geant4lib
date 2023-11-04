@@ -55,24 +55,25 @@ TRestGeant4Particle::~TRestGeant4Particle() {
 /// \brief A copy method
 ///
 void TRestGeant4Particle::SetParticle(TRestGeant4Particle particle) {
-	fExcitationLevel = particle.GetExcitationLevel();
-	fParticleName = particle.GetParticleName();
-	fEnergy = particle.GetEnergy();
-	fDirection = particle.GetMomentumDirection();
-	fOrigin = particle.fOrigin;
+    fExcitationLevel = particle.GetExcitationLevel();
+    fParticleName = particle.GetParticleName();
+    fEnergy = particle.GetEnergy();
+    fDirection = particle.GetMomentumDirection();
+    fOrigin = particle.fOrigin;
 }
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the details about the Geant4 simulation
 /// conditions, stored in TRestGeant4Metadata.
 ///
-void TRestGeant4Particle::Print() const
-{
-	std::cout << "Particle name : " << GetParticleName() << std::endl;
-	std::cout << "Charge : " << GetParticleCharge() << std::endl;
-	std::cout << "Energy : " << GetEnergy() << " keV" << std::endl;
-	std::cout << "Excitation level : " << GetExcitationLevel() << std::endl;
-	std::cout << "X : " << GetOrigin().X() << "mm Y : " << GetOrigin().Y() << "mm Z : " << GetOrigin().Z() << "mm" << std::endl;
-	std::cout << "Px : " << GetMomentumDirection().X() << " Py : " << GetMomentumDirection().Y() << " Pz : " << GetMomentumDirection().Z() << std::endl;
-	std::cout << " ---------------------- " << std::endl;
+void TRestGeant4Particle::Print() const {
+    std::cout << "Particle name : " << GetParticleName() << std::endl;
+    std::cout << "Charge : " << GetParticleCharge() << std::endl;
+    std::cout << "Energy : " << GetEnergy() << " keV" << std::endl;
+    std::cout << "Excitation level : " << GetExcitationLevel() << std::endl;
+    std::cout << "X : " << GetOrigin().X() << "mm Y : " << GetOrigin().Y() << "mm Z : " << GetOrigin().Z()
+              << "mm" << std::endl;
+    std::cout << "Px : " << GetMomentumDirection().X() << " Py : " << GetMomentumDirection().Y()
+              << " Pz : " << GetMomentumDirection().Z() << std::endl;
+    std::cout << " ---------------------- " << std::endl;
 }
