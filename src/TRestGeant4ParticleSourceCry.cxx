@@ -164,7 +164,18 @@ void TRestGeant4ParticleSourceCry::Update() {
 	}
 	std::cout << "-----" << std::endl;
 #else
-	cout << "TRestGeant4ParticleSourceCry - ERROR: restG4 was not linked to CRY libraries" << endl;
+	cout << "TRestGeant4ParticleSourceCry - ERROR: Geant4lib was not linked to CRY libraries" << endl;
+	cout << "  " << endl;
+	cout << "Please, compile REST using `cmake -DREST_CRY_PATH=/path/to/cry/installation/directory" << endl;
+	cout << "  " << endl;
+	cout << "By default CRY libraries will generate just the static library, but REST needs the shared library" << endl;
+	cout << "In order to generate the SHARED object from the STATIC libCRY.a object, execute the following command" << endl;
+	cout << "inside the CRY lib directory" << endl;
+	cout << "  " << endl;
+	cout << "```" << endl;
+	cout << "gcc -shared -o libCRY.so -Wl,--whole-archive libCRY.a -Wl,--no-whole-archive" << endl;
+	cout << "```" << endl;
+
 	exit(1);
 #endif
 
