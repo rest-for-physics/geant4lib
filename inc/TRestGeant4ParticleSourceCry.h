@@ -12,9 +12,8 @@
 
 class TRestGeant4ParticleSourceCry : public TRestGeant4ParticleSource {
    protected:
-
 #ifdef USE_CRY
-	CRYGenerator* fCRYGenerator = nullptr;
+    CRYGenerator* fCRYGenerator = nullptr;
 #endif
 
    public:
@@ -24,7 +23,7 @@ class TRestGeant4ParticleSourceCry : public TRestGeant4ParticleSource {
     void PrintParticleSource() override;
 
     TRestGeant4ParticleSourceCry();
-    ~TRestGeant4ParticleSourceCry() {  }
+    ~TRestGeant4ParticleSourceCry() {}
     ClassDefOverride(TRestGeant4ParticleSourceCry, 1);
 };
 #endif

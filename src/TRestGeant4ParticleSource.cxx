@@ -103,7 +103,7 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
         TClass* c = TClass::GetClass(("TRestGeant4ParticleSource" + model).c_str());
         if (c)  // this means we have the package installed
         {
-            return (TRestGeant4ParticleSource*) c->New();
+            return (TRestGeant4ParticleSource*)c->New();
         } else {
             std::cout << "REST ERROR! generator wrapper \"" << ("TRestGeant4ParticleSource" + model)
                       << "\" not found!" << std::endl;
