@@ -93,11 +93,8 @@ void TRestGeant4ParticleSourceCry::Update() {
     for (const auto& cryParticle : *ev) {
 		/*
         std::cout << "id: " << cryParticle->id() << std::endl;
-
-        std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z()
-                  << std::endl;
-        std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w()
-                  << std::endl;
+        std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
+        std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
         std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
 		*/
 
@@ -109,7 +106,7 @@ void TRestGeant4ParticleSourceCry::Update() {
 
         /// Particle position
         TVector3 position(cryParticle->x(), cryParticle->y(), cryParticle->z());
-        particle.SetOrigin(position);
+        particle.SetOrigin(1000. * position); // In mm (default REST units)
 
         /// Momentum direction
         TVector3 momDirection(cryParticle->u(), cryParticle->v(), cryParticle->w());
