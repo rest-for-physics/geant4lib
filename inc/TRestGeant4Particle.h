@@ -1,17 +1,24 @@
-//////////////////////////////////////////////////////////////////////////
-///
-///             RESTSoft : Software for Rare Event Searches with TPCs
-///
-///             TRestGeant4Particle.h
-///
-///             Class to store a particle definition
-///
-///             jul 2015:   First concept
-///                 Created as part of the conceptualization of existing REST
-///                 software.
-///                 J. Galan
-///
-//////////////////////////////////////////////////////////////////////////
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
 
 #ifndef RestCore_TRestGeant4Particle
 #define RestCore_TRestGeant4Particle
@@ -21,6 +28,7 @@
 
 #include <iostream>
 
+/// A class used to store particle properties
 class TRestGeant4Particle {
    protected:
     TString fParticleName;
@@ -38,15 +46,10 @@ class TRestGeant4Particle {
     inline Int_t GetParticleCharge() const { return fCharge; }
     inline TVector3 GetOrigin() const { return fOrigin; }
 
-    void SetParticle(TRestGeant4Particle particle) {
-        fExcitationLevel = particle.GetExcitationLevel();
-        fParticleName = particle.GetParticleName();
-        fEnergy = particle.GetEnergy();
-        fDirection = particle.GetMomentumDirection();
-        fOrigin = particle.fOrigin;
-    }
+    void SetParticle(TRestGeant4Particle particle);
 
     void SetParticleName(TString particle) { fParticleName = particle; }
+
     void SetExcitationLevel(Double_t excitationEnergy) {
         fExcitationLevel = excitationEnergy;
         if (fExcitationLevel < 0) fExcitationLevel = 0;
@@ -57,6 +60,8 @@ class TRestGeant4Particle {
     void SetDirection(TVector3 dir) { fDirection = dir; }
     void SetEnergy(Double_t en) { fEnergy = en; }
     void SetOrigin(TVector3 pos) { fOrigin = pos; }
+
+    void Print() const;
 
     // Constructor
     TRestGeant4Particle();
