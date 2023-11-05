@@ -6,72 +6,83 @@ ClassImp(TRestGeant4ParticleSourceCry);
 
 TRestGeant4ParticleSourceCry::TRestGeant4ParticleSourceCry() {}
 
-void TRestGeant4ParticleSourceCry::PrintParticleSource() {
-    /*
-metadata << "---------------------------------------" << endl;
-if (!fParticleName.empty() && fParticleName != "NO_SUCH_PARA")
-    metadata << "Particle Source Name: " << fParticleName << endl;
-metadata << "Parent Nuclide: " << fParentName << endl;
-metadata << "Decay Mode: " << fDecayType << endl;
-metadata << "Daughter Level: " << fDaughterLevel << endl;
-metadata << "Seed: " << fSeed << endl;
-    */
+void TRestGeant4ParticleSourceCry::PrintMetadata() {
+
+	TRestGeant4ParticleSource::PrintMetadata();
+
+	RESTMetadata << "Return Neutrons : " << fReturnNeutrons << RESTendl;
+	RESTMetadata << "Return Protons : " << fReturnProtons << RESTendl;
+	RESTMetadata << "Return Gammas : " << fReturnGammas << RESTendl;
+	RESTMetadata << "Return Electrons : " << fReturnElectrons << RESTendl;
+	RESTMetadata << "Return Pions : " << fReturnPions << RESTendl;
+	RESTMetadata << "Return Kaons : " << fReturnKaons << RESTendl;
+	RESTMetadata << "Return Muons : " << fReturnMuons << RESTendl;
+	RESTMetadata << " ======= " << RESTendl;
+
+	RESTMetadata << "N particles min : " << fNParticlesMin << RESTendl;
+	RESTMetadata << "N particles max : " << fNParticlesMax << RESTendl;
+	RESTMetadata << " ======= " << RESTendl;
+
+	RESTMetadata << "X-offset : " << fXOffset << "m" << RESTendl;
+	RESTMetadata << "Y-offset : " << fYOffset << "m" << RESTendl;
+	RESTMetadata << "Z-offset : " << fZOffset << "m" << RESTendl;
+	RESTMetadata << "SubBoxLength : " << fSubBoxLength << "m" << RESTendl;
+	RESTMetadata << " ======= " << RESTendl;
+
+	RESTMetadata << "Date : " << fDate << RESTendl;
+	RESTMetadata << "Latitude : " << fLatitude << RESTendl;
+	RESTMetadata << "Altitude : " << fAltitude << RESTendl;
+	RESTMetadata << "----------------------" << RESTendl;
 }
 
 void TRestGeant4ParticleSourceCry::InitFromConfigFile() {
-    /*
-// unsigned int seed = (uintptr_t)this;
-// std::default_random_engine generator(seed);
-// prng = bxdecay0::std_random(generator);
-fParticleName = ((TRestMetadata*)this)->ClassName();
-fParentName = GetParameter("particle");
-fDecayType = GetParameter("decayMode");
-fDaughterLevel = StringToInteger(GetParameter("daughterLevel"));
-fSeed = StringToInteger(GetParameter("seed", "0"));
-if (fSeed != 0) {
-} else {
-    fSeed = (uintptr_t)this;
-}
-generator = new std::default_random_engine(fSeed);
-prng = new bxdecay0::std_random(*generator);
 
-fDecay0Model->set_decay_category(bxdecay0::decay0_generator::DECAY_CATEGORY_DBD);
+	fReturnNeutrons = StringToInteger( GetParameter( "returnNeutrons", "1" ) );
+	fReturnProtons = StringToInteger( GetParameter( "returnProtons", "1" ) );
+	fReturnGammas = StringToInteger( GetParameter( "returnGammas", "1" ) );
+	fReturnElectrons = StringToInteger( GetParameter( "returnElectrons", "1" ) );
+	fReturnPions = StringToInteger( GetParameter( "returnPions", "1" ) );
+	fReturnKaons = StringToInteger( GetParameter( "returnKaons", "1" ) );
+	fReturnMuons = StringToInteger( GetParameter( "returnMuons", "1" ) );
 
-if (fParentName != "Xe136") {
-    ferr << "Only Xe136 double beta decay is supported by restDecay0" << endl;
-    exit(1);
-}
-if (fDaughterLevel < 0 || fDaughterLevel > 3) {
-    ferr << "Supported Ba136 excitation level: 0, 1, 2, 3" << endl;
-    exit(1);
-}
+	fNParticlesMin = StringToInteger( GetParameter( "nParticlesMin", "1" ) );
+	fNParticlesMax = StringToInteger( GetParameter( "nParticlesMax", "1000000" ) );
 
-fDecay0Model->set_decay_isotope(fParentName);
+	fXOffset = StringToDouble( GetParameter( "xoffset", "0.0" ) );
+	fYOffset = StringToDouble( GetParameter( "yoffset", "0.0" ) );
+	fZOffset = StringToDouble( GetParameter( "zoffset", "0.0" ) );
+	fSubBoxLength = StringToDouble( GetParameter( "subBoxLength", "100.0" ) );
 
-fDecay0Model->set_decay_dbd_level(fDaughterLevel);
+	fDate = GetParameter( "date", "7\\1\\2012" );
+	fDate = REST_StringHelper::Replace( fDate, "\\", "-" );
+	fLatitude = StringToDouble( GetParameter( "latitude", "90.0" ) );
+	fAltitude = StringToDouble( GetParameter( "altitude", "0.0" ) );
 
-if (fDecayType == "2vbb") {
-    if (fDaughterLevel == 0 || fDaughterLevel == 3) {
-        fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_0_2N);
-    } else if (fDaughterLevel == 1 || fDaughterLevel == 2) {
-        fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_2NUBB_2_2N);
-    }
-} else if (fDecayType == "0vbb") {
-    if (fDaughterLevel == 0 || fDaughterLevel == 3) {
-        fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_MN_0_2N);
-    } else if (fDaughterLevel == 1 || fDaughterLevel == 2) {
-        fDecay0Model->set_decay_dbd_mode(bxdecay0::DBDMODE_0NUBB_RHC_LAMBDA_2_2N);
-    }
-}
+	PrintMetadata();
 
-fDecay0Model->initialize(*prng);
-    */
+	std::string setupString = "";
+	setupString += "returnNeutrons " + IntegerToString(fReturnNeutrons);
+	setupString += " returnProtons " + IntegerToString(fReturnProtons);
+	setupString += " returnGammas " + IntegerToString(fReturnGammas);
+	setupString += " returnElectrons " + IntegerToString(fReturnElectrons);
+	setupString += " returnPions " + IntegerToString(fReturnPions);
+	setupString += " returnKaons " + IntegerToString(fReturnKaons);
+	setupString += " returnMuons " + IntegerToString(fReturnMuons);
+
+	setupString += " xoffset " + DoubleToString(fXOffset);
+	setupString += " yoffset " + DoubleToString(fYOffset);
+	setupString += " zoffset " + DoubleToString(fZOffset);
+	setupString += " subboxLength " + DoubleToString(fSubBoxLength);
+
+	setupString += " date " + fDate;
+	setupString += " latitude " + DoubleToString(fLatitude);
+	setupString += " altitude " + DoubleToString(fAltitude);
+
+	setupString += " nParticlesMin " + IntegerToString(fNParticlesMin);
+	setupString += " nParticlesMax " + IntegerToString(fNParticlesMax);
+
 
 #ifdef USE_CRY
-    /// Of course, we should be able to configure this inside InitFromConfigFile
-    std::string setupString = "returnNeutrons 1";
-    // std::string setupString = "returnNeutrons 1\nreturnProtons 1\nreturnGammas 1\ndate
-    // 7-1-2012\nlatitude 90.0\naltitude 0\nsubboxLength 100\n";
     CRYSetup* setup = new CRYSetup(setupString, CRY_DATA_PATH);
     fCRYGenerator = new CRYGenerator(setup);
 #endif
@@ -91,12 +102,10 @@ void TRestGeant4ParticleSourceCry::Update() {
     // std::cout << "-----" << std::endl;
 
     for (const auto& cryParticle : *ev) {
-		/*
-        std::cout << "id: " << cryParticle->id() << std::endl;
-        std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
-        std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
-        std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
-		*/
+        // std::cout << "id: " << cryParticle->id() << std::endl;
+        // std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
+        // std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
+        // std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
 
         TRestGeant4Particle particle;
 
