@@ -7,80 +7,77 @@ ClassImp(TRestGeant4ParticleSourceCry);
 TRestGeant4ParticleSourceCry::TRestGeant4ParticleSourceCry() {}
 
 void TRestGeant4ParticleSourceCry::PrintMetadata() {
+    TRestGeant4ParticleSource::PrintMetadata();
 
-	TRestGeant4ParticleSource::PrintMetadata();
+    RESTMetadata << "Return Neutrons : " << fReturnNeutrons << RESTendl;
+    RESTMetadata << "Return Protons : " << fReturnProtons << RESTendl;
+    RESTMetadata << "Return Gammas : " << fReturnGammas << RESTendl;
+    RESTMetadata << "Return Electrons : " << fReturnElectrons << RESTendl;
+    RESTMetadata << "Return Pions : " << fReturnPions << RESTendl;
+    RESTMetadata << "Return Kaons : " << fReturnKaons << RESTendl;
+    RESTMetadata << "Return Muons : " << fReturnMuons << RESTendl;
+    RESTMetadata << " ======= " << RESTendl;
 
-	RESTMetadata << "Return Neutrons : " << fReturnNeutrons << RESTendl;
-	RESTMetadata << "Return Protons : " << fReturnProtons << RESTendl;
-	RESTMetadata << "Return Gammas : " << fReturnGammas << RESTendl;
-	RESTMetadata << "Return Electrons : " << fReturnElectrons << RESTendl;
-	RESTMetadata << "Return Pions : " << fReturnPions << RESTendl;
-	RESTMetadata << "Return Kaons : " << fReturnKaons << RESTendl;
-	RESTMetadata << "Return Muons : " << fReturnMuons << RESTendl;
-	RESTMetadata << " ======= " << RESTendl;
+    RESTMetadata << "N particles min : " << fNParticlesMin << RESTendl;
+    RESTMetadata << "N particles max : " << fNParticlesMax << RESTendl;
+    RESTMetadata << " ======= " << RESTendl;
 
-	RESTMetadata << "N particles min : " << fNParticlesMin << RESTendl;
-	RESTMetadata << "N particles max : " << fNParticlesMax << RESTendl;
-	RESTMetadata << " ======= " << RESTendl;
+    RESTMetadata << "X-offset : " << fXOffset << "m" << RESTendl;
+    RESTMetadata << "Y-offset : " << fYOffset << "m" << RESTendl;
+    RESTMetadata << "Z-offset : " << fZOffset << "m" << RESTendl;
+    RESTMetadata << "SubBoxLength : " << fSubBoxLength << "m" << RESTendl;
+    RESTMetadata << " ======= " << RESTendl;
 
-	RESTMetadata << "X-offset : " << fXOffset << "m" << RESTendl;
-	RESTMetadata << "Y-offset : " << fYOffset << "m" << RESTendl;
-	RESTMetadata << "Z-offset : " << fZOffset << "m" << RESTendl;
-	RESTMetadata << "SubBoxLength : " << fSubBoxLength << "m" << RESTendl;
-	RESTMetadata << " ======= " << RESTendl;
-
-	RESTMetadata << "Date : " << fDate << RESTendl;
-	RESTMetadata << "Latitude : " << fLatitude << RESTendl;
-	RESTMetadata << "Altitude : " << fAltitude << RESTendl;
-	RESTMetadata << "----------------------" << RESTendl;
+    RESTMetadata << "Date : " << fDate << RESTendl;
+    RESTMetadata << "Latitude : " << fLatitude << RESTendl;
+    RESTMetadata << "Altitude : " << fAltitude << RESTendl;
+    RESTMetadata << "----------------------" << RESTendl;
 }
 
 void TRestGeant4ParticleSourceCry::InitFromConfigFile() {
+    fReturnNeutrons = StringToInteger(GetParameter("returnNeutrons", "1"));
+    fReturnProtons = StringToInteger(GetParameter("returnProtons", "1"));
+    fReturnGammas = StringToInteger(GetParameter("returnGammas", "1"));
+    fReturnElectrons = StringToInteger(GetParameter("returnElectrons", "1"));
+    fReturnPions = StringToInteger(GetParameter("returnPions", "1"));
+    fReturnKaons = StringToInteger(GetParameter("returnKaons", "1"));
+    fReturnMuons = StringToInteger(GetParameter("returnMuons", "1"));
 
-	fReturnNeutrons = StringToInteger( GetParameter( "returnNeutrons", "1" ) );
-	fReturnProtons = StringToInteger( GetParameter( "returnProtons", "1" ) );
-	fReturnGammas = StringToInteger( GetParameter( "returnGammas", "1" ) );
-	fReturnElectrons = StringToInteger( GetParameter( "returnElectrons", "1" ) );
-	fReturnPions = StringToInteger( GetParameter( "returnPions", "1" ) );
-	fReturnKaons = StringToInteger( GetParameter( "returnKaons", "1" ) );
-	fReturnMuons = StringToInteger( GetParameter( "returnMuons", "1" ) );
+    fNParticlesMin = StringToInteger(GetParameter("nParticlesMin", "1"));
+    fNParticlesMax = StringToInteger(GetParameter("nParticlesMax", "1000000"));
 
-	fNParticlesMin = StringToInteger( GetParameter( "nParticlesMin", "1" ) );
-	fNParticlesMax = StringToInteger( GetParameter( "nParticlesMax", "1000000" ) );
+    fXOffset = StringToDouble(GetParameter("xoffset", "0.0"));
+    fYOffset = StringToDouble(GetParameter("yoffset", "0.0"));
+    fZOffset = StringToDouble(GetParameter("zoffset", "0.0"));
+    fSubBoxLength = StringToDouble(GetParameter("subBoxLength", "100.0"));
 
-	fXOffset = StringToDouble( GetParameter( "xoffset", "0.0" ) );
-	fYOffset = StringToDouble( GetParameter( "yoffset", "0.0" ) );
-	fZOffset = StringToDouble( GetParameter( "zoffset", "0.0" ) );
-	fSubBoxLength = StringToDouble( GetParameter( "subBoxLength", "100.0" ) );
+    fDate = GetParameter("date", "7\\1\\2012");
+    fDate = REST_StringHelper::Replace(fDate, "\\", "-");
+    fLatitude = StringToDouble(GetParameter("latitude", "90.0"));
+    fAltitude = StringToDouble(GetParameter("altitude", "0.0"));
 
-	fDate = GetParameter( "date", "7\\1\\2012" );
-	fDate = REST_StringHelper::Replace( fDate, "\\", "-" );
-	fLatitude = StringToDouble( GetParameter( "latitude", "90.0" ) );
-	fAltitude = StringToDouble( GetParameter( "altitude", "0.0" ) );
+    PrintMetadata();
 
-	PrintMetadata();
+    std::string setupString = "";
+    setupString += "returnNeutrons " + IntegerToString(fReturnNeutrons);
+    setupString += " returnProtons " + IntegerToString(fReturnProtons);
+    setupString += " returnGammas " + IntegerToString(fReturnGammas);
+    setupString += " returnElectrons " + IntegerToString(fReturnElectrons);
+    setupString += " returnPions " + IntegerToString(fReturnPions);
+    setupString += " returnKaons " + IntegerToString(fReturnKaons);
+    setupString += " returnMuons " + IntegerToString(fReturnMuons);
 
-	std::string setupString = "";
-	setupString += "returnNeutrons " + IntegerToString(fReturnNeutrons);
-	setupString += " returnProtons " + IntegerToString(fReturnProtons);
-	setupString += " returnGammas " + IntegerToString(fReturnGammas);
-	setupString += " returnElectrons " + IntegerToString(fReturnElectrons);
-	setupString += " returnPions " + IntegerToString(fReturnPions);
-	setupString += " returnKaons " + IntegerToString(fReturnKaons);
-	setupString += " returnMuons " + IntegerToString(fReturnMuons);
+    setupString += " xoffset " + DoubleToString(fXOffset);
+    setupString += " yoffset " + DoubleToString(fYOffset);
+    setupString += " zoffset " + DoubleToString(fZOffset);
+    setupString += " subboxLength " + DoubleToString(fSubBoxLength);
 
-	setupString += " xoffset " + DoubleToString(fXOffset);
-	setupString += " yoffset " + DoubleToString(fYOffset);
-	setupString += " zoffset " + DoubleToString(fZOffset);
-	setupString += " subboxLength " + DoubleToString(fSubBoxLength);
+    setupString += " date " + fDate;
+    setupString += " latitude " + DoubleToString(fLatitude);
+    setupString += " altitude " + DoubleToString(fAltitude);
 
-	setupString += " date " + fDate;
-	setupString += " latitude " + DoubleToString(fLatitude);
-	setupString += " altitude " + DoubleToString(fAltitude);
-
-	setupString += " nParticlesMin " + IntegerToString(fNParticlesMin);
-	setupString += " nParticlesMax " + IntegerToString(fNParticlesMax);
-
+    setupString += " nParticlesMin " + IntegerToString(fNParticlesMin);
+    setupString += " nParticlesMax " + IntegerToString(fNParticlesMax);
 
 #ifdef USE_CRY
     CRYSetup* setup = new CRYSetup(setupString, CRY_DATA_PATH);
@@ -103,9 +100,10 @@ void TRestGeant4ParticleSourceCry::Update() {
 
     for (const auto& cryParticle : *ev) {
         // std::cout << "id: " << cryParticle->id() << std::endl;
-        // std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
-        // std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
-        // std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
+        // std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z()
+        // << std::endl; std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " <<
+        // cryParticle->w() << std::endl; std::cout << "charge: " << cryParticle->charge() << " energy: " <<
+        // cryParticle->ke() << std::endl;
 
         TRestGeant4Particle particle;
 
@@ -115,7 +113,7 @@ void TRestGeant4ParticleSourceCry::Update() {
 
         /// Particle position
         TVector3 position(cryParticle->x(), cryParticle->y(), cryParticle->z());
-        particle.SetOrigin(1000. * position); // In mm (default REST units)
+        particle.SetOrigin(1000. * position);  // In mm (default REST units)
 
         /// Momentum direction
         TVector3 momDirection(cryParticle->u(), cryParticle->v(), cryParticle->w());
@@ -170,7 +168,7 @@ void TRestGeant4ParticleSourceCry::Update() {
 
         AddParticle(particle);
     }
-    //std::cout << "-----" << std::endl;
+    // std::cout << "-----" << std::endl;
 #else
     cout << "TRestGeant4ParticleSourceCry - ERROR: Geant4lib was not linked to CRY libraries" << endl;
     cout << "  " << endl;
