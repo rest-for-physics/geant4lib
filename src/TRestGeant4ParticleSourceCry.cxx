@@ -6,6 +6,9 @@ ClassImp(TRestGeant4ParticleSourceCry);
 
 TRestGeant4ParticleSourceCry::TRestGeant4ParticleSourceCry() {}
 
+///////////////////////////////////////////////
+/// \brief It will print on screen the settings used for the CRY generator setup.
+///
 void TRestGeant4ParticleSourceCry::PrintMetadata() {
 
 	TRestGeant4ParticleSource::PrintMetadata();
@@ -35,6 +38,9 @@ void TRestGeant4ParticleSourceCry::PrintMetadata() {
 	RESTMetadata << "----------------------" << RESTendl;
 }
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestGeant4ParticleSourceCry members through a RML file
+///
 void TRestGeant4ParticleSourceCry::InitFromConfigFile() {
 
 	fReturnNeutrons = StringToInteger( GetParameter( "returnNeutrons", "1" ) );
@@ -90,6 +96,9 @@ void TRestGeant4ParticleSourceCry::InitFromConfigFile() {
     Update();
 }
 
+///////////////////////////////////////////////
+/// \brief It is used by restG4 PrimaryGeneratorAction to update the particle source
+///
 void TRestGeant4ParticleSourceCry::Update() {
     RemoveParticles();
 
@@ -102,10 +111,12 @@ void TRestGeant4ParticleSourceCry::Update() {
     // std::cout << "-----" << std::endl;
 
     for (const auto& cryParticle : *ev) {
-        // std::cout << "id: " << cryParticle->id() << std::endl;
-        // std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
-        // std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
-        // std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
+		/*
+        std::cout << "id: " << cryParticle->id() << std::endl;
+        std::cout << "x: " << cryParticle->x() << " y: " << cryParticle->y() << " z: " << cryParticle->z() << std::endl;
+        std::cout << "u: " << cryParticle->u() << " v: " << cryParticle->v() << " w: " << cryParticle->w() << std::endl;
+        std::cout << "charge: " << cryParticle->charge() << " energy: " << cryParticle->ke() << std::endl;
+		*/
 
         TRestGeant4Particle particle;
 
