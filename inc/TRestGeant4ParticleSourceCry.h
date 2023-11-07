@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include <TRandom3.h>
+
 #ifdef USE_CRY
 #include <CRYGenerator.h>
 #include <CRYSetup.h>
