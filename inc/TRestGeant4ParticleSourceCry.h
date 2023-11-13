@@ -42,7 +42,7 @@ class TRestGeant4ParticleSourceCry : public TRestGeant4ParticleSource {
     Double_t fZOffset = 0;
 
     /// It will adjust the cosmic-ray distributions to the 11-year solar cycle.
-    std::string fDate = "7-1-2012";
+    std::string fDate = "7\1\2012";
 
     /// The allowed range is -90 to 90. 0 defines the magnetic equator.
     Double_t fLatitude = 90.0;
