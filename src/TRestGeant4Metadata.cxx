@@ -255,6 +255,9 @@
 /// x, y, nothing length the rectangle. "rectangle" shape works only for "surface"
 /// generator type. The initial direction of the rectangle is in parallel to x-y plane.
 ///
+/// * **source**: The positions of the particles will be defined by the particle source
+/// generator, see for example TRestGeant4ParticleSourceCry.
+///
 /// Rotation of the virtual body defined previously is also supported. We need to define
 /// parameter "rotationAxis" and "rotationAngle" to do this job. The TVector3 parameter
 /// "rotationAxis" is a virtual axis passing through the center of the virtual body,
@@ -289,7 +292,7 @@
 ///     <source use="Xe136bb0n.dat" />
 /// \endcode
 ///
-/// * the in-simulation decay0 generator package
+/// * the geant4lib encoded generators, such as decay0 or cry generators
 /// \code
 ///    // 2. decay0 package
 ///    <source use="decay0" particle="Xe136" decayMode="0vbb" daughterLevel="3" />
