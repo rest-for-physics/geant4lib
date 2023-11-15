@@ -97,7 +97,7 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
     } else {
         // use specific generator
         // naming convention: TRestGeant4ParticleSourceXXX
-        // currently supported generators: decay0, cry
+        // currently supported generators: decay0, source
         // in future we may add wrapper of generators: pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestGeant4ParticleSource" + model).c_str());
