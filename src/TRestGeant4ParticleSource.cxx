@@ -32,7 +32,7 @@ TRestGeant4ParticleSource::TRestGeant4ParticleSource() = default;
 
 TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 
-void TRestGeant4ParticleSource::PrintParticleSource() {
+void TRestGeant4ParticleSource::PrintMetadata() {
     RESTMetadata << " " << RESTendl;
     if (GetParticleName() != "" && GetParticleName() != "NO_SUCH_PARA")
         RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;

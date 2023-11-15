@@ -194,7 +194,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         fParticles.clear();
     }
 
-    virtual void PrintParticleSource();
+    virtual void PrintMetadata() override;
 
     // Constructor
     TRestGeant4ParticleSource();
