@@ -62,7 +62,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
 
    public:
     virtual void Update();
-    virtual void InitFromConfigFile();
+    virtual void InitFromConfigFile() override;
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
     inline TVector3 GetDirection() const {
@@ -194,13 +194,13 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
         fParticles.clear();
     }
 
-    virtual void PrintParticleSource();
+    virtual void PrintMetadata() override;
 
     // Constructor
     TRestGeant4ParticleSource();
     // Destructor
     virtual ~TRestGeant4ParticleSource();
 
-    ClassDef(TRestGeant4ParticleSource, 5);
+    ClassDefOverride(TRestGeant4ParticleSource, 5);
 };
 #endif
