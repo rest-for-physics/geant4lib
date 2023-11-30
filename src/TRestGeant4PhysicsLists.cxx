@@ -133,7 +133,8 @@ Bool_t TRestGeant4PhysicsLists::PhysicsListExists(const TString& physicsListName
                                             "G4IonBinaryCascadePhysics",
                                             "G4HadronPhysicsQGSP_BIC_HP",
                                             "G4NeutronTrackingCut",
-                                            "G4EmExtraPhysics"};
+                                            "G4EmExtraPhysics",
+											"G4OpticalPhysics"};
 
     return validPhysicsLists.count(physicsListName) > 0;
 }
