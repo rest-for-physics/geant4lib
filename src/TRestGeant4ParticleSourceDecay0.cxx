@@ -9,14 +9,14 @@ TRestGeant4ParticleSourceDecay0::TRestGeant4ParticleSourceDecay0()
     fDecay0Model = new bxdecay0::decay0_generator();
 }
 
-void TRestGeant4ParticleSourceDecay0::PrintParticleSource() {
-    metadata << "---------------------------------------" << endl;
+void TRestGeant4ParticleSourceDecay0::PrintMetadata() {
+    RESTMetadata << "---------------------------------------" << RESTendl;
     if (!fParticleName.empty() && fParticleName != "NO_SUCH_PARA")
-        metadata << "Particle Source Name: " << fParticleName << endl;
-    metadata << "Parent Nuclide: " << fParentName << endl;
-    metadata << "Decay Mode: " << fDecayType << endl;
-    metadata << "Daughter Level: " << fDaughterLevel << endl;
-    metadata << "Seed: " << fSeed << endl;
+        RESTMetadata << "Particle Source Name: " << fParticleName << RESTendl;
+    RESTMetadata << "Parent Nuclide: " << fParentName << RESTendl;
+    RESTMetadata << "Decay Mode: " << fDecayType << RESTendl;
+    RESTMetadata << "Daughter Level: " << fDaughterLevel << RESTendl;
+    RESTMetadata << "Seed: " << fSeed << RESTendl;
 }
 
 void TRestGeant4ParticleSourceDecay0::InitFromConfigFile() {

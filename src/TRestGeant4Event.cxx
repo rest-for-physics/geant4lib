@@ -243,7 +243,7 @@ TRestHits TRestGeant4Event::GetHits(Int_t volID) const {
             Double_t z = g4Hits.GetZ(n);
             Double_t en = g4Hits.GetEnergy(n);
 
-            hits.AddHit(x, y, z, en);
+            hits.AddHit({x, y, z}, en);
         }
     }
 
@@ -264,7 +264,7 @@ Double_t TRestGeant4Event::GetEnergyDepositedByParticle(const TString& particleN
     Double_t energy = 0;
     for (const auto& track : fTracks) {
         if (particleName.EqualTo(track.GetParticleName())) {
-            energy += track.GetEnergy();
+            energy += track.GetTotalEnergy();
         }
     }
     return energy;
@@ -1208,8 +1208,12 @@ Bool_t TRestGeant4Event::ContainsParticleInVolume(const TString& particleName, I
     return false;
 }
 
-const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata(const char* name) const {
-    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass(name));
+const TRestGeant4Metadata* TRestGeant4Event::GetGeant4Metadata() const {
+    if (fRun == nullptr) {
+        RESTError << "TRestGeant4Event::GetGeant4Metadata: fRun is nullptr" << RESTendl;
+        return nullptr;
+    }
+    return dynamic_cast<TRestGeant4Metadata*>(fRun->GetMetadataClass("TRestGeant4Metadata"));
 }
 
 void TRestGeant4Event::InitializeReferences(TRestRun* run) {

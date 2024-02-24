@@ -255,6 +255,9 @@
 /// x, y, nothing length the rectangle. "rectangle" shape works only for "surface"
 /// generator type. The initial direction of the rectangle is in parallel to x-y plane.
 ///
+/// * **source**: The positions of the particles will be defined by the particle source
+/// generator, see for example TRestGeant4ParticleSourceCry.
+///
 /// Rotation of the virtual body defined previously is also supported. We need to define
 /// parameter "rotationAxis" and "rotationAngle" to do this job. The TVector3 parameter
 /// "rotationAxis" is a virtual axis passing through the center of the virtual body,
@@ -289,7 +292,7 @@
 ///     <source use="Xe136bb0n.dat" />
 /// \endcode
 ///
-/// * the in-simulation decay0 generator package
+/// * the geant4lib encoded generators, such as decay0 or cry generators
 /// \code
 ///    // 2. decay0 package
 ///    <source use="decay0" particle="Xe136" decayMode="0vbb" daughterLevel="3" />
@@ -801,6 +804,14 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         cout << "\"gdmlFile\" parameter is not defined!" << endl;
         exit(1);
     }
+    if (TRestTools::isURL(fGdmlFilename.Data())) {
+        fGeometryPath = "";
+        fGdmlFilename = TRestTools::DownloadRemoteFile(fGdmlFilename.Data());
+        if (fGdmlFilename == "") {
+            cout << "Error downloading geometry file from URL: " << fGdmlFilename << endl;
+            exit(1);
+        }
+    }
 
     fGeometryPath = GetParameter("geometryPath", "");
 
@@ -818,7 +829,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     // if "gdmlFile" is purely a file (without any path) and "geometryPath" is
     // defined, we recombine them together
     if ((((string)fGdmlFilename).find_first_not_of("./~") == 0 ||
-         ((string)fGdmlFilename).find("/") == string::npos) &&
+         ((string)fGdmlFilename).find('/') == string::npos) &&
         fGeometryPath != "") {
         if (fGeometryPath[fGeometryPath.Length() - 1] == '/') {
             fGdmlFilename = fGeometryPath + GetParameter("gdmlFile");
@@ -945,7 +956,7 @@ Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
 
 Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond();
-    const auto seconds = fNEvents / countsPerSecond;
+    const auto seconds = double(fNEvents) / countsPerSecond;
     return seconds;
 }
 
@@ -1445,7 +1456,7 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "Number of generated events: " << GetNumberOfEvents() << RESTendl;
     fGeant4PrimaryGeneratorInfo.Print();
 
-    for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintParticleSource();
+    for (int i = 0; i < GetNumberOfSources(); i++) GetParticleSource(i)->PrintMetadata();
 
     RESTMetadata << " " << RESTendl;
     RESTMetadata << "   ++++++++++ Detector +++++++++++   " << RESTendl;
@@ -1457,10 +1468,10 @@ void TRestGeant4Metadata::PrintMetadata() {
     }
     RESTMetadata << "Number of active volumes: " << GetNumberOfActiveVolumes() << RESTendl;
     for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
-        RESTMetadata << "Name: " << GetActiveVolumeName(n)
-                     << ", ID: " << GetActiveVolumeID(GetActiveVolumeName(n))
-                     << ", maxStep: " << GetMaxStepSize(GetActiveVolumeName(n)) << "mm "
-                     << ", chance: " << GetStorageChance(GetActiveVolumeName(n)) << RESTendl;
+        const auto name = GetActiveVolumeName(n);
+        RESTMetadata << "Name: " << name << ", ID: " << fGeant4GeometryInfo.GetIDFromVolume(name)
+                     << ", maxStep: " << GetMaxStepSize(name) << "mm "
+                     << ", chance: " << GetStorageChance(name) << RESTendl;
     }
 
     for (unsigned int n = 0; n < GetNumberOfBiasingVolumes(); n++) {
@@ -1485,7 +1496,7 @@ void TRestGeant4Metadata::PrintMetadata() {
 
 ///////////////////////////////////////////////
 /// \brief Returns the id of an active volume giving as parameter its name.
-Int_t TRestGeant4Metadata::GetActiveVolumeID(TString name) {
+Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == name) return id;
@@ -1536,7 +1547,7 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
 ///////////////////////////////////////////////
 /// \brief Returns the probability of an active volume being stored
 ///
-Double_t TRestGeant4Metadata::GetStorageChance(TString volume) {
+Double_t TRestGeant4Metadata::GetStorageChance(const TString& volume) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
         if (fActiveVolumes[id] == volume) return fChance[id];
@@ -1570,4 +1581,48 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
         majorVersion += c;
     }
     return std::stoi(majorVersion.Data());
+}
+
+void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
+    fIsMerge = true;
+    fSeed = 0;  // seed makes no sense in a merged file
+
+    fNEvents += metadata.fNEvents;
+    fNRequestedEntries += metadata.fNRequestedEntries;
+    fSimulationTime += metadata.fSimulationTime;
+}
+
+TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
+
+TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
+    fIsMerge = metadata.fIsMerge;
+    fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
+    fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
+    fGeant4PrimaryGeneratorInfo = metadata.fGeant4PrimaryGeneratorInfo;
+    fGeant4Version = metadata.fGeant4Version;
+    fGdmlReference = metadata.fGdmlReference;
+    fMaterialsReference = metadata.fMaterialsReference;
+    fEnergyRangeStored = metadata.fEnergyRangeStored;
+    fActiveVolumes = metadata.fActiveVolumes;
+    fChance = metadata.fChance;
+    fMaxStepSize = metadata.fMaxStepSize;
+    // fParticleSource = metadata.fParticleSource; // segfaults (pointers!)
+    fNBiasingVolumes = metadata.fNBiasingVolumes;
+    fBiasingVolumes = metadata.fBiasingVolumes;
+    fMaxTargetStepSize = metadata.fMaxTargetStepSize;
+    fSubEventTimeDelay = metadata.fSubEventTimeDelay;
+    fFullChain = metadata.fFullChain;
+    fSensitiveVolumes = metadata.fSensitiveVolumes;
+    fNEvents = metadata.fNEvents;
+    fNRequestedEntries = metadata.fNRequestedEntries;
+    fSimulationMaxTimeSeconds = metadata.fSimulationMaxTimeSeconds;
+    fSeed = metadata.fSeed;
+    fSaveAllEvents = metadata.fSaveAllEvents;
+    fRemoveUnwantedTracks = metadata.fRemoveUnwantedTracks;
+    fRemoveUnwantedTracksKeepZeroEnergyTracks = metadata.fRemoveUnwantedTracksKeepZeroEnergyTracks;
+    fRemoveUnwantedTracksVolumesToKeep = metadata.fRemoveUnwantedTracksVolumesToKeep;
+    fKillVolumes = metadata.fKillVolumes;
+    fRegisterEmptyTracks = metadata.fRegisterEmptyTracks;
+    fMagneticField = metadata.fMagneticField;
+    return *this;
 }

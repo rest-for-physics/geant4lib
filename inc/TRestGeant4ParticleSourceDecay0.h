@@ -27,7 +27,7 @@ class TRestGeant4ParticleSourceDecay0 : public TRestGeant4ParticleSource {
     void Update() override;
     void InitFromConfigFile() override;
     inline Int_t GetNumberOfParticles() const { return fParticles.size(); }
-    void PrintParticleSource() override;
+    void PrintMetadata() override;
 
     TRestGeant4ParticleSourceDecay0();
     ~TRestGeant4ParticleSourceDecay0() { delete fDecay0Model; }

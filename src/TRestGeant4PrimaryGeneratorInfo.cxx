@@ -28,6 +28,8 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const Spa
             return "Point";
         case SpatialGeneratorTypes::COSMIC:
             return "Cosmic";
+        case SpatialGeneratorTypes::SOURCE:
+            return "Source";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString - Error - Unknown "
             "SpatialGeneratorTypes"
@@ -51,6 +53,9 @@ SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerator
     } else if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::COSMIC),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorTypes::COSMIC;
+    } else if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::SOURCE),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return SpatialGeneratorTypes::SOURCE;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes - Error - Unknown "
                 "SpatialGeneratorTypes: "
@@ -163,8 +168,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
     switch (type) {
         case EnergyDistributionFormulas::COSMIC_NEUTRONS:
             return "CosmicNeutrons";
-        case EnergyDistributionFormulas::COSMIC:
-            return "Cosmic";
+        case EnergyDistributionFormulas::COSMIC_GAMMAS:
+            return "CosmicGammas";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString - Error - Unknown energy "
             "distribution formula"
@@ -177,9 +182,10 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
     if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_NEUTRONS),
                               TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC_NEUTRONS;
-    } else if (TString(type).EqualTo(EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC),
-                                     TString::ECaseCompare::kIgnoreCase)) {
-        return EnergyDistributionFormulas::COSMIC;
+    } else if (TString(type).EqualTo(
+                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_GAMMAS),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::COSMIC_GAMMAS;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
@@ -206,13 +212,8 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
             distribution.GetXaxis()->SetTitle("Energy (keV)");
             return distribution;
         }
-        case EnergyDistributionFormulas::COSMIC:
-            const char* title = "Cosmic distribution approximation";
-            auto distribution = TF1(title, "TMath::Power(x, -2.7)", 1E2, 1E9);
-            distribution.SetNormalized(true);  // Normalized, not really necessary
-            distribution.SetTitle(title);
-            distribution.GetXaxis()->SetTitle("Energy (keV)");
-            return distribution;
+        case EnergyDistributionFormulas::COSMIC_GAMMAS:
+            exit(1);
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula - Error - Unknown "
             "energy distribution formula"

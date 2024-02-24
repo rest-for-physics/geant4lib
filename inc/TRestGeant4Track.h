@@ -55,6 +55,7 @@ class TRestGeant4Track {
 
    public:
     inline const TRestGeant4Hits& GetHits() const { return fHits; }
+    inline TRestGeant4Hits* GetHitsPointer() { return &fHits; }
     inline const TRestGeant4Event* GetEvent() const { return fEvent; }
     const TRestGeant4Metadata* GetGeant4Metadata() const;
 
@@ -77,10 +78,9 @@ class TRestGeant4Track {
     inline Double_t GetGlobalTime() const { return fGlobalTimestamp; }
     inline Double_t GetTimeLength() const { return fTimeLength; }
     inline Double_t GetInitialKineticEnergy() const { return fInitialKineticEnergy; }
-    inline Double_t GetTotalDepositedEnergy() const { return fHits.GetTotalDepositedEnergy(); }
     inline TVector3 GetInitialPosition() const { return fInitialPosition; }
     inline Double_t GetWeight() const { return fWeight; }
-    inline Double_t GetEnergy() const { return fHits.GetEnergy(); }
+    inline Double_t GetTotalEnergy() const { return fHits.GetTotalEnergy(); }
     inline Double_t GetLength() const { return fLength; }
 
     TString GetInitialVolume() const;

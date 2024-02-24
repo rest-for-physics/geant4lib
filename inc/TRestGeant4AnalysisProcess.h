@@ -46,6 +46,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// A std::vector storing the active volume ids of observables `xxxVolumeEDep`.
     std::vector<Int_t> fVolumeID;  //!
 
+    std::vector<std::string> fVolumeName;  //! A std::vector storing the name of active volumes.
+
     /// It stores the name of observables (xxxMeanPosX,Y,Z) related to mean hits position in volume `xxx`.
     std::vector<std::string> fMeanPosObservables;  //!
 
@@ -80,10 +82,6 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     Bool_t fPerProcessSensitiveEnergy = false;
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
-    // vectors for size and dimensions of prism used to compute "primaryOriginDistanceToPrism"
-    TVector3 fPrismCenter = {0, 0, 0};
-    TVector3 fPrismSize = {0, 0, 0};
-
     void Initialize() override;
 
     void LoadDefaultConfig();
@@ -92,8 +90,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     // add here the members of your event process
 
    public:
-    any GetInputEvent() const override { return fInputG4Event; }
-    any GetOutputEvent() const override { return fOutputG4Event; }
+    RESTValue GetInputEvent() const override { return fInputG4Event; }
+    RESTValue GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
