@@ -735,6 +735,7 @@
 #include <TRestGDMLParser.h>
 #include <TRestRun.h>
 
+#include "TRestGeant4ParticleSourceCosmics.h"
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
 using namespace std;
@@ -1064,6 +1065,10 @@ void TRestGeant4Metadata::ReadGenerator() {
         TRestGeant4ParticleSource* source = TRestGeant4ParticleSource::instantiate(use);
         ReadParticleSource(source, sourceDefinition);
         AddParticleSource(source);
+
+        if (string(source->GetName()) == "TRestGeant4ParticleSourceCosmics") {
+            TRestGeant4ParticleSourceCosmics::SetSeed(GetSeed());
+        }
 
         sourceDefinition = GetNextElement(sourceDefinition);
     }

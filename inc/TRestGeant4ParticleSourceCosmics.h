@@ -2,6 +2,8 @@
 #ifndef REST_TRESTGEANT4PARTICLESOURCECOSMICS_H
 #define REST_TRESTGEANT4PARTICLESOURCECOSMICS_H
 
+#include <TH2D.h>
+#include <TRandom3.h>
 #include <TRestGeant4ParticleSource.h>
 
 class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
@@ -10,16 +12,20 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::string fFilename;
     std::map<std::string, double> fParticleWeights;
 
-    double (*fRandomGenerator)() = nullptr;
+    std::map<std::string, TH2D*> fHistograms;
+    static std::mutex fMutex;
+    static std::unique_ptr<TRandom3> fRandom;
 
    public:
     void Update() override;
     void InitFromConfigFile() override;
 
-    void SetGenerator(double (*generator)()) { fRandomGenerator = generator; }
+    static void SetSeed(unsigned int seed);
 
     TRestGeant4ParticleSourceCosmics();
     ~TRestGeant4ParticleSourceCosmics() = default;
+
+    const char* GetName() const override { return "TRestGeant4ParticleSourceCosmics"; }
 
     ClassDefOverride(TRestGeant4ParticleSourceCosmics, 1);
 };
