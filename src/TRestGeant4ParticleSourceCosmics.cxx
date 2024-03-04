@@ -87,7 +87,7 @@ void TRestGeant4ParticleSourceCosmics::Update() {
     auto& hist = fHistograms.at(particleName);
 
     double energy, zenith;
-    hist->GetRandom2(energy, zenith);
+    hist->GetRandom2(energy, zenith, fRandom.get());
 
     particleName = geant4ParticleNames.at(particleName);
 
