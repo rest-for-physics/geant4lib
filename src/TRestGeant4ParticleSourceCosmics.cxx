@@ -77,7 +77,7 @@ void TRestGeant4ParticleSourceCosmics::Update() {
         double sum = 0;
         for (const auto& entry : fParticleWeights) {
             sum += entry.second;
-            if (random < sum) {
+            if (random <= sum) {
                 particleName = entry.first;
                 break;
             }
