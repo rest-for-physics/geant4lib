@@ -62,6 +62,7 @@ class TRestGeant4Hits : public TRestHits {
     inline Int_t GetHitVolume(size_t n) const { return GetVolumeId(n); }
     TString GetVolumeName(size_t n) const;
 
+    inline bool GetHadronicOk() const { return fHadronicTargetIsotopeName.size() > 0; }
     inline std::string GetHadronicTargetIsotopeName(size_t n) const { return fHadronicTargetIsotopeName[n]; }
     inline int GetHadronicTargetIsotopeA(size_t n) const { return fHadronicTargetIsotopeA[n]; }
     inline int GetHadronicTargetIsotopeZ(size_t n) const { return fHadronicTargetIsotopeZ[n]; }

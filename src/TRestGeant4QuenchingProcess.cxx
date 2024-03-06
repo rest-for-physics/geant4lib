@@ -119,27 +119,12 @@ void TRestGeant4QuenchingProcess::LoadConfig(const string& configFilename, const
 void TRestGeant4QuenchingProcess::InitFromConfigFile() {
     TiXmlElement* volumeElement = GetElement("volume");
     while (volumeElement) {
-        TiXmlElement* particleElement = GetElement("particle", volumeElement);
         const string volumeName = GetParameter("name", volumeElement, "");
         if (volumeName.empty()) {
             cerr << "TRestGeant4QuenchingProcess: No volume expression specified" << endl;
             exit(1);
         }
-        while (particleElement) {
-            const string particleName = GetParameter("name", particleElement, "");
-            if (particleName.empty()) {
-                cerr << "TRestGeant4QuenchingProcess: No particle name specified" << endl;
-                exit(1);
-            }
-            const auto quenchingFactor = stof(GetParameter("quenchingFactor", particleElement, -1.0));
-            // if no value is specified, give error
-            if (quenchingFactor < 0.0 || quenchingFactor > 1.0) {
-                cerr << "TRestGeant4QuenchingProcess: Quenching factor must be between 0 and 1" << endl;
-                exit(1);
-            }
-            fUserVolumeParticleQuenchingFactor[volumeName][particleName] = quenchingFactor;
-            particleElement = GetNextElement(particleElement);
-        }
+        fUserVolumeExpressions.insert(volumeName);
         volumeElement = GetNextElement(volumeElement);
     }
 }
@@ -155,7 +140,7 @@ void TRestGeant4QuenchingProcess::InitProcess() {
 
     const auto geometryInfo = fGeant4Metadata->GetGeant4GeometryInfo();
     // check all the user volume expressions are valid and correspond to at least a volume
-    for (const auto& [userVolume, particleToQuenchingMap] : fUserVolumeParticleQuenchingFactor) {
+    for (const auto& userVolume : fUserVolumeExpressions) {
         set<string> physicalVolumes = {};
         for (const auto& volume : geometryInfo.GetAllPhysicalVolumesMatchingExpression(userVolume)) {
             physicalVolumes.insert(volume.Data());
@@ -177,16 +162,13 @@ void TRestGeant4QuenchingProcess::InitProcess() {
 
         for (const auto& physicalVolume : physicalVolumes) {
             const auto volumeName = geometryInfo.GetAlternativeNameFromGeant4PhysicalName(physicalVolume);
-            fVolumeParticleQuenchingFactor[volumeName.Data()] = particleToQuenchingMap;
+            fVolumes.insert(volumeName.Data());
         }
     }
 
-    RESTDebug << "TRestGeant4QuenchingProcess initialized with volumes" << RESTendl;
-    for (const auto& [volume, particleToQuenchingMap] : fVolumeParticleQuenchingFactor) {
-        RESTDebug << volume << RESTendl;
-        for (const auto& [particle, quenchingFactor] : particleToQuenchingMap) {
-            RESTDebug << "\t" << particle << " " << quenchingFactor << RESTendl;
-        }
+    cout << "TRestGeant4QuenchingProcess initialized with volumes" << endl;
+    for (const auto& volume : fVolumes) {
+        cout << " " << volume << endl;
     }
 }
 
@@ -200,6 +182,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     fOutputG4Event->InitializeReferences(GetRunInfo());
     fOutputG4Event->fEnergyInVolumePerParticlePerProcess.clear();
 
+    bool sensitiveQuenched = false;
     // loop over all tracks
     for (int trackIndex = 0; trackIndex < int(fOutputG4Event->GetNumberOfTracks()); trackIndex++) {
         // get the track
@@ -207,25 +190,48 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         const auto& particleName = track->GetParticleName();
 
         auto hits = track->GetHitsPointer();
+        if (!hits->GetHadronicOk()) {
+            cerr << "TRestGeant4QuenchingProcess: Hadronic information not available. Use the "
+                    "'storeHadronicTargetInfo' parameter in the restG4 configuration"
+                 << endl;
+            exit(1);
+        }
         auto& energy = hits->GetEnergyRef();
         for (int hitIndex = 0; hitIndex < int(hits->GetNumberOfHits()); hitIndex++) {
             const auto& volumeName = hits->GetVolumeName(hitIndex);
-            const float_t quenchingFactor =
-                GetQuenchingFactorForVolumeAndParticle(volumeName.Data(), particleName.Data());
-            // default is 1.0, so no quenching
-            energy[hitIndex] *= quenchingFactor;
+            if (!fVolumes.count(volumeName.Data())) {
+                continue;
+            }
 
-            // cout << "TRestGeant4QuenchingProcess: Quenching " << particleName << " in " << volumeName
-            //      << " by " << quenchingFactor << endl;
+            const string isotopeName = hits->GetHadronicTargetIsotopeName(hitIndex);
+            const int isotopeA = hits->GetHadronicTargetIsotopeA(hitIndex);
+            const int isotopeZ = hits->GetHadronicTargetIsotopeZ(hitIndex);
 
-            const string processName = hits->GetProcessName(hitIndex).Data();
+            if (isotopeName.empty()) {
+                continue;
+            }
+
+            double recoilEnergy = hits->GetEnergy(hitIndex);
+            if (recoilEnergy <= 0) {
+                continue;
+            }
+
+            if (fGeant4Metadata->GetSensitiveVolume(0) == volumeName) {
+                sensitiveQuenched = true;
+            }
+
+            cout << "TRestGeant4QuenchingProcess: " << particleName << " in " << volumeName << " with "
+                 << isotopeName << " " << isotopeA << " " << isotopeZ << " and energy " << recoilEnergy
+                 << " process name " << hits->GetProcessName(hitIndex) << endl;
 
             if (energy[hitIndex] > 0) {
-                fOutputG4Event->fEnergyInVolumePerParticlePerProcess[volumeName.Data()][particleName.Data()]
-                                                                    [processName] += energy[hitIndex];
+                //      fOutputG4Event->fEnergyInVolumePerParticlePerProcess[volumeName.Data()][particleName.Data()]
+                //                                                          [processName] += energy[hitIndex];
             }
         }
     }
+
+    SetObservableValue("sensitiveQuenched", sensitiveQuenched);
 
     // Update the stores for energy in volumes (this should be automatic and not duplicated)
 
@@ -236,47 +242,10 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
 /// \brief Function to include required actions after all events have been processed.
 void TRestGeant4QuenchingProcess::EndProcess() {}
 
-vector<string> TRestGeant4QuenchingProcess::GetUserVolumeExpressions() const {
-    vector<string> userVolumeExpressions;
-    userVolumeExpressions.reserve(fUserVolumeParticleQuenchingFactor.size());
-    for (auto const& x : fUserVolumeParticleQuenchingFactor) {
-        userVolumeExpressions.push_back(x.first);
-    }
-    return userVolumeExpressions;
-}
-
-float_t TRestGeant4QuenchingProcess::GetQuenchingFactorForVolumeAndParticle(
-    const string& volumeName, const string& particleName) const {
-    float_t quenchingFactor = 1.0;
-    // check if the volume is in the map
-    if (fVolumeParticleQuenchingFactor.find(volumeName) != fVolumeParticleQuenchingFactor.end()) {
-        // check if the particle is in the map
-        if (fVolumeParticleQuenchingFactor.at(volumeName).find(particleName) !=
-            fVolumeParticleQuenchingFactor.at(volumeName).end()) {
-            quenchingFactor = fVolumeParticleQuenchingFactor.at(volumeName).at(particleName);
-        }
-    }
-    return quenchingFactor;
-}
-
 void TRestGeant4QuenchingProcess::PrintMetadata() {
     BeginPrintProcess();
     cout << "Printing TRestGeant4QuenchingProcess user configuration" << endl;
-    for (auto const& [volume, particleQuenchingFactorMap] : fUserVolumeParticleQuenchingFactor) {
+    for (auto const& volume : fVolumes) {
         cout << "Volume: " << volume << endl;
-        for (auto const& [particle, quenchingFactor] : particleQuenchingFactorMap) {
-            cout << "  - Particle: " << particle << " Quenching factor: " << quenchingFactor << endl;
-        }
     }
-
-    if (!fVolumeParticleQuenchingFactor.empty()) {
-        cout << "Printing TRestGeant4QuenchingProcess configuration with actual volumes" << endl;
-        for (auto const& [volume, particleQuenchingFactorMap] : fVolumeParticleQuenchingFactor) {
-            cout << "Volume: " << volume << endl;
-            for (auto const& [particle, quenchingFactor] : particleQuenchingFactorMap) {
-                cout << "  - Particle: " << particle << " Quenching factor: " << quenchingFactor << endl;
-            }
-        }
-    }
-    EndPrintProcess();
 }
