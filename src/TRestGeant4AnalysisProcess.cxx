@@ -398,7 +398,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    cout << "TRestGeant4AnalysisProcess::ProcessEvent: ID: " << fOutputG4Event->GetID() << endl;
 
     const auto sensitiveVolumeName = fG4Metadata->GetSensitiveVolume();
 
