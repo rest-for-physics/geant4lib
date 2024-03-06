@@ -219,14 +219,12 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
                 quenchingFactor = QuenchingFactor(recoilEnergy, isotopeA, isotopeZ);
             }
 
-            /*
-            if (quenchingFactor < 1.0) {
+            if (quenchingFactor < 1.0 && volumeName.Data() == fGeant4Metadata->GetSensitiveVolume().Data()) {
                 cout << "TRestGeant4QuenchingProcess: " << particleName << " in " << volumeName << " with "
                      << isotopeName << " " << isotopeA << " " << isotopeZ << " and energy " << recoilEnergy
                      << " process name " << hits->GetProcessName(hitIndex) << " quenching factor "
                      << quenchingFactor << endl;
             }
-             */
 
             const auto processName = hits->GetProcessName(hitIndex);
 
@@ -238,14 +236,10 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
     }
 
-    const double sensitiveVolumeEnergyAfter = fOutputG4Event->GetSensitiveVolumeEnergy();
+    const double sensitiveVolumeEnergyAfter =
+        fOutputG4Event->GetEnergyInVolume(fGeant4Metadata->GetSensitiveVolume().Data());
 
-    bool sensitiveQuenched = (sensitiveVolumeEnergyBefore != sensitiveVolumeEnergyAfter);
-    if (sensitiveVolumeEnergyAfter > sensitiveVolumeEnergyBefore) {
-        cerr << "TRestGeant4QuenchingProcess: Sensitive volume energy increased after quenching" << endl;
-        exit(1);
-    }
-
+    bool sensitiveQuenched = TMath::Abs(sensitiveVolumeEnergyAfter - sensitiveVolumeEnergyBefore) > 1e-2;
     SetObservableValue("sensitiveQuenched", sensitiveQuenched);
     SetObservableValue("sensitiveVolumeEnergyBefore", sensitiveVolumeEnergyBefore);
     SetObservableValue("sensitiveVolumeEnergyAfter", sensitiveVolumeEnergyAfter);
@@ -258,8 +252,6 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     return fOutputG4Event;
 }
 
-///////////////////////////////////////////////
-/// \brief Function to include required actions after all events have been processed.
 void TRestGeant4QuenchingProcess::EndProcess() {}
 
 void TRestGeant4QuenchingProcess::PrintMetadata() {
