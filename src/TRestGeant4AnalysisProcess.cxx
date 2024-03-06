@@ -398,7 +398,6 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-
     const auto sensitiveVolumeName = fG4Metadata->GetSensitiveVolume();
 
     Double_t sensitiveVolumeEnergy = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName.Data());
