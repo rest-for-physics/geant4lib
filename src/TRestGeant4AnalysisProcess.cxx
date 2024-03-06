@@ -130,7 +130,7 @@
 /// as the diagonal distance of a bounding box defined to contain all the
 /// hits that  produced an energy deposit.
 ///
-/// The following code ilustrates the addition of a primary event
+/// The following code illustrates the addition of a primary event
 /// observable.
 ///
 /// \code
@@ -403,8 +403,10 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     Double_t sensitiveVolumeEnergy = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName.Data());
     // Get time of the first hit in the sensitive volume
     double hitTime = std::numeric_limits<double>::infinity();
+    std::set<int> trackIdsInSensitiveVolume;
+
     for (const auto& track : fOutputG4Event->GetTracks()) {
-        const auto hits = track.GetHits();
+        const auto& hits = track.GetHits();
         for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
             const auto volumeName = hits.GetVolumeName(hitIndex);
             if (volumeName != sensitiveVolumeName) {
@@ -419,9 +421,64 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
             if (time < hitTime) {
                 hitTime = time;
             }
+
+            trackIdsInSensitiveVolume.insert(track.GetTrackID());
         }
     }
+
     SetObservableValue("sensitiveVolumeFirstHitTime", hitTime);
+
+    std::set<int> trackParentsOfInterest;
+    for (const auto& trackIdInSensitiveVolume : trackIdsInSensitiveVolume) {
+        const auto track = fOutputG4Event->GetTrackByID(trackIdInSensitiveVolume);
+        TRestGeant4Track* parent = track;
+        bool found = false;
+        while (parent != nullptr && !found) {
+            // iterate over hits
+            const auto& hits = parent->GetHits();
+            if (hits.GetVolumeName(0) != sensitiveVolumeName) {
+                for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
+                    const auto volumeName = hits.GetVolumeName(hitIndex);
+                    if (volumeName != sensitiveVolumeName) {
+                        found = true;
+                        trackParentsOfInterest.insert(parent->GetTrackID());
+                        break;
+                    }
+                }
+            }
+
+            parent = parent->GetParentTrack();
+        }
+    }
+
+    if (!trackParentsOfInterest.empty()) {
+        const auto track = fOutputG4Event->GetTrackByID(*trackParentsOfInterest.begin());
+
+        const auto position = track->GetInitialPosition();
+        SetObservableValue("firstTrackInSensitivePositionX", position.X());
+        SetObservableValue("firstTrackInSensitivePositionY", position.Y());
+        SetObservableValue("firstTrackInSensitivePositionZ", position.Z());
+
+        const auto energy = track->GetInitialKineticEnergy();
+        SetObservableValue("firstTrackInSensitiveEnergy", energy);
+
+        const string particleName = track->GetParticleName().Data();
+        SetObservableValue("firstTrackInSensitiveParticle", particleName);
+
+        string parentParticleName;
+        if (track->GetParentTrack() != nullptr) {
+            parentParticleName = track->GetParentTrack()->GetParticleName().Data();
+        }
+        SetObservableValue("firstTrackInSensitiveParentParticle", parentParticleName);
+
+        const string creatorProcess = track->GetCreatorProcess().Data();
+        SetObservableValue("firstTrackInSensitiveCreatorProcess", creatorProcess);
+
+        const string volumeName = track->GetHits().GetVolumeName(0).Data();
+        SetObservableValue("firstTrackInSensitiveVolumeName", volumeName);
+    }
+
+    SetObservableValue("firstTrackInSensitiveOk", trackParentsOfInterest.size() == 1);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         cout << "----------------------------" << endl;
