@@ -172,6 +172,13 @@ void TRestGeant4QuenchingProcess::InitProcess() {
     }
 }
 
+double QuenchingFactor(double recoilEnergy, int A, int Z) {
+    // Lindhard formula
+    double gamma = 11.5 * recoilEnergy * TMath::Power(Z, -7.0 / 3.0);
+    double g = 3 * TMath::Power(gamma, 0.15) + 0.7 * TMath::Power(gamma, 0.6) + gamma;
+    double k = 0.133 * TMath::Power(Z, 2.0 / 3.0) * TMath::Power(A, -1.0 / 2.0);
+    return k * g / (1 + k * g);
+}
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
@@ -179,10 +186,11 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
+    const double sensitiveVolumeEnergyBefore = fOutputG4Event->GetSensitiveVolumeEnergy();
+
     fOutputG4Event->InitializeReferences(GetRunInfo());
     fOutputG4Event->fEnergyInVolumePerParticlePerProcess.clear();
 
-    bool sensitiveQuenched = false;
     // loop over all tracks
     for (int trackIndex = 0; trackIndex < int(fOutputG4Event->GetNumberOfTracks()); trackIndex++) {
         // get the track
@@ -199,41 +207,53 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         auto& energy = hits->GetEnergyRef();
         for (int hitIndex = 0; hitIndex < int(hits->GetNumberOfHits()); hitIndex++) {
             const auto& volumeName = hits->GetVolumeName(hitIndex);
-            if (!fVolumes.count(volumeName.Data())) {
-                continue;
-            }
 
             const string isotopeName = hits->GetHadronicTargetIsotopeName(hitIndex);
             const int isotopeA = hits->GetHadronicTargetIsotopeA(hitIndex);
             const int isotopeZ = hits->GetHadronicTargetIsotopeZ(hitIndex);
 
-            if (isotopeName.empty()) {
-                continue;
-            }
-
             double recoilEnergy = hits->GetEnergy(hitIndex);
-            if (recoilEnergy <= 0) {
-                continue;
+
+            double quenchingFactor = 1.0;
+            if (fVolumes.count(volumeName.Data()) && recoilEnergy > 0 && !isotopeName.empty()) {
+                quenchingFactor = QuenchingFactor(recoilEnergy, isotopeA, isotopeZ);
             }
 
-            if (fGeant4Metadata->GetSensitiveVolume(0) == volumeName) {
-                sensitiveQuenched = true;
+            /*
+            if (quenchingFactor < 1.0) {
+                cout << "TRestGeant4QuenchingProcess: " << particleName << " in " << volumeName << " with "
+                     << isotopeName << " " << isotopeA << " " << isotopeZ << " and energy " << recoilEnergy
+                     << " process name " << hits->GetProcessName(hitIndex) << " quenching factor "
+                     << quenchingFactor << endl;
             }
+             */
 
-            cout << "TRestGeant4QuenchingProcess: " << particleName << " in " << volumeName << " with "
-                 << isotopeName << " " << isotopeA << " " << isotopeZ << " and energy " << recoilEnergy
-                 << " process name " << hits->GetProcessName(hitIndex) << endl;
+            const auto processName = hits->GetProcessName(hitIndex);
 
             if (energy[hitIndex] > 0) {
-                //      fOutputG4Event->fEnergyInVolumePerParticlePerProcess[volumeName.Data()][particleName.Data()]
-                //                                                          [processName] += energy[hitIndex];
+                fOutputG4Event->fEnergyInVolumePerParticlePerProcess[volumeName.Data()][particleName.Data()]
+                                                                    [processName.Data()] +=
+                    energy[hitIndex] * quenchingFactor;
             }
         }
     }
 
-    SetObservableValue("sensitiveQuenched", sensitiveQuenched);
+    const double sensitiveVolumeEnergyAfter = fOutputG4Event->GetSensitiveVolumeEnergy();
 
-    // Update the stores for energy in volumes (this should be automatic and not duplicated)
+    bool sensitiveQuenched = (sensitiveVolumeEnergyBefore != sensitiveVolumeEnergyAfter);
+    if (sensitiveVolumeEnergyAfter > sensitiveVolumeEnergyBefore) {
+        cerr << "TRestGeant4QuenchingProcess: Sensitive volume energy increased after quenching" << endl;
+        exit(1);
+    }
+
+    SetObservableValue("sensitiveQuenched", sensitiveQuenched);
+    SetObservableValue("sensitiveVolumeEnergyBefore", sensitiveVolumeEnergyBefore);
+    SetObservableValue("sensitiveVolumeEnergyAfter", sensitiveVolumeEnergyAfter);
+
+    if (sensitiveQuenched) {
+        cout << "TRestGeant4QuenchingProcess: Sensitive volume energy quenched from "
+             << sensitiveVolumeEnergyBefore << " to " << sensitiveVolumeEnergyAfter << endl;
+    }
 
     return fOutputG4Event;
 }
