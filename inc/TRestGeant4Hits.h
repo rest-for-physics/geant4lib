@@ -35,6 +35,10 @@ class TRestGeant4Hits : public TRestHits {
     std::vector<Float_t> fKineticEnergy = {};
     std::vector<TVector3> fMomentumDirection = {};
 
+    std::vector<std::string> fHadronicTargetIsotopeName = {};
+    std::vector<int> fHadronicTargetIsotopeA = {};
+    std::vector<int> fHadronicTargetIsotopeZ = {};
+
     TRestGeant4Track* fTrack = nullptr;  //!
     TRestGeant4Event* fEvent = nullptr;  //!
 

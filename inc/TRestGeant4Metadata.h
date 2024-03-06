@@ -141,6 +141,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// sensitive volume (used for debugging purposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = false;
 
+    /// \brief Option to store target isotope information on hadronic processes (disabled by default)
+    Bool_t fStoreHadronicTargetInfo = false;
+
     /// \brief Sets all volume as active without having to explicitly list them.
     Bool_t fActivateAllVolumes = false;  //!
 
@@ -189,6 +192,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline TString GetGeant4Version() const { return fGeant4Version; }
 
     size_t GetGeant4VersionMajor() const;
+
+    bool GetStoreHadronicTargetInfo() const { return fStoreHadronicTargetInfo; }
 
     /// Returns the local path to the GDML geometry
     inline TString GetGeometryPath() const { return fGeometryPath; }
