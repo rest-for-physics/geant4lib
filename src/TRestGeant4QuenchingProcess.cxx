@@ -166,9 +166,9 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
     }
 
-    cout << "TRestGeant4QuenchingProcess initialized with volumes" << endl;
+    RESTDebug << "TRestGeant4QuenchingProcess initialized with volumes" << RESTendl;
     for (const auto& volume : fVolumes) {
-        cout << " " << volume << endl;
+        RESTDebug << " " << volume << RESTendl;
     }
 }
 
@@ -244,9 +244,8 @@ void TRestGeant4QuenchingProcess::EndProcess() {}
 
 void TRestGeant4QuenchingProcess::PrintMetadata() {
     BeginPrintProcess();
-    cout << "Printing TRestGeant4QuenchingProcess user configuration" << endl;
     for (auto const& volume : fVolumes) {
-        cout << "Volume: " << volume << endl;
+        RESTMetadata << "Volume: " << volume << RESTendl;
     }
     EndPrintProcess();
 }
