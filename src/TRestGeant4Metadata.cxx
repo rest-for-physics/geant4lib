@@ -816,6 +816,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     fGeometryPath = GetParameter("geometryPath", "");
 
+    fStoreHadronicTargetInfo = StringToBool(GetParameter("storeHadronicTargetInfo", "false"));
+
     string seedString = GetParameter("seed", "0");
     if (ToUpper(seedString) == "RANDOM" || ToUpper(seedString) == "RAND" || ToUpper(seedString) == "AUTO" ||
         seedString == "0") {
