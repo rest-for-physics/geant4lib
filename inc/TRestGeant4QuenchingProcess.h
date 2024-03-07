@@ -72,6 +72,6 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     explicit TRestGeant4QuenchingProcess(const char* configFilename);
     ~TRestGeant4QuenchingProcess() override;
 
-    ClassDefOverride(TRestGeant4QuenchingProcess, 1);
+    ClassDefOverride(TRestGeant4QuenchingProcess, 2);
 };
 #endif
