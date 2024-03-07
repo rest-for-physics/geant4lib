@@ -248,4 +248,5 @@ void TRestGeant4QuenchingProcess::PrintMetadata() {
     for (auto const& volume : fVolumes) {
         cout << "Volume: " << volume << endl;
     }
+    EndPrintProcess();
 }
