@@ -250,3 +250,9 @@ void TRestGeant4QuenchingProcess::PrintMetadata() {
     }
     EndPrintProcess();
 }
+
+std::set<std::string> TRestGeant4QuenchingProcess::GetVolumes() const { return fVolumes; }
+
+std::set<std::string> TRestGeant4QuenchingProcess::GetUserVolumeExpressions() const {
+    return fUserVolumeExpressions;
+}
