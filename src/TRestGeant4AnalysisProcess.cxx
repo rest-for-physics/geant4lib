@@ -517,7 +517,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     TVector3 v(xDirection, yDirection, zDirection);
     SetObservableValue("thetaPrimary", v.Theta());
     SetObservableValue("phiPrimary", v.Phi());
-    SetObservableValue("zenithYDegrees", TMath::ACos(yDirection) * TMath::RadToDeg());
+    SetObservableValue("zenithYDegrees", TMath::ACos(-1 * yDirection) * TMath::RadToDeg());
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
     SetObservableValue("energyPrimary", energyPrimary);
