@@ -87,7 +87,7 @@ class TRestGeant4Hits : public TRestHits {
     // Destructor
     virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestGeant4Hits, 7);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 8);  // REST event superclass
 
     // restG4
    public:
