@@ -1,3 +1,5 @@
+#include <TFileMerger.h>
+
 #include <string>
 #include <vector>
 
@@ -59,13 +61,26 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     TRestGeant4Event* mergeEvent = nullptr;
     auto mergeEventTree = mergeRun->GetEventTree();
+    auto mergeAnalysisTree = mergeRun->GetAnalysisTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
+
+    const string outputTempFilename =
+        string(outputFilename).substr(0, string(outputFilename).size() - 5) + ".temp.root";
+    {
+        TFileMerger merger;
+        merger.OutputFile(outputTempFilename.c_str());
+        merger.AddObjectNames("EventTree AnalysisTree");
+        for (unsigned int i = 0; i < inputFiles.size(); i++) {
+            merger.AddFile(inputFiles[i].c_str());
+        }
+        merger.PartialMerge(TFileMerger::kAll | TFileMerger::kIncremental | TFileMerger::kOnlyListed);
+    }
 
     set<Int_t> eventIds;  // std::set is sorted from lower to higher automatically
 
     long long eventCounter = 0;
     // iterate over all other files
-    for (int i = 0; i < inputFiles.size(); i++) {
+    for (unsigned int i = 0; i < inputFiles.size(); i++) {
         cout << "Processing file " << i + 1 << "/" << inputFiles.size() << endl;
 
         map<Int_t, Int_t>
@@ -81,7 +96,10 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
-        for (int j = 0; j < eventTree->GetEntries(); j++) {
+        for (unsigned int j = 0; j < eventTree->GetEntries(); j++) {
+            eventCounter++;
+            continue;  // not working at this time (this logic works, but we are using TFileMerger which does
+                       // not work with this)
             eventTree->GetEntry(j);
             *mergeEvent = *event;
 
@@ -106,33 +124,76 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
             eventIds.insert(mergeEvent->GetID());
 
             mergeEventTree->Fill();
-            mergeRun->GetAnalysisTree()->Fill();
+            // TODO: this just adds empty entries to the analysis tree. It should be merged
+            mergeAnalysisTree->Fill();
+        }
 
-            eventCounter++;
+        // add the remaining metadata of the first file to the merged file
+        if (i == 0) {
+            // iterate over all keys of the file to find inheritance of TRestMetadata
+            TIter nextkey(run.GetInputFile()->GetListOfKeys());
+            TKey* key;
+            while ((key = (TKey*)nextkey())) {
+                const auto obj = key->ReadObj();
+                if (obj->InheritsFrom("TRestMetadata")) {
+                    if (obj->InheritsFrom("TRestGeant4Metadata")) {
+                        // This is merged and added later
+                        continue;
+                    }
+                    const auto metadataKey = (TRestMetadata*)obj;
+                    mergeRun->GetOutputFile()->cd();
+                    metadataKey->Write();
+                }
+            }
         }
     }
 
-    cout << "Output filename: " << mergeRun->GetOutputFileName() << endl;
-    cout << "Output file: " << mergeRun->GetOutputFile() << endl;
-
     mergeRun->GetOutputFile()->cd();
 
-    gGeoManager->Write("Geometry", TObject::kOverwrite);
+    if (gGeoManager != nullptr) {
+        gGeoManager->Write("Geometry", TObject::kOverwrite);
+    }
 
-    mergeMetadata.SetName("geant4Metadata");
     mergeMetadata.Write();
+
     mergeRun->UpdateOutputFile();
     mergeRun->CloseFile();
 
-    // Open the file again to check the number of events
+    // At this point we have two files: the "mergeRun" file with the updated metadata and the "temp" file with
+    // the event and analysis tree (the event tree here does not have updated event ids) Open the file again
+
+    {
+        auto fileWithMetadata = TFile::Open(mergeRun->GetOutputFileName());
+        auto fileWithTrees = TFile::Open(outputTempFilename.c_str(), "UPDATE");
+
+        // copy all objects from the file with metadata except "EventTree" and "AnalysisTree"
+        TIter nextkey(fileWithMetadata->GetListOfKeys());
+        TKey* key;
+        while ((key = (TKey*)nextkey())) {
+            const auto obj = key->ReadObj();
+            if (obj->InheritsFrom("TTree")) {
+                continue;
+            }
+            fileWithTrees->cd();
+            obj->Write();
+        }
+
+        // close files
+        fileWithMetadata->Close();
+        fileWithTrees->Close();
+    }
+
+    // replace the "run" file by the temp file
+    remove(mergeRun->GetOutputFileName());
+    rename(outputTempFilename.c_str(), mergeRun->GetOutputFileName());
+
+    // to check the number of events
     TRestRun runCheck(outputFilename);
     if (runCheck.GetEntries() != eventCounter) {
         cerr << "ERROR: number of events in the output file (" << runCheck.GetEntries()
              << ") does not match the number of events in the input files (" << eventCounter << ")" << endl;
         exit(1);
     }
-    cout << "Number of events in the output file: " << runCheck.GetEntries() << " matches internal count"
-         << endl;
 }
 
 #endif

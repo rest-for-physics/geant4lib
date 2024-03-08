@@ -1443,7 +1443,15 @@ void TRestGeant4Metadata::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Geant4 version: " << GetGeant4Version() << RESTendl;
-    RESTMetadata << "Random seed: " << GetSeed() << RESTendl;
+    if (!fIsMerge) {
+        RESTMetadata << "Random seed: " << GetSeed() << RESTendl;
+    } else {
+        RESTMetadata << "This Geant4 simulation is a merge of " << fMergeSeeds.size() << " files" << RESTendl;
+        for (unsigned int i = 0; i < fMergeSeeds.size(); i++) {
+            RESTMetadata << " - File " << i << " Random seed: " << fMergeSeeds[i]
+                         << " - Number of primaries: " << fMergeNEvents[i] << RESTendl;
+        }
+    }
     RESTMetadata << "GDML geometry: " << GetGdmlReference() << RESTendl;
     RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
     RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
@@ -1506,7 +1514,9 @@ void TRestGeant4Metadata::PrintMetadata() {
 Int_t TRestGeant4Metadata::GetActiveVolumeID(const TString& name) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == name) return id;
+        if (fActiveVolumes[id] == name) {
+            return id;
+        }
     }
     return -1;
 }
@@ -1557,7 +1567,9 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
 Double_t TRestGeant4Metadata::GetStorageChance(const TString& volume) {
     Int_t id;
     for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == volume) return fChance[id];
+        if (fActiveVolumes[id] == volume) {
+            return fChance[id];
+        }
     }
     RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << volume << " not found" << RESTendl;
 
@@ -1590,19 +1602,23 @@ size_t TRestGeant4Metadata::GetGeant4VersionMajor() const {
     return std::stoi(majorVersion.Data());
 }
 
-void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
+void TRestGeant4Metadata::Merge(const TRestMetadata& metadata) {
+    const auto restMetadata = *dynamic_cast<const TRestGeant4Metadata*>(&metadata);
     fIsMerge = true;
     fSeed = 0;  // seed makes no sense in a merged file
+    fMergeSeeds.push_back(restMetadata.fSeed);
+    fMergeNEvents.push_back(restMetadata.fNEvents);
 
-    fNEvents += metadata.fNEvents;
-    fNRequestedEntries += metadata.fNRequestedEntries;
-    fSimulationTime += metadata.fSimulationTime;
+    fNEvents += restMetadata.fNEvents;
+    fNRequestedEntries += restMetadata.fNRequestedEntries;
+    fSimulationTime += restMetadata.fSimulationTime;
 }
 
 TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
 
 TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
     fIsMerge = metadata.fIsMerge;
+    fName = metadata.fName;
     fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
     fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
     fGeant4PrimaryGeneratorInfo = metadata.fGeant4PrimaryGeneratorInfo;
@@ -1631,5 +1647,7 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fKillVolumes = metadata.fKillVolumes;
     fRegisterEmptyTracks = metadata.fRegisterEmptyTracks;
     fMagneticField = metadata.fMagneticField;
+    fMergeNEvents = metadata.fMergeNEvents;
+    fMergeSeeds = metadata.fMergeSeeds;
     return *this;
 }

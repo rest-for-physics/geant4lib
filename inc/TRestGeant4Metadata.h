@@ -137,6 +137,14 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// If it is zero its value will be assigned using the system timestamp.
     Long_t fSeed = 0;
 
+    /// \brief If the simulation is produced as a merge of multiple files, this stored the seeds of the
+    /// individual files
+    std::vector<Long_t> fMergeSeeds;
+
+    /// \brief If the simulation is produced as a merge of multiple files, this stored the number primaries
+    /// for the individual files
+    std::vector<Long_t> fMergeNEvents;
+
     /// \brief If this parameter is set to 'true' it will save all events even if they leave no energy in the
     /// sensitive volume (used for debugging purposes). It is set to 'false' by default.
     Bool_t fSaveAllEvents = false;
@@ -384,11 +392,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
-    void SetSimulationTime(Long64_t time) { fSimulationTime = time; }
-
     void PrintMetadata() override;
 
-    void Merge(const TRestGeant4Metadata&);
+    void Merge(const TRestMetadata&) override;
 
     TRestGeant4Metadata();
     TRestGeant4Metadata(const char* configFilename, const std::string& name = "");
