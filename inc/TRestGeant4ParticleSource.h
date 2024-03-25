@@ -67,8 +67,8 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
 
     inline TVector3 GetDirection() const {
         if (fDirection.Mag() <= 0) {
-            std::cout << "TRestGeant4ParticleSource::GetDirection: "
-                      << "Direction cannot be the zero vector" << std::endl;
+            std::cout << "TRestGeant4ParticleSource::GetDirection: " << "Direction cannot be the zero vector"
+                      << std::endl;
             exit(1);
         }
         return fDirection;
