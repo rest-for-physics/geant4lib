@@ -156,8 +156,8 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
 
         if (physicalVolumes.empty()) {
-            cerr << "TRestGeant4QuenchingProcess: No volume found matching expression " << userVolume << endl;
-            exit(1);
+            RESTWarning << "TRestGeant4QuenchingProcess: No volume found matching expression: " << userVolume
+                        << RESTendl;
         }
 
         for (const auto& physicalVolume : physicalVolumes) {
