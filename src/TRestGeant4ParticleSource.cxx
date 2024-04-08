@@ -32,7 +32,7 @@ TRestGeant4ParticleSource::TRestGeant4ParticleSource() = default;
 
 TRestGeant4ParticleSource::~TRestGeant4ParticleSource() = default;
 
-void TRestGeant4ParticleSource::PrintParticleSource() {
+void TRestGeant4ParticleSource::PrintMetadata() {
     RESTMetadata << " " << RESTendl;
     if (GetParticleName() != "" && GetParticleName() != "NO_SUCH_PARA")
         RESTMetadata << "Particle Source Name: " << GetParticleName() << RESTendl;
@@ -105,8 +105,8 @@ TRestGeant4ParticleSource* TRestGeant4ParticleSource::instantiate(std::string mo
     } else {
         // use specific generator
         // naming convention: TRestGeant4ParticleSourceXXX
-        // currently supported generator: decay0
-        // in future we may add wrapper of generators: cry(for muon), pythia(for HEP), etc.
+        // currently supported generators: decay0, source
+        // in future we may add wrapper of generators: pythia(for HEP), etc.
         model[0] = *REST_StringHelper::ToUpper(std::string(&model[0], 1)).c_str();
         TClass* c = TClass::GetClass(("TRestGeant4ParticleSource" + model).c_str());
         if (c)  // this means we have the package installed

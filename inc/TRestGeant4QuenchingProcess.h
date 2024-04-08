@@ -40,24 +40,19 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     /// A pointer to the simulation metadata information accessible to TRestRun
     TRestGeant4Metadata* fGeant4Metadata{};  //!
 
-    /// It stores the quenching factor for each particle for each user volume expression
-    std::map<std::string, std::map<std::string, float_t>> fUserVolumeParticleQuenchingFactor = {};
-
-    /// It stores the quenching factor for each particle for each volume of the simulation
-    std::map<std::string, std::map<std::string, float_t>> fVolumeParticleQuenchingFactor = {};
+    std::set<std::string> fUserVolumeExpressions;
+    std::set<std::string> fVolumes;
 
     void Initialize() override;
     void InitFromConfigFile() override;
     void LoadDefaultConfig();
 
    public:
-    std::vector<std::string> GetUserVolumeExpressions() const;
-    float_t GetQuenchingFactorForVolumeAndParticle(const std::string& volumeName,
-                                                   const std::string& particleName) const;
+    std::set<std::string> GetUserVolumeExpressions() const;
+    std::set<std::string> GetVolumes() const;
 
-    //
-    any GetInputEvent() const override { return fInputG4Event; }
-    any GetOutputEvent() const override { return fOutputG4Event; }
+    RESTValue GetInputEvent() const override { return fInputG4Event; }
+    RESTValue GetOutputEvent() const override { return fOutputG4Event; }
 
     void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* inputEvent) override;
@@ -77,6 +72,6 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     explicit TRestGeant4QuenchingProcess(const char* configFilename);
     ~TRestGeant4QuenchingProcess() override;
 
-    ClassDefOverride(TRestGeant4QuenchingProcess, 1);
+    ClassDefOverride(TRestGeant4QuenchingProcess, 2);
 };
 #endif

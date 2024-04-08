@@ -8,7 +8,7 @@
 ///             inherited from TRestMetadata
 ///             How to use: replace TRestGeant4PhysicsLists by your class name,
 ///             fill the required functions following instructions and add all
-///             needed additional members and funcionality
+///             needed additional members and functionality
 ///
 ///             Apr 2017:   First concept. Javier Galan
 ///

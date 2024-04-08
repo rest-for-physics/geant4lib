@@ -10,7 +10,7 @@ using namespace std;
 
 const auto filesPath = fs::path(__FILE__).parent_path().parent_path() / "files";
 const auto processRmlFile = filesPath / "TRestGeant4QuenchingProcessExample.rml";
-const auto simulationFile = "/tmp/tmp.CXV7dwGPdN/source/packages/restG4/examples/13.IAXO/Neutrons.root";
+// const auto simulationFile = "/tmp/tmp.CXV7dwGPdN/source/packages/restG4/examples/13.IAXO/Neutrons.root";
 
 TEST(TRestGeant4QuenchingProcess, TestFiles) {
     cout << "Test files path: " << filesPath << endl;
@@ -41,12 +41,6 @@ TEST(TRestGeant4QuenchingProcess, Default) {
 
     // verify default quenching factor is 1.0
     vector<string> randomVolumes = {"scintillatorVolume", "gasVolume", "shieldingVolume"};
-    vector<string> particles = {"gamma", "e-", "e+"};
-    for (const auto& volume : randomVolumes) {
-        for (const auto& particle : particles) {
-            EXPECT_TRUE(process.GetQuenchingFactorForVolumeAndParticle(volume, particle) == 1.0);
-        }
-    }
 }
 
 TEST(TRestGeant4QuenchingProcess, FromRml) {

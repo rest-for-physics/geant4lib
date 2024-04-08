@@ -28,6 +28,8 @@ string TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString(const Spa
             return "Point";
         case SpatialGeneratorTypes::COSMIC:
             return "Cosmic";
+        case SpatialGeneratorTypes::SOURCE:
+            return "Source";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypesToString - Error - Unknown "
             "SpatialGeneratorTypes"
@@ -51,6 +53,9 @@ SpatialGeneratorTypes TRestGeant4PrimaryGeneratorTypes::StringToSpatialGenerator
     } else if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::COSMIC),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return SpatialGeneratorTypes::COSMIC;
+    } else if (TString(type).EqualTo(SpatialGeneratorTypesToString(SpatialGeneratorTypes::SOURCE),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return SpatialGeneratorTypes::SOURCE;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes - Error - Unknown "
                 "SpatialGeneratorTypes: "

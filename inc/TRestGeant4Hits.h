@@ -35,6 +35,10 @@ class TRestGeant4Hits : public TRestHits {
     std::vector<Float_t> fKineticEnergy = {};
     std::vector<TVector3> fMomentumDirection = {};
 
+    std::vector<std::string> fHadronicTargetIsotopeName = {};
+    std::vector<int> fHadronicTargetIsotopeA = {};
+    std::vector<int> fHadronicTargetIsotopeZ = {};
+
     TRestGeant4Track* fTrack = nullptr;  //!
     TRestGeant4Event* fEvent = nullptr;  //!
 
@@ -58,6 +62,11 @@ class TRestGeant4Hits : public TRestHits {
     inline Int_t GetHitVolume(size_t n) const { return GetVolumeId(n); }
     TString GetVolumeName(size_t n) const;
 
+    inline bool GetHadronicOk() const { return fHadronicTargetIsotopeName.size() > 0; }
+    inline std::string GetHadronicTargetIsotopeName(size_t n) const { return fHadronicTargetIsotopeName[n]; }
+    inline int GetHadronicTargetIsotopeA(size_t n) const { return fHadronicTargetIsotopeA[n]; }
+    inline int GetHadronicTargetIsotopeZ(size_t n) const { return fHadronicTargetIsotopeZ[n]; }
+
     void RemoveG4Hits();
 
     inline Double_t GetKineticEnergy(size_t n) const { return fKineticEnergy[n]; }
@@ -78,7 +87,7 @@ class TRestGeant4Hits : public TRestHits {
     // Destructor
     virtual ~TRestGeant4Hits();
 
-    ClassDef(TRestGeant4Hits, 7);  // REST event superclass
+    ClassDef(TRestGeant4Hits, 8);  // REST event superclass
 
     // restG4
    public:
