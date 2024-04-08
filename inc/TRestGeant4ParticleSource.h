@@ -209,6 +209,5 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual ~TRestGeant4ParticleSource();
 
     ClassDefOverride(TRestGeant4ParticleSource, 6);
-
 };
 #endif
