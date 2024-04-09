@@ -57,9 +57,9 @@ class TRestGeant4Particle {
 
     void SetParticleCharge(Int_t charge) { fCharge = charge; }
 
-    void SetDirection(TVector3 dir) { fDirection = dir; }
+    void SetDirection(const TVector3& dir) { fDirection = dir.Unit(); }
     void SetEnergy(Double_t en) { fEnergy = en; }
-    void SetOrigin(TVector3 pos) { fOrigin = pos; }
+    void SetOrigin(const TVector3& pos) { fOrigin = pos; }
 
     void Print() const;
 
