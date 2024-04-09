@@ -461,6 +461,11 @@
 ///     <angular type="isotropic" />
 /// \endcode
 ///
+/// Additionally a direction and a cone angle can be specified to generate the particles in a cone around the
+/// direction. The angle specified is the half opening angle of the cone. \code
+///     <angular type="isotropic" direction="(0,1,0)" coneHalfAngle="30deg"/>
+/// \endcode
+///
 /// * **backtoback**: The source momentum direction will be opposite to
 /// the direction of the previous source. If it is the first source the
 /// angular distribution type will be re-defined to isotropic.
@@ -1146,6 +1151,12 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     }
     source->SetDirection(StringTo3DVector(GetParameter("direction", angularDefinition, "(1,0,0)")));
 
+    if ((StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::ISOTROPIC)) {
+        source->SetAngularDistributionRange({0, TMath::Pi()});
+        const double coneHalfAngle = GetDblParameterWithUnits("coneHalfAngle", angularDefinition, 0);
+        source->SetAngularDistributionIsotropicConeHalfAngle(coneHalfAngle);
+    }
     // Energy distribution parameters
     TiXmlElement* energyDefinition = GetElement("energy", sourceDefinition);
     if (energyDefinition == nullptr) {

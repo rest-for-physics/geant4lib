@@ -42,6 +42,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     size_t fAngularDistributionFormulaNPoints = 500;
     TF1* fAngularDistributionFunction = nullptr;
     TVector2 fAngularDistributionRange;
+    double fAngularDistributionIsotropicConeHalfAngle = 0;
 
     TString fEnergyDistributionType = "Mono";
     TString fEnergyDistributionFilename;
@@ -65,14 +66,7 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     virtual void InitFromConfigFile() override;
     static TRestGeant4ParticleSource* instantiate(std::string model = "");
 
-    inline TVector3 GetDirection() const {
-        if (fDirection.Mag() <= 0) {
-            std::cout << "TRestGeant4ParticleSource::GetDirection: "
-                      << "Direction cannot be the zero vector" << std::endl;
-            exit(1);
-        }
-        return fDirection;
-    }
+    TVector3 GetDirection() const;
 
     inline TString GetEnergyDistributionType() const { return fEnergyDistributionType; }
     inline TVector2 GetEnergyDistributionRange() const { return fEnergyDistributionRange; }
@@ -91,6 +85,9 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TString GetAngularDistributionFilename() const { return fAngularDistributionFilename; }
     inline TString GetAngularDistributionNameInFile() const { return fAngularDistributionNameInFile; }
     inline const TF1* GetAngularDistributionFunction() const { return fAngularDistributionFunction; }
+    inline double GetAngularDistributionIsotropicConeHalfAngle() const {
+        return fAngularDistributionIsotropicConeHalfAngle;
+    }
 
     inline const TF2* GetEnergyAndAngularDistributionFunction() const {
         return fEnergyAndAngularDistributionFunction;
@@ -99,6 +96,16 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     inline TString GetGenFilename() const { return fGenFilename; }
 
     inline std::vector<TRestGeant4Particle> GetParticles() const { return fParticles; }
+
+    inline void SetAngularDistributionIsotropicConeHalfAngle(double angle) {
+        if (angle < 0 || angle > TMath::Pi()) {
+            std::cerr << "TRestGeant4ParticleSource::SetAngularDistributionIsotropicConeHalfAngle: "
+                         "angle must be between 0 and Pi radians"
+                      << std::endl;
+            exit(1);
+        }
+        fAngularDistributionIsotropicConeHalfAngle = angle;
+    }
 
     inline void SetAngularDistributionType(const TString& type) {
         fAngularDistributionType = TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
@@ -201,6 +208,6 @@ class TRestGeant4ParticleSource : public TRestGeant4Particle, public TRestMetada
     // Destructor
     virtual ~TRestGeant4ParticleSource();
 
-    ClassDefOverride(TRestGeant4ParticleSource, 5);
+    ClassDefOverride(TRestGeant4ParticleSource, 6);
 };
 #endif
