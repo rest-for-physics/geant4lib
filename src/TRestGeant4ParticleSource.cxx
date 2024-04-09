@@ -63,8 +63,8 @@ void TRestGeant4ParticleSource::PrintMetadata() {
                     2 * TMath::Pi() * (1 - TMath::Cos(GetAngularDistributionIsotropicConeHalfAngle()));
                 RESTMetadata << "Angular distribution isotropic cone half angle (deg): "
                              << GetAngularDistributionIsotropicConeHalfAngle() * TMath::RadToDeg()
-                             << " - solid angle: " << solidAngle << " (" << solidAngle / (4 * TMath::Pi())
-                             << ")" << RESTendl;
+                             << " - solid angle: " << solidAngle << " ("
+                             << solidAngle / (4 * TMath::Pi()) * 100 << "%)" << RESTendl;
             }
         }
         if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
