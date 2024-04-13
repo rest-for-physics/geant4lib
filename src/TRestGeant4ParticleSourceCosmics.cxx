@@ -84,8 +84,22 @@ void TRestGeant4ParticleSourceCosmics::Update() {
         }
     }
 
-    auto& hist = fHistograms.at(particleName);
-
+    if (fHistogramsTransformed.find(particleName) == fHistogramsTransformed.end()) {
+        auto histOriginal = fHistograms.at(particleName);
+        TH2D* hist = new TH2D(*histOriginal);
+        // same as original but Y axis is multiplied by 1/cos(zenith). Integral should be the same.
+        for (int i = 1; i <= hist->GetNbinsX(); i++) {
+            for (int j = 1; j <= hist->GetNbinsY(); j++) {
+                const double zenith = hist->GetYaxis()->GetBinCenter(j);
+                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith);
+                hist->SetBinContent(i, j, value);
+            }
+        }
+        hist->Scale(histOriginal->Integral() / hist->Integral());
+        fHistogramsTransformed[particleName] = hist;
+    }
+    auto hist = fHistograms.at(
+        particleName);  // TODO: Replace by the transformed histogram (problems with the sampling...)
     double energy, zenith;
     hist->GetRandom2(energy, zenith, fRandom.get());
 
