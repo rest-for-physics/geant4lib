@@ -13,7 +13,7 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::map<std::string, double> fParticleWeights;
 
     std::map<std::string, TH2D*> fHistograms;
-    std::map<std::string, TH2D*> fHistogramsTransformed; //!
+    std::map<std::string, TH2D*> fHistogramsTransformed;  //!
 
     static std::mutex fMutex;
     static std::unique_ptr<TRandom3> fRandom;
