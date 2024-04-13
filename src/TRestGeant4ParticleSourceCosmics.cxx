@@ -91,15 +91,14 @@ void TRestGeant4ParticleSourceCosmics::Update() {
         for (int i = 1; i <= hist->GetNbinsX(); i++) {
             for (int j = 1; j <= hist->GetNbinsY(); j++) {
                 const double zenith = hist->GetYaxis()->GetBinCenter(j);
-                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith);
+                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith * TMath::DegToRad());
                 hist->SetBinContent(i, j, value);
             }
         }
         hist->Scale(histOriginal->Integral() / hist->Integral());
         fHistogramsTransformed[particleName] = hist;
     }
-    auto hist = fHistograms.at(
-        particleName);  // TODO: Replace by the transformed histogram (problems with the sampling...)
+    auto hist = fHistogramsTransformed.at(particleName);
     double energy, zenith;
     hist->GetRandom2(energy, zenith, fRandom.get());
 
