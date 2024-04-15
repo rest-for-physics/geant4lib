@@ -1110,8 +1110,10 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     }
     source->SetAngularDistributionType(GetParameter(
         "type", angularDefinition, AngularDistributionTypesToString(AngularDistributionTypes::FLUX)));
-    if (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
-        AngularDistributionTypes::TH1D) {
+    if ((StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::TH1D) ||
+        (StringToAngularDistributionTypes(source->GetAngularDistributionType().Data()) ==
+         AngularDistributionTypes::TH2D)) {
         source->SetAngularDistributionFilename(SearchFile(GetParameter("file", angularDefinition)));
         auto name = GetParameter("name", angularDefinition);
         if (name == "NO_SUCH_PARA") {
@@ -1164,8 +1166,10 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     }
     source->SetEnergyDistributionType(GetParameter(
         "type", energyDefinition, EnergyDistributionTypesToString(EnergyDistributionTypes::MONO)));
-    if (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
-        EnergyDistributionTypes::TH1D) {
+    if ((StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::TH1D) ||
+        (StringToEnergyDistributionTypes(source->GetEnergyDistributionType().Data()) ==
+         EnergyDistributionTypes::TH2D)) {
         source->SetEnergyDistributionFilename(SearchFile(GetParameter("file", energyDefinition)));
         auto name = GetParameter("name", energyDefinition);
         if (name == "NO_SUCH_PARA") {

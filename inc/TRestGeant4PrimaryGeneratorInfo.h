@@ -37,6 +37,7 @@ SpatialGeneratorShapes StringToSpatialGeneratorShapes(const std::string&);
 
 enum class EnergyDistributionTypes {
     TH1D,
+    TH2D,
     FORMULA,
     FORMULA2,
     MONO,
@@ -58,6 +59,7 @@ TF1 EnergyDistributionFormulasToRootFormula(const EnergyDistributionFormulas&);
 
 enum class AngularDistributionTypes {
     TH1D,
+    TH2D,
     FORMULA,
     FORMULA2,
     ISOTROPIC,

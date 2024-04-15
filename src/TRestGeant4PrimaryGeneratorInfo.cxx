@@ -9,7 +9,6 @@
 #include <TF2.h>
 #include <TMath.h>
 #include <TRestStringOutput.h>
-#include <tinyxml.h>
 
 #include <iostream>
 
@@ -118,6 +117,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypesToString(
     switch (type) {
         case EnergyDistributionTypes::TH1D:
             return "TH1D";
+        case EnergyDistributionTypes::TH2D:
+            return "TH2D";
         case EnergyDistributionTypes::FORMULA:
             return "Formula";
         case EnergyDistributionTypes::FORMULA2:
@@ -140,6 +141,9 @@ EnergyDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistribu
     if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::TH1D;
+    } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::TH2D),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionTypes::TH2D;
     } else if (TString(type).EqualTo(EnergyDistributionTypesToString(EnergyDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionTypes::FORMULA;
@@ -226,6 +230,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypesToString(
     switch (type) {
         case AngularDistributionTypes::TH1D:
             return "TH1D";
+        case AngularDistributionTypes::TH2D:
+            return "TH2D";
         case AngularDistributionTypes::FORMULA:
             return "Formula";
         case AngularDistributionTypes::FORMULA2:
@@ -248,6 +254,9 @@ AngularDistributionTypes TRestGeant4PrimaryGeneratorTypes::StringToAngularDistri
     if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::TH1D),
                               TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::TH1D;
+    } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::TH2D),
+                                     TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionTypes::TH2D;
     } else if (TString(type).EqualTo(AngularDistributionTypesToString(AngularDistributionTypes::FORMULA),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionTypes::FORMULA;

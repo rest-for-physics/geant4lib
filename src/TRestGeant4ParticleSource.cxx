@@ -47,8 +47,9 @@ void TRestGeant4ParticleSource::PrintMetadata() {
             RESTMetadata << "Particle charge: " << GetParticleCharge() << RESTendl;
         }
         RESTMetadata << "Angular distribution type: " << GetAngularDistributionType() << RESTendl;
-        if (StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
-            AngularDistributionTypes::TH1D) {
+        if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+            AngularDistributionTypes::TH1D) || (StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+             AngularDistributionTypes::TH2D)) {
             RESTMetadata << "Angular distribution filename: "
                          << TRestTools::GetPureFileName((string)GetAngularDistributionFilename()) << RESTendl;
             RESTMetadata << "Angular distribution histogram name: " << GetAngularDistributionNameInFile()
@@ -68,9 +69,9 @@ void TRestGeant4ParticleSource::PrintMetadata() {
             }
         }
         if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
-             AngularDistributionTypes::FORMULA) ||
+             AngularDistributionTypes::TH1D) ||
             StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
-                AngularDistributionTypes::FORMULA2) {
+                AngularDistributionTypes::TH2D) {
             RESTMetadata << "Angular distribution range (deg): ("
                          << GetAngularDistributionRangeMin() * TMath::RadToDeg() << ", "
                          << GetAngularDistributionRangeMax() * TMath::RadToDeg() << ")" << RESTendl;
@@ -78,8 +79,10 @@ void TRestGeant4ParticleSource::PrintMetadata() {
                          << GetAngularDistributionFormulaNPoints() << RESTendl;
         }
         RESTMetadata << "Energy distribution type: " << GetEnergyDistributionType() << RESTendl;
-        if (StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
-            EnergyDistributionTypes::TH1D) {
+        if ((StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
+             EnergyDistributionTypes::TH1D) ||
+            StringToEnergyDistributionTypes(GetEnergyDistributionType().Data()) ==
+                EnergyDistributionTypes::TH2D) {
             RESTMetadata << "Energy distribution filename: "
                          << TRestTools::GetPureFileName((string)GetEnergyDistributionFilename()) << RESTendl;
             RESTMetadata << "Energy distribution histogram name: " << GetEnergyDistributionNameInFile()
