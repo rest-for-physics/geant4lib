@@ -48,7 +48,8 @@ void TRestGeant4ParticleSource::PrintMetadata() {
         }
         RESTMetadata << "Angular distribution type: " << GetAngularDistributionType() << RESTendl;
         if ((StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
-            AngularDistributionTypes::TH1D) || (StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
+             AngularDistributionTypes::TH1D) ||
+            (StringToAngularDistributionTypes(GetAngularDistributionType().Data()) ==
              AngularDistributionTypes::TH2D)) {
             RESTMetadata << "Angular distribution filename: "
                          << TRestTools::GetPureFileName((string)GetAngularDistributionFilename()) << RESTendl;
