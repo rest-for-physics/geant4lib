@@ -95,7 +95,6 @@ void TRestGeant4ParticleSourceCosmics::Update() {
                 hist->SetBinContent(i, j, value);
             }
         }
-        hist->Scale(histOriginal->Integral() / hist->Integral());
         fHistogramsTransformed[particleName] = hist;
     }
     auto hist = fHistogramsTransformed.at(particleName);
