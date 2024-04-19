@@ -128,10 +128,10 @@ class TRestGeant4Metadata : public TRestMetadata {
     Long64_t fNRequestedEntries = 0;
 
     /// \brief Time before simulation is ended and saved
-    Int_t fSimulationMaxTimeSeconds = 0;
+    Double_t fSimulationMaxTimeSeconds = 0;
 
     /// \brief The time, in seconds, that the simulation took to complete.
-    Long64_t fSimulationTime = 0;
+    Double_t fSimulationTime = 0;
 
     /// \brief The seed value used for Geant4 random event generator.
     /// If it is zero its value will be assigned using the system timestamp.
@@ -260,7 +260,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
 
-    inline Long64_t GetSimulationTime() const { return fSimulationTime; }
+    inline Double_t GetSimulationTime() const { return fSimulationTime; }
 
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline void SetNumberOfRequestedEntries(Long64_t n) { fNRequestedEntries = n; }
 
-    inline void SetSimulationMaxTimeSeconds(Int_t seconds) { fSimulationMaxTimeSeconds = seconds; }
+    inline void SetSimulationMaxTimeSeconds(Double_t seconds) { fSimulationMaxTimeSeconds = seconds; }
 
     /// Sets the name of the sensitive volume
     inline void InsertSensitiveVolume(const TString& volume) {
@@ -384,7 +384,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
-    void SetSimulationTime(Long64_t time) { fSimulationTime = time; }
+    void SetSimulationTime(Double_t time) { fSimulationTime = time; }
 
     void PrintMetadata() override;
 
@@ -398,7 +398,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
     TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
 
-    ClassDefOverride(TRestGeant4Metadata, 16);
+    ClassDefOverride(TRestGeant4Metadata, 17);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;
