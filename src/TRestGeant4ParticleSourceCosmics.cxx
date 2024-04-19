@@ -21,6 +21,8 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
     fFilename = GetParameter("filename");
     const auto particles = GetParameter("particles", "neutron,proton,gamma,electron,muon");
 
+    fDirection = Get3DVectorParameterWithUnits("direction", {0, -1, 0});
+
     std::istringstream iss(particles);
     std::string name;
     while (std::getline(iss, name, ',')) {
