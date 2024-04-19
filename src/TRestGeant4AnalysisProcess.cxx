@@ -514,10 +514,15 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     }
     SetObservableValue("subEventPrimaryParticleName", subEventPrimaryParticleName);
 
-    TVector3 v(xDirection, yDirection, zDirection);
-    SetObservableValue("thetaPrimary", v.Theta());
-    SetObservableValue("phiPrimary", v.Phi());
+    TVector3 primaryDirection(xDirection, yDirection, zDirection);
+    primaryDirection = primaryDirection.Unit();
+    SetObservableValue("thetaPrimary", primaryDirection.Theta());
+    SetObservableValue("phiPrimary", primaryDirection.Phi());
     SetObservableValue("zenithYDegrees", TMath::ACos(-1 * yDirection) * TMath::RadToDeg());
+    TVector3 sourceDirection = fG4Metadata->GetParticleSource(0)->GetDirection();
+    sourceDirection = sourceDirection.Unit();
+    SetObservableValue("zenithSourceDegrees",
+                       TMath::ACos(primaryDirection.Dot(sourceDirection)) * TMath::RadToDeg());
 
     Double_t energyPrimary = fOutputG4Event->GetPrimaryEventEnergy(0);
     SetObservableValue("energyPrimary", energyPrimary);
