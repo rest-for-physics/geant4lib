@@ -21,6 +21,8 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
     fFilename = GetParameter("filename");
     const auto particles = GetParameter("particles", "neutron,proton,gamma,electron,muon");
 
+    fDirection = Get3DVectorParameterWithUnits("direction", {0, -1, 0});
+
     std::istringstream iss(particles);
     std::string name;
     while (std::getline(iss, name, ',')) {
@@ -84,8 +86,20 @@ void TRestGeant4ParticleSourceCosmics::Update() {
         }
     }
 
-    auto& hist = fHistograms.at(particleName);
-
+    if (fHistogramsTransformed.find(particleName) == fHistogramsTransformed.end()) {
+        auto histOriginal = fHistograms.at(particleName);
+        TH2D* hist = new TH2D(*histOriginal);
+        // same as original but Y axis is multiplied by 1/cos(zenith). Integral should be the same.
+        for (int i = 1; i <= hist->GetNbinsX(); i++) {
+            for (int j = 1; j <= hist->GetNbinsY(); j++) {
+                const double zenith = hist->GetYaxis()->GetBinCenter(j);
+                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith * TMath::DegToRad());
+                hist->SetBinContent(i, j, value);
+            }
+        }
+        fHistogramsTransformed[particleName] = hist;
+    }
+    auto hist = fHistogramsTransformed.at(particleName);
     double energy, zenith;
     hist->GetRandom2(energy, zenith, fRandom.get());
 
