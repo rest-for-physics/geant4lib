@@ -13,7 +13,7 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::map<std::string, double> fParticleWeights;
 
     std::map<std::string, TH2D*> fHistograms;
-    std::map<std::string, TH2D*> fHistogramsTransformed;  //!
+    std::map<std::string, TH2D*> fHistogramsTransformed;
 
     static std::mutex fMutex;
     static std::unique_ptr<TRandom3> fRandom;
@@ -29,7 +29,9 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
 
     const char* GetName() const override { return "TRestGeant4ParticleSourceCosmics"; }
 
-    ClassDefOverride(TRestGeant4ParticleSourceCosmics, 1);
+    std::map<std::string, TH2D*> GetHistogramsTransformed() const { return fHistogramsTransformed; }
+
+    ClassDefOverride(TRestGeant4ParticleSourceCosmics, 2);
 };
 
 #endif  // REST_TRESTGEANT4PARTICLESOURCECOSMICS_H
