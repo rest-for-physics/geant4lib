@@ -44,12 +44,24 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
         exit(1);
     }
     for (const auto& particle : fParticleNames) {
-        auto histogram = file->Get<TH2D>(string(particle + "_energy_zenith").c_str());
-        if (histogram == nullptr) {
+        auto histogramFromFile = file->Get<TH2D>(string(particle + "_energy_zenith").c_str());
+        if (histogramFromFile == nullptr) {
             cerr << "Histogram '" << particle << "' not found in file '" << fFilename << "'." << endl;
             exit(1);
         }
-        fHistograms[particle] = histogram;
+        fHistograms[particle] = new TH2D(*histogramFromFile);
+        const auto& histogram = fHistograms.at(particle);
+        TH2D* hist = new TH2D(*histogram);
+        // same as original but Y axis is multiplied by 1/cos(zenith). Integral is also scaled properly when
+        // computing the time of the simulation.
+        for (int i = 1; i <= hist->GetNbinsX(); i++) {
+            for (int j = 1; j <= hist->GetNbinsY(); j++) {
+                const double zenith = hist->GetYaxis()->GetBinCenter(j);
+                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith * TMath::DegToRad());
+                hist->SetBinContent(i, j, value);
+            }
+        }
+        fHistogramsTransformed[particle] = hist;
     }
 
     double sum = 0;
@@ -64,7 +76,7 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
              << " sampling weight: " << entry.second << endl;
     }
 
-    // TODO: how to safely close the file?
+    // file->Close();
 }
 
 void TRestGeant4ParticleSourceCosmics::Update() {
@@ -88,19 +100,6 @@ void TRestGeant4ParticleSourceCosmics::Update() {
         }
     }
 
-    if (fHistogramsTransformed.find(particleName) == fHistogramsTransformed.end()) {
-        auto histOriginal = fHistograms.at(particleName);
-        TH2D* hist = new TH2D(*histOriginal);
-        // same as original but Y axis is multiplied by 1/cos(zenith). Integral should be the same.
-        for (int i = 1; i <= hist->GetNbinsX(); i++) {
-            for (int j = 1; j <= hist->GetNbinsY(); j++) {
-                const double zenith = hist->GetYaxis()->GetBinCenter(j);
-                const double value = hist->GetBinContent(i, j) / TMath::Cos(zenith * TMath::DegToRad());
-                hist->SetBinContent(i, j, value);
-            }
-        }
-        fHistogramsTransformed[particleName] = hist;
-    }
     auto hist = fHistogramsTransformed.at(particleName);
     double energy, zenith;
     hist->GetRandom2(energy, zenith, fRandom.get());
