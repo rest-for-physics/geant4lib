@@ -21,7 +21,8 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
 
     cout << "TRestGeant4ParticleSourceCosmics::InitFromConfigFile" << endl;
     fFilename = GetParameter("filename");
-    const auto particles = GetParameter("particles", "neutron,proton,gamma,electron,muon");
+    const auto particles =
+        GetParameter("particles", "neutron,proton,gamma,electron_minus,electron_plus,muon_minus,muon_plus");
 
     fDirection = Get3DVectorParameterWithUnits("direction", {0, -1, 0});
 
