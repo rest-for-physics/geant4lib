@@ -511,8 +511,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     string subEventPrimaryParticleName;
     if (fOutputG4Event->GetSubID() != 0) {
         subEventPrimaryParticleName = fOutputG4Event->GetSubEventPrimaryEventParticleName();
-    }
-    else{
+    } else {
         subEventPrimaryParticleName = "generator";
     }
     SetObservableValue("subEventPrimaryParticleName", subEventPrimaryParticleName);
