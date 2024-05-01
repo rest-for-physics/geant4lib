@@ -29,6 +29,7 @@ using namespace std;
 
 void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputFilesDirectory) {
     // TODO: use glob pattern instead of directory. Already tried this but conflicts with TRestTask...
+    TTree::SetMaxTreeSize(500000000000LL);  // 500 GB
 
     cout << "Output file: " << outputFilename << endl;
     // print input
@@ -81,6 +82,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
+        eventTree->SetBasketSize("TRestGeant4EventBranch", 1000000000);  // 1 GB
+
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
             *mergeEvent = *event;
