@@ -82,7 +82,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
-        eventTree->SetBasketSize("TRestGeant4EventBranch", 1000000000);  // 1 GB
+        eventTree->SetBasketSize("TRestGeant4EventBranch", 100000000);  // 100 MB
 
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
