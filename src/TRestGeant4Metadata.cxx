@@ -1104,7 +1104,7 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
         SetFullChain(true);
     }
 
-    TString fullChainStopIsotopesString = GetParameter("fullChainStopIsotopes", sourceDefinition, "");
+    const TString fullChainStopIsotopesString = GetParameter("fullChainStopIsotopes", sourceDefinition, "");
     if (fullChainStopIsotopesString != "") {
         TObjArray* fullChainStopIsotopesArray = fullChainStopIsotopesString.Tokenize(",");
         for (int i = 0; i < fullChainStopIsotopesArray->GetEntries(); i++) {

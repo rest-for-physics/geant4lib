@@ -213,8 +213,14 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns true in case full decay chain simulation is enabled.
     inline Bool_t isFullChainActivated() const { return fFullChain; }
 
-    /// \brief Returns the value of the maximum Geant4 step size in mm for the
-    /// target volume.
+    /// \brief Returns the isotopes that will stop the full chain decay simulation.
+    inline std::set<std::string> GetFullChainStopIsotopes() const { return fFullChainStopIsotopes; }
+
+    inline Bool_t IsIsotopeFullChainStop(const std::string& isotope) const {
+        return fFullChainStopIsotopes.count(isotope) > 0;
+    }
+
+    /// \brief Returns the value of the maximum Geant4 step size in mm for the target volume.
     inline Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
