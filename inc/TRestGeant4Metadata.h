@@ -117,6 +117,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// (fFullChain=true), or just a single decay (fFullChain=false).
     Bool_t fFullChain = true;
 
+    /// \brief If defined, it will stop the full chain decay simulation when one of these isotope appears.
+    std::set<std::string> fFullChainStopIsotopes;
+
     /// \brief The volume that serves as trigger for data storage. Only events that
     /// deposit a non-zero energy on this volume will be registered.
     std::vector<TString> fSensitiveVolumes;
@@ -210,8 +213,14 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Returns true in case full decay chain simulation is enabled.
     inline Bool_t isFullChainActivated() const { return fFullChain; }
 
-    /// \brief Returns the value of the maximum Geant4 step size in mm for the
-    /// target volume.
+    /// \brief Returns the isotopes that will stop the full chain decay simulation.
+    inline std::set<std::string> GetFullChainStopIsotopes() const { return fFullChainStopIsotopes; }
+
+    inline Bool_t IsIsotopeFullChainStop(const std::string& isotope) const {
+        return fFullChainStopIsotopes.count(isotope) > 0;
+    }
+
+    /// \brief Returns the value of the maximum Geant4 step size in mm for the target volume.
     inline Double_t GetMaxTargetStepSize() const { return fMaxTargetStepSize; }
 
     /// \brief Returns the time gap, in us, required to consider a Geant4 hit as a
@@ -242,23 +251,23 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline void SetFullChain(Bool_t fullChain) { fFullChain = fullChain; }
 
     /// It sets the location of the geometry files
-    inline void SetGeometryPath(std::string path) { fGeometryPath = path; }
+    inline void SetGeometryPath(const std::string& path) { fGeometryPath = path; }
 
     /// It sets the main filename to be used for the GDML geometry
-    inline void SetGdmlFilename(std::string gdmlFile) { fGdmlFilename = gdmlFile; }
+    inline void SetGdmlFilename(const std::string& gdmlFile) { fGdmlFilename = gdmlFile; }
 
     /// Returns the reference provided at the GDML file header
-    inline void SetGdmlReference(std::string reference) { fGdmlReference = reference; }
+    inline void SetGdmlReference(const std::string& reference) { fGdmlReference = reference; }
 
     /// Returns the reference provided at the materials file header
-    inline void SetMaterialsReference(std::string reference) { fMaterialsReference = reference; }
+    inline void SetMaterialsReference(const std::string& reference) { fMaterialsReference = reference; }
 
     /// Returns the number of events to be simulated.
     inline Long64_t GetNumberOfEvents() const { return fNEvents; }
 
     inline Long64_t GetNumberOfRequestedEntries() const { return fNRequestedEntries; }
 
-    inline Int_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
+    inline Double_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
 
     inline Double_t GetSimulationTime() const { return fSimulationTime; }
 
@@ -398,7 +407,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
     TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
 
-    ClassDefOverride(TRestGeant4Metadata, 17);
+    ClassDefOverride(TRestGeant4Metadata, 18);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;

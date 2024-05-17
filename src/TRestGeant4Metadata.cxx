@@ -219,7 +219,7 @@
 /// \endcode
 ///
 /// * **cosmic**: This is a special type of generator that is used to simulate cosmic particles.
-/// It takes no parameters. It uses the world size to produce an homogeneous cosmic ray flux (according to
+/// It takes no parameters. It uses the world size to produce an accurate cosmic ray flux (according to
 /// energy and angular distribution, which can be correlated) in the whole world volume. It is recommended to
 /// use this instead of other approaches such as an infinite plane above as this generator will be
 /// significantly more efficient since all particles are directed roughly towards the detector.
@@ -736,6 +736,7 @@
 
 #include <TAxis.h>
 #include <TGeoManager.h>
+#include <TObjString.h>
 #include <TRandom.h>
 #include <TRestGDMLParser.h>
 #include <TRestRun.h>
@@ -1101,6 +1102,15 @@ void TRestGeant4Metadata::ReadParticleSource(TRestGeant4ParticleSource* source, 
     SetFullChain(false);
     if (fullChain.EqualTo("on", TString::ECaseCompare::kIgnoreCase)) {
         SetFullChain(true);
+    }
+
+    const TString fullChainStopIsotopesString = GetParameter("fullChainStopIsotopes", sourceDefinition, "");
+    if (fullChainStopIsotopesString != "") {
+        TObjArray* fullChainStopIsotopesArray = fullChainStopIsotopesString.Tokenize(",");
+        for (int i = 0; i < fullChainStopIsotopesArray->GetEntries(); i++) {
+            TString isotope = ((TObjString*)fullChainStopIsotopesArray->At(i))->String();
+            fFullChainStopIsotopes.insert(isotope.Data());
+        }
     }
 
     // Angular distribution parameters
