@@ -119,6 +119,9 @@ class TRestGeant4Event : public TRestEvent {
     Double_t fTotalDepositedEnergy = 0;
     Double_t fSensitiveVolumeEnergy = 0;
 
+    double fEventTimeWall = 0;
+    double fEventTimeWallPrimaryGeneration = 0;
+
     Int_t fNVolumes;
     std::vector<Int_t> fVolumeStored;
     std::vector<std::string> fVolumeStoredNames;
@@ -149,6 +152,9 @@ class TRestGeant4Event : public TRestEvent {
 
     size_t GetNumberOfHits(Int_t volID = -1) const;
     size_t GetNumberOfPhysicalHits(Int_t volID = -1) const;
+
+    double GetEventTimeWall() const { return fEventTimeWall; }
+    double GetEventTimeWallPrimaryGeneration() const { return fEventTimeWallPrimaryGeneration; }
 
     inline const std::vector<TRestGeant4Track>& GetTracks() const { return fTracks; }
     inline size_t GetNumberOfTracks() const { return fTracks.size(); }
@@ -244,7 +250,7 @@ class TRestGeant4Event : public TRestEvent {
     // Destructor
     virtual ~TRestGeant4Event();
 
-    ClassDefOverride(TRestGeant4Event, 8);  // REST event superclass
+    ClassDefOverride(TRestGeant4Event, 9);  // REST event superclass
 
     // restG4
    public:
