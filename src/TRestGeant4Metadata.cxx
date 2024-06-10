@@ -856,6 +856,9 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
     fNEvents = nEventsString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(nEventsString);
 
+    fStoreTracks = ToUpper(GetParameter("storeTracks", "true")) == "TRUE" ||
+                   ToUpper(GetParameter("storeTracks", "on")) == "ON";
+
     const auto fNRequestedEntriesString = GetParameter("nRequestedEntries");
     fNRequestedEntries =
         fNRequestedEntriesString == PARAMETER_NOT_FOUND_STR ? 0 : StringToInteger(fNRequestedEntriesString);
@@ -1647,6 +1650,7 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fSensitiveVolumes = metadata.fSensitiveVolumes;
     fNEvents = metadata.fNEvents;
     fNRequestedEntries = metadata.fNRequestedEntries;
+    fStoreTracks = metadata.fStoreTracks;
     fSimulationMaxTimeSeconds = metadata.fSimulationMaxTimeSeconds;
     fSeed = metadata.fSeed;
     fSaveAllEvents = metadata.fSaveAllEvents;

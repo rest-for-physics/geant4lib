@@ -153,6 +153,9 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief If activated will remove tracks not present in volumes marked as "keep" or "sensitive".
     Bool_t fRemoveUnwantedTracks = false;
 
+    /// \brief Store event tracks (default is true)
+    Bool_t fStoreTracks = false;
+
     /// \brief Option for 'removeUnwantedTracks', if enabled tracks with hits in volumes will be kept event if
     /// they deposit zero energy (such as neutron captures)
     Bool_t fRemoveUnwantedTracksKeepZeroEnergyTracks = false;
@@ -380,6 +383,8 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline bool GetRemoveUnwantedTracks() const { return fRemoveUnwantedTracks; }
 
+    bool GetStoreTracks() const { return fStoreTracks; }
+
     inline bool GetRemoveUnwantedTracksKeepZeroEnergyTracks() const {
         return fRemoveUnwantedTracksKeepZeroEnergyTracks;
     }
@@ -407,7 +412,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
     TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
 
-    ClassDefOverride(TRestGeant4Metadata, 18);
+    ClassDefOverride(TRestGeant4Metadata, 19);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;

@@ -186,6 +186,8 @@ class TRestGeant4Event : public TRestEvent {
         return energyMap[volumeName];
     }
 
+    inline void ClearTracks() { fTracks.clear(); }
+
     TRestHits GetHits(Int_t volID = -1) const;
     inline TRestHits GetHitsInVolume(Int_t volID) const { return GetHits(volID); }
 
