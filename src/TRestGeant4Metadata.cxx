@@ -1584,7 +1584,7 @@ double TRestGeant4Metadata::GetGeneratorSurfaceCm2() const {
 
     if (type == "surface" && shape == "circle") {
         const auto radius = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorSize().X();
-        return TMath::Pi() * radius * radius;
+        return TMath::Pi() * radius * radius * 0.01;  // cm2
     }
     if (type == "cosmic") {
         return fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
