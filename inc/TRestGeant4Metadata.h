@@ -372,6 +372,8 @@ class TRestGeant4Metadata : public TRestMetadata {
         return result;
     }
 
+    double GetGeneratorSurfaceCm2() const;
+    
     Double_t GetCosmicFluxInCountsPerCm2PerSecond() const;
     Double_t GetCosmicIntensityInCountsPerSecond() const;
     Double_t GetEquivalentSimulatedTime() const;

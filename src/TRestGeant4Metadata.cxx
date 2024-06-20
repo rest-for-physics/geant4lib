@@ -924,44 +924,54 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 ///
 
 Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
-    if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
-            fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
-        TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
-        RESTError
-            << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'cosmic' generator"
-            << RESTendl;
-        exit(1);
-    }
     const auto source = GetParticleSource();
+
+    double countsPerSecondPerCm2 = 0;
     if (TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
-            source->GetEnergyDistributionType().Data()) !=
-        TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypes::FORMULA2) {
-        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula2' "
-                     "energy distribution"
-                  << RESTendl;
-        exit(1);
-    }
-    if (TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
-            source->GetAngularDistributionType().Data()) !=
-        TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::FORMULA2) {
-        RESTError << "TRestGeant4Metadata::GetEquivalentSimulatedTime can only be called for 'formula' "
-                     "angular distribution"
-                  << RESTendl;
-        exit(1);
+            source->GetEnergyDistributionType().Data()) ==
+            TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypes::FORMULA2 &&
+        TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+            source->GetAngularDistributionType().Data()) ==
+            TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::FORMULA2) {
+        const auto energyRange = source->GetEnergyDistributionRange();
+        const auto angularRange = source->GetAngularDistributionRange();
+        auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
+        // counts per second per cm2 (distribution is already integrated over uniform phi)
+        countsPerSecondPerCm2 =
+            function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y(), 1E-9);
     }
 
-    const auto energyRange = source->GetEnergyDistributionRange();
-    const auto angularRange = source->GetAngularDistributionRange();
-    auto function = (TF2*)source->GetEnergyAndAngularDistributionFunction()->Clone();
-    // counts per second per cm2 (distribution is already integrated over uniform phi)
-    const auto countsPerSecondPerCm2 =
-        function->Integral(energyRange.X(), energyRange.Y(), angularRange.X(), angularRange.Y(), 1E-9);
+    else if (std::string(source->GetName()) == "TRestGeant4ParticleSourceCosmics") {
+        auto cosmicSource = dynamic_cast<TRestGeant4ParticleSourceCosmics*>(source);
+        const auto names = cosmicSource->GetParticleNames();
+        const auto histograms = cosmicSource->GetHistogramsTransformed();
+        for (const auto& name : names) {
+            countsPerSecondPerCm2 += histograms.at(name)->Integral();
+        }
+    } else if (TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionTypes(
+                   source->GetEnergyDistributionType().Data()) ==
+                   TRestGeant4PrimaryGeneratorTypes::EnergyDistributionTypes::TH2D &&
+               TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+                   source->GetAngularDistributionType().Data()) ==
+                   TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::TH2D) {
+        if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
+                fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
+            TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
+            throw std::runtime_error(
+                "Cosmic flux calculation is only supported for COSMIC spatial generator");
+        }
+    }
+
+    else {
+        throw std::runtime_error("Cosmic flux calculation is only supported for TFormula2 or TH2D sources");
+    }
+
     return countsPerSecondPerCm2;
 }
 
 Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
     const auto countsPerSecondPerCm2 = GetCosmicFluxInCountsPerCm2PerSecond();
-    const auto surface = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
+    const auto surface = GetGeneratorSurfaceCm2();
     const auto countsPerSecond = countsPerSecondPerCm2 * surface;
     return countsPerSecond;
 }
@@ -1568,13 +1578,33 @@ void TRestGeant4Metadata::SetActiveVolume(const TString& name, Double_t chance, 
     fActiveVolumesSet.insert(name.Data());
 }
 
+double TRestGeant4Metadata::GetGeneratorSurfaceCm2() const {
+    const auto type = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType());
+    const auto shape = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorShape());
+
+    if (type == "surface" && shape == "circle") {
+        const auto radius = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorSize().X();
+        return TMath::Pi() * radius * radius;
+    }
+    if (type == "cosmic") {
+        return fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
+    }
+
+    throw std::runtime_error(
+        "TRestGeant4Metadata::GetGeneratorSurfaceCm2: Can only be called for 'cosmic' and 'surface/circle' "
+        "generators");
+}
+
 ///////////////////////////////////////////////
 /// \brief Returns true if the volume named *volName* has been registered for
 /// data storage.
 ///
 Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
-    for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++)
-        if (GetActiveVolumeName(n) == volume) return true;
+    for (auto n = 0; n < GetNumberOfActiveVolumes(); n++) {
+        if (GetActiveVolumeName(n) == volume) {
+            return true;
+        }
+    }
 
     return false;
 }
@@ -1583,9 +1613,12 @@ Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
 /// \brief Returns the probability of an active volume being stored
 ///
 Double_t TRestGeant4Metadata::GetStorageChance(const TString& volume) {
-    Int_t id;
-    for (id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
-        if (fActiveVolumes[id] == volume) return fChance[id];
+    for (auto id = 0; id < (Int_t)fActiveVolumes.size(); id++) {
+        {
+            if (fActiveVolumes[id] == volume) {
+                return fChance[id];
+            }
+        }
     }
     RESTWarning << "TRestGeant4Metadata::GetStorageChance. Volume " << volume << " not found" << RESTendl;
 
@@ -1627,7 +1660,9 @@ void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
     fSimulationTime += metadata.fSimulationTime;
 }
 
-TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) { *this = metadata; }
+TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) : TRestMetadata(metadata) {
+    *this = metadata;
+}
 
 TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
     fIsMerge = metadata.fIsMerge;
