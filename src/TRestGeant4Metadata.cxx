@@ -1600,7 +1600,7 @@ double TRestGeant4Metadata::GetGeneratorSurfaceCm2() const {
 /// data storage.
 ///
 Bool_t TRestGeant4Metadata::isVolumeStored(const TString& volume) const {
-    for (auto n = 0; n < GetNumberOfActiveVolumes(); n++) {
+    for (unsigned int n = 0; n < GetNumberOfActiveVolumes(); n++) {
         if (GetActiveVolumeName(n) == volume) {
             return true;
         }
