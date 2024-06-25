@@ -30,6 +30,7 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     const char* GetName() const override { return "TRestGeant4ParticleSourceCosmics"; }
 
     std::map<std::string, TH2D*> GetHistogramsTransformed() const { return fHistogramsTransformed; }
+    std::set<std::string> GetParticleNames() const { return fParticleNames; }
 
     ClassDefOverride(TRestGeant4ParticleSourceCosmics, 2);
 };
