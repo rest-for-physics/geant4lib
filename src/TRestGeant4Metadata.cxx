@@ -954,12 +954,17 @@ Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
                TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
                    source->GetAngularDistributionType().Data()) ==
                    TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::TH2D) {
-        if (TRestGeant4PrimaryGeneratorTypes::StringToSpatialGeneratorTypes(
-                fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType().Data()) !=
-            TRestGeant4PrimaryGeneratorTypes::SpatialGeneratorTypes::COSMIC) {
-            throw std::runtime_error(
-                "Cosmic flux calculation is only supported for COSMIC spatial generator");
+        const auto filename = source->GetEnergyDistributionFilename();
+        const auto name = source->GetEnergyDistributionNameInFile();
+        TFile* file = TFile::Open(filename);
+        auto energyAndAngularDistributionHistogram =
+            file->Get<TH2D>(name);  // it's the same for both angular and energy
+        if (energyAndAngularDistributionHistogram == nullptr) {
+            throw std::runtime_error("Histogram not found in file");
         }
+        countsPerSecondPerCm2 = energyAndAngularDistributionHistogram->Integral();
+        file->Close();
+        delete file;
     }
 
     else {
@@ -1586,7 +1591,7 @@ double TRestGeant4Metadata::GetGeneratorSurfaceCm2() const {
         const auto radius = fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorSize().X();
         return TMath::Pi() * radius * radius * 0.01;  // cm2
     }
-    if (type == "cosmic") {
+    else if (type == "cosmic") {
         return fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorCosmicSurfaceTermCm2();
     }
 
