@@ -2,7 +2,8 @@ set_library_version(LibraryVersion)
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_DECAY0} MATCHES "ON")
-    add_definitions(-DUSE_Decay0) # https://github.com/rest-for-physics/framework/issues/6
+    add_definitions(-DUSE_Decay0
+    )# https://github.com/rest-for-physics/framework/issues/6
 
     execute_process(
         COMMAND bxdecay0-config --version
