@@ -164,8 +164,8 @@ class TRestGeant4PrimaryGeneratorInfo {
 
     /// \brief Returns cosmic surface term (cm2) for simulation time computation
     inline Double_t GetSpatialGeneratorCosmicSurfaceTermCm2() const {
-        const auto radius = GetSpatialGeneratorCosmicRadius() / 10.;
-        return M_PI * radius * radius;
+        const auto radius = GetSpatialGeneratorCosmicRadius();
+        return M_PI * radius * radius * 0.01;  // cm2
     }
 
     /// \brief Returns the density function of the generator
