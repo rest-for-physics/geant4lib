@@ -2,16 +2,7 @@ set_library_version(LibraryVersion)
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_DECAY0} MATCHES "ON")
-    add_definitions(-DUSE_Decay0)
-    # TODO Issue #6 at rest-framework
-    # ----------------------------------------------------------------------------
-    # Find package Decay0 and ROOT find_package(BxDecay0 1.0.9 CONFIG COMPONENTS
-    # manager REQUIRED)
-    #
-    # find_package was not working properly for me in 1.0.9. So I was using
-    # bxdecay0-config. But in case Decay0 flag is enabled and we do not have a
-    # bxdecay0 installation we might run into problems
-    #
+    add_definitions(-DUSE_Decay0) # https://github.com/rest-for-physics/framework/issues/6
 
     execute_process(
         COMMAND bxdecay0-config --version
