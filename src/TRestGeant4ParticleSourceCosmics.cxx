@@ -10,8 +10,17 @@ mutex TRestGeant4ParticleSourceCosmics::fMutex;
 unique_ptr<TRandom3> TRestGeant4ParticleSourceCosmics::fRandom = nullptr;
 
 const map<string, string> geant4ParticleNames = {
-    {"neutron", "neutron"},  {"proton", "proton"},  {"gamma", "gamma"},   {"electron_minus", "e-"},
-    {"electron_plus", "e+"}, {"muon_minus", "mu-"}, {"muon_plus", "mu+"},
+    {"neutron", "neutron"},
+    {"proton", "proton"},
+    {"gamma", "gamma"},
+    {"electron_minus", "e-"},
+    {"electron_plus", "e+"},
+    {"muon_minus", "mu-"},
+    {"muon_plus", "mu+"},
+    //
+    {"neutron_below_1MeV", "neutron"},
+    {"neutron_above_10GeV", "neutron"},
+    {"neutron_between_1MeV_and_10GeV", "neutron"},
 };
 
 TRestGeant4ParticleSourceCosmics::TRestGeant4ParticleSourceCosmics() = default;
