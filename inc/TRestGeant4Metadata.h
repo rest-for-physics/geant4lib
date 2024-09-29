@@ -133,7 +133,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// \brief Time before simulation is ended and saved
     Double_t fSimulationMaxTimeSeconds = 0;
 
-    /// \brief The time, in seconds, that the simulation took to complete.
+    /// \brief The time, in seconds, that the simulation took to complete (wall time)
     Double_t fSimulationTime = 0;
 
     /// \brief The seed value used for Geant4 random event generator.
@@ -152,6 +152,9 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief If activated will remove tracks not present in volumes marked as "keep" or "sensitive".
     Bool_t fRemoveUnwantedTracks = false;
+
+    /// \brief Store event tracks (default is true)
+    Bool_t fStoreTracks = false;
 
     /// \brief Option for 'removeUnwantedTracks', if enabled tracks with hits in volumes will be kept event if
     /// they deposit zero energy (such as neutron captures)
@@ -269,8 +272,6 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     inline Double_t GetSimulationMaxTimeSeconds() const { return fSimulationMaxTimeSeconds; }
 
-    inline Double_t GetSimulationTime() const { return fSimulationTime; }
-
     // Direct access to sources definition in primary generator
     ///////////////////////////////////////////////////////////
     /// Returns the number of primary event sources defined in the generator.
@@ -369,9 +370,16 @@ class TRestGeant4Metadata : public TRestMetadata {
         return result;
     }
 
+    double GetGeneratorSurfaceCm2() const;
+
     Double_t GetCosmicFluxInCountsPerCm2PerSecond() const;
     Double_t GetCosmicIntensityInCountsPerSecond() const;
+
+    /// Returns the equivalent simulated time in seconds (physical time simulated)
     Double_t GetEquivalentSimulatedTime() const;
+
+    /// Returns the total time of the simulation in seconds (wall time)
+    inline Double_t GetSimulationWallTime() const { return fSimulationTime; }
 
     /// Returns a std::string with the name of the active volume with index n
     inline TString GetActiveVolumeName(Int_t n) const { return fActiveVolumes[n]; }
@@ -379,6 +387,8 @@ class TRestGeant4Metadata : public TRestMetadata {
     inline std::vector<TString> GetActiveVolumes() const { return fActiveVolumes; }
 
     inline bool GetRemoveUnwantedTracks() const { return fRemoveUnwantedTracks; }
+
+    bool GetStoreTracks() const { return fStoreTracks; }
 
     inline bool GetRemoveUnwantedTracksKeepZeroEnergyTracks() const {
         return fRemoveUnwantedTracksKeepZeroEnergyTracks;
@@ -393,7 +403,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     void SetActiveVolume(const TString& name, Double_t chance, Double_t maxStep = 0);
 
-    void SetSimulationTime(Double_t time) { fSimulationTime = time; }
+    void SetSimulationWallTime(Double_t time) { fSimulationTime = time; }
 
     void PrintMetadata() override;
 
@@ -407,7 +417,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
     TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
 
-    ClassDefOverride(TRestGeant4Metadata, 18);
+    ClassDefOverride(TRestGeant4Metadata, 19);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;

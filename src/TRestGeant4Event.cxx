@@ -181,9 +181,11 @@ TVector3 TRestGeant4Event::GetFirstPositionInVolume(Int_t volID) const {
 /// \param volID Int_t specifying volume ID
 ///
 TVector3 TRestGeant4Event::GetLastPositionInVolume(Int_t volID) const {
-    for (int t = GetNumberOfTracks() - 1; t >= 0; t--)
-        if (GetTrack(t).GetEnergyInVolume(volID) > 0) return GetTrack(t).GetLastPositionInVolume(volID);
-
+    for (int t = GetNumberOfTracks() - 1; t >= 0; t--) {
+        if (GetTrack(t).GetEnergyInVolume(volID) > 0) {
+            return GetTrack(t).GetLastPositionInVolume(volID);
+        }
+    }
     Double_t nan = TMath::QuietNaN();
     return {nan, nan, nan};
 }

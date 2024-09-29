@@ -50,15 +50,15 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     // open the first file
     TRestGeant4Metadata mergeMetadata;
 
-    auto mergeRun = new TRestRun();
-    mergeRun->SetName("run");
-    mergeRun->SetOutputFileName(outputFilename);
-    mergeRun->FormOutputFile();
-    mergeRun->GetOutputFile()->cd();
-    mergeRun->SetRunType("restG4");
+    TRestRun mergeRun;
+    mergeRun.SetName("run");
+    mergeRun.SetOutputFileName(outputFilename);
+    mergeRun.FormOutputFile();
+    mergeRun.GetOutputFile()->cd();
+    mergeRun.SetRunType("restG4");
 
     TRestGeant4Event* mergeEvent = nullptr;
-    auto mergeEventTree = mergeRun->GetEventTree();
+    auto mergeEventTree = mergeRun.GetEventTree();
     mergeEventTree->Branch("TRestGeant4EventBranch", "TRestGeant4Event", &mergeEvent);
 
     set<Int_t> eventIds;  // std::set is sorted from lower to higher automatically
@@ -71,8 +71,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
         map<Int_t, Int_t>
             eventIdUpdates;  // repeatedId -> newId. Make sure if there are repeated event ids in a file
                              // (because of sub-events) they keep the same event id after modification
-        auto run = TRestRun(inputFiles[i].c_str());
-        auto metadata = (TRestGeant4Metadata*)run.GetMetadataClass("TRestGeant4Metadata");
+        TRestRun run(inputFiles[i].c_str());
+        auto metadata = dynamic_cast<TRestGeant4Metadata*>(run.GetMetadataClass("TRestGeant4Metadata"));
         if (i == 0) {
             mergeMetadata = *metadata;
         } else {
@@ -106,23 +106,23 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
             eventIds.insert(mergeEvent->GetID());
 
             mergeEventTree->Fill();
-            mergeRun->GetAnalysisTree()->Fill();
+            mergeRun.GetAnalysisTree()->Fill();
 
             eventCounter++;
         }
     }
 
-    cout << "Output filename: " << mergeRun->GetOutputFileName() << endl;
-    cout << "Output file: " << mergeRun->GetOutputFile() << endl;
+    cout << "Output filename: " << mergeRun.GetOutputFileName() << endl;
+    cout << "Output file: " << mergeRun.GetOutputFile() << endl;
 
-    mergeRun->GetOutputFile()->cd();
+    mergeRun.GetOutputFile()->cd();
 
     gGeoManager->Write("Geometry", TObject::kOverwrite);
 
     mergeMetadata.SetName("geant4Metadata");
     mergeMetadata.Write();
-    mergeRun->UpdateOutputFile();
-    mergeRun->CloseFile();
+    mergeRun.UpdateOutputFile();
+    mergeRun.CloseFile();
 
     // Open the file again to check the number of events
     TRestRun runCheck(outputFilename);
