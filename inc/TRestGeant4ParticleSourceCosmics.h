@@ -36,12 +36,7 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::map<std::string, TH2D*> GetHistogramsTransformed() const { return fHistogramsTransformed; }
     std::set<std::string> GetParticleNames() const { return fParticleNames; }
 
-    double GetEnergyRangeScalingFactor() const {
-        if (fCounterEnergyTotal == 0) {
-            return 1;
-        }
-        return fCounterEnergyAccepted / fCounterEnergyTotal;
-    }
+    double GetEnergyRangeScalingFactor() const;
 
     ClassDefOverride(TRestGeant4ParticleSourceCosmics, 3);
 };

@@ -40,6 +40,8 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
     } else {
         fEnergyRange = {energy.X(), energy.Y()};
     }
+    // convert energy to MeV
+    fEnergyRange = {fEnergyRange.first / 1000, fEnergyRange.second / 1000};
 
     fDirection = Get3DVectorParameterWithUnits("direction", {0, -1, 0});
 
@@ -121,16 +123,23 @@ void TRestGeant4ParticleSourceCosmics::Update() {
     auto hist = fHistogramsTransformed.at(particleName);
 
     double energy, zenith;
-    if (fEnergyRange.first == fEnergyRange.second == 0) {
+    if (abs(fEnergyRange.first - fEnergyRange.second) <
+        1e-12) {  // user has not defined a range TODO: improve how we check for this...
         hist->GetRandom2(energy, zenith, fRandom.get());
     } else {
         // attempt to get a value in range, then use the counters to update simulation time
         while (true) {
             hist->GetRandom2(energy, zenith, fRandom.get());
-            fCounterEnergyTotal++;
+            // check counter does not overflow. If counter is at limit, stop updating it, we should have
+            // enough stats by now
+            if (fCounterEnergyTotal < std::numeric_limits<unsigned long long>::max()) {
+                fCounterEnergyTotal++;
+            }
 
             if (energy >= fEnergyRange.first && energy <= fEnergyRange.second) {
-                fCounterEnergyAccepted++;
+                if (fCounterEnergyTotal < std::numeric_limits<unsigned long long>::max()) {
+                    fCounterEnergyAccepted++;
+                }
                 break;
             }
         }
@@ -158,4 +167,18 @@ void TRestGeant4ParticleSourceCosmics::Update() {
 void TRestGeant4ParticleSourceCosmics::SetSeed(unsigned int seed) {
     cout << "TRestGeant4ParticleSourceCosmics::SetSeed: " << seed << endl;
     fRandom = std::make_unique<TRandom3>(seed);
+}
+
+double TRestGeant4ParticleSourceCosmics::GetEnergyRangeScalingFactor() const {
+    if (fCounterEnergyTotal == 0) {
+        return 1;
+    }
+
+    if (fParticleNames.size() > 1) {
+        throw std::runtime_error(
+            "TRestGeant4ParticleSourceCosmics::GetEnergyRangeScalingFactor is not implemented for multiple "
+            "particles.");
+    }
+
+    return fCounterEnergyAccepted / fCounterEnergyTotal;
 }
