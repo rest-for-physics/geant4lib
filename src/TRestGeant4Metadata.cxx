@@ -982,14 +982,10 @@ Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
 }
 
 Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
-    const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond();
-    const auto seconds = double(fNEvents) / countsPerSecond;
-
-    double scalingFactor = 1.0;
-
     const auto type = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType());
     const auto shape = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorShape());
 
+    double scalingFactor = 1.0;
     if (type == "cosmic") {
         // get the cosmic generator
         auto cosmicSource = dynamic_cast<TRestGeant4ParticleSourceCosmics*>(GetParticleSource());
@@ -1001,7 +997,11 @@ Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
                                                           // vs full range of the hist (is 1 if full range)
     }
 
-    return seconds * scalingFactor;
+    // counts per seconds should be reduced proportionally to the range we are sampling
+    const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond() * scalingFactor;
+    const auto seconds = double(fNEvents) / countsPerSecond;
+
+    return seconds;
 }
 
 void TRestGeant4Metadata::ReadBiasing() {

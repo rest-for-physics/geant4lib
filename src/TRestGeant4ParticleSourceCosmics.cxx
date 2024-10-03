@@ -180,5 +180,5 @@ double TRestGeant4ParticleSourceCosmics::GetEnergyRangeScalingFactor() const {
             "particles.");
     }
 
-    return fCounterEnergyAccepted / fCounterEnergyTotal;
+    return double(fCounterEnergyAccepted) / double(fCounterEnergyTotal);
 }
