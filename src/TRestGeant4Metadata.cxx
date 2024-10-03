@@ -983,18 +983,19 @@ Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
 
 Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     const auto type = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType());
-    const auto shape = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorShape());
 
     double scalingFactor = 1.0;
     if (type == "cosmic") {
         // get the cosmic generator
         auto cosmicSource = dynamic_cast<TRestGeant4ParticleSourceCosmics*>(GetParticleSource());
-        if (cosmicSource == nullptr) {
-            throw std::runtime_error("Cosmic source not found");
+        if (cosmicSource != nullptr) {
+            scalingFactor =
+                cosmicSource
+                    ->GetEnergyRangeScalingFactor();  // number less than 1, to account for energy range
+            if (scalingFactor < 0 || scalingFactor > 1) {
+                throw std::runtime_error("Energy range scaling factor must be between 0 and 1");
+            }
         }
-        scalingFactor =
-            cosmicSource->GetEnergyRangeScalingFactor();  // number less than 1, to account for energy range
-                                                          // vs full range of the hist (is 1 if full range)
     }
 
     // counts per seconds should be reduced proportionally to the range we are sampling
