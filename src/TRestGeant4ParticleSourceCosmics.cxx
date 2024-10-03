@@ -33,6 +33,14 @@ void TRestGeant4ParticleSourceCosmics::InitFromConfigFile() {
     const auto particles =
         GetParameter("particles", "neutron,proton,gamma,electron_minus,electron_plus,muon_minus,muon_plus");
 
+    const TVector2 energy = Get2DVectorParameterWithUnits("energy", {0, 0});
+    // sort it so that the lower energy is first
+    if (energy.X() > energy.Y()) {
+        fEnergyRange = {energy.Y(), energy.X()};
+    } else {
+        fEnergyRange = {energy.X(), energy.Y()};
+    }
+
     fDirection = Get3DVectorParameterWithUnits("direction", {0, -1, 0});
 
     std::istringstream iss(particles);
@@ -111,8 +119,22 @@ void TRestGeant4ParticleSourceCosmics::Update() {
     }
 
     auto hist = fHistogramsTransformed.at(particleName);
+
     double energy, zenith;
-    hist->GetRandom2(energy, zenith, fRandom.get());
+    if (fEnergyRange.first == fEnergyRange.second == 0) {
+        hist->GetRandom2(energy, zenith, fRandom.get());
+    } else {
+        // attempt to get a value in range, then use the counters to update simulation time
+        while (true) {
+            hist->GetRandom2(energy, zenith, fRandom.get());
+            fCounterEnergyTotal++;
+
+            if (energy >= fEnergyRange.first && energy <= fEnergyRange.second) {
+                fCounterEnergyAccepted++;
+                break;
+            }
+        }
+    }
 
     particleName = geant4ParticleNames.at(particleName);
 

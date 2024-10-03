@@ -984,7 +984,24 @@ Double_t TRestGeant4Metadata::GetCosmicIntensityInCountsPerSecond() const {
 Double_t TRestGeant4Metadata::GetEquivalentSimulatedTime() const {
     const auto countsPerSecond = GetCosmicIntensityInCountsPerSecond();
     const auto seconds = double(fNEvents) / countsPerSecond;
-    return seconds;
+
+    double scalingFactor = 1.0;
+
+    const auto type = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorType());
+    const auto shape = ToLower(fGeant4PrimaryGeneratorInfo.GetSpatialGeneratorShape());
+
+    if (type == "cosmic") {
+        // get the cosmic generator
+        auto cosmicSource = dynamic_cast<TRestGeant4ParticleSourceCosmics*>(GetParticleSource());
+        if (cosmicSource == nullptr) {
+            throw std::runtime_error("Cosmic source not found");
+        }
+        scalingFactor =
+            cosmicSource->GetEnergyRangeScalingFactor();  // number less than 1, to account for energy range
+                                                          // vs full range of the hist (is 1 if full range)
+    }
+
+    return seconds * scalingFactor;
 }
 
 void TRestGeant4Metadata::ReadBiasing() {

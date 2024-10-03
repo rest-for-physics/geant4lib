@@ -11,6 +11,10 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::set<std::string> fParticleNames;
     std::string fFilename;
     std::map<std::string, double> fParticleWeights;
+    std::pair<double, double> fEnergyRange = {0, 0};
+
+    unsigned long long fCounterEnergyTotal = 0;
+    unsigned long long fCounterEnergyAccepted = 0;
 
     std::map<std::string, TH2D*> fHistograms;
     std::map<std::string, TH2D*> fHistogramsTransformed;
@@ -32,7 +36,14 @@ class TRestGeant4ParticleSourceCosmics : public TRestGeant4ParticleSource {
     std::map<std::string, TH2D*> GetHistogramsTransformed() const { return fHistogramsTransformed; }
     std::set<std::string> GetParticleNames() const { return fParticleNames; }
 
-    ClassDefOverride(TRestGeant4ParticleSourceCosmics, 2);
+    double GetEnergyRangeScalingFactor() const {
+        if (fCounterEnergyTotal == 0) {
+            return 1;
+        }
+        return fCounterEnergyAccepted / fCounterEnergyTotal;
+    }
+
+    ClassDefOverride(TRestGeant4ParticleSourceCosmics, 3);
 };
 
 #endif  // REST_TRESTGEANT4PARTICLESOURCECOSMICS_H
