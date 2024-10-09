@@ -118,10 +118,11 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         << (GetParentTrack() != nullptr
                 ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
                 : "")
-        << " - Created by '" << fCreatorProcess
-        << "' with initial "
-           "KE of "
-        << ToEnergyString(fInitialKineticEnergy) << "" << endl;
+        << " - Created by '" << fCreatorProcess << "' in volume '" << GetInitialVolume()
+        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << " - Initial position "
+        << VectorToString(fInitialPosition) << " mm at time " << ToTimeString(fGlobalTimestamp)
+        << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
+        << ToLengthString(fLength) << endl;
 
     cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
          << ToTimeString(fGlobalTimestamp) << " - Time length of " << ToTimeString(fTimeLength)
@@ -148,6 +149,65 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         if (volumeName.IsNull()) {
             // in case process name is not found, use ID
             volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
+        }
+        cout << "      - Hit " << i << " - Energy: " << ToEnergyString(fHits.GetEnergy(i))
+             << " - Process: " << processName << " - Volume: " << volumeName
+             << " - Position: " << VectorToString(TVector3(fHits.GetX(i), fHits.GetY(i), fHits.GetZ(i)))
+             << " mm - Time: " << ToTimeString(fHits.GetTime(i))
+             << " - KE: " << ToEnergyString(fHits.GetKineticEnergy(i)) << endl;
+    }
+}
+
+void TRestGeant4Track::PrintTrackFilterVolumes(const std::set<std::string>& volumeNames) const {
+    const TRestGeant4Metadata* metadata = GetGeant4Metadata();
+    if (metadata == nullptr) {
+        return;
+    }
+    bool skip = true;
+    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+        // check volumeName is in set
+        TString volumeName = metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
+        if (volumeName.IsNull()) {
+            // in case process name is not found, use ID
+            volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
+        }
+        if (volumeNames.find(volumeName.Data()) != volumeNames.end()) {
+            skip = false;
+            break;
+        }
+    }
+
+    if (skip) {
+        return;
+    }
+
+    cout
+        << " * TrackID: " << fTrackID << " - Particle: " << fParticleName << " - ParentID: " << fParentID
+        << ""
+        << (GetParentTrack() != nullptr
+                ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
+                : "")
+        << " - Created by '" << fCreatorProcess << "' in volume '" << GetInitialVolume()
+        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << " - Initial position "
+        << VectorToString(fInitialPosition) << " mm at time " << ToTimeString(fGlobalTimestamp)
+        << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
+        << ToLengthString(fLength) << endl;
+
+    size_t nHits = GetNumberOfHits();
+    for (unsigned int i = 0; i < nHits; i++) {
+        TString processName = GetProcessName(fHits.GetHitProcess(i));
+        if (processName.IsNull()) {
+            processName =
+                TString(std::to_string(fHits.GetHitProcess(i)));  // in case process name is not found, use ID
+        }
+
+        TString volumeName = metadata->GetGeant4GeometryInfo().GetVolumeFromID(fHits.GetHitVolume(i));
+        if (volumeName.IsNull()) {
+            // in case process name is not found, use ID
+            volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
+        }
+        if (volumeNames.find(volumeName.Data()) == volumeNames.end()) {
+            continue;
         }
         cout << "      - Hit " << i << " - Energy: " << ToEnergyString(fHits.GetEnergy(i))
              << " - Process: " << processName << " - Volume: " << volumeName
