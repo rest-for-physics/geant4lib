@@ -193,7 +193,8 @@ void TRestGeant4Track::PrintTrackFilterVolumes(const std::set<std::string>& volu
         << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
         << ToLengthString(fLength) << endl;
 
-    for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
+    size_t nHits = GetNumberOfHits();
+    for (unsigned int i = 0; i < nHits; i++) {
         TString processName = GetProcessName(fHits.GetHitProcess(i));
         if (processName.IsNull()) {
             processName =

@@ -1187,7 +1187,8 @@ void TRestGeant4Event::PrintEventFilterVolumes(const std::set<std::string>& volu
     cout << endl;
     cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
 
-    for (int i = 0; i < GetNumberOfTracks(); i++) {
+    int nTracks = GetNumberOfTracks();
+    for (int i = 0; i < nTracks; i++) {
         GetTrack(i).PrintTrackFilterVolumes(volumeNames);
     }
 }
