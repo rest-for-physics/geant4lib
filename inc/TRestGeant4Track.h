@@ -124,6 +124,7 @@ class TRestGeant4Track {
 
     /// Prints the track information. N number of hits to print, 0 = all
     void PrintTrack(size_t maxHits = 0) const;
+    void PrintTrackFilterVolumes(const std::set<std::string>& filterVolumes) const;
 
     inline void RemoveHits() { fHits.RemoveHits(); }
 

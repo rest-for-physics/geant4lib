@@ -242,6 +242,7 @@ class TRestGeant4Event : public TRestEvent {
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;
     void PrintEvent(int maxTracks = 0, int maxHits = 0) const;
+    void PrintEventFilterVolumes(const std::set<std::string>& volumeNames) const;
 
     inline TPad* DrawEvent(const TString& option = "") override { return DrawEvent(option, true); }
     TPad* DrawEvent(const TString& option, Bool_t autoBoundaries);

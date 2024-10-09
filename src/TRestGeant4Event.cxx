@@ -1166,6 +1166,32 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     }
 }
 
+void TRestGeant4Event::PrintEventFilterVolumes(const std::set<std::string>& volumeNames) const {
+    TRestEvent::PrintEvent();
+
+    cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
+    cout << "- Sensitive detectors total energy: " << ToEnergyString(fSensitiveVolumeEnergy) << endl;
+
+    cout << "- Primary source position: " << VectorToString(fPrimaryPosition) << " mm" << endl;
+
+    for (unsigned int i = 0; i < GetNumberOfPrimaries(); i++) {
+        const char* sourceNumberString =
+            GetNumberOfPrimaries() <= 1 ? ""
+                                        : TString::Format(" %d of %zu", i + 1, GetNumberOfPrimaries()).Data();
+        cout << "   - Source" << sourceNumberString << " primary particle: " << fPrimaryParticleNames[i]
+             << endl;
+        cout << "     Direction: " << VectorToString(fPrimaryDirections[i]) << endl;
+        cout << "     Energy: " << ToEnergyString(fPrimaryEnergies[i]) << endl;
+    }
+
+    cout << endl;
+    cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
+
+    for (int i = 0; i < GetNumberOfTracks(); i++) {
+        GetTrack(i).PrintTrackFilterVolumes(volumeNames);
+    }
+}
+
 Bool_t TRestGeant4Event::ContainsProcessInVolume(Int_t processID, Int_t volumeID) const {
     for (const auto& track : fTracks) {
         if (track.ContainsProcessInVolume(processID, volumeID)) {
