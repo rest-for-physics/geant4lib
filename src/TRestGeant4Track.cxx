@@ -118,10 +118,11 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         << (GetParentTrack() != nullptr
                 ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
                 : "")
-        << " - Created by '" << fCreatorProcess
-        << "' with initial "
-           "KE of "
-        << ToEnergyString(fInitialKineticEnergy) << "" << endl;
+        << " - Created by '" << fCreatorProcess << "' in volume '" << GetInitialVolume()
+        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << " - Initial position "
+        << VectorToString(fInitialPosition) << " mm at time " << ToTimeString(fGlobalTimestamp)
+        << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
+        << ToLengthString(fLength) << endl;
 
     cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
          << ToTimeString(fGlobalTimestamp) << " - Time length of " << ToTimeString(fTimeLength)
@@ -187,11 +188,10 @@ void TRestGeant4Track::PrintTrackFilterVolumes(const std::set<std::string>& volu
                 ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
                 : "")
         << " - Created by '" << fCreatorProcess << "' in volume '" << GetInitialVolume()
-        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << "" << endl;
-
-    cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
-         << ToTimeString(fGlobalTimestamp) << " - Time length of " << ToTimeString(fTimeLength)
-         << " and spatial length of " << ToLengthString(fLength) << endl;
+        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << " - Initial position "
+        << VectorToString(fInitialPosition) << " mm at time " << ToTimeString(fGlobalTimestamp)
+        << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
+        << ToLengthString(fLength) << endl;
 
     for (unsigned int i = 0; i < GetNumberOfHits(); i++) {
         TString processName = GetProcessName(fHits.GetHitProcess(i));
@@ -204,6 +204,9 @@ void TRestGeant4Track::PrintTrackFilterVolumes(const std::set<std::string>& volu
         if (volumeName.IsNull()) {
             // in case process name is not found, use ID
             volumeName = TString(std::to_string(fHits.GetHitVolume(i)));
+        }
+        if (volumeNames.find(volumeName.Data()) == volumeNames.end()) {
+            continue;
         }
         cout << "      - Hit " << i << " - Energy: " << ToEnergyString(fHits.GetEnergy(i))
              << " - Process: " << processName << " - Volume: " << volumeName
