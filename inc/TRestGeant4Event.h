@@ -186,6 +186,8 @@ class TRestGeant4Event : public TRestEvent {
         return energyMap[volumeName];
     }
 
+    std::pair<double, double> GetTimeRangeOfIonizationInVolume(const std::string& volumeName) const;
+
     inline void ClearTracks() { fTracks.clear(); }
 
     TRestHits GetHits(Int_t volID = -1) const;

@@ -1340,3 +1340,21 @@ void TRestGeant4Event::AddEnergyInVolumeForParticleForProcess(Double_t energy, c
     fEnergyInVolumePerParticlePerProcess[volumeName][particleName][processName] += energy;
     fTotalDepositedEnergy += energy;
 }
+
+std::pair<double, double> TRestGeant4Event::GetTimeRangeOfIonizationInVolume(const string& volumeName) const {
+    std::pair<double, double> result = {std::numeric_limits<double>::max(),
+                                        std::numeric_limits<double>::min()};
+
+    for (const auto& track : fTracks) {
+        const auto& hits = track.GetHits();
+        for (int i = 0; i < int(hits.GetNumberOfHits()); i++) {
+            if (hits.GetVolumeName(i) == volumeName && hits.GetEnergy(i) > 0) {
+                const double time = hits.GetTime(i);
+                result.first = std::min(result.first, time);
+                result.second = std::max(result.second, time);
+            }
+        }
+    }
+
+    return result;
+}
