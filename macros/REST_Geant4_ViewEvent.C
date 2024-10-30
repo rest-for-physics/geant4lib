@@ -1,5 +1,6 @@
 #include "TRestBrowser.h"
 #include "TRestTask.h"
+#include "TRestGeant4Event.h"
 
 #ifndef RestTask_ViewG4Events
 #define RestTask_ViewG4Events
