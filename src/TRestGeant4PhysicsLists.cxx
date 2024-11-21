@@ -42,6 +42,8 @@ void TRestGeant4PhysicsLists::Initialize() {
 void TRestGeant4PhysicsLists::InitFromConfigFile() {
     this->Initialize();
 
+    if (GetName() == "default") this->SetName("phList");
+
     fIonLimitStepList = Split(GetParameter("ionLimitStepList", ""), ",");
 
     fCutForGamma = GetDblParameterWithUnits("cutForGamma", 0.01);
