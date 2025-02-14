@@ -3,6 +3,7 @@
 //
 
 #include "TRestGeant4GeometryInfo.h"
+#include "TRestTools.h"
 
 #include <TPRegexp.h>
 #include <TXMLEngine.h>
