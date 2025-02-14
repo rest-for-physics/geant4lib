@@ -3,12 +3,13 @@
 //
 
 #include "TRestGeant4GeometryInfo.h"
-#include "TRestTools.h"
 
 #include <TPRegexp.h>
 #include <TXMLEngine.h>
 
 #include <iostream>
+
+#include "TRestTools.h"
 
 using namespace std;
 
