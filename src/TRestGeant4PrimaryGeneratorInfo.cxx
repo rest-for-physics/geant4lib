@@ -304,8 +304,9 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
     } else if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS3),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::COS3;
-    } else if(TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::SIN_2THETA),
-                                    TString::ECaseCompare::kIgnoreCase)){
+    } else if (TString(type).EqualTo(
+                   AngularDistributionFormulasToString(AngularDistributionFormulas::SIN_2THETA),
+                   TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::SIN_2THETA;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas - Error - Unknown "
@@ -343,8 +344,8 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
             return f;
         }
         case AngularDistributionFormulas::SIN_2THETA: {
-            auto sin2theta = [](double* xs, double* ps){
-                if(xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+            auto sin2theta = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
                     return TMath::Sin(2 * xs[0]);
                 }
                 return 0.0;
@@ -353,7 +354,6 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
             auto f = TF1(title, sin2theta, 0.0, TMath::Pi());
             f.SetTitle(title);
             return f;
-
         }
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula - Error - Unknown "
