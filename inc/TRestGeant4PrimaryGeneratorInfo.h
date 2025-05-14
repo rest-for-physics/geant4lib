@@ -73,6 +73,7 @@ AngularDistributionTypes StringToAngularDistributionTypes(const std::string&);
 enum class AngularDistributionFormulas {
     COS2,
     COS3,
+    SIN_2THETA
 };
 
 std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
