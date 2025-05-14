@@ -70,10 +70,7 @@ enum class AngularDistributionTypes {
 std::string AngularDistributionTypesToString(const AngularDistributionTypes&);
 AngularDistributionTypes StringToAngularDistributionTypes(const std::string&);
 
-enum class AngularDistributionFormulas {
-    COS2,
-    COS3,
-};
+enum class AngularDistributionFormulas { COS2, COS3, SIN_2THETA };
 
 std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
 AngularDistributionFormulas StringToAngularDistributionFormulas(const std::string&);
