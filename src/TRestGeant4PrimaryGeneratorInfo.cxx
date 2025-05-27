@@ -194,8 +194,7 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
         return EnergyDistributionFormulas::COSMIC_GAMMAS;
     } else if (TString(type).EqualTo(
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::FISSION_NEUTRONS_U238),
-                   TString::ECaseCompare::kIgnoreCase)){
-
+                   TString::ECaseCompare::kIgnoreCase)) {
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
@@ -225,16 +224,16 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
             exit(1);
         case EnergyDistributionFormulas::FISSION_NEUTRONS_U238: {
-            // Watt formula for U238. The spectrum parameters are from this reference https://arxiv.org/pdf/hep-ex/0312050
+            // Watt formula for U238. The spectrum parameters are from this reference
+            // https://arxiv.org/pdf/hep-ex/0312050
             const char* title = "Watt formula: Neutrons from U238 fission";
-            auto distribution =
-                TF1(title,"TMath::Exp(-x/712.4) * TMath::SinH(TMath::Sqrt(0.0056405*x))", 0.1, 10000); //keV
-            distribution.SetNormalized(true); 
+            auto distribution = TF1(title, "TMath::Exp(-x/712.4) * TMath::SinH(TMath::Sqrt(0.0056405*x))",
+                                    0.1, 10000);  // keV
+            distribution.SetNormalized(true);
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
             return distribution;
         }
-        
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula - Error - Unknown "
             "energy distribution formula"
