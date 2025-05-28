@@ -229,7 +229,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
             // https://arxiv.org/pdf/hep-ex/0312050
             const char* title = "Watt formula: Neutrons from U238 fission";
             auto distribution = TF1(title, "TMath::Exp(-x/712.4) * TMath::SinH(TMath::Sqrt(0.0056405*x))",
-                                    0.1, 10000);  // keV
+                                    0, 10000);  // keV
             distribution.SetNormalized(true);
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
