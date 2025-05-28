@@ -195,6 +195,7 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
     } else if (TString(type).EqualTo(
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::FISSION_NEUTRONS_U238),
                    TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::FISSION_NEUTRONS_U238;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
