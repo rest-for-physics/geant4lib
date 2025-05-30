@@ -174,6 +174,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
             return "CosmicNeutrons";
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
             return "CosmicGammas";
+        case EnergyDistributionFormulas::FISSION_NEUTRONS_U238:
+            return "FissionNeutronsU238";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString - Error - Unknown energy "
             "distribution formula"
@@ -190,6 +192,10 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::COSMIC_GAMMAS),
                    TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::COSMIC_GAMMAS;
+    } else if (TString(type).EqualTo(
+                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::FISSION_NEUTRONS_U238),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::FISSION_NEUTRONS_U238;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
@@ -218,6 +224,17 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
         }
         case EnergyDistributionFormulas::COSMIC_GAMMAS:
             exit(1);
+        case EnergyDistributionFormulas::FISSION_NEUTRONS_U238: {
+            // Watt formula for U238. The spectrum parameters are from this reference
+            // https://arxiv.org/pdf/hep-ex/0312050
+            const char* title = "Watt formula: Neutrons from U238 fission";
+            auto distribution =
+                TF1(title, "TMath::Exp(-x/712.4) * TMath::SinH(TMath::Sqrt(0.0056405*x))", 0, 10000);  // keV
+            distribution.SetNormalized(true);
+            distribution.SetTitle(title);
+            distribution.GetXaxis()->SetTitle("Energy (keV)");
+            return distribution;
+        }
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula - Error - Unknown "
             "energy distribution formula"
