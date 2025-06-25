@@ -201,6 +201,7 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
     } else if (TString(type).EqualTo(
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS),
                    TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
