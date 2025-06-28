@@ -244,7 +244,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
         case EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS: {
             // Environmental gamma radiation approximation
             const char* title = "Environmental Gammas";
-            auto distribution = TF1(title, "(1 / TMath::Power(x, 1.5)) * TMath::Exp(-x / 1500.)", 1, 10000);
+            auto distribution = TF1(title, "(1 / TMath::Power(x, 1.5)) * TMath::Exp(-x / 1500.)", 250, 10000);
             distribution.SetNormalized(true);
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
