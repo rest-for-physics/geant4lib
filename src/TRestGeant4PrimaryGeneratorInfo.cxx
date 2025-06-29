@@ -204,10 +204,10 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS),
                    TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS;
-   } else if (TString(type).EqualTo(
-          EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS),
-          TString::ECaseCompare::kIgnoreCase)) {
-       return EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS;
+    } else if (TString(type).EqualTo(
+                   EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
@@ -259,7 +259,7 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
         case EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS: {
             // Environmental neutron radiation approximation
             const char* title = "Environmental Neutrons";
-            auto distribution = TF1(title, "TMath::Exp(-x * 0.0005)", 0, 10000); // keV
+            auto distribution = TF1(title, "TMath::Exp(-x * 0.0005)", 0, 10000);  // keV
             distribution.SetNormalized(true);
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
