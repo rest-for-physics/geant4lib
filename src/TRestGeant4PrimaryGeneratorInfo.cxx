@@ -178,6 +178,8 @@ string TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString(
             return "FissionNeutronsU238";
         case EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS:
             return "EnvironmentalGammas";
+        case EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS:
+            return "EnvironmentalNeutrons";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToString - Error - Unknown energy "
             "distribution formula"
@@ -202,6 +204,10 @@ EnergyDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistr
                    EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS),
                    TString::ECaseCompare::kIgnoreCase)) {
         return EnergyDistributionFormulas::ENVIRONMENTAL_GAMMAS;
+   } else if (TString(type).EqualTo(
+          EnergyDistributionFormulasToString(EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS),
+          TString::ECaseCompare::kIgnoreCase)) {
+       return EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToEnergyDistributionFormulas - Error - Unknown "
                 "energyDistributionFormulas: "
@@ -245,6 +251,15 @@ TF1 TRestGeant4PrimaryGeneratorTypes::EnergyDistributionFormulasToRootFormula(
             // Environmental gamma radiation approximation
             const char* title = "Environmental Gammas";
             auto distribution = TF1(title, "(1 / TMath::Power(x, 1.5)) * TMath::Exp(-x / 1500.)", 250, 10000);
+            distribution.SetNormalized(true);
+            distribution.SetTitle(title);
+            distribution.GetXaxis()->SetTitle("Energy (keV)");
+            return distribution;
+        }
+        case EnergyDistributionFormulas::ENVIRONMENTAL_NEUTRONS: {
+            // Environmental neutron radiation approximation
+            const char* title = "Environmental Neutrons";
+            auto distribution = TF1(title, "TMath::Exp(-x * 0.0005)", 0, 10000); // keV
             distribution.SetNormalized(true);
             distribution.SetTitle(title);
             distribution.GetXaxis()->SetTitle("Energy (keV)");
