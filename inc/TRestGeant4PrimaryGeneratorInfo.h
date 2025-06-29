@@ -52,7 +52,8 @@ enum class EnergyDistributionFormulas {
     COSMIC_NEUTRONS,
     COSMIC_GAMMAS,
     FISSION_NEUTRONS_U238,
-    ENVIRONMENTAL_GAMMAS
+    ENVIRONMENTAL_GAMMAS,
+    ENVIRONMENTAL_NEUTRONS,
 };
 
 std::string EnergyDistributionFormulasToString(const EnergyDistributionFormulas&);
