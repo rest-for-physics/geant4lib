@@ -850,6 +850,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     Double_t defaultTime = 1. / REST_Units::s;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
 
+    fResetTimePrecision = GetDblParameterWithUnits("resetTimePrecision", defaultTime);
+
     auto nEventsString = GetParameter("nEvents");
     if (nEventsString == PARAMETER_NOT_FOUND_STR) {
         nEventsString = GetParameter("Nevents");  // old name
@@ -871,6 +873,9 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     fRegisterEmptyTracks = ToUpper(GetParameter("registerEmptyTracks", "false")) == "TRUE" ||
                            ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
+
+    fResetGlobalTime = ToUpper(GetParameter("resetGlobalTime", "true")) == "TRUE" ||
+                     ToUpper(GetParameter("resetGlobalTime", "on")) == "ON";
 
     ReadGenerator();
     // Detector (old storage) section is processed after initializing geometry info in Detector Construction
@@ -1508,6 +1513,14 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "GDML geometry: " << GetGdmlReference() << RESTendl;
     RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
     RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
+
+      if(isGlobalTimeReset()){
+        RESTMetadata << "Reset global time: enabled" << RESTendl;
+        RESTMetadata << "Reset Time precision " << GetResetTimePrecision() << " us" << RESTendl;
+      } else {
+        RESTMetadata << "Reset global time: disabled" << RESTendl;
+      }
+
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
     Double_t mz = GetMagneticField().Z();
@@ -1703,6 +1716,8 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fBiasingVolumes = metadata.fBiasingVolumes;
     fMaxTargetStepSize = metadata.fMaxTargetStepSize;
     fSubEventTimeDelay = metadata.fSubEventTimeDelay;
+    fResetTimePrecision = metadata.fResetTimePrecision;
+    fResetGlobalTime = metadata.fResetGlobalTime;
     fFullChain = metadata.fFullChain;
     fSensitiveVolumes = metadata.fSensitiveVolumes;
     fNEvents = metadata.fNEvents;

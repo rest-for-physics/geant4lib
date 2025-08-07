@@ -117,6 +117,14 @@ class TRestGeant4Metadata : public TRestMetadata {
     /// (fFullChain=true), or just a single decay (fFullChain=false).
     Bool_t fFullChain = true;
 
+    /// \brief Reset global time in case of a long radioactive decay, the global time of
+    /// the decay is stored in the variable offset defined on TRestGeant4Track
+    Bool_t fResetGlobalTime = true;
+
+    /// \brief Time precision, in us, to determine if the global time has to be reset
+    /// or not.
+    Double_t fResetTimePrecision = 0.001;
+
     /// \brief If defined, it will stop the full chain decay simulation when one of these isotope appears.
     std::set<std::string> fFullChainStopIsotopes;
 
@@ -215,6 +223,11 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Returns true in case full decay chain simulation is enabled.
     inline Bool_t isFullChainActivated() const { return fFullChain; }
+
+    /// \brief Returns true in case global time is reset for long radioactive decays.
+    inline Bool_t isGlobalTimeReset() const { return fResetGlobalTime; }
+
+    inline Double_t GetResetTimePrecision() const { return fResetTimePrecision; }
 
     /// \brief Returns the isotopes that will stop the full chain decay simulation.
     inline std::set<std::string> GetFullChainStopIsotopes() const { return fFullChainStopIsotopes; }
@@ -417,7 +430,7 @@ class TRestGeant4Metadata : public TRestMetadata {
     TRestGeant4Metadata(const TRestGeant4Metadata& metadata);
     TRestGeant4Metadata& operator=(const TRestGeant4Metadata& metadata);
 
-    ClassDefOverride(TRestGeant4Metadata, 19);
+    ClassDefOverride(TRestGeant4Metadata, 20);
 
     // Allow modification of otherwise inaccessible / immutable members that shouldn't be modified by the user
     friend class SteppingAction;
