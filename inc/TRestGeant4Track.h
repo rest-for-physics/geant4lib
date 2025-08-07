@@ -42,6 +42,7 @@ class TRestGeant4Track {
     std::vector<Int_t> fSecondaryTrackIDs;
 
     Double_t fGlobalTimestamp;
+    Double_t fTimeOffset = 0;
     Double_t fTimeLength;
 
     Double_t fInitialKineticEnergy;
@@ -65,6 +66,8 @@ class TRestGeant4Track {
         fHits.SetTrack(this);
     }
 
+    inline void SetTimeOffset(const double tOffset) { fTimeOffset = tOffset; }
+
     inline TString GetCreatorProcess() const { return fCreatorProcess; }
 
     inline void AddSecondaryTrackID(Int_t trackID) { fSecondaryTrackIDs.push_back(trackID); }
@@ -76,6 +79,7 @@ class TRestGeant4Track {
     inline Int_t GetParentID() const { return fParentID; }
     inline TString GetParticleName() const { return fParticleName; }
     inline Double_t GetGlobalTime() const { return fGlobalTimestamp; }
+    inline Double_t GetTimeOffset() const { return fTimeOffset; }
     inline Double_t GetTimeLength() const { return fTimeLength; }
     inline Double_t GetInitialKineticEnergy() const { return fInitialKineticEnergy; }
     inline TVector3 GetInitialPosition() const { return fInitialPosition; }
@@ -136,7 +140,7 @@ class TRestGeant4Track {
 
     friend class TRestGeant4Event;  // allows TRestGeant4Event to access private members
 
-    ClassDef(TRestGeant4Track, 5);  // REST event superclass
+    ClassDef(TRestGeant4Track, 6);  // REST event superclass
 
     // restG4
    public:
