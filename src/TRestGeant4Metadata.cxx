@@ -138,6 +138,12 @@
 /// * **printProgress**: if enabled, a message showing the progress of the simulation will be printed
 /// periodically. This option is enabled by default.
 ///
+/// * **resetGlobalTime**: when enabled it reset the global time stamp in case of long radioactive decay.
+/// This option is enabled by default.
+///
+/// * **resetTimePrecision**: this parameter defines the time precision required to reset the global time
+/// in case resetGlobalTime is enabled.
+///
 /// The following example illustrates the definition of the common simulation
 /// parameters.
 ///
@@ -146,6 +152,8 @@
 ///		<parameter name="gdmlFile" value="/path/to/mySetupTemplate.gdml"/>
 ///		<parameter name="maxTargetStepSize" value="200" units="um" />
 ///		<parameter name="subEventTimeDelay" value="100" units="us" />
+///             <parameter name="resetGlobalTime" value="true" />
+///             <parameter name="resetTimePrecision" value="1ns" />
 /// \endcode
 ///
 /// ## 2. The primary particle generator section

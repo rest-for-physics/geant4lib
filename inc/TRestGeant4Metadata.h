@@ -123,7 +123,7 @@ class TRestGeant4Metadata : public TRestMetadata {
 
     /// \brief Time precision, in us, to determine if the global time has to be reset
     /// or not.
-    Double_t fResetTimePrecision = 0.001;
+    Double_t fResetTimePrecision = 1;
 
     /// \brief If defined, it will stop the full chain decay simulation when one of these isotope appears.
     std::set<std::string> fFullChainStopIsotopes;
