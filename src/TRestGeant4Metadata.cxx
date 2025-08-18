@@ -875,7 +875,7 @@ void TRestGeant4Metadata::InitFromConfigFile() {
                            ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
 
     fResetGlobalTime = ToUpper(GetParameter("resetGlobalTime", "true")) == "TRUE" ||
-                     ToUpper(GetParameter("resetGlobalTime", "on")) == "ON";
+                       ToUpper(GetParameter("resetGlobalTime", "on")) == "ON";
 
     ReadGenerator();
     // Detector (old storage) section is processed after initializing geometry info in Detector Construction
@@ -1514,12 +1514,12 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
     RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
 
-      if(isGlobalTimeReset()){
+    if (isGlobalTimeReset()) {
         RESTMetadata << "Reset global time: enabled" << RESTendl;
         RESTMetadata << "Reset Time precision " << GetResetTimePrecision() << " us" << RESTendl;
-      } else {
+    } else {
         RESTMetadata << "Reset global time: disabled" << RESTendl;
-      }
+    }
 
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();

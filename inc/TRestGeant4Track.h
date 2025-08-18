@@ -42,7 +42,7 @@ class TRestGeant4Track {
     std::vector<Int_t> fSecondaryTrackIDs;
 
     Double_t fGlobalTimestamp;
-    Double_t fTimeOffset=0;
+    Double_t fTimeOffset = 0;
     Double_t fTimeLength;
 
     Double_t fInitialKineticEnergy;

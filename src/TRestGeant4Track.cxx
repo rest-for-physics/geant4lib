@@ -125,8 +125,9 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         << ToLengthString(fLength) << endl;
 
     cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
-         << ToTimeString(fGlobalTimestamp) <<" - Time offset "<< ToTimeString(fTimeOffset) << " - Time length of " << ToTimeString(fTimeLength)
-         << " and spatial length of " << ToLengthString(fLength) << endl;
+         << ToTimeString(fGlobalTimestamp) << " - Time offset " << ToTimeString(fTimeOffset)
+         << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
+         << ToLengthString(fLength) << endl;
 
     size_t nHits = GetNumberOfHits();
     if (maxHits > 0 && maxHits < nHits) {
