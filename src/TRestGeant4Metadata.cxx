@@ -138,6 +138,12 @@
 /// * **printProgress**: if enabled, a message showing the progress of the simulation will be printed
 /// periodically. This option is enabled by default.
 ///
+/// * **resetGlobalTime**: when enabled it reset the global time stamp in case of long radioactive decay.
+/// This option is enabled by default.
+///
+/// * **resetTimePrecision**: this parameter defines the time precision required to reset the global time
+/// in case resetGlobalTime is enabled.
+///
 /// The following example illustrates the definition of the common simulation
 /// parameters.
 ///
@@ -146,6 +152,8 @@
 ///		<parameter name="gdmlFile" value="/path/to/mySetupTemplate.gdml"/>
 ///		<parameter name="maxTargetStepSize" value="200" units="um" />
 ///		<parameter name="subEventTimeDelay" value="100" units="us" />
+///             <parameter name="resetGlobalTime" value="true" />
+///             <parameter name="resetTimePrecision" value="1ns" />
 /// \endcode
 ///
 /// ## 2. The primary particle generator section
@@ -847,8 +855,10 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         }
     }
 
-    Double_t defaultTime = 1. / REST_Units::s;
+    Double_t defaultTime = 1. / REST_Units::us;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
+
+    fResetTimePrecision = GetDblParameterWithUnits("resetTimePrecision", defaultTime);
 
     auto nEventsString = GetParameter("nEvents");
     if (nEventsString == PARAMETER_NOT_FOUND_STR) {
@@ -871,6 +881,9 @@ void TRestGeant4Metadata::InitFromConfigFile() {
 
     fRegisterEmptyTracks = ToUpper(GetParameter("registerEmptyTracks", "false")) == "TRUE" ||
                            ToUpper(GetParameter("registerEmptyTracks", "off")) == "ON";
+
+    fResetGlobalTime = ToUpper(GetParameter("resetGlobalTime", "true")) == "TRUE" ||
+                       ToUpper(GetParameter("resetGlobalTime", "on")) == "ON";
 
     ReadGenerator();
     // Detector (old storage) section is processed after initializing geometry info in Detector Construction
@@ -1508,6 +1521,14 @@ void TRestGeant4Metadata::PrintMetadata() {
     RESTMetadata << "GDML geometry: " << GetGdmlReference() << RESTendl;
     RESTMetadata << "GDML materials reference: " << GetMaterialsReference() << RESTendl;
     RESTMetadata << "Sub-event time delay: " << GetSubEventTimeDelay() << " us" << RESTendl;
+
+    if (isGlobalTimeReset()) {
+        RESTMetadata << "Reset global time: enabled" << RESTendl;
+        RESTMetadata << "Reset Time precision " << GetResetTimePrecision() << " us" << RESTendl;
+    } else {
+        RESTMetadata << "Reset global time: disabled" << RESTendl;
+    }
+
     Double_t mx = GetMagneticField().X();
     Double_t my = GetMagneticField().Y();
     Double_t mz = GetMagneticField().Z();
@@ -1703,6 +1724,8 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fBiasingVolumes = metadata.fBiasingVolumes;
     fMaxTargetStepSize = metadata.fMaxTargetStepSize;
     fSubEventTimeDelay = metadata.fSubEventTimeDelay;
+    fResetTimePrecision = metadata.fResetTimePrecision;
+    fResetGlobalTime = metadata.fResetGlobalTime;
     fFullChain = metadata.fFullChain;
     fSensitiveVolumes = metadata.fSensitiveVolumes;
     fNEvents = metadata.fNEvents;
