@@ -855,9 +855,10 @@ void TRestGeant4Metadata::InitFromConfigFile() {
         }
     }
 
-    Double_t defaultTime = 1. / REST_Units::us;
+    Double_t defaultTime = 100. / REST_Units::us;
     fSubEventTimeDelay = GetDblParameterWithUnits("subEventTimeDelay", defaultTime);
 
+    defaultTime = 1. / REST_Units::us;
     fResetTimePrecision = GetDblParameterWithUnits("resetTimePrecision", defaultTime);
 
     auto nEventsString = GetParameter("nEvents");
