@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+#include "TRestTools.h"
+
 using namespace std;
 
 namespace myXml {
@@ -84,6 +86,19 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                     TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref");
                     nameTable[physicalVolumeName] = refName;
                     childrenTable[volumeName].push_back(physicalVolumeName);
+                }
+                if (volumeRefNodeName.EqualTo("file")) {
+                    TString fullFileName = myXml::GetNodeAttribute(xml, volumeRefNode, "name");
+                    TString fileName = TRestTools::GetFileNameRoot(fullFileName.Data());
+                    TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref");
+                    if (physicalVolumeName.IsNull()) {
+                        physicalVolumeName = fileName + "_PV";
+                    }
+                    if (refName.IsNull()) {
+                        refName = fileName;
+                    }
+                    nameTable[physicalVolumeName] = refName;                  // ?????????
+                    childrenTable[volumeName].push_back(physicalVolumeName);  // ????????????
                 }
                 volumeRefNode = xml.GetNext(volumeRefNode);
             }
