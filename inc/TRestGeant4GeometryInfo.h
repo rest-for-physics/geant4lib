@@ -2,9 +2,9 @@
 #ifndef REST_TRESTGEANT4GEOMETRYINFO_H
 #define REST_TRESTGEANT4GEOMETRYINFO_H
 
+#include <TRestStringOutput.h>
 #include <TString.h>
 #include <TVector3.h>
-#include <TRestStringOutput.h>
 
 #include <map>
 #include <set>
@@ -45,7 +45,7 @@ class TRestGeant4GeometryInfo {
     std::map<TString, TString> fGeant4AssemblyImprintToAssemblyLogicalNameMap;
 
     std::map<TString, TString> fPhysicalToLogicalVolumeMap;
-    std::map<TString, std::vector<TString> > fLogicalToPhysicalMap;
+    std::map<TString, std::vector<TString>> fLogicalToPhysicalMap;
     // many physical volumes can point to one single logical
     std::map<TString, TString> fLogicalToMaterialMap;
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;

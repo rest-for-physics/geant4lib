@@ -1400,20 +1400,21 @@ void TRestGeant4Metadata::ReadDetector() {
                           << "Trying to match as regular expression for physical volumes." << RESTendl;
                 for (const auto& physical :
                      fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
-                        RESTExtreme << "Volume name '" << name << "' matches physical volume '"
-                                  << physical << "'" << RESTendl;
+                    RESTExtreme << "Volume name '" << name << "' matches physical volume '" << physical << "'"
+                                << RESTendl;
                     physicalVolumes.emplace_back(
                         fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
                 }
             }
             if (physicalVolumes.empty()) {
-                RESTDebug << "Volume name '" << name << "' is not a valid logical volume neither physical volume regex. "
+                RESTDebug << "Volume name '" << name
+                          << "' is not a valid logical volume neither physical volume regex. "
                           << "Trying to match as regular expression for logical volumes." << RESTendl;
                 for (const auto& logical : fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
                     for (const auto& physical :
                          fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
-                            RESTExtreme << "Volume name '" << name << "' matches logical volume '"
-                                        << logical << "' with physical volume '" << physical << "'" << RESTendl;
+                        RESTExtreme << "Volume name '" << name << "' matches logical volume '" << logical
+                                    << "' with physical volume '" << physical << "'" << RESTendl;
                         physicalVolumes.emplace_back(
                             fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
                     }
@@ -1461,7 +1462,8 @@ void TRestGeant4Metadata::ReadDetector() {
 
         for (const auto& physical : physicalVolumes) {
             RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '"
-                     << physical << "'" << (chance != 1 ? " with chance: " + to_string(chance) : " ") << RESTendl;
+                     << physical << "'" << (chance != 1 ? " with chance: " + to_string(chance) : " ")
+                     << RESTendl;
             SetActiveVolume(physical, chance, maxStep);
             if (isSensitive) {
                 InsertSensitiveVolume(physical);
