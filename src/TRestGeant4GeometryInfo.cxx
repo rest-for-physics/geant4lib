@@ -74,13 +74,13 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     map<TString, size_t> gdmlAssemblyNameToImprintCounterMap; // to track the number of imprints per assembly
     /* When a PV is placed from an assembly, its daughter physical volumes are imprinted into the mother volume where you are placing the assembly.
     This daughter PV are named following the format: "av_WWW_impr_XXX_YYY_ZZZ". But, if one of those daughter PV is itself an assembly,
-    its own daughter PV are named (wrongly in my opinion) "av_WWW_impr_XXX+1_yyy_zzz". 
+    its own daughter PV are named (wrongly in my opinion) "av_WWW_impr_XXX+1_yyy_zzz".
     To follow this logic, we need to add this "av_WWW_impr_XXX+1"-> nestedAssemblyPVname to the fGeant4AssemblyImprintToGdmlNameMap too.
     To do this we use the auxiliar map 'fixNestedAssembliesMap' to store which nested assemblies where found inside each assembly and their order.
-    
+
     Also, the daughter physical volumes defined after this nested assembly
     gets the imprint number XXX+1 instead of the XXX of its mother assembly imprint (which I think is a bug in Geant4).
-    To avoid having several "av_WWW_impr_XXX+n" pointing to different GDML names, you must define all the daughter PV 
+    To avoid having several "av_WWW_impr_XXX+n" pointing to different GDML names, you must define all the daughter PV
     from normal LV before all the nested assembly PV.
     */
     map<TString, std::vector<TString>> fixNestedAssembliesMap; // parent assembly -> child PV of assemblies. Used to add later the bad imprints "av_WWW_impr_XXX+1"
@@ -102,7 +102,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
         gdmlAssemblyNameToImprintCounterMap[assemblyName] = 0;
         RESTDebug << "Assembly found: " << assemblyName << " → " << gdmlToGeant4AssemblyNameMap[assemblyName]
                     << RESTendl;
-        
+
         // blablabla
         bool hasNestedAssemblies = false;
         std::map<TString, TString> childrenGeant4toGdmlMap;
@@ -126,11 +126,10 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                             RESTError << "TRestGeant4GeometryInfo::PopulateFromGdml - Assembly '"
                                         << assemblyName << "' contains physical volumes from normal "
                                         << "(i.e. non-assembly) logical volumes defined after physical volumes "
-                                        << "from assemblies. Due to a Geant4 bug you cannot do this. " 
+                                        << "from assemblies. Due to a Geant4 bug you cannot do this. "
                                         << "Please define the physical volumes from the assemblies last." << RESTendl;
                         }
                     }
-                     
                 }
                 volumeRefNode = xml.GetNext(volumeRefNode);
             }
@@ -159,7 +158,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                         size_t imprintCounter = ++gdmlAssemblyNameToImprintCounterMap[refName]; // first imprint is impr_1
                         TString imprint = gdmlToGeant4AssemblyNameMap[refName] + "_impr_" + to_string(imprintCounter);
                         fGeant4AssemblyImprintToGdmlNameMap[imprint] = physicalVolumeName;
-                        
+
                         if (fixNestedAssembliesMap.count(refName) > 0) {
                             // fix nested assemblies
                             for (const auto& childPV : fixNestedAssembliesMap[refName]) {
