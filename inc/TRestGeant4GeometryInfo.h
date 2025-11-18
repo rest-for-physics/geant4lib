@@ -55,6 +55,7 @@ class TRestGeant4GeometryInfo {
 
     void PopulateFromGdml(const TString&);
 
+    TString GetAlternativePathFromGeant4Path(const TString&) const;
     TString GetAlternativeNameFromGeant4PhysicalName(const TString&) const;
     TString GetGeant4PhysicalNameFromAlternativeName(const TString&) const;
 

@@ -238,6 +238,35 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     */
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Converts a Geant4 volume path to a GDML volume path. The path is
+/// the concatenation of the names of the nested volumes from the world to the desired volume.
+/// This method is meant mainly meant to handle the conversion of assembly imprints names to the
+/// GDML assembly names used in the GDML file.
+/// \param geant4Path The Geant4 volume path.
+/// \return The corresponding GDML volume path using the PV names defined in the GDML file.
+TString TRestGeant4GeometryInfo::GetAlternativePathFromGeant4Path(const TString& geant4Path) const {
+    std::string convertedPath = geant4Path.Data();
+    // convert the Geant4 assembly imprint convention to GDML name
+    // e.g. av_1_impr_2_childLV_pv_1 → assemblyName/childLV_pv_1
+    for (const auto& [gvName, gdmlName] : fGeant4AssemblyImprintToGdmlNameMap) {
+        convertedPath = Replace(convertedPath, (gvName+"_").Data(), (gdmlName+fPathSeparator).Data());
+    }
+    // convert the children names inside assemblies to physical volume names in GDML
+    // e.g. assemblyName/childLV_pv_1 → assemblyName/childPVname
+    for (const auto& [gvImprint, assemblyLogicalName] : fGeant4AssemblyImprintToAssemblyLogicalNameMap) {
+        auto gvImprintPosition = convertedPath.find(gvImprint.Data());
+        if (gvImprintPosition != std::string::npos) {
+            for (const auto& [childGeant4Name, childGdmlName] : fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap.at(assemblyLogicalName)) {
+                TString toReplace = gvImprint + fPathSeparator + childGeant4Name;
+                TString replaceBy = gvImprint + fPathSeparator + childGdmlName;
+                convertedPath = Replace(convertedPath, toReplace.Data(), replaceBy.Data());
+            }
+        }
+     }
+    return TString(convertedPath);
+}
+
 TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
     const TString& geant4PhysicalName) const {
     if (fGeant4PhysicalNameToNewPhysicalNameMap.count(geant4PhysicalName) > 0) {
