@@ -4,6 +4,7 @@
 
 #include <TString.h>
 #include <TVector3.h>
+#include <TRestStringOutput.h>
 
 #include <map>
 #include <set>
@@ -12,10 +13,11 @@
 class G4VPhysicalVolume;
 
 class TRestGeant4GeometryInfo {
-    ClassDef(TRestGeant4GeometryInfo, 3);
+    ClassDef(TRestGeant4GeometryInfo, 4);
 
    private:
     bool fIsAssembly = false;
+    TString fPathSeparator = "_";
 
     std::map<Int_t, TString> fVolumeNameMap = {};
     std::map<TString, Int_t> fVolumeNameReverseMap = {};
@@ -37,6 +39,10 @@ class TRestGeant4GeometryInfo {
         fGeant4PhysicalNameToNewPhysicalNameMap; /*
                                                   * only makes sense when using assembly
                                                   */
+
+    std::map<TString, TString> fGeant4AssemblyImprintToGdmlNameMap;
+    std::map<TString, std::map<TString, TString>> fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap;
+    std::map<TString, TString> fGeant4AssemblyImprintToAssemblyLogicalNameMap;
 
     std::map<TString, TString> fPhysicalToLogicalVolumeMap;
     std::map<TString, std::vector<TString> > fLogicalToPhysicalMap;
@@ -86,7 +92,8 @@ class TRestGeant4GeometryInfo {
     }
 
     inline bool IsAssembly() const { return fIsAssembly; }
-
+    inline TString GetPathSeparator() const { return fPathSeparator; }
+    void SetPathSeparator(const TString& separator) { fPathSeparator = separator; }
     void InsertVolumeName(Int_t id, const TString& volumeName);
 
     TString GetVolumeFromID(Int_t id) const;

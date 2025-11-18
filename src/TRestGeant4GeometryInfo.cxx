@@ -3,6 +3,7 @@
 //
 
 #include "TRestGeant4GeometryInfo.h"
+#include "TRestStringHelper.h"
 
 #include <TPRegexp.h>
 #include <TXMLEngine.h>
@@ -36,7 +37,8 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
 }
 void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logicalNames,
                            const vector<TString>& children, map<TString, TString>& nameTable,
-                           map<TString, vector<TString>>& childrenTable, const TString& name = "") {
+                           map<TString, vector<TString>>& childrenTable, const TString& name = "",
+                           const TString& separator = "_") {
     if (children.empty()) {
         physicalNames->push_back(name);
         const auto logicalVolumeName = nameTable[name];
@@ -44,10 +46,10 @@ void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logi
         return;
     }
     for (const auto& childName : children) {
-        const auto newName = name + "_" + childName;
+        const auto newName = name + separator + childName;
         nameTable[newName] = nameTable[childName];  // needed to retrieve logical volume name
         AddVolumesRecursively(physicalNames, logicalNames, childrenTable[nameTable[childName]], nameTable,
-                              childrenTable, newName);
+                              childrenTable, newName, separator);
     }
 }
 }  // namespace myXml
@@ -65,23 +67,108 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
              << " not found" << endl;
         exit(1);
     }
+
+    // auxiliar maps
+    map<TString, TString> gdmlToGeant4AssemblyNameMap; // to record the ordering of the assemblies definition, e.g. "assemblyName" -> "av_1"
+    size_t assemblyCounter = 0;
+    map<TString, size_t> gdmlAssemblyNameToImprintCounterMap; // to track the number of imprints per assembly
+    /* When a PV is placed from an assembly, its daughter physical volumes are imprinted into the mother volume where you are placing the assembly.
+    This daughter PV are named following the format: "av_WWW_impr_XXX_YYY_ZZZ". But, if one of those daughter PV is itself an assembly,
+    its own daughter PV are named (wrongly in my opinion) "av_WWW_impr_XXX+1_yyy_zzz". 
+    To follow this logic, we need to add this "av_WWW_impr_XXX+1"-> nestedAssemblyPVname to the fGeant4AssemblyImprintToGdmlNameMap too.
+    To do this we use the auxiliar map 'fixNestedAssembliesMap' to store which nested assemblies where found inside each assembly and their order.
+    
+    Also, the daughter physical volumes defined after this nested assembly
+    gets the imprint number XXX+1 instead of the XXX of its mother assembly imprint (which I think is a bug in Geant4).
+    To avoid having several "av_WWW_impr_XXX+n" pointing to different GDML names, you must define all the daughter PV 
+    from normal LV before all the nested assembly PV.
+    */
+    map<TString, std::vector<TString>> fixNestedAssembliesMap; // parent assembly -> child PV of assemblies. Used to add later the bad imprints "av_WWW_impr_XXX+1"
+
     map<TString, TString> nameTable;
     map<TString, vector<TString>> childrenTable;
     XMLNodePointer_t mainNode = xml.DocGetRootElement(xmldoc);
     XMLNodePointer_t structure = myXml::FindChildByName(xml, mainNode, "structure");
     XMLNodePointer_t child = xml.GetChild(structure);
-    while (child) {
-        TString name = xml.GetNodeName(child);
+    RESTDebug << "Searching for assemblies..." << RESTendl;
+    while (child) { // loop over the direct children of structure (logical volumes and assemblies)
+        TString name = xml.GetNodeName(child); // name of the type of children: "volume" or "assembly"
+        if (!name.EqualTo("assembly")) {
+            child = xml.GetNext(child);
+            continue;
+        }
+        TString assemblyName = myXml::GetNodeAttribute(xml, child, "name");
+        gdmlToGeant4AssemblyNameMap[assemblyName] = "av_" + to_string(++assemblyCounter); // first assembly is av_1
+        gdmlAssemblyNameToImprintCounterMap[assemblyName] = 0;
+        RESTDebug << "Assembly found: " << assemblyName << " → " << gdmlToGeant4AssemblyNameMap[assemblyName]
+                    << RESTendl;
+        
+        // blablabla
+        bool hasNestedAssemblies = false;
+        std::map<TString, TString> childrenGeant4toGdmlMap;
+        size_t childrenPVCounter = 0;
+        auto physicalVolumeNode = xml.GetChild(child); // children of a volume or assembly are physical volumes
+        while (physicalVolumeNode) {
+            auto physicalVolumeName = myXml::GetNodeAttribute(xml, physicalVolumeNode, "name");
+            auto volumeRefNode = xml.GetChild(physicalVolumeNode); // this are volumeref, position and rotation
+            while (volumeRefNode) {
+                TString volumeRefNodeName = xml.GetNodeName(volumeRefNode); // "volumeref", "position" or "rotation"
+                if (volumeRefNodeName.EqualTo("volumeref")) {
+                    TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref"); // the logical volume name
+                    TString geant4Name = refName + "_pv_" + to_string(childrenPVCounter++); // first pv is logicalVolumeName_pv_0
+                    childrenGeant4toGdmlMap[geant4Name] = physicalVolumeName;
+                     if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
+                        // it's an assembly
+                        hasNestedAssemblies = true; // to warn later that pv from assemblies must be defined last
+                        fixNestedAssembliesMap[assemblyName].push_back(physicalVolumeName);
+                     } else {
+                        if (hasNestedAssemblies) {
+                            RESTError << "TRestGeant4GeometryInfo::PopulateFromGdml - Assembly '"
+                                        << assemblyName << "' contains physical volumes from normal "
+                                        << "(i.e. non-assembly) logical volumes defined after physical volumes "
+                                        << "from assemblies. Due to a Geant4 bug you cannot do this. " 
+                                        << "Please define the physical volumes from the assemblies last." << RESTendl;
+                        }
+                    }
+                     
+                }
+                volumeRefNode = xml.GetNext(volumeRefNode);
+            }
+            physicalVolumeNode = xml.GetNext(physicalVolumeNode);
+        }
+        fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap[assemblyName] = childrenGeant4toGdmlMap;
+        child = xml.GetNext(child);
+    }
+
+    child = xml.GetChild(structure);
+    while (child) { // loop over the direct children of structure (logical volumes and assemblies)
+        TString name = xml.GetNodeName(child); // name of the type of children: "volume" or "assembly"
         TString volumeName = myXml::GetNodeAttribute(xml, child, "name");
-        auto physicalVolumeNode = xml.GetChild(child);
+        auto physicalVolumeNode = xml.GetChild(child); // children of a volume or assembly are physical volumes
         childrenTable[volumeName] = {};
         while (physicalVolumeNode) {
             auto physicalVolumeName = myXml::GetNodeAttribute(xml, physicalVolumeNode, "name");
-            auto volumeRefNode = xml.GetChild(physicalVolumeNode);
+            auto volumeRefNode = xml.GetChild(physicalVolumeNode); // this are volumeref, position and rotation
             while (volumeRefNode) {
-                TString volumeRefNodeName = xml.GetNodeName(volumeRefNode);
+                TString volumeRefNodeName = xml.GetNodeName(volumeRefNode); // "volumeref", "position" or "rotation"
                 if (volumeRefNodeName.EqualTo("volumeref")) {
-                    TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref");
+                    TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref"); // the logical volume name
+                    if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
+                        // it's an assembly
+                        fGeant4AssemblyImprintToAssemblyLogicalNameMap[physicalVolumeName] = refName;
+                        size_t imprintCounter = ++gdmlAssemblyNameToImprintCounterMap[refName]; // first imprint is impr_1
+                        TString imprint = gdmlToGeant4AssemblyNameMap[refName] + "_impr_" + to_string(imprintCounter);
+                        fGeant4AssemblyImprintToGdmlNameMap[imprint] = physicalVolumeName;
+                        
+                        if (fixNestedAssembliesMap.count(refName) > 0) {
+                            // fix nested assemblies
+                            for (const auto& childPV : fixNestedAssembliesMap[refName]) {
+                                size_t nestedImprintCounter = ++gdmlAssemblyNameToImprintCounterMap[refName];
+                                TString nestedImprint = gdmlToGeant4AssemblyNameMap[refName] + "_impr_" + to_string(nestedImprintCounter);
+                                fGeant4AssemblyImprintToGdmlNameMap[nestedImprint] = childPV;
+                            }
+                        }
+                    }
                     nameTable[physicalVolumeName] = refName;
                     childrenTable[volumeName].push_back(physicalVolumeName);
                 }
@@ -106,7 +193,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     for (const auto& topName : childrenTable[worldVolumeName]) {
         auto children = childrenTable[nameTable[topName]];
         myXml::AddVolumesRecursively(&fGdmlNewPhysicalNames, &fGdmlLogicalNames, children, nameTable,
-                                     childrenTable, topName);
+                                     childrenTable, topName, fPathSeparator);
     }
 
     xml.FreeDoc(xmldoc);
@@ -128,6 +215,27 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
              << endl;
         exit(1);
     }
+
+    /*
+    //print fGeant4AssemblyImprintToGdmlNameMap
+    cout << "GDML Assembly Imprint to GDML Name Map:" << endl;
+    for (const auto& kv : fGeant4AssemblyImprintToGdmlNameMap) {
+        cout << "\t" << kv.first << " → " << kv.second << endl;
+    }
+
+    cout << "GDML assembly children Geant4 to GDML Physical Name Map:" << endl;
+    for (const auto& kv : fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap) {
+        cout << "\tAssembly: " << kv.first << endl;
+        for (const auto& childKv : kv.second) {
+            cout << "\t\t" << childKv.first << " → " << childKv.second << endl;
+        }
+    }
+
+    cout << "Assembly imprint to Assembly Logical Name Map:" << endl;
+    for (const auto& kv : fGeant4AssemblyImprintToAssemblyLogicalNameMap) {
+        cout << "\t" << kv.first << " → " << kv.second << endl;
+    }
+    */
 }
 
 TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
