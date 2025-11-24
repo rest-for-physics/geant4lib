@@ -131,6 +131,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                     childrenGeant4toGdmlMap[geant4Name] = physicalVolumeName;
                     if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
                         // it's an assembly
+                        fGeant4AssemblyImprintToAssemblyLogicalNameMap[physicalVolumeName] = refName;
                         hasNestedAssemblies = true;
                     } else {
                         if (hasNestedAssemblies) {
