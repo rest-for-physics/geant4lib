@@ -829,6 +829,8 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
 
     fGeometryPath = GetParameter("geometryPath", "");
+    auto volPathSeparator = GetParameter("volPathSeparator", "_"); // for TRestGeant4GeometryInfo::fPathSeparator
+    fGeant4GeometryInfo.SetPathSeparator(volPathSeparator);
 
     fStoreHadronicTargetInfo = StringToBool(GetParameter("storeHadronicTargetInfo", "false"));
 
