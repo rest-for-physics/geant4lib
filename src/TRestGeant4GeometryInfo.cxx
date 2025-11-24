@@ -36,8 +36,8 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
     }
     return {};
 }
-XMLNodePointer_t GetChildByAttributeValue(TXMLEngine xml, XMLNodePointer_t node,
-                                         const TString& attributeName, const TString& attributeValue) {
+XMLNodePointer_t GetChildByAttributeValue(TXMLEngine xml, XMLNodePointer_t node, const TString& attributeName,
+                                          const TString& attributeValue) {
     XMLNodePointer_t child = xml.GetChild(node);
     while (child) {
         TString childAttributeValue = GetNodeAttribute(xml, child, attributeName);
@@ -84,13 +84,13 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     XMLNodePointer_t structure = myXml::FindChildByName(xml, mainNode, "structure");
     XMLNodePointer_t child = xml.GetChild(structure);
 
-
     /* When a PV is placed from an assembly, its daughter physical volumes are imprinted into the mother
     volume where you are placing the assembly. This daughter PV are named following the format:
-    "av_WWW_impr_XXX_YYY_ZZZ". This first loop over the gdml structure is to get the map "assemblyName" -> "av_WWW"
+    "av_WWW_impr_XXX_YYY_ZZZ". This first loop over the gdml structure is to get the map "assemblyName" ->
+    "av_WWW"
     */
-    size_t assemblyCounter = 0; // track the WWW
-    map<TString, TString> gdmlToGeant4AssemblyNameMap;  // e.g. "assemblyName" -> "av_1"
+    size_t assemblyCounter = 0;                                // track the WWW
+    map<TString, TString> gdmlToGeant4AssemblyNameMap;         // e.g. "assemblyName" -> "av_1"
     map<TString, size_t> gdmlAssemblyNameToImprintCounterMap;  // to track the number of imprints per assembly
     RESTDebug << "Searching for assemblies..." << RESTendl;
     while (child) {  // loop over the direct children of structure (logical volumes and assemblies)
@@ -101,8 +101,8 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
         }
         TString assemblyName = myXml::GetNodeAttribute(xml, child, "name");
         gdmlToGeant4AssemblyNameMap[assemblyName] =
-            "av_" + to_string(++assemblyCounter);  // first assembly is av_1
-        gdmlAssemblyNameToImprintCounterMap[assemblyName] = 0; // initialize with the assembly found
+            "av_" + to_string(++assemblyCounter);               // first assembly is av_1
+        gdmlAssemblyNameToImprintCounterMap[assemblyName] = 0;  // initialize with the assembly found
         RESTDebug << "Assembly found: " << assemblyName << " → " << gdmlToGeant4AssemblyNameMap[assemblyName]
                   << RESTendl;
 
@@ -151,54 +151,64 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
         child = xml.GetNext(child);
     }
 
-    /*Recursive function to obtain the prefix 'av_WWW_impr_XXX' of the daughters of the assemblies imprints.
-    When a PV is placed from an assembly, its daughter physical volumes are imprinted into the mother
-    volume where you are placing the assembly. This daughter PV are named following the format:
-    "av_WWW_impr_XXX_YYY_ZZZ". But, if one of those daughter PV is itself an assembly, its own daughter PV are
-    named (wrongly in my opinion) "av_WWW_impr_XXX+1_yyy_zzz". This behavior is propagated down the chain
-    to the final child assembly which does not have any daughter assembly. So, the godFatherAssembly is the highest
-    assembly which begins this chain and its "av_WWW" is used for all its consecutive assembly children imprints and
-    each of this assembly children adds +1 to the imprint number of the godFatherAssembly.*/
-    std:function<void(const XMLNodePointer_t, const TString, TString)> ProcessNestedAssembliesRecursively =
+/*Recursive function to obtain the prefix 'av_WWW_impr_XXX' of the daughters of the assemblies imprints.
+When a PV is placed from an assembly, its daughter physical volumes are imprinted into the mother
+volume where you are placing the assembly. This daughter PV are named following the format:
+"av_WWW_impr_XXX_YYY_ZZZ". But, if one of those daughter PV is itself an assembly, its own daughter PV are
+named (wrongly in my opinion) "av_WWW_impr_XXX+1_yyy_zzz". This behavior is propagated down the chain
+to the final child assembly which does not have any daughter assembly. So, the godFatherAssembly is the
+highest assembly which begins this chain and its "av_WWW" is used for all its consecutive assembly children
+imprints and each of this assembly children adds +1 to the imprint number of the godFatherAssembly.*/
+std:
+    function<void(const XMLNodePointer_t, const TString, TString)> ProcessNestedAssembliesRecursively =
         [&](const XMLNodePointer_t parentNode, const TString godFatherAssemblyName, const TString pathSoFar) {
-        auto physicalVolumeNode = xml.GetChild(parentNode);
-        //godFatherAssemblyName = parentNode logical name // the highest assembly volume in the nested chain
-        while(physicalVolumeNode) {
-            auto physicalVolumeName = myXml::GetNodeAttribute(xml, physicalVolumeNode, "name");
-            auto volumeRefNode = xml.GetChild(physicalVolumeNode);  // this are volumeref, position and rotation
-            while(volumeRefNode) {
-                TString volumeRefNodeName = xml.GetNodeName(volumeRefNode);  // "volumeref", "position" or "rotation"
-                if (volumeRefNodeName.EqualTo("volumeref")) {
-                    TString refName = myXml::GetNodeAttribute(xml, volumeRefNode, "ref");  // the logical volume name
-                    if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
-                        // it's an assembly
-                        TString newGodFatherAssemblyName = godFatherAssemblyName;
-                        if (newGodFatherAssemblyName.IsNull()) {
-                            //start assembly children chain with this assembly as godFather
-                            newGodFatherAssemblyName = refName;
+            auto physicalVolumeNode = xml.GetChild(parentNode);
+            // godFatherAssemblyName = parentNode logical name // the highest assembly volume in the nested
+            // chain
+            while (physicalVolumeNode) {
+                auto physicalVolumeName = myXml::GetNodeAttribute(xml, physicalVolumeNode, "name");
+                auto volumeRefNode =
+                    xml.GetChild(physicalVolumeNode);  // this are volumeref, position and rotation
+                while (volumeRefNode) {
+                    TString volumeRefNodeName =
+                        xml.GetNodeName(volumeRefNode);  // "volumeref", "position" or "rotation"
+                    if (volumeRefNodeName.EqualTo("volumeref")) {
+                        TString refName =
+                            myXml::GetNodeAttribute(xml, volumeRefNode, "ref");  // the logical volume name
+                        if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
+                            // it's an assembly
+                            TString newGodFatherAssemblyName = godFatherAssemblyName;
+                            if (newGodFatherAssemblyName.IsNull()) {
+                                // start assembly children chain with this assembly as godFather
+                                newGodFatherAssemblyName = refName;
+                            }
+                            size_t imprintCounter =
+                                ++gdmlAssemblyNameToImprintCounterMap[newGodFatherAssemblyName];
+                            TString imprint = gdmlToGeant4AssemblyNameMap[newGodFatherAssemblyName] +
+                                              "_impr_" + to_string(imprintCounter);
+                            TString path =
+                                pathSoFar + (pathSoFar.IsNull() ? "" : fPathSeparator) + physicalVolumeName;
+                            fGeant4AssemblyImprintToGdmlNameMap[imprint] = path;
+                            // Continue the assembly children chain with its correspondant godFatherAssembly
+                            // and path
+                            auto assemblyNode =
+                                myXml::GetChildByAttributeValue(xml, structure, "name", refName);
+                            ProcessNestedAssembliesRecursively(assemblyNode, newGodFatherAssemblyName, path);
+                        } else {
+                            // its a regular logical volume
+                            // Regular children resets the godFatherAssembly and path
+                            auto assemblyNode =
+                                myXml::GetChildByAttributeValue(xml, structure, "name", refName);
+                            ProcessNestedAssembliesRecursively(assemblyNode, "", "");
                         }
-                        size_t imprintCounter = ++gdmlAssemblyNameToImprintCounterMap[newGodFatherAssemblyName];
-                        TString imprint = gdmlToGeant4AssemblyNameMap[newGodFatherAssemblyName] + "_impr_" +
-                                        to_string(imprintCounter);
-                        TString path = pathSoFar + (pathSoFar.IsNull() ? "" : fPathSeparator) + physicalVolumeName;
-                        fGeant4AssemblyImprintToGdmlNameMap[imprint] = path;
-                        // Continue the assembly children chain with its correspondant godFatherAssembly and path
-                        auto assemblyNode = myXml::GetChildByAttributeValue(xml, structure, "name", refName);
-                        ProcessNestedAssembliesRecursively(assemblyNode, newGodFatherAssemblyName, path);
-                    } else {
-                        // its a regular logical volume
-                        // Regular children resets the godFatherAssembly and path
-                        auto assemblyNode = myXml::GetChildByAttributeValue(xml, structure, "name", refName);
-                        ProcessNestedAssembliesRecursively(assemblyNode, "", "");
                     }
+                    volumeRefNode = xml.GetNext(volumeRefNode);
                 }
-                volumeRefNode = xml.GetNext(volumeRefNode);
+                physicalVolumeNode = xml.GetNext(physicalVolumeNode);
             }
-            physicalVolumeNode = xml.GetNext(physicalVolumeNode);
-        }
-    };
+        };
 
-    // We loop a second time over the gdml structure to get the imprint of each assembly 
+    // We loop a second time over the gdml structure to get the imprint of each assembly
     // into fGeant4AssemblyImprintToGdmlNameMap: e.g. "av_2_impr_5" -> "shielding/vessel"
     auto worldNode = myXml::GetChildByAttributeValue(xml, structure, "name", "world");
     if (!worldNode) {
@@ -208,8 +218,8 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
             exit(1);
         }
     }
-    TString godFatherAssemblyName = ""; // the highest assembly volume in the nested chain
-    TString pathSoFar = ""; // the path for the nested assemblies
+    TString godFatherAssemblyName = "";  // the highest assembly volume in the nested chain
+    TString pathSoFar = "";              // the path for the nested assemblies
     ProcessNestedAssembliesRecursively(worldNode, godFatherAssemblyName, pathSoFar);
 
     // We loop a third time over gdml structure to get the physical and logical volumes names
