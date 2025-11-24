@@ -36,6 +36,18 @@ TString GetNodeAttribute(TXMLEngine xml, XMLNodePointer_t node, const TString& a
     }
     return {};
 }
+XMLNodePointer_t GetChildByAttributeValue(TXMLEngine xml, XMLNodePointer_t node,
+                                         const TString& attributeName, const TString& attributeValue) {
+    XMLNodePointer_t child = xml.GetChild(node);
+    while (child) {
+        TString childAttributeValue = GetNodeAttribute(xml, child, attributeName);
+        if (childAttributeValue.EqualTo(attributeValue)) {
+            return child;
+        }
+        child = xml.GetNext(child);
+    }
+    return nullptr;
+}
 void AddVolumesRecursively(vector<TString>* physicalNames, vector<TString>* logicalNames,
                            const vector<TString>& children, map<TString, TString>& nameTable,
                            map<TString, vector<TString>>& childrenTable, const TString& name = "",
