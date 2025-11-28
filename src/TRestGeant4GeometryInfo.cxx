@@ -130,8 +130,6 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                         to_string(childrenPVCounter++);  // first pv is logicalVolumeName_pv_0
                     childrenGeant4toGdmlMap[geant4Name] = physicalVolumeName;
                     if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
-                        // it's an assembly
-                        fGeant4AssemblyImprintToAssemblyLogicalNameMap[physicalVolumeName] = refName;
                         hasNestedAssemblies = true;
                     } else {
                         if (hasNestedAssemblies) {
@@ -245,6 +243,9 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
                         myXml::GetNodeAttribute(xml, volumeRefNode, "ref");  // the logical volume name
                     nameTable[physicalVolumeName] = refName;
                     childrenTable[volumeName].push_back(physicalVolumeName);
+                    if (gdmlToGeant4AssemblyNameMap.count(refName) > 0) {
+                        fGeant4AssemblyImprintToAssemblyLogicalNameMap[physicalVolumeName] = refName;
+                    }
                 }
                 volumeRefNode = xml.GetNext(volumeRefNode);
             }
