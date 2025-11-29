@@ -357,18 +357,29 @@ TString TRestGeant4GeometryInfo::GetAlternativePathFromGeant4Path(const TString&
 
 TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
     const TString& geant4PhysicalName) const {
-    if (fGeant4PhysicalNameToNewPhysicalNameMap.count(geant4PhysicalName) > 0) {
-        return fGeant4PhysicalNameToNewPhysicalNameMap.at(geant4PhysicalName);
+    for (const auto& kv : fNewPhysicalToGeant4PhysicalNameMap) {
+        if (kv.second.EqualTo(geant4PhysicalName)) {
+            return kv.first;
+        }
     }
     return geant4PhysicalName;
 }
 
+set<TString> TRestGeant4GeometryInfo::GetAlternativeNamesFromGeant4PhysicalName(
+    const TString& geant4PhysicalName) const {
+    set<TString> alternativeNames;
+    for (const auto& kv : fNewPhysicalToGeant4PhysicalNameMap) {
+        if (kv.second.EqualTo(geant4PhysicalName)) {
+            alternativeNames.insert(kv.first);
+        }
+    }
+    return alternativeNames;
+}
+
 TString TRestGeant4GeometryInfo::GetGeant4PhysicalNameFromAlternativeName(
     const TString& alternativeName) const {
-    for (const auto& kv : fGeant4PhysicalNameToNewPhysicalNameMap) {
-        if (kv.second == alternativeName) {
-            return kv.first;
-        }
+    if (fNewPhysicalToGeant4PhysicalNameMap.count(alternativeName) > 0) {
+        return fNewPhysicalToGeant4PhysicalNameMap.at(alternativeName);
     }
     return "";
 }
@@ -447,8 +458,8 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
 std::vector<TString> TRestGeant4GeometryInfo::GetAllAlternativePhysicalVolumes() const {
     auto volumes = std::vector<TString>();
 
-    for (const auto& kv : fPhysicalToLogicalVolumeMap) {
-        volumes.emplace_back(GetAlternativeNameFromGeant4PhysicalName(kv.first));
+    for (const auto& kv : fNewPhysicalToGeant4PhysicalNameMap) {
+        volumes.emplace_back(kv.first);
     }
 
     return volumes;
