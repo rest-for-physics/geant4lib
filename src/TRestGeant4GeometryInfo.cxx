@@ -146,7 +146,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
             }
             physicalVolumeNode = xml.GetNext(physicalVolumeNode);
         }
-        fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap[assemblyName] = childrenGeant4toGdmlMap;
+        fGdmlAssemblyToChildrenGeant4ToGdmlPhysicalNameMap[assemblyName] = childrenGeant4toGdmlMap;
         child = xml.GetNext(child);
     }
 
@@ -311,7 +311,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
     }
 
     cout << "GDML assembly children Geant4 to GDML Physical Name Map:" << endl;
-    for (const auto& kv : fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap) {
+    for (const auto& kv : fGdmlAssemblyToChildrenGeant4ToGdmlPhysicalNameMap) {
         cout << "\tAssembly: " << kv.first << endl;
         for (const auto& childKv : kv.second) {
             cout << "\t\t" << childKv.first << " → " << childKv.second << endl;
@@ -345,7 +345,7 @@ TString TRestGeant4GeometryInfo::GetAlternativePathFromGeant4Path(const TString&
         auto gvImprintPosition = convertedPath.find(gvImprint.Data());
         if (gvImprintPosition != std::string::npos) {
             for (const auto& [childGeant4Name, childGdmlName] :
-                 fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap.at(assemblyLogicalName)) {
+                 fGdmlAssemblyToChildrenGeant4ToGdmlPhysicalNameMap.at(assemblyLogicalName)) {
                 TString toReplace = gvImprint + fPathSeparator + childGeant4Name;
                 TString replaceBy = gvImprint + fPathSeparator + childGdmlName;
                 convertedPath = Replace(convertedPath, toReplace.Data(), replaceBy.Data());

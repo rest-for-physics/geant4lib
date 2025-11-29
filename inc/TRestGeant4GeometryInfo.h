@@ -38,7 +38,7 @@ class TRestGeant4GeometryInfo {
     std::map<TString, TString> fNewPhysicalToGeant4PhysicalNameMap; // reverse map of fGeant4PhysicalNameToNewPhysicalNameMap
 
     std::map<TString, TString> fGeant4AssemblyImprintToGdmlNameMap;
-    std::map<TString, std::map<TString, TString>> fGdmlAssemblyTChildrenGeant4ToGdmlPhysicalNameMap;
+    std::map<TString, std::map<TString, TString>> fGdmlAssemblyToChildrenGeant4ToGdmlPhysicalNameMap;
     std::map<TString, TString> fGeant4AssemblyImprintToAssemblyLogicalNameMap;
 
     std::map<TString, TString> fPhysicalToLogicalVolumeMap;
