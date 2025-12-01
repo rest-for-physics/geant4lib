@@ -1393,8 +1393,9 @@ void TRestGeant4Metadata::ReadDetector() {
                 RESTDebug << "Volume name '" << name << "' is a valid logical volume. "
                           << "Inserting all physical volumes from it." << RESTendl;
                 for (const auto& physical : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
-                    physicalVolumes.emplace_back(
-                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                    for (const auto& altPhysical : fGeant4GeometryInfo.GetAlternativeNamesFromGeant4PhysicalName(physical)) {
+                        physicalVolumes.emplace_back(altPhysical);
+                    }
                 }
             }
             // does not match a explicit (gdml) physical name or a logical name, perhaps its a regular exp
@@ -1405,8 +1406,7 @@ void TRestGeant4Metadata::ReadDetector() {
                      fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
                     RESTExtreme << "Volume name '" << name << "' matches physical volume '" << physical << "'"
                                 << RESTendl;
-                    physicalVolumes.emplace_back(
-                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                    physicalVolumes.emplace_back(physical);
                 }
             }
             if (physicalVolumes.empty()) {
@@ -1418,8 +1418,9 @@ void TRestGeant4Metadata::ReadDetector() {
                          fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
                         RESTExtreme << "Volume name '" << name << "' matches logical volume '" << logical
                                     << "' with physical volume '" << physical << "'" << RESTendl;
-                        physicalVolumes.emplace_back(
-                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                        for (const auto& altPhysical : fGeant4GeometryInfo.GetAlternativeNamesFromGeant4PhysicalName(physical)) {
+                            physicalVolumes.emplace_back(altPhysical);
+                        }
                     }
                 }
             }
