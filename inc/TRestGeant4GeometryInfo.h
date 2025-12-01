@@ -41,12 +41,13 @@ class TRestGeant4GeometryInfo {
     std::map<TString, TString>
         fNewPhysicalToGeant4PhysicalNameMap;  // reverse map of old fGeant4PhysicalNameToNewPhysicalNameMap
 
-    /// Map of Geant4 prefix for the assembly imprint to the GDML physical volume name of that assembly imprint.
-    /// For example: {"av_1_impr_1" -> "micromegasRight" , "av_1_impr_2" -> "micromegasleft"}
+    /// Map of Geant4 prefix for the assembly imprint to the GDML physical volume name of that assembly
+    /// imprint. For example: {"av_1_impr_1" -> "micromegasRight" , "av_1_impr_2" -> "micromegasleft"}
     std::map<TString, TString> fGeant4AssemblyImprintToGdmlNameMap;
 
-    /// Map of each assembly name to a map of Geant4 naming of the assembly daughters to their GDML physical volume names.
-    /// For example: {"micromegas_assembly" -> { "mMBaseLV_pv_0" -> "mMBase",  "mMBaseClosingBracketLV_pv_1" -> "mMBaseClosingBracket1"}}
+    /// Map of each assembly name to a map of Geant4 naming of the assembly daughters to their GDML physical
+    /// volume names. For example: {"micromegas_assembly" -> { "mMBaseLV_pv_0" -> "mMBase",
+    /// "mMBaseClosingBracketLV_pv_1" -> "mMBaseClosingBracket1"}}
     std::map<TString, std::map<TString, TString>> fGdmlAssemblyToChildrenGeant4ToGdmlPhysicalNameMap;
 
     /// Map of GDML physical volume name of an assembly to its assembly name.
@@ -128,7 +129,7 @@ class TRestGeant4GeometryInfo {
     TString GetVolumeFromID(Int_t id) const;
     Int_t GetIDFromVolume(const TString& volumeName) const;
 
-    void Print(bool multiLine=false) const;
+    void Print(bool multiLine = false) const;
 
     friend class DetectorConstruction;
 };

@@ -442,7 +442,8 @@ void TRestGeant4GeometryInfo::Print(bool multiLine) const {
         const auto& logical = fPhysicalToLogicalVolumeMap.at(physical);
         const auto& position = GetPosition(physical);
         if (multiLine) {
-            cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")") << endl;
+            cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
+                 << endl;
             cout << "\t\tID: " << GetIDFromVolume(physical) << endl;
             cout << "\t\tLogical: " << fPhysicalToLogicalVolumeMap.at(physical) << endl;
             cout << "\t\tMaterial: " << fLogicalToMaterialMap.at(logical) << endl;
@@ -451,11 +452,12 @@ void TRestGeant4GeometryInfo::Print(bool multiLine) const {
             continue;
         } else {
             cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
-                << " - ID: " << GetIDFromVolume(physical)
-                << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
-                << " - Material: " << fLogicalToMaterialMap.at(logical)                                        //
-                << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"  //
-                << endl;
+                 << " - ID: " << GetIDFromVolume(physical)
+                 << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
+                 << " - Material: " << fLogicalToMaterialMap.at(logical)  //
+                 << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z()
+                 << ") mm"  //
+                 << endl;
         }
     }
 
