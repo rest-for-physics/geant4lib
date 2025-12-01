@@ -328,7 +328,7 @@ void TRestGeant4GeometryInfo::PopulateFromGdml(const TString& gdmlFilename) {
 //////////////////////////////////////////////////////////////////////////
 /// \brief Converts a Geant4 volume path to a GDML volume path. The path is
 /// the concatenation of the names of the nested volumes from the world to the desired volume.
-/// This method is meant mainly meant to handle the conversion of assembly imprints names to the
+/// This method is meant to handle the conversion of assembly imprints names to the
 /// GDML assembly names used in the GDML file.
 /// \param geant4Path The Geant4 volume path.
 /// \return The corresponding GDML volume path using the PV names defined in the GDML file.
@@ -355,6 +355,17 @@ TString TRestGeant4GeometryInfo::GetAlternativePathFromGeant4Path(const TString&
     return TString(convertedPath);
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Gets the alternative physical volume name from the GDML file naming.
+/// Note that if a logical volume with daughter volumes is placed several times,
+/// their children physical volume will share the same Geant4 physical volume name but
+/// different alternative names. This method will return the first alternative name found.
+/// To get all the alternative names for a given Geant4 physical volume name,
+/// use GetAlternativeName<b>s</b>FromGeant4PhysicalName().
+///
+/// \param geant4PhysicalName The Geant4 physical volume name.
+/// \return The corresponding alternative physical volume name used in the GDML file.
+///
 TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
     const TString& geant4PhysicalName) const {
     for (const auto& kv : fNewPhysicalToGeant4PhysicalNameMap) {
@@ -365,6 +376,16 @@ TString TRestGeant4GeometryInfo::GetAlternativeNameFromGeant4PhysicalName(
     return geant4PhysicalName;
 }
 
+///////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the alternative physical volume names from the GDML file naming
+/// that correspond to a given Geant4 physical volume name.
+/// Note that if a logical volume with daughter volumes is placed several times,
+/// their children physical volume will share the same Geant4 physical volume name but
+/// different alternative names. This method will return all the alternative names found.
+///
+/// \param geant4PhysicalName The Geant4 physical volume name.
+/// \return A set with all the corresponding alternative physical volume names used in the GDML file.
+///
 set<TString> TRestGeant4GeometryInfo::GetAlternativeNamesFromGeant4PhysicalName(
     const TString& geant4PhysicalName) const {
     set<TString> alternativeNames;
@@ -411,7 +432,7 @@ void TRestGeant4GeometryInfo::InsertVolumeName(Int_t id, const TString& volumeNa
     fVolumeNameReverseMap[volumeName] = id;
 }
 
-void TRestGeant4GeometryInfo::Print() const {
+void TRestGeant4GeometryInfo::Print(bool multiLine) const {
     cout << "Assembly Geometry: " << (fIsAssembly ? "yes" : "no") << endl;
 
     const auto physicalVolumes = GetAllPhysicalVolumes();
@@ -420,12 +441,22 @@ void TRestGeant4GeometryInfo::Print() const {
         auto geant4Name = GetGeant4PhysicalNameFromAlternativeName(physical);
         const auto& logical = fPhysicalToLogicalVolumeMap.at(physical);
         const auto& position = GetPosition(physical);
-        cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
-             << " - ID: " << GetIDFromVolume(physical)
-             << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
-             << " - Material: " << fLogicalToMaterialMap.at(logical)                                        //
-             << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"  //
-             << endl;
+        if (multiLine) {
+            cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")") << endl;
+            cout << "\t\tID: " << GetIDFromVolume(physical) << endl;
+            cout << "\t\tLogical: " << fPhysicalToLogicalVolumeMap.at(physical) << endl;
+            cout << "\t\tMaterial: " << fLogicalToMaterialMap.at(logical) << endl;
+            cout << "\t\tPosition: (" << position.X() << ", " << position.Y() << ", " << position.Z()
+                 << ") mm" << endl;
+            continue;
+        } else {
+            cout << "\t- " << (geant4Name == physical ? physical : physical + " (" + geant4Name + ")")
+                << " - ID: " << GetIDFromVolume(physical)
+                << " - Logical: " << fPhysicalToLogicalVolumeMap.at(physical)
+                << " - Material: " << fLogicalToMaterialMap.at(logical)                                        //
+                << " - Position: (" << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"  //
+                << endl;
+        }
     }
 
     const auto logicalVolumes = GetAllLogicalVolumes();
@@ -435,6 +466,11 @@ void TRestGeant4GeometryInfo::Print() const {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the logical volume names.
+///
+/// \return A vector with all the logical volume names used in the GDML file.
+///
 std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumes() const {
     auto volumes = std::vector<TString>();
 
@@ -445,6 +481,11 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumes() const {
     return volumes;
 }
 
+////////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the (GDML) physical volume names.
+///
+/// \return A vector with all the (GDML) physical volume names used in the GDML file.
+///
 std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
     auto volumes = std::vector<TString>();
 
@@ -455,6 +496,11 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumes() const {
     return volumes;
 }
 
+///////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the alternative (GDML) physical volume names.
+///
+/// \return A vector with all the alternative (GDML) physical volume names.
+///
 std::vector<TString> TRestGeant4GeometryInfo::GetAllAlternativePhysicalVolumes() const {
     auto volumes = std::vector<TString>();
 
@@ -465,6 +511,12 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllAlternativePhysicalVolumes()
     return volumes;
 }
 
+///////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the (GDML) physical volume names matching a given regular expression.
+///
+/// \param regularExpression The regular expression to match physical volume names.
+/// \return A vector with all the (GDML) physical volume names matching the regular expression.
+///
 std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumesMatchingExpression(
     const TString& regularExpression) const {
     auto volumes = std::vector<TString>();
@@ -480,6 +532,12 @@ std::vector<TString> TRestGeant4GeometryInfo::GetAllPhysicalVolumesMatchingExpre
     return volumes;
 }
 
+///////////////////////////////////////////////////////////////////////////
+/// \brief Gets all the logical volume names matching a given regular expression.
+///
+/// \param regularExpression The regular expression to match logical volume names.
+/// \return A vector with all the logical volume names matching the regular expression.
+///
 std::vector<TString> TRestGeant4GeometryInfo::GetAllLogicalVolumesMatchingExpression(
     const TString& regularExpression) const {
     auto volumes = std::vector<TString>();

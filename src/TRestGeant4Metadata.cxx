@@ -122,6 +122,9 @@
 /// \warning The only requirement is that the gas logical volume (implemented
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
+/// * **volPathSeparator**: This parameter defines the path separator that will
+/// be used for the full path of the nested volumes and assemblies. By default,
+/// this parameter is set to `_`.
 ///
 /// * **subEventTimeDelay**: This parameter defines the event time window. If a
 /// Geant4 energy deposit takes place after this time, those hits will be
@@ -1339,7 +1342,7 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads the storage section defined inside TRestGeant4Metadata.
+/// \brief Reads the detector (old storage) section defined inside TRestGeant4Metadata.
 ///
 /// This section allows to define which hits will be stored to disk.
 /// Different volumes in the geometry can be tagged for hit storage.
