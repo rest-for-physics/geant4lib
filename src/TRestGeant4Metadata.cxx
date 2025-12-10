@@ -122,6 +122,9 @@
 /// \warning The only requirement is that the gas logical volume (implemented
 /// in a single physical volume on the geometry) must be named `gasVolume`.
 ///
+/// * **volPathSeparator**: This parameter defines the path separator that will
+/// be used for the full path of the nested volumes and assemblies. By default,
+/// this parameter is set to `_`.
 ///
 /// * **subEventTimeDelay**: This parameter defines the event time window. If a
 /// Geant4 energy deposit takes place after this time, those hits will be
@@ -829,6 +832,9 @@ void TRestGeant4Metadata::InitFromConfigFile() {
     }
 
     fGeometryPath = GetParameter("geometryPath", "");
+    auto volPathSeparator =
+        GetParameter("volPathSeparator", "_");  // for TRestGeant4GeometryInfo::fPathSeparator
+    fGeant4GeometryInfo.SetPathSeparator(volPathSeparator);
 
     fStoreHadronicTargetInfo = StringToBool(GetParameter("storeHadronicTargetInfo", "false"));
 
@@ -1336,7 +1342,7 @@ void TRestGeant4Metadata::AddParticleSource(TRestGeant4ParticleSource* src) {
 }
 
 ///////////////////////////////////////////////
-/// \brief Reads the storage section defined inside TRestGeant4Metadata.
+/// \brief Reads the detector (old storage) section defined inside TRestGeant4Metadata.
 ///
 /// This section allows to define which hits will be stored to disk.
 /// Different volumes in the geometry can be tagged for hit storage.
@@ -1387,29 +1393,44 @@ void TRestGeant4Metadata::ReadDetector() {
         vector<string> physicalVolumes;
         if (!fGeant4GeometryInfo.IsValidGdmlName(name)) {
             if (fGeant4GeometryInfo.IsValidLogicalVolume(name)) {
+                RESTDebug << "Volume name '" << name << "' is a valid logical volume. "
+                          << "Inserting all physical volumes from it." << RESTendl;
                 for (const auto& physical : fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(name)) {
-                    physicalVolumes.emplace_back(
-                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                    for (const auto& altPhysical :
+                         fGeant4GeometryInfo.GetAlternativeNamesFromGeant4PhysicalName(physical)) {
+                        physicalVolumes.emplace_back(altPhysical);
+                    }
                 }
             }
             // does not match a explicit (gdml) physical name or a logical name, perhaps its a regular exp
             if (physicalVolumes.empty()) {
+                RESTDebug << "Volume name '" << name << "' is not a valid logical volume. "
+                          << "Trying to match as regular expression for physical volumes." << RESTendl;
                 for (const auto& physical :
                      fGeant4GeometryInfo.GetAllPhysicalVolumesMatchingExpression(name)) {
-                    physicalVolumes.emplace_back(
-                        fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                    RESTExtreme << "Volume name '" << name << "' matches physical volume '" << physical << "'"
+                                << RESTendl;
+                    physicalVolumes.emplace_back(physical);
                 }
             }
             if (physicalVolumes.empty()) {
+                RESTDebug << "Volume name '" << name
+                          << "' is not a valid logical volume neither physical volume regex. "
+                          << "Trying to match as regular expression for logical volumes." << RESTendl;
                 for (const auto& logical : fGeant4GeometryInfo.GetAllLogicalVolumesMatchingExpression(name)) {
                     for (const auto& physical :
                          fGeant4GeometryInfo.GetAllPhysicalVolumesFromLogical(logical)) {
-                        physicalVolumes.emplace_back(
-                            fGeant4GeometryInfo.GetAlternativeNameFromGeant4PhysicalName(physical));
+                        RESTExtreme << "Volume name '" << name << "' matches logical volume '" << logical
+                                    << "' with physical volume '" << physical << "'" << RESTendl;
+                        for (const auto& altPhysical :
+                             fGeant4GeometryInfo.GetAlternativeNamesFromGeant4PhysicalName(physical)) {
+                            physicalVolumes.emplace_back(altPhysical);
+                        }
                     }
                 }
             }
         } else {
+            RESTDebug << "Volume name '" << name << "' is a valid physical volume." << RESTendl;
             physicalVolumes.push_back(name);
         }
 
@@ -1450,7 +1471,8 @@ void TRestGeant4Metadata::ReadDetector() {
 
         for (const auto& physical : physicalVolumes) {
             RESTInfo << "Adding " << (isSensitive ? "sensitive" : "active") << " volume from RML: '"
-                     << physical << (chance != 1 ? " with change: " + to_string(chance) : " ") << RESTendl;
+                     << physical << "'" << (chance != 1 ? " with chance: " + to_string(chance) : " ")
+                     << RESTendl;
             SetActiveVolume(physical, chance, maxStep);
             if (isSensitive) {
                 InsertSensitiveVolume(physical);
