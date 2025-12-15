@@ -3,9 +3,9 @@
 #define REST_TRESTGEANT4GEOMETRYINFO_H
 
 #include <TRestStringOutput.h>
+#include <TRotation.h>
 #include <TString.h>
 #include <TVector3.h>
-#include <TRotation.h>
 
 #include <map>
 #include <set>
