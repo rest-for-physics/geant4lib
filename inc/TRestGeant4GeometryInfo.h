@@ -5,6 +5,7 @@
 #include <TRestStringOutput.h>
 #include <TString.h>
 #include <TVector3.h>
+#include <TRotation.h>
 
 #include <map>
 #include <set>
@@ -13,7 +14,7 @@
 class G4VPhysicalVolume;
 
 class TRestGeant4GeometryInfo {
-    ClassDef(TRestGeant4GeometryInfo, 4);
+    ClassDef(TRestGeant4GeometryInfo, 5);
 
    private:
     bool fIsAssembly = false;
@@ -67,6 +68,9 @@ class TRestGeant4GeometryInfo {
     /// Map of GDML physical volume name to its position in world coordinates
     std::map<TString, TVector3> fPhysicalToPositionInWorldMap;
 
+    /// Map of GDML physical volume name to its rotation in world coordinates
+    std::map<TString, TRotation> fPhysicalToRotationInWorldMap;
+
    public:
     inline TRestGeant4GeometryInfo() = default;
 
@@ -119,6 +123,11 @@ class TRestGeant4GeometryInfo {
     /// \brief Gets the position in world coordinates of a given physical volume.
     inline TVector3 GetPosition(const TString& volume) const {
         return fPhysicalToPositionInWorldMap.at(volume);
+    }
+
+    /// \brief Gets the rotation in world coordinates of a given physical volume.
+    inline TRotation GetRotation(const TString& volume) const {
+        return fPhysicalToRotationInWorldMap.at(volume);
     }
 
     inline bool IsAssembly() const { return fIsAssembly; }
