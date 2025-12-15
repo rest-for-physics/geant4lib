@@ -87,7 +87,7 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    protected:
-    // add here the members of your event process
+    std::map<std::string, std::string> GetAliasObservableNameToVolume();
 
    public:
     RESTValue GetInputEvent() const override { return fInputG4Event; }
