@@ -34,7 +34,9 @@
 /// This process includes generic observables by using a common pattern
 /// inside the observable name. These observables require to be completed
 /// with the name of a volume used in the GDML geometry, or the name
-/// of a particle following Geant4 conventions.
+/// of a particle following Geant4 conventions. For convenience, you can also
+/// specify the volume with the attribute `volume` and use an alias name
+/// for the observable (useful when volume names are long).
 ///
 /// The following list describes the generic observables that can be used
 /// in this analysis process.
@@ -50,6 +52,11 @@
 ///    // vesselVolumeEDep will register the total energy deposited at the vessel volume
 ///    <observable name="vesselVolumeEDep" value="ON"
 ///            description="Energy deposited in the vessel volume in keV" />
+///
+///    // sensGasLeftVolumeEDep will register the total energy deposited at the sensitive gas left volume
+///    <observable name="sensGasLeftVolumeEDep" value="ON"
+///            volume="shielding/outerGas/vesselassembly/gas/sensitiveGasLeft"
+///            description="Energy deposited in the sensitive gas left volume in keV" />
 /// \endcode
 ///
 /// * **MeanPos**: This observable will register the mean position of
@@ -270,6 +277,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
+    std::map<std::string, std::string> aliasObsToVol = GetAliasObservableNameToVolume();
 
     if (fPerProcessSensitiveEnergy) {
         fObservables.emplace_back("PerProcessPhotoelectric");
@@ -286,6 +294,9 @@ void TRestGeant4AnalysisProcess::InitProcess() {
     for (unsigned int i = 0; i < fObservables.size(); i++) {
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
+            if (aliasObsToVol.find(fObservables[i]) != aliasObsToVol.end()) {
+                volName = aliasObsToVol[fObservables[i]].c_str();
+            }
 
             Int_t volId = fG4Metadata->GetActiveVolumeID(volName);
             if (volId >= 0) {
@@ -314,6 +325,9 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 
         if (fObservables[i].find("MeanPos") != string::npos) {
             TString volName2 = fObservables[i].substr(0, fObservables[i].length() - 8).c_str();
+            if (aliasObsToVol.find(fObservables[i]) != aliasObsToVol.end()) {
+                volName2 = aliasObsToVol[fObservables[i]].c_str();
+            }
             std::string dirId = fObservables[i].substr(fObservables[i].length() - 1, 1);
 
             Int_t volId2 = fG4Metadata->GetActiveVolumeID(volName2);
@@ -369,6 +383,9 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 
             TString processName = fObservables[i].substr(fObservables[i].length() - (ls + 7), ls).c_str();
             TString volName3 = fObservables[i].substr(0, fObservables[i].length() - (ls + 7)).c_str();
+            if (aliasObsToVol.find(fObservables[i]) != aliasObsToVol.end()) {
+                volName3 = aliasObsToVol[fObservables[i]].c_str();
+            }
             Int_t volId3 = fG4Metadata->GetActiveVolumeID(volName3);
 
             if (volId3 >= 0) {
@@ -591,6 +608,37 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     }
 
     return fOutputG4Event;
+}
+
+std::map<std::string, std::string> TRestGeant4AnalysisProcess::GetAliasObservableNameToVolume() {
+    TiXmlElement* e = GetElement("observable");
+    std::map<std::string, std::string> obsNamesToVolumes;
+
+    while (e != nullptr) {
+        const char* obschr = e->Attribute("name");
+        const char* _value = e->Attribute("value");
+        const char* _vol = e->Attribute("volume");
+
+        string value;
+        if (_value == nullptr)
+            value = "ON";
+        else
+            value = _value;
+
+        if (ToUpper(value) == "ON") {
+            if (obschr != nullptr) {
+                string volume;
+                if (_vol) {
+                    volume = _vol;
+                    obsNamesToVolumes[(string)obschr] = volume;
+                }
+            }
+        }
+
+        e = e->NextSiblingElement("observable");
+    }
+
+    return obsNamesToVolumes;
 }
 
 ///////////////////////////////////////////////
