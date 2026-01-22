@@ -217,7 +217,8 @@
 ///
 /// * **gdml**: Bound the generator to a certain gdml component. No need to define size
 /// and position. Needs another "from" parameter. If the "from" parameter is defined,
-/// we can omit `shape="gdml"` parameter.
+/// we can omit `shape="gdml"` parameter. In the case that the gdml volume has daughters,
+/// the particles will be generated excluding the daughter volumes.
 /// \code
 ///     // We launch particles from random positions inside the vessel volume defined in our GDML geometry
 ///     <generator type="volume" from="vessel" > ... </generator>
@@ -543,9 +544,15 @@
 /// the GDML geometry. If an event did not produce an energy deposit in the
 /// sensitiveVolume, the event will not be stored at all. Therefore, the
 /// sensitive volume will serve as a trigger volume to decide when an event
-/// should be stored. For the moment we can only define a single sensitive
-/// volume, but it might be desirable to introduce boolean operations with
-/// different geometry volumes.
+/// should be stored. Multiple sensitive volumes can be defined by using
+/// different `<volume>` definitions with the parameter `sensitive="true"`.
+/// When multiple sensitive volumes are defined, the event will be stored
+/// if an energy deposit is produced in any of these sensitive volumes.
+/// You can also use a logical volume as sensitive volume, in this case
+/// all the physical volumes corresponding to that logical volume will be
+/// set as sensitive volumes. Furthermore, you can use regular expressions
+/// (at the parameter `name` of the `<volume>` definition) to define
+/// multiple sensitive volumes matching a certain pattern.
 ///
 /// We can define the energy range we are interested in by defining the
 /// parameter energyRange. The event will be written to disk only if the
@@ -629,8 +636,9 @@
 /// \endcode
 ///
 /// The option `removeUnwantedTracks` can optionally be enabled inside detector section:
-///
+/// \code
 /// <detector><removeUnwantedTracks enabled="true" keepZeroEnergyTracks="true"/></detector>
+/// \endcode
 ///
 /// This option will remove all tracks that do not deposit energy in any of the sensitive volumes or in any of
 /// the volumes marked as 'keepTracks' (for instance <volume name="veto" keepTracks="true" />).
