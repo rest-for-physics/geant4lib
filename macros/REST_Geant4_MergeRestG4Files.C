@@ -123,6 +123,7 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     mergeMetadata.Write();
     mergeRun->UpdateOutputFile();
     mergeRun->CloseFile();
+    delete mergeRun;
 
     // Open the file again to check the number of events
     TRestRun runCheck(outputFilename);
