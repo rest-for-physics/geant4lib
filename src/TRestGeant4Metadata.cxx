@@ -499,7 +499,7 @@
 ///
 ///
 /// * **Formula**: It will use one of the predefined formulas to generate the primaries.
-/// The available formulas are: "Cos2", "Cos3".
+/// The available formulas are: "Cos2", "Cos3", "SinCos2", "Sin2theta".
 /// A range parameter can be specified to limit the zenith angular range of the generated primaries.
 /// It will not go over or under the predefined range for the formula `range=(10,45)deg`.
 /// A parameter `nPoints` can be defined to set the random sampling of the formula.
