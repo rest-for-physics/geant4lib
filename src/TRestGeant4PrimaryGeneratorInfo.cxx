@@ -334,6 +334,8 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
             return "Cos2";
         case AngularDistributionFormulas::COS3:
             return "Cos3";
+        case AngularDistributionFormulas::SIN_COS2:
+            return "SinCos2";
         case AngularDistributionFormulas::SIN_2THETA:
             return "Sin2theta";
     }
@@ -351,6 +353,10 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
     } else if (TString(type).EqualTo(AngularDistributionFormulasToString(AngularDistributionFormulas::COS3),
                                      TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::COS3;
+    } else if (TString(type).EqualTo(
+                   AngularDistributionFormulasToString(AngularDistributionFormulas::SIN_COS2),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionFormulas::SIN_COS2;
     } else if (TString(type).EqualTo(
                    AngularDistributionFormulasToString(AngularDistributionFormulas::SIN_2THETA),
                    TString::ECaseCompare::kIgnoreCase)) {
@@ -387,6 +393,18 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
             };
             const char* title = "AngularDistribution: Cos3";
             auto f = TF1(title, cos3, 0.0, TMath::Pi());
+            f.SetTitle(title);
+            return f;
+        }
+        case AngularDistributionFormulas::SIN_COS2: {
+            auto sinCos2 = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+                    return TMath::Sin(xs[0]) * TMath::Power(TMath::Cos(xs[0]), 2);
+                }
+                return 0.0;
+            };
+            const char* title = "AngularDistribution: SinCos2";
+            auto f = TF1(title, sinCos2, 0.0, TMath::Pi());
             f.SetTitle(title);
             return f;
         }
