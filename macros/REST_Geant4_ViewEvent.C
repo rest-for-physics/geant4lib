@@ -1,6 +1,8 @@
 #include "TRestBrowser.h"
 #include "TRestTask.h"
 
+#include <cstdlib>
+
 #ifndef RestTask_ViewG4Events
 #define RestTask_ViewG4Events
 
@@ -40,6 +42,7 @@ Int_t REST_Geant4_ViewEvent(TString fName, Double_t geomScale = 0.1) {
 // while keeping GUI alive.
 #ifdef REST_MANAGER
     GetChar("Running...\nPress a key to exit");
+    std::_Exit(0);
 #endif
 
     return 0;
