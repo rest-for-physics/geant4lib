@@ -25,10 +25,14 @@
 
 #include <TRestEventProcess.h>
 
+#include <map>
+#include <set>
+#include <string>
+
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
-//! Recomputes the energy of every hit based on quenching factor for each particle and volume
+//! Recomputes visible hit energies using simple Lindhard and Birks quenching models
 class TRestGeant4QuenchingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestGeant4Event input
@@ -42,6 +46,17 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
 
     std::set<std::string> fUserVolumeExpressions;
     std::set<std::string> fVolumes;
+    std::map<std::string, std::string> fUserVolumeModels;
+    std::map<std::string, double> fUserVolumeBirksConstants;
+    std::map<std::string, double> fUserVolumeBirksFallbackStepLengths;
+
+    std::map<std::string, std::string> fVolumeModels;
+    std::map<std::string, double> fVolumeBirksConstants;
+    std::map<std::string, double> fVolumeBirksFallbackStepLengths;
+
+    Double_t fBirksConstant = 0.000126;       // mm/keV, equivalent to 0.126 mm/MeV
+    Double_t fBirksFallbackStepLength = 0.5;  // mm
+    Bool_t fApplyToHitEnergies = true;
 
     void Initialize() override;
     void InitFromConfigFile() override;
@@ -72,6 +87,6 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     explicit TRestGeant4QuenchingProcess(const char* configFilename);
     ~TRestGeant4QuenchingProcess() override;
 
-    ClassDefOverride(TRestGeant4QuenchingProcess, 2);
+    ClassDefOverride(TRestGeant4QuenchingProcess, 3);
 };
 #endif

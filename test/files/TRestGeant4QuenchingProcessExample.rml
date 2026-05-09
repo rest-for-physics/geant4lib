@@ -4,18 +4,12 @@
 
     <TRestGeant4QuenchingProcess>
 
-        <volume name="^scintillatorVolume">
-            <particle name="gamma" quenchingFactor="1.0"/>
-            <particle name="e-" quenchingFactor="0.5"/>
-            <particle name="e+" quenchingFactor="0.9"/>
-            <particle name="mu-" quenchingFactor="0.2"/>
-            <particle name="neutron" quenchingFactor="0.1"/>
-        </volume>
+        <parameter name="applyToHitEnergies" value="true"/>
+        <parameter name="birksConstant" value="0.126mm/MeV"/>
+        <parameter name="birksFallbackStepLength" value="0.5mm"/>
 
-        <volume name="gasVolume">
-            <particle name="gamma" quenchingFactor="0.2"/>
-            <particle name="e-" quenchingFactor="0.2"/>
-        </volume>
+        <volume name="^scintillatorVolume" model="birks"/>
+        <volume name="gasVolume" model="lindhard"/>
 
     </TRestGeant4QuenchingProcess>
 
