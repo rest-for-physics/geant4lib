@@ -14,6 +14,21 @@
 ///                     in a REST-Geant4 simulation.
 ///
 ///                 Javier Galan
+///
+///             ParticleHP options for neutron simulations can be passed through
+///             the HP hadronic physics-list entries. For example:
+///
+///             <physicsList name="G4HadronPhysicsQGSP_BIC_HP">
+///                 <option name="usePhotoEvaporation" value="true"/>
+///                 <option name="skipMissingIsotopes" value="true"/>
+///             </physicsList>
+///
+///             These options are translated by restG4 into the corresponding
+///             G4ParticleHPManager settings before the hadronic processes are
+///             constructed. They are useful for validation studies of
+///             neutron-capture gamma cascades, where the default ParticleHP
+///             capture final states and the PhotonEvaporation de-excitation
+///             model should be compared explicitly.
 ///_______________________________________________________________________________
 
 #include "TRestGeant4PhysicsLists.h"
