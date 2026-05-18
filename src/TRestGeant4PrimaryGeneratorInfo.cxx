@@ -460,11 +460,12 @@ TF2 TRestGeant4PrimaryGeneratorTypes::EnergyAndAngularDistributionFormulasToRoot
             // Guan formula from https://arxiv.org/pdf/1509.06176.pdf
             // muon rest mass is 105.7 MeV
             // energy in keV
-            // already integrated in phi (*2pi): formula returns (counts/cm2/s)/keV/rad(theta)
+            // Original Guan formula is differential in solid angle. The final factor integrates over
+            // azimuth and converts dOmega to 2*pi*sin(theta)*dtheta, so do not add another 2*pi here.
             const char* title = "Cosmic Muons Energy and Angular";
             auto f =
                 TF2(title,
-                    "2*TMath::Pi()*1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
+                    "1E-6*0.14*TMath::Power(x*1E-6*(1.+3.64/"
                     "(x*1E-6*TMath::Power(TMath::Power((TMath::Power(TMath::Cos(y),2)+0.0105212-0.068287*"
                     "TMath::Power(TMath::Cos(y),0.958633)+0.0407253*TMath::Power(TMath::Cos(y),0.817285)"
                     ")/(0.982960),0.5),1.29))),-2.7)*(1./"
