@@ -20,7 +20,7 @@ jobs:
     name: Validate library
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
@@ -33,7 +33,7 @@ jobs:
     name: Validate pre-commit config
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - name: Checkout geant4lib
         uses: rest-for-physics/framework/.github/actions/checkout@master
@@ -50,7 +50,7 @@ jobs:
     name: Build only geant4lib
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - uses: actions/checkout@v3
       - name: Build and install
