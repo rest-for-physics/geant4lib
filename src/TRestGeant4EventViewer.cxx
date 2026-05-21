@@ -9,7 +9,7 @@
 ///
 ///             nov 2015:   First concept
 ///                 Viewer class for a TRestGeant4Event
-///                 Javier Galan/JuanAn Garcia
+///                 Javier Galan / JuanAn Garcia / Luis Obis
 ///_______________________________________________________________________________
 
 #include "TRestGeant4EventViewer.h"
@@ -22,9 +22,7 @@ ClassImp(TRestGeant4EventViewer);
 
 TRestGeant4EventViewer::TRestGeant4EventViewer() { Initialize(); }
 
-TRestGeant4EventViewer::~TRestGeant4EventViewer() {
-    // TRestGeant4EventViewer destructor
-}
+TRestGeant4EventViewer::~TRestGeant4EventViewer() = default;
 
 void TRestGeant4EventViewer::Initialize() {
     fG4Event = new TRestGeant4Event();
@@ -232,8 +230,8 @@ void TRestGeant4EventViewer::AddEvent(TRestEvent* event) {
     Update();
 }
 
-void TRestGeant4EventViewer::AddText(TString text, TVector3 at) {
-    TEveText* evText = new TEveText(text);
+void TRestGeant4EventViewer::AddText(const TString& text, const TVector3& at) {
+    auto evText = new TEveText(text);
     evText->SetName("Event title");
     evText->SetFontSize(12);
     evText->RefMainTrans().SetPos((at.X() + 15) * fGeomScale, (at.Y() + 15) * fGeomScale,
@@ -242,8 +240,8 @@ void TRestGeant4EventViewer::AddText(TString text, TVector3 at) {
     gEve->AddElement(evText);
 }
 
-void TRestGeant4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
-    TEvePointSet* marker = new TEvePointSet(1);
+void TRestGeant4EventViewer::AddMarker(Int_t trkID, const TVector3& at, const TString& name) {
+    auto marker = new TEvePointSet(1);
     marker->SetName(name);
     marker->SetMarkerColor(kMagenta);
     marker->SetMarkerStyle(3);
@@ -252,12 +250,13 @@ void TRestGeant4EventViewer::AddMarker(Int_t trkID, TVector3 at, TString name) {
     fHitConnectors[trkID]->AddElement(marker);
 }
 
-void TRestGeant4EventViewer::NextTrackVertex(Int_t trkID, TVector3 to) {
+void TRestGeant4EventViewer::NextTrackVertex(Int_t trkID, const TVector3& to) {
     fHitConnectors[trkID]->SetNextPoint(to.X() * fGeomScale, to.Y() * fGeomScale, to.Z() * fGeomScale);
 }
 
-void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from, TString name) {
-    TEveLine* evLine = new TEveLine();
+void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, const TVector3& from,
+                                      const TString& name) {
+    auto evLine = new TEveLine();
     evLine->SetName(name);
     fHitConnectors.push_back(evLine);
 
@@ -281,8 +280,8 @@ void TRestGeant4EventViewer::AddTrack(Int_t trkID, Int_t parentID, TVector3 from
     }
 }
 
-void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, TVector3 from, TString name) {
-    TEveLine* evLine = new TEveLine();
+void TRestGeant4EventViewer::AddParentTrack(Int_t trkID, const TVector3& from, const TString& name) {
+    auto evLine = new TEveLine();
     evLine->SetName(name);
     fHitConnectors.push_back(evLine);
 

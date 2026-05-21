@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include "TRestBrowser.h"
+#include "TRestGeant4Event.h"
 #include "TRestTask.h"
 
 #ifndef RestTask_ViewG4Events
