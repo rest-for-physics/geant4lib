@@ -138,6 +138,58 @@ Bool_t TRestGeant4PhysicsLists::PhysicsListExists(const TString& physicsListName
     return validPhysicsLists.count(physicsListName) > 0;
 }
 
+Bool_t TRestGeant4PhysicsLists::IsEquivalentTo(const TRestGeant4PhysicsLists& other,
+                                               string* difference) const {
+    const auto setDifference = [&](const string& message) {
+        if (difference != nullptr) {
+            *difference = message;
+        }
+    };
+
+    if (fPhysicsLists != other.fPhysicsLists) {
+        setDifference("physics-list names differ");
+        return false;
+    }
+    if (fPhysicsListOptions != other.fPhysicsListOptions) {
+        setDifference("physics-list options differ");
+        return false;
+    }
+    if (fCutForElectron != other.fCutForElectron) {
+        setDifference("electron production cuts differ");
+        return false;
+    }
+    if (fCutForGamma != other.fCutForGamma) {
+        setDifference("gamma production cuts differ");
+        return false;
+    }
+    if (fCutForPositron != other.fCutForPositron) {
+        setDifference("positron production cuts differ");
+        return false;
+    }
+    if (fCutForMuon != other.fCutForMuon) {
+        setDifference("muon production cuts differ");
+        return false;
+    }
+    if (fCutForNeutron != other.fCutForNeutron) {
+        setDifference("neutron production cuts differ");
+        return false;
+    }
+    if (fMinEnergyRangeProductionCuts != other.fMinEnergyRangeProductionCuts) {
+        setDifference("minimum production-cut energy differs");
+        return false;
+    }
+    if (fMaxEnergyRangeProductionCuts != other.fMaxEnergyRangeProductionCuts) {
+        setDifference("maximum production-cut energy differs");
+        return false;
+    }
+    if (fIonLimitStepList != other.fIonLimitStepList) {
+        setDifference("ion step-limit lists differ");
+        return false;
+    }
+
+    return true;
+}
+
 void TRestGeant4PhysicsLists::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 

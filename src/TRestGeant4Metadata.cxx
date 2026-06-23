@@ -760,6 +760,9 @@
 #include <TRestGDMLParser.h>
 #include <TRestRun.h>
 
+#include <memory>
+#include <stdexcept>
+
 #include "TRestGeant4ParticleSourceCosmics.h"
 #include "TRestGeant4PrimaryGeneratorInfo.h"
 
@@ -1729,6 +1732,11 @@ void TRestGeant4Metadata::Merge(const TRestGeant4Metadata& metadata) {
     fIsMerge = true;
     fSeed = 0;  // seed makes no sense in a merged file
 
+    string physicsInfoConflict;
+    if (!fGeant4PhysicsInfo.Merge(metadata.fGeant4PhysicsInfo, &physicsInfoConflict)) {
+        throw runtime_error("Unable to merge TRestGeant4PhysicsInfo: " + physicsInfoConflict);
+    }
+
     fNEvents += metadata.fNEvents;
     fNRequestedEntries += metadata.fNRequestedEntries;
     fSimulationTime += metadata.fSimulationTime;
@@ -1739,6 +1747,38 @@ TRestGeant4Metadata::TRestGeant4Metadata(const TRestGeant4Metadata& metadata) : 
 }
 
 TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& metadata) {
+    if (this == &metadata) return *this;
+
+    // Particle sources are owned polymorphic pointers. A shallow copy makes
+    // both metadata objects delete the same sources, while omitting the copy
+    // silently drops the generator configuration from merged metadata. ROOT's
+    // Clone uses the concrete class streamer, preserving derived source types
+    // and their persistent configuration without copying transient resources.
+    vector<unique_ptr<TRestGeant4ParticleSource>> particleSources;
+    particleSources.reserve(metadata.fParticleSource.size());
+    for (const auto* source : metadata.fParticleSource) {
+        if (source == nullptr) {
+            particleSources.emplace_back(nullptr);
+            continue;
+        }
+
+        auto clone = unique_ptr<TRestGeant4ParticleSource>(
+            dynamic_cast<TRestGeant4ParticleSource*>(source->Clone()));
+        if (clone == nullptr) {
+            throw runtime_error("Unable to clone TRestGeant4ParticleSource while copying metadata");
+        }
+        particleSources.push_back(std::move(clone));
+    }
+
+    RemoveParticleSources();
+
+    SetName(metadata.GetName());
+    SetTitle(metadata.GetTitle());
+    fConfigFileName = metadata.fConfigFileName;
+    fSectionName = metadata.fSectionName;
+    configBuffer = metadata.configBuffer;
+    messageBuffer = metadata.messageBuffer;
+
     fIsMerge = metadata.fIsMerge;
     fGeant4GeometryInfo = metadata.fGeant4GeometryInfo;
     fGeant4PhysicsInfo = metadata.fGeant4PhysicsInfo;
@@ -1750,7 +1790,8 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fActiveVolumes = metadata.fActiveVolumes;
     fChance = metadata.fChance;
     fMaxStepSize = metadata.fMaxStepSize;
-    // fParticleSource = metadata.fParticleSource; // segfaults (pointers!)
+    fParticleSource.reserve(particleSources.size());
+    for (auto& source : particleSources) fParticleSource.push_back(source.release());
     fNBiasingVolumes = metadata.fNBiasingVolumes;
     fBiasingVolumes = metadata.fBiasingVolumes;
     fMaxTargetStepSize = metadata.fMaxTargetStepSize;
@@ -1758,13 +1799,16 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
     fResetTimePrecision = metadata.fResetTimePrecision;
     fResetGlobalTime = metadata.fResetGlobalTime;
     fFullChain = metadata.fFullChain;
+    fFullChainStopIsotopes = metadata.fFullChainStopIsotopes;
     fSensitiveVolumes = metadata.fSensitiveVolumes;
     fNEvents = metadata.fNEvents;
     fNRequestedEntries = metadata.fNRequestedEntries;
     fStoreTracks = metadata.fStoreTracks;
     fSimulationMaxTimeSeconds = metadata.fSimulationMaxTimeSeconds;
+    fSimulationTime = metadata.fSimulationTime;
     fSeed = metadata.fSeed;
     fSaveAllEvents = metadata.fSaveAllEvents;
+    fStoreHadronicTargetInfo = metadata.fStoreHadronicTargetInfo;
     fRemoveUnwantedTracks = metadata.fRemoveUnwantedTracks;
     fRemoveUnwantedTracksKeepZeroEnergyTracks = metadata.fRemoveUnwantedTracksKeepZeroEnergyTracks;
     fRemoveUnwantedTracksVolumesToKeep = metadata.fRemoveUnwantedTracksVolumesToKeep;

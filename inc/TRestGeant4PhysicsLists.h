@@ -26,6 +26,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 
 class TRestGeant4PhysicsLists : public TRestMetadata {
@@ -39,13 +40,13 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
     std::vector<TString> fPhysicsLists;
     std::vector<TString> fPhysicsListOptions;
 
-    Double_t fCutForElectron;
-    Double_t fCutForGamma;
-    Double_t fCutForPositron;
-    Double_t fCutForMuon;
-    Double_t fCutForNeutron;
-    Double_t fMinEnergyRangeProductionCuts;
-    Double_t fMaxEnergyRangeProductionCuts;
+    Double_t fCutForElectron = 1;
+    Double_t fCutForGamma = 0.01;
+    Double_t fCutForPositron = 1;
+    Double_t fCutForMuon = 1;
+    Double_t fCutForNeutron = 1;
+    Double_t fMinEnergyRangeProductionCuts = 1;
+    Double_t fMaxEnergyRangeProductionCuts = 1e6;
 
     std::vector<std::string> fIonLimitStepList;
 
@@ -60,9 +61,13 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     inline Double_t GetMinimumEnergyProductionCuts() const { return fMinEnergyRangeProductionCuts; }
     inline Double_t GetMaximumEnergyProductionCuts() const { return fMaxEnergyRangeProductionCuts; }
+    inline const std::vector<TString>& GetPhysicsLists() const { return fPhysicsLists; }
+    inline const std::vector<TString>& GetPhysicsListOptions() const { return fPhysicsListOptions; }
 
     Int_t FindPhysicsList(const TString& physicsListName) const;
     Bool_t PhysicsListExists(const TString& physicsListName) const;
+    Bool_t IsEquivalentTo(const TRestGeant4PhysicsLists& other,
+                          std::string* difference = nullptr) const;
 
     TString GetPhysicsListOptionValue(const TString& physicsListName, const TString& option,
                                       const TString& defaultValue = "NotDefined") const;

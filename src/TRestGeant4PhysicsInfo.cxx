@@ -104,3 +104,56 @@ Int_t TRestGeant4PhysicsInfo::GetParticleID(const TString& processName) const {
 TString TRestGeant4PhysicsInfo::GetProcessType(const TString& processName) const {
     return GetOrDefaultMapValueFromKey<TString, TString>(&fProcessTypesMap, processName);
 }
+
+bool TRestGeant4PhysicsInfo::Merge(const TRestGeant4PhysicsInfo& other, string* conflictReason) {
+    const auto setConflict = [&](const string& message) {
+        if (conflictReason != nullptr) {
+            *conflictReason = message;
+        }
+    };
+
+    for (const auto& [id, name] : other.fProcessNamesMap) {
+        if (fProcessNamesMap.count(id) > 0 && fProcessNamesMap.at(id) != name) {
+            setConflict("process id " + to_string(id) + " maps to both '" +
+                        string(fProcessNamesMap.at(id)) + "' and '" + string(name) + "'");
+            return false;
+        }
+    }
+    for (const auto& [name, id] : other.fProcessNamesReverseMap) {
+        if (fProcessNamesReverseMap.count(name) > 0 && fProcessNamesReverseMap.at(name) != id) {
+            setConflict("process '" + string(name) + "' maps to both id " +
+                        to_string(fProcessNamesReverseMap.at(name)) + " and id " + to_string(id));
+            return false;
+        }
+    }
+    for (const auto& [name, type] : other.fProcessTypesMap) {
+        if (fProcessTypesMap.count(name) > 0 && fProcessTypesMap.at(name) != type) {
+            setConflict("process '" + string(name) + "' maps to both type '" +
+                        string(fProcessTypesMap.at(name)) + "' and type '" + string(type) + "'");
+            return false;
+        }
+    }
+    for (const auto& [id, name] : other.fParticleNamesMap) {
+        if (fParticleNamesMap.count(id) > 0 && fParticleNamesMap.at(id) != name) {
+            setConflict("particle id " + to_string(id) + " maps to both '" +
+                        string(fParticleNamesMap.at(id)) + "' and '" + string(name) + "'");
+            return false;
+        }
+    }
+    for (const auto& [name, id] : other.fParticleNamesReverseMap) {
+        if (fParticleNamesReverseMap.count(name) > 0 && fParticleNamesReverseMap.at(name) != id) {
+            setConflict("particle '" + string(name) + "' maps to both id " +
+                        to_string(fParticleNamesReverseMap.at(name)) + " and id " + to_string(id));
+            return false;
+        }
+    }
+
+    lock_guard<mutex> lock(insertMutex);
+    fProcessNamesMap.insert(other.fProcessNamesMap.begin(), other.fProcessNamesMap.end());
+    fProcessNamesReverseMap.insert(other.fProcessNamesReverseMap.begin(), other.fProcessNamesReverseMap.end());
+    fProcessTypesMap.insert(other.fProcessTypesMap.begin(), other.fProcessTypesMap.end());
+    fParticleNamesMap.insert(other.fParticleNamesMap.begin(), other.fParticleNamesMap.end());
+    fParticleNamesReverseMap.insert(other.fParticleNamesReverseMap.begin(), other.fParticleNamesReverseMap.end());
+
+    return true;
+}
