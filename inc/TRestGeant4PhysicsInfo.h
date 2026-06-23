@@ -6,6 +6,7 @@
 #include <map>
 #include <mutex>
 #include <set>
+#include <string>
 #include <vector>
 
 class G4VProcess;
@@ -35,6 +36,7 @@ class TRestGeant4PhysicsInfo {
 
     TString GetProcessType(const TString& processName) const;
     std::set<TString> GetAllProcessTypes() const;
+    bool Merge(const TRestGeant4PhysicsInfo& other, std::string* conflictReason = nullptr);
 
    public:
     inline TRestGeant4PhysicsInfo() = default;

@@ -1,8 +1,10 @@
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
+#include "TRestGeant4PhysicsLists.h"
 #include "TRestTask.h"
 
 #ifndef RestTask_Geant4_MergeRestG4Files
@@ -27,6 +29,27 @@
 
 using namespace std;
 
+namespace {
+void ValidateInputCompatibility(const string& inputFilename, const TRestGeant4Metadata& referenceMetadata,
+                                const TRestGeant4PhysicsLists& referencePhysicsLists,
+                                const TRestGeant4Metadata& metadata,
+                                const TRestGeant4PhysicsLists& physicsLists) {
+    if (referenceMetadata.GetGeant4Version() != metadata.GetGeant4Version()) {
+        cerr << "ERROR: input file '" << inputFilename << "' was produced with Geant4 version '"
+             << metadata.GetGeant4Version() << "', but the first input file used '"
+             << referenceMetadata.GetGeant4Version() << "'" << endl;
+        exit(1);
+    }
+
+    string physicsListsDifference;
+    if (!referencePhysicsLists.IsEquivalentTo(physicsLists, &physicsListsDifference)) {
+        cerr << "ERROR: input file '" << inputFilename
+             << "' uses incompatible TRestGeant4PhysicsLists: " << physicsListsDifference << endl;
+        exit(1);
+    }
+}
+}  // namespace
+
 void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputFilesDirectory) {
     // TODO: use glob pattern instead of directory. Already tried this but conflicts with TRestTask...
 
@@ -48,7 +71,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     }
 
     // open the first file
-    TRestGeant4Metadata mergeMetadata;
+    unique_ptr<TRestGeant4Metadata> mergeMetadata;
+    unique_ptr<TRestGeant4PhysicsLists> mergePhysicsLists;
 
     TRestRun mergeRun;
     mergeRun.SetName("run");
@@ -73,13 +97,31 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
                              // (because of sub-events) they keep the same event id after modification
         TRestRun run(inputFiles[i].c_str());
         auto metadata = dynamic_cast<TRestGeant4Metadata*>(run.GetMetadataClass("TRestGeant4Metadata"));
+        auto physicsLists =
+            dynamic_cast<TRestGeant4PhysicsLists*>(run.GetMetadataClass("TRestGeant4PhysicsLists"));
+        if (metadata == nullptr || physicsLists == nullptr) {
+            cerr << "ERROR: input file '" << inputFiles[i]
+                 << "' does not contain both TRestGeant4Metadata and TRestGeant4PhysicsLists" << endl;
+            exit(1);
+        }
         if (i == 0) {
-            mergeMetadata = *metadata;
+            mergeMetadata.reset(dynamic_cast<TRestGeant4Metadata*>(metadata->Clone()));
+            mergePhysicsLists.reset(dynamic_cast<TRestGeant4PhysicsLists*>(physicsLists->Clone()));
+            if (mergeMetadata == nullptr || mergePhysicsLists == nullptr) {
+                cerr << "ERROR: unable to clone simulation metadata from first input file" << endl;
+                exit(1);
+            }
         } else {
-            mergeMetadata.Merge(*metadata);
+            ValidateInputCompatibility(inputFiles[i], *mergeMetadata, *mergePhysicsLists, *metadata,
+                                       *physicsLists);
+            mergeMetadata->Merge(*metadata);
         }
         TRestGeant4Event* event = nullptr;
         auto eventTree = run.GetEventTree();
+        if (eventTree == nullptr) {
+            cerr << "ERROR: input file '" << inputFiles[i] << "' does not contain an EventTree" << endl;
+            exit(1);
+        }
         eventTree->SetBranchAddress("TRestGeant4EventBranch", &event);
         for (int j = 0; j < eventTree->GetEntries(); j++) {
             eventTree->GetEntry(j);
@@ -117,10 +159,15 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
 
     mergeRun.GetOutputFile()->cd();
 
+    if (gGeoManager == nullptr) {
+        cerr << "ERROR: input files did not provide a geometry manager" << endl;
+        exit(1);
+    }
     gGeoManager->Write("Geometry", TObject::kOverwrite);
 
-    mergeMetadata.SetName("geant4Metadata");
-    mergeMetadata.Write();
+    mergeMetadata->SetName("geant4Metadata");
+    mergeRun.AddMetadata(mergeMetadata.get());
+    mergeRun.AddMetadata(mergePhysicsLists.get());
     mergeRun.UpdateOutputFile();
     mergeRun.CloseFile();
 
@@ -129,6 +176,28 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     if (runCheck.GetEntries() != eventCounter) {
         cerr << "ERROR: number of events in the output file (" << runCheck.GetEntries()
              << ") does not match the number of events in the input files (" << eventCounter << ")" << endl;
+        exit(1);
+    }
+    const auto mergedMetadata =
+        dynamic_cast<TRestGeant4Metadata*>(runCheck.GetMetadataClass("TRestGeant4Metadata"));
+    const auto mergedPhysicsLists =
+        dynamic_cast<TRestGeant4PhysicsLists*>(runCheck.GetMetadataClass("TRestGeant4PhysicsLists"));
+    if (mergedMetadata == nullptr || mergedPhysicsLists == nullptr) {
+        cerr << "ERROR: merged output did not preserve simulation and physics-list metadata" << endl;
+        exit(1);
+    }
+    if (mergedMetadata->GetNumberOfSources() != mergeMetadata->GetNumberOfSources()) {
+        cerr << "ERROR: merged output did not preserve particle-source metadata" << endl;
+        exit(1);
+    }
+    if (mergedMetadata->GetGeant4Version() != mergeMetadata->GetGeant4Version()) {
+        cerr << "ERROR: merged output did not preserve the Geant4 version metadata" << endl;
+        exit(1);
+    }
+    string physicsListsDifference;
+    if (!mergedPhysicsLists->IsEquivalentTo(*mergePhysicsLists, &physicsListsDifference)) {
+        cerr << "ERROR: merged output did not preserve TRestGeant4PhysicsLists: " << physicsListsDifference
+             << endl;
         exit(1);
     }
     cout << "Number of events in the output file: " << runCheck.GetEntries() << " matches internal count"
