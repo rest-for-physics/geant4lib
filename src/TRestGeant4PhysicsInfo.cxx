@@ -114,8 +114,8 @@ bool TRestGeant4PhysicsInfo::Merge(const TRestGeant4PhysicsInfo& other, string* 
 
     for (const auto& [id, name] : other.fProcessNamesMap) {
         if (fProcessNamesMap.count(id) > 0 && fProcessNamesMap.at(id) != name) {
-            setConflict("process id " + to_string(id) + " maps to both '" +
-                        string(fProcessNamesMap.at(id)) + "' and '" + string(name) + "'");
+            setConflict("process id " + to_string(id) + " maps to both '" + string(fProcessNamesMap.at(id)) +
+                        "' and '" + string(name) + "'");
             return false;
         }
     }
@@ -150,10 +150,12 @@ bool TRestGeant4PhysicsInfo::Merge(const TRestGeant4PhysicsInfo& other, string* 
 
     lock_guard<mutex> lock(insertMutex);
     fProcessNamesMap.insert(other.fProcessNamesMap.begin(), other.fProcessNamesMap.end());
-    fProcessNamesReverseMap.insert(other.fProcessNamesReverseMap.begin(), other.fProcessNamesReverseMap.end());
+    fProcessNamesReverseMap.insert(other.fProcessNamesReverseMap.begin(),
+                                   other.fProcessNamesReverseMap.end());
     fProcessTypesMap.insert(other.fProcessTypesMap.begin(), other.fProcessTypesMap.end());
     fParticleNamesMap.insert(other.fParticleNamesMap.begin(), other.fParticleNamesMap.end());
-    fParticleNamesReverseMap.insert(other.fParticleNamesReverseMap.begin(), other.fParticleNamesReverseMap.end());
+    fParticleNamesReverseMap.insert(other.fParticleNamesReverseMap.begin(),
+                                    other.fParticleNamesReverseMap.end());
 
     return true;
 }

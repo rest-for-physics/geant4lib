@@ -66,8 +66,7 @@ class TRestGeant4PhysicsLists : public TRestMetadata {
 
     Int_t FindPhysicsList(const TString& physicsListName) const;
     Bool_t PhysicsListExists(const TString& physicsListName) const;
-    Bool_t IsEquivalentTo(const TRestGeant4PhysicsLists& other,
-                          std::string* difference = nullptr) const;
+    Bool_t IsEquivalentTo(const TRestGeant4PhysicsLists& other, std::string* difference = nullptr) const;
 
     TString GetPhysicsListOptionValue(const TString& physicsListName, const TString& option,
                                       const TString& defaultValue = "NotDefined") const;

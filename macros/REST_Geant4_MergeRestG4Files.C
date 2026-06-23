@@ -196,8 +196,8 @@ void REST_Geant4_MergeRestG4Files(const char* outputFilename, const char* inputF
     }
     string physicsListsDifference;
     if (!mergedPhysicsLists->IsEquivalentTo(*mergePhysicsLists, &physicsListsDifference)) {
-        cerr << "ERROR: merged output did not preserve TRestGeant4PhysicsLists: "
-             << physicsListsDifference << endl;
+        cerr << "ERROR: merged output did not preserve TRestGeant4PhysicsLists: " << physicsListsDifference
+             << endl;
         exit(1);
     }
     cout << "Number of events in the output file: " << runCheck.GetEntries() << " matches internal count"

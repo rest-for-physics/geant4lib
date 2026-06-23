@@ -1762,8 +1762,8 @@ TRestGeant4Metadata& TRestGeant4Metadata::operator=(const TRestGeant4Metadata& m
             continue;
         }
 
-        auto clone = unique_ptr<TRestGeant4ParticleSource>(
-            dynamic_cast<TRestGeant4ParticleSource*>(source->Clone()));
+        auto clone =
+            unique_ptr<TRestGeant4ParticleSource>(dynamic_cast<TRestGeant4ParticleSource*>(source->Clone()));
         if (clone == nullptr) {
             throw runtime_error("Unable to clone TRestGeant4ParticleSource while copying metadata");
         }
