@@ -1134,7 +1134,7 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
-void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
+void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits, std::set<TString> particles, std::set<TString> processes) const {
     TRestEvent::PrintEvent();
 
     cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
@@ -1156,13 +1156,20 @@ void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits) const {
     cout << "Total number of tracks: " << GetNumberOfTracks() << endl;
 
     int nTracks = GetNumberOfTracks();
-    if (maxTracks > 0 && (unsigned int)maxTracks < GetNumberOfTracks()) {
+    if (maxTracks >= 0 && (unsigned int)maxTracks < GetNumberOfTracks()) {
         nTracks = min(maxTracks, int(GetNumberOfTracks()));
-        cout << "Printing only the first " << nTracks << " tracks" << endl;
+        // cout << "Printing only the first " << nTracks << " tracks" << endl;
     }
 
     for (int i = 0; i < nTracks; i++) {
-        GetTrack(i).PrintTrack(maxHits);
+        auto tck = GetTrack(i);
+        if (particles.empty() && processes.empty()) {
+            tck.PrintTrack(maxHits);
+        } else if (particles.find(tck.GetParticleName()) != particles.end()) {
+            tck.PrintTrack(maxHits);
+        } else if (processes.find(tck.GetCreatorProcess()) != processes.end()) {
+            tck.PrintTrack(maxHits);
+        }
     }
 }
 
