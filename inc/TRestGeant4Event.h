@@ -244,7 +244,8 @@ class TRestGeant4Event : public TRestEvent {
 
     /// maxTracks : number of tracks to print, 0 = all
     void PrintActiveVolumes() const;
-    void PrintEvent(int maxTracks = -1, int maxHits = -1, std::set<TString> particles = {}, std::set<TString> processes = {}) const;
+    void PrintEvent(int maxTracks = -1, int maxHits = -1, std::set<TString> particles = {},
+                    std::set<TString> processes = {}) const;
     void PrintEventFilterVolumes(const std::set<std::string>& volumeNames) const;
 
     inline TPad* DrawEvent(const TString& option = "") override { return DrawEvent(option, true); }

@@ -1134,7 +1134,8 @@ void TRestGeant4Event::PrintActiveVolumes() const {
     }
 }
 
-void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits, std::set<TString> particles, std::set<TString> processes) const {
+void TRestGeant4Event::PrintEvent(int maxTracks, int maxHits, std::set<TString> particles,
+                                  std::set<TString> processes) const {
     TRestEvent::PrintEvent();
 
     cout << "- Total deposited energy: " << ToEnergyString(fTotalDepositedEnergy) << endl;
