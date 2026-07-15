@@ -118,21 +118,17 @@ void TRestGeant4Track::PrintTrack(size_t maxHits) const {
         << (GetParentTrack() != nullptr
                 ? TString::Format(" - Parent particle: %s", GetParentTrack()->GetParticleName().Data()).Data()
                 : "")
-        << " - Created by '" << fCreatorProcess << "' in volume '" << GetInitialVolume()
-        << "' with initial KE of " << ToEnergyString(fInitialKineticEnergy) << " - Initial position "
-        << VectorToString(fInitialPosition) << " mm at time " << ToTimeString(fGlobalTimestamp)
-        << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
-        << ToLengthString(fLength) << endl;
+        << " - Created by '" << fCreatorProcess << "' in '" << GetInitialVolume() << "' with KE of "
+        << ToEnergyString(fInitialKineticEnergy) << endl;
 
-    cout << "   Initial position " << VectorToString(fInitialPosition) << " mm at time "
+    cout << "      Initial position " << VectorToString(fInitialPosition) << " mm at time "
          << ToTimeString(fGlobalTimestamp) << " - Time offset " << ToTimeString(fTimeOffset)
-         << " - Time length of " << ToTimeString(fTimeLength) << " and spatial length of "
-         << ToLengthString(fLength) << endl;
+         << " - Length of " << ToTimeString(fTimeLength) << " and " << ToLengthString(fLength) << endl;
 
     size_t nHits = GetNumberOfHits();
-    if (maxHits > 0 && maxHits < nHits) {
+    if (maxHits >= 0 && maxHits < nHits) {
         nHits = min(maxHits, nHits);
-        cout << "Printing only the first " << nHits << " hits of the track" << endl;
+        // cout << "Printing only the first " << nHits << " hits of the track" << endl;
     }
 
     const TRestGeant4Metadata* metadata = GetGeant4Metadata();
