@@ -58,7 +58,8 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// `xxxMeanPosX,Y,Z`.
     std::vector<std::string> fDirID;  //!
 
-    /// A std::vector storing the name of observables `xxxYyyProcess` related to process `Yyy` in volume `xxx`.
+    /// A std::vector storing the name of observables `xxxYyyProcess` related to process `Yyy` in volume
+    /// `xxx`.
     std::vector<std::string> fProcessObservables;  //!
 
     /// A std::vector storing the active volume ids corresponding process observable .
