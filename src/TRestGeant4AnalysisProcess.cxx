@@ -29,155 +29,229 @@
 /// and metadata information and it will add the observables defined by
 /// the user to the analysisTree.
 ///
-/// ### Observables
+/// All energies are given in keV, positions in mm and angles in radians
+/// unless stated otherwise.
+///
+/// ### Volume names and aliases
+///
+/// Observables related to a volume require the name of a volume as it is
+/// registered in TRestGeant4Metadata, i.e. the full path of the physical
+/// volume (e.g. `shielding/vessel/gas`). Since these names may be long or
+/// contain characters not allowed in a branch name, the volume can be given
+/// through the `volume` attribute, and the observable name will then be just
+/// an alias, which must still end in the corresponding keyword.
+///
+/// \code
+///    <observable name="gasVolumeEDep" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas volume in keV" />
+/// \endcode
+///
+/// \warning The volume must be defined as an *active* volume in the
+/// TRestGeant4Metadata `<storage>` section of the simulation, otherwise the
+/// observable is not registered and a warning with the list of active
+/// volumes is printed.
+///
+/// ### Generic observables
 ///
 /// This process includes generic observables by using a common pattern
 /// inside the observable name. These observables require to be completed
-/// with the name of a volume used in the GDML geometry, or the name
-/// of a particle following Geant4 conventions. For convenience, you can also
-/// specify the volume with the attribute `volume` and use an alias name
-/// for the observable (useful when volume names are long).
+/// with the name of a volume, a process or a particle following Geant4
+/// conventions.
 ///
-/// The following list describes the generic observables that can be used
-/// in this analysis process.
-///
-/// * **VolumeEDep**: This observable will register the total
-/// energy deposited in a particular volume of the geometry. We
-/// must specify the volume name before the keyword `volumeEDep`.
+/// * **<volume>VolumeEDep**: The total energy deposited in a particular
+/// volume of the geometry.
 /// \code
-///    // gasVolumeEDep will register the total energy deposited at the gas volume
-///    <observable name="gasVolumeEDep" value="ON"
+///    <observable name="gasVolumeEDep" value="ON" volume="shielding/vessel/gas"
 ///            description="Energy deposited in the gas volume in keV" />
 ///
-///    // vesselVolumeEDep will register the total energy deposited at the vessel volume
-///    <observable name="vesselVolumeEDep" value="ON"
+///    <observable name="vesselVolumeEDep" value="ON" volume="shielding/vessel"
 ///            description="Energy deposited in the vessel volume in keV" />
-///
-///    // sensGasLeftVolumeEDep will register the total energy deposited at the sensitive gas left volume
-///    <observable name="sensGasLeftVolumeEDep" value="ON"
-///            volume="shielding/outerGas/vesselassembly/gas/sensitiveGasLeft"
-///            description="Energy deposited in the sensitive gas left volume in keV" />
 /// \endcode
 ///
-/// * **MeanPos**: This observable will register the mean position of
-/// the hits that have been registered in a particular volume of the
-/// geometry. We must specify the volume name before the keyword `MeanPos`,
-/// and after the keyword the axis we want to register.
+/// * **<volume>MeanPos<X|Y|Z>**: The mean position of the hits that have
+/// been registered in a particular volume of the geometry. The keyword
+/// `MeanPos` must be followed by the axis (`X`, `Y` or `Z`).
 /// \code
-///    // It will register the mean position in X at the gas volume
-///    <observable name="gasMeanPosX" value="ON"
+///    <observable name="gasMeanPosX" value="ON" volume="shielding/vessel/gas"
 ///            description="Mean hits position in the gas volume (X-axis)" />
 ///
-///    // It will register the mean position in Y at the gas volume
-///    <observable name="gasMeanPosY" value="ON"
+///    <observable name="gasMeanPosY" value="ON" volume="shielding/vessel/gas"
 ///            description="Mean hits position in the gas volume (Y-axis)" />
 /// \endcode
 ///
-/// * **TracksCounter**: This observable will register the number of
-/// tracks of a given Geant4 particle found at each event. The keyword
-/// `TracksCounter` must be preceded by the name of the particle.
+/// * **<volume><Process>Process**: The energy deposited (in keV) in a
+/// particular volume by a given physics process. `<Process>` is either a
+/// REST process name from the table below, or a Geant4 process name with its
+/// first letter capitalized (e.g. `Compt`, `HadElastic`, `NCapture`).
 /// \code
-///    // It will register the number of neutron tracks per event
-///    <observable name="neutronTrackCounter" value="ON"
+///    <observable name="gasComptonProcess" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas by Compton scattering in keV" />
+///
+///    <observable name="gasHadElasticProcess" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas by hadron elastic scattering in keV" />
+/// \endcode
+///
+/// * **<particle>TracksCounter**: The number of tracks of a given Geant4
+/// particle found at each event.
+/// \code
+///    <observable name="neutronTracksCounter" value="ON"
 ///            description="Number of neutron tracks found in the event" />
 ///
-///    // It will register the number of gamma tracks per event
-///    <observable name="gammaTrackCounter" value="ON"
+///    <observable name="gammaTracksCounter" value="ON"
 ///            description="Number of gamma tracks found in the event" />
 /// \endcode
 ///
-/// * **TracksEDep**: This observable will register the total energy
-/// deposited by a given particle. The keyword `TracksEDep` must be
-/// preceded by the name of the particle.
+/// * **<particle>TracksEDep**: The total energy deposited by the tracks of
+/// a given Geant4 particle (in all volumes).
 /// \code
-///    // It will register the number of neutron tracks per event
-///    <observable name="neutronTrackCounter" value="ON"
-///            description="Energy deposited in the gas volume in keV" />
+///    <observable name="neutronTracksEDep" value="ON"
+///            description="Energy deposited by neutron tracks in keV" />
 ///
-///    // It will register the number of neutron tracks per event
-///    <observable name="gammaTrackCounter" value="ON"
-///            description="Energy deposited in the gas volume in keV" />
+///    <observable name="gammaTracksEDep" value="ON"
+///            description="Energy deposited by gamma tracks in keV" />
 /// \endcode
 ///
 /// \warning It is important to notice that the keyword used for these
 /// observables is case sensitive!
 ///
-/// In addition to these generic observables we have also an
-/// observable to measure the total energy deposited in all volumes.
-/// \code
-///    // It will register the number of neutron tracks per event
-///    <observable name="totalEdep" value="ON"
-///            description="Total event energy registered in keV" />
-/// \endcode
+/// ### Physics process observables
 ///
-/// The following list provides observables that can be defined in
-/// order to add to the TRestAnalysisTree information related to the
-/// primary event, as the position, direction or energy of the
-/// the primary generated.
+/// * **containsProcess<Process>**: It is 1 if the event contains at least one
+/// hit produced by the given Geant4 process, in any volume, and 0 otherwise.
+/// `<Process>` follows the same naming rules as in `<volume><Process>Process`,
+/// e.g. `containsProcessCompt`, `containsProcessHadElastic` or
+/// `containsProcessNCapture`. `containsProcessPhot` and `containsProcessCompt`
+/// are always evaluated, any other is evaluated only if it is defined in the
+/// RML. If the process does not exist in the physics information stored in
+/// TRestGeant4Metadata, a warning is printed and the value will be 0.
 ///
-/// * **xOriginPrimary**: x-coordinate defining where the primary event
-/// was generated.
-/// * **yOriginPrimary**: y-coordinate defining where the primary event
-/// was generated.
-/// * **zOriginPrimary**: z-coordinate defining where the primary event
-/// was generated.
+/// \note REST identifies processes by Geant4 process type and subtype, so
+/// processes sharing them (e.g. `eIoni`, `hIoni`, `ionIoni` and `muIoni`) cannot
+/// be distinguished by `containsProcess<Process>`. Energy based observables
+/// (`<volume><Process>Process` and `PerProcess<Name>`) use the process name and
+/// are not affected.
 ///
-/// * **xDirectionPrimary**: x-component defining the momentum direction
-/// of the primary event generated.
-/// * **yDirectionPrimary**: y-component defining the momentum direction
-/// of the primary event generated.
-/// * **zDirectionPrimary**: z-component defining the momentum direction
-/// of the primary event generated.
+/// The following table lists the REST process names and their Geant4
+/// equivalent.
 ///
+/// REST name           | Geant4 name        | Description
+/// --------------------|--------------------|-------------------------------------
+/// Photoelectric       | phot               | Photoelectric absorption
+/// Compton             | compt              | Compton scattering
+/// Rayleigh            | Rayl               | Rayleigh scattering
+/// Conversion          | conv               | Gamma conversion (pair production)
+/// PhotonNuclear       | photonNuclear      | Photonuclear interaction
+/// Bremsstrahlung      | eBrem              | Electron/positron bremsstrahlung
+/// Annihilation        | annihil            | Positron annihilation
+/// EIoni               | eIoni              | Electron/positron ionisation
+/// HIoni               | hIoni              | Hadron ionisation
+/// IonIoni             | ionIoni            | Ion ionisation
+/// MuIoni              | muIoni             | Muon ionisation
+/// Msc                 | msc                | Multiple scattering
+/// CoulombScat         | CoulombScat        | Single Coulomb scattering
+/// HadElastic          | hadElastic         | Hadron elastic scattering
+/// NeutronInelastic    | neutronInelastic   | Neutron inelastic scattering
+/// ProtonInelastic     | protonInelastic    | Proton inelastic scattering
+/// NCapture            | nCapture           | Neutron capture
+/// RadioactiveDecay    | RadioactiveDecay   | Radioactive decay
+/// Decay               | Decay              | Particle decay
+///
+/// The legacy names `Bremstralung`, `NInelastic` and `RadiactiveDecay` are
+/// also accepted. Any other Geant4 process registered in the simulation can be
+/// used with its first letter capitalized. An unknown process name produces
+/// a warning and the observable is not filled.
+///
+/// * **PerProcess<Name>**: If the parameter `perProcessSensitiveEnergy` is
+/// set to `true`, the following observables with the energy deposited in the
+/// sensitive volume by a given process are added automatically:
+/// `PerProcessPhotoelectric` (phot), `PerProcessCompton` (compt),
+/// `PerProcessElectronicIoni` (eIoni), `PerProcessAlphaIoni` (ionIoni and
+/// alphaIoni of alpha particles), `PerProcessIonIoni` (ionIoni),
+/// `PerProcessHadronicIoni` (hIoni), `PerProcessProtonIoni` (hIoni of protons),
+/// `PerProcessMsc` (msc), `PerProcessHadronElastic` (hadElastic) and
+/// `PerProcessNeutronElastic` (hadElastic of neutrons). These categories may
+/// overlap. If `perProcessSensitiveEnergyNorm` is `true` they are normalized
+/// to the total energy deposited in the sensitive volume.
+///
+/// ### Sensitive volume observables
+///
+/// * **sensitiveVolumeEnergy**: The energy deposited in the sensitive volume.
+/// * **sensitiveVolumeFirstHitTime**: The time of the first hit with an energy
+/// deposit in the sensitive volume (infinity if there is none).
+///
+/// The following observables describe the first track outside the sensitive
+/// volume which is the ancestor of the tracks depositing energy in the
+/// sensitive volume. They are only filled when such a track exists.
+///
+/// * **firstTrackInSensitiveOk**: 1 if there is exactly one such ancestor
+/// track, 0 otherwise.
+/// * **firstTrackInSensitiveParticle**: Particle name of the track (string).
+/// * **firstTrackInSensitiveParentParticle**: Particle name of its parent
+/// track (string, empty if it is a primary).
+/// * **firstTrackInSensitiveCreatorProcess**: Process which created the
+/// track (string).
+/// * **firstTrackInSensitiveEnergy**: Initial kinetic energy of the track.
+/// * **firstTrackInSensitivePositionX/Y/Z**: Initial position of the track.
+/// * **firstTrackInSensitiveVolumeName**: Volume of the first hit of the
+/// track (string).
+///
+/// String observables must be declared with `type="string"`.
+///
+/// ### Primary and global observables
+///
+/// The following list provides observables related to the primary event, as
+/// the position, direction or energy of the primary generated.
+///
+/// * **xOriginPrimary**, **yOriginPrimary**, **zOriginPrimary**: coordinates
+/// where the primary event was generated.
+/// * **xDirectionPrimary**, **yDirectionPrimary**, **zDirectionPrimary**:
+/// components of the momentum direction of the primary event generated.
 /// * **thetaPrimary**: polar angle of the primary generated particle.
 /// * **phiPrimary**: azimuth angle of the primary generated particle.
+/// * **zenithYDegrees**: angle, in degrees, between the primary direction and
+/// the -Y axis (zenith angle when Y is the vertical axis).
+/// * **zenithSourceDegrees**: angle, in degrees, between the primary direction
+/// and the direction of the first particle source defined in TRestGeant4Metadata.
 /// * **energyPrimary**: energy of the primary event generated.
+/// * **eventPrimaryParticleName**: name of the primary particle (string).
+/// * **subEventPrimaryParticleName**: name of the particle which originated
+/// the sub-event, or `generator` for the main event (sub-event id 0) (string).
 ///
+/// * **totalEdep**: the total energy deposited in all volumes.
 /// * **boundingSize**: It stores a value with the event size calculated
 /// as the diagonal distance of a bounding box defined to contain all the
-/// hits that  produced an energy deposit.
+/// hits that produced an energy deposit.
 ///
-/// The following code illustrates the addition of a primary event
-/// observable.
-///
-/// \code
-///    <observable name="xOriginPrimary" value="ON"
-///        description="x-coordinate of the primary event." />
-/// \endcode
-///
-/// There are also observables allowing to identify the events where
-/// certain physical processes took place. This will allow, for
-/// example, to select event populations where particular physics
-/// processes happened, or to determine the probability of a certain
-/// physics process to occur in our simulation.
-///
-/// The following list defines the physics processes observables
-/// that can be defined in this analysis process. These observables
-/// only register if the process happened or not, by associating
-/// them a value, 1 or 0.
-///
-/// * **photoelectric**: It is 1 if a gamma was absorbed by a
-/// photoelectric process, 0 otherwise.
-/// * **compton**:  It is 1 if a gamma was scattered by a
-/// compton scattering process, 0 otherwise.
-/// * **bremstralung**: It is 1 if gamma radiation was
-/// produced by a bremstralung process, 0 otherwise.
-/// * **hadElastic**: It is 1 if hadron elastic scattering
-/// took place in that event, 0 otherwise.
-/// * **neutronInelastic**: It is 1 if neutron inelastic
-/// scattering took place inside the event, 0 otherwise.
-/// * **nCapture**: It is 1 if a neutron capture process
-/// happened, 0 otherwise.
-/// * **hIoni**: It is 1 if a hadron ionization process took
-/// place in the event, 0 otherwise.
-///
-/// The following code ilustrates the addition of a physics
-/// process observable.
+/// ### RML example
 ///
 /// \code
-///    <observable name="bremstralung" value="ON"
-///        description="Its value will be 1 if the event contains a bremstralung
-///        physics process." />
+/// <TRestGeant4AnalysisProcess name="g4Ana" value="ON" verboseLevel="warning">
+///    <parameter name="perProcessSensitiveEnergy" value="false" />
+///
+///    <observable name="totalEdep" value="ON" description="Total energy deposited in keV" />
+///    <observable name="energyPrimary" value="ON" description="Primary energy in keV" />
+///    <observable name="eventPrimaryParticleName" type="string" value="ON"
+///            description="Name of the primary particle" />
+///
+///    <observable name="gasVolumeEDep" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas in keV" />
+///    <observable name="gasComptonProcess" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas by Compton scattering in keV" />
+///    <observable name="gasHadElasticProcess" value="ON" volume="shielding/vessel/gas"
+///            description="Energy deposited in the gas by hadron elastic scattering in keV" />
+///
+///    <observable name="gammaTracksCounter" value="ON" description="Number of gamma tracks" />
+///    <observable name="neutronTracksCounter" value="ON" description="Number of neutron tracks" />
+///    <observable name="neutronTracksEDep" value="ON"
+///            description="Energy deposited by neutron tracks in keV" />
+///
+///    <observable name="containsProcessCompt" type="int" value="ON"
+///            description="1 if the event contains a Compton scattering" />
+///    <observable name="containsProcessHadElastic" type="int" value="ON"
+///            description="1 if the event contains a hadron elastic scattering" />
+///    <observable name="containsProcessNCapture" type="int" value="ON"
+///            description="1 if the event contains a neutron capture" />
+/// </TRestGeant4AnalysisProcess>
 /// \endcode
 ///
 ///--------------------------------------------------------------------------
@@ -192,6 +266,11 @@
 /// 2017-October: Generic upgrades to add particle and volume observables.
 ///               Gloria Luzon and Javier Galan
 ///
+/// 2026-October: Implemented `<volume><Process>Process`, generic
+///               `containsProcess<Process>` and `PerProcess<Name>` observables,
+///               and updated documentation.
+///               Alvaro Ezquerro
+///
 /// \class      TRestGeant4AnalysisProcess
 /// \author     Javier Galan
 /// \author     Gloria Luzon
@@ -200,6 +279,9 @@
 ///
 
 #include "TRestGeant4AnalysisProcess.h"
+
+#include <algorithm>
+#include <tuple>
 
 using namespace std;
 
@@ -267,30 +349,179 @@ void TRestGeant4AnalysisProcess::LoadConfig(const string& configFilename, const 
     if (LoadConfigFromFile(configFilename, name)) LoadDefaultConfig();
 }
 
+namespace {
+string CapitalizeFirst(string name) {
+    if (!name.empty()) {
+        name[0] = toupper(name[0]);
+    }
+    return name;
+}
+
+bool EndsWith(const string& text, const string& suffix) {
+    return text.size() >= suffix.size() &&
+           text.compare(text.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+bool StartsWith(const string& text, const string& prefix) { return text.rfind(prefix, 0) == 0; }
+}  // namespace
+
+///////////////////////////////////////////////
+/// \brief It returns the map between the process names used in REST observables
+/// (`<volume><Process>Process`) and the process names used by Geant4.
+///
+const map<string, string>& TRestGeant4AnalysisProcess::GetRestToGeant4ProcessNameMap() {
+    static const map<string, string> processNameMap = {
+        // electromagnetic, photons
+        {"Photoelectric", "phot"},
+        {"Compton", "compt"},
+        {"Rayleigh", "Rayl"},
+        {"Conversion", "conv"},
+        {"PhotonNuclear", "photonNuclear"},
+        // electromagnetic, charged particles
+        {"Bremsstrahlung", "eBrem"},
+        {"Bremstralung", "eBrem"},  // legacy misspelling
+        {"Annihilation", "annihil"},
+        {"EIoni", "eIoni"},
+        {"HIoni", "hIoni"},
+        {"IonIoni", "ionIoni"},
+        {"MuIoni", "muIoni"},
+        {"Msc", "msc"},
+        {"CoulombScat", "CoulombScat"},
+        // hadronic
+        {"HadElastic", "hadElastic"},
+        {"NeutronInelastic", "neutronInelastic"},
+        {"NInelastic", "neutronInelastic"},  // legacy name
+        {"ProtonInelastic", "protonInelastic"},
+        {"NCapture", "nCapture"},
+        // decay
+        {"RadioactiveDecay", "RadioactiveDecay"},
+        {"RadiactiveDecay", "RadioactiveDecay"},  // legacy misspelling
+        {"Decay", "Decay"},
+    };
+    return processNameMap;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the Geant4 process name corresponding to `name`.
+///
+/// `name` can be a REST process name (see GetRestToGeant4ProcessNameMap) or a Geant4
+/// process name with the first letter capitalized (e.g. `Compt`, `HadElastic` or `NCapture`).
+/// It returns an empty string if no match is found.
+///
+string TRestGeant4AnalysisProcess::GetGeant4ProcessName(const string& name) const {
+    if (name.empty()) {
+        return "";
+    }
+
+    const auto& processNameMap = GetRestToGeant4ProcessNameMap();
+    const auto it = processNameMap.find(name);
+    if (it != processNameMap.end()) {
+        return it->second;
+    }
+
+    for (const auto& [restName, geant4Name] : processNameMap) {
+        if (CapitalizeFirst(geant4Name) == name) {
+            return geant4Name;
+        }
+    }
+
+    if (fG4Metadata != nullptr) {
+        for (const auto& geant4Name : fG4Metadata->GetGeant4PhysicsInfo().GetAllProcesses()) {
+            if (CapitalizeFirst(geant4Name.Data()) == name) {
+                return geant4Name.Data();
+            }
+        }
+    }
+
+    return "";
+}
+
+///////////////////////////////////////////////
+/// \brief It prints a warning when the volume used by an observable is not an active volume.
+///
+void TRestGeant4AnalysisProcess::PrintNotActiveVolumeWarning(const TString& volumeName) {
+    cout << endl;
+    cout << "??????????????????????????????????????????????????" << endl;
+    cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
+    cout << "------------------------------------------" << endl;
+    cout << endl;
+    cout << " Volume " << volumeName << " is not an active volume" << endl;
+    cout << endl;
+    cout << "List of active volumes : " << endl;
+    cout << "------------------------ " << endl;
+
+    for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
+        cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
+    cout << "??????????????????????????????????????????????????" << endl;
+    cout << endl;
+}
+
 ///////////////////////////////////////////////
 /// \brief Process initialization. Observable names are interpreted and auxiliar
-/// observable members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep
-/// observables defined in TRestGeant4AnalysisProcess are filled at this stage.
+/// observable members, related to VolumeEdep, MeanPos, TracksCounter, TrackEDep,
+/// `<volume><Process>Process`, containsProcess and PerProcess observables defined
+/// in TRestGeant4AnalysisProcess are filled at this stage.
 ///
 void TRestGeant4AnalysisProcess::InitProcess() {
     fG4Metadata = GetMetadata<TRestGeant4Metadata>();
+
+    // InitProcess may be called more than once
+    fEnergyInObservables.clear();
+    fVolumeID.clear();
+    fVolumeName.clear();
+    fMeanPosObservables.clear();
+    fVolumeID2.clear();
+    fDirID.clear();
+    fProcessObservables.clear();
+    fVolumeID3.clear();
+    fProcessVolumeName.clear();
+    fProcessName.clear();
+    fTrackCounterObservables.clear();
+    fParticleTrackCounter.clear();
+    fTracksEDepObservables.clear();
+    fParticleTrackEdep.clear();
+    fContainsProcessObservables.clear();
+    fContainsProcessG4Name.clear();
+    fPerProcessObservables.clear();
+    fPerProcessG4Names.clear();
+    fPerProcessParticle.clear();
 
     std::vector<string> fObservables;
     fObservables = TRestEventProcess::ReadObservables();
     std::map<std::string, std::string> aliasObsToVol = GetAliasObservableNameToVolume();
 
+    const auto& physicsInfo = fG4Metadata->GetGeant4PhysicsInfo();
+    const auto availableProcesses = physicsInfo.GetAllProcesses();
+
+    // containsProcessPhot and containsProcessCompt are always evaluated (historical behaviour)
+    fContainsProcessObservables = {"containsProcessPhot", "containsProcessCompt"};
+    fContainsProcessG4Name = {"phot", "compt"};
+
     if (fPerProcessSensitiveEnergy) {
-        fObservables.emplace_back("PerProcessPhotoelectric");
-        fObservables.emplace_back("PerProcessCompton");
-        fObservables.emplace_back("PerProcessElectronicIoni");
-        fObservables.emplace_back("PerProcessAlphaIoni");
-        fObservables.emplace_back("PerProcessIonIoni");
-        fObservables.emplace_back("PerProcessHadronicIoni");
-        fObservables.emplace_back("PerProcessProtonIoni");
-        fObservables.emplace_back("PerProcessMsc");
-        fObservables.emplace_back("PerProcessHadronElastic");
-        fObservables.emplace_back("PerProcessNeutronElastic");
+        // {observable name, particle (empty for any), Geant4 processes}
+        const vector<tuple<string, string, vector<string>>> perProcessDefinitions = {
+            {"PerProcessPhotoelectric", "", {"phot"}},
+            {"PerProcessCompton", "", {"compt"}},
+            {"PerProcessElectronicIoni", "", {"eIoni"}},
+            {"PerProcessAlphaIoni", "alpha", {"ionIoni", "alphaIoni"}},
+            {"PerProcessIonIoni", "", {"ionIoni"}},
+            {"PerProcessHadronicIoni", "", {"hIoni"}},
+            {"PerProcessProtonIoni", "proton", {"hIoni"}},
+            {"PerProcessMsc", "", {"msc"}},
+            {"PerProcessHadronElastic", "", {"hadElastic"}},
+            {"PerProcessNeutronElastic", "neutron", {"hadElastic"}},
+        };
+        for (const auto& [obsName, particle, processes] : perProcessDefinitions) {
+            fPerProcessObservables.push_back(obsName);
+            fPerProcessParticle.push_back(particle);
+            fPerProcessG4Names.push_back(processes);
+            if (fAnalysisTree != nullptr) {
+                fAnalysisTree->AddObservable((string)GetName() + "_" + obsName, "double",
+                                             "Energy deposited in the sensitive volume by a given process");
+            }
+        }
     }
+
     for (unsigned int i = 0; i < fObservables.size(); i++) {
         if (fObservables[i].find("VolumeEDep") != string::npos) {
             TString volName = fObservables[i].substr(0, fObservables[i].length() - 10).c_str();
@@ -306,20 +537,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             }
 
             if (volId == -1) {
-                cout << endl;
-                cout << "??????????????????????????????????????????????????" << endl;
-                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
-                cout << "------------------------------------------" << endl;
-                cout << endl;
-                cout << " Volume " << volName << " is not an active volume" << endl;
-                cout << endl;
-                cout << "List of active volumes : " << endl;
-                cout << "------------------------ " << endl;
-
-                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
-                    cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
-                cout << "??????????????????????????????????????????????????" << endl;
-                cout << endl;
+                PrintNotActiveVolumeWarning(volName);
             }
         }
 
@@ -338,20 +556,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             }
 
             if (volId2 == -1) {
-                cout << endl;
-                cout << "??????????????????????????????????????????????????" << endl;
-                cout << "REST warning : TRestGeant4AnalysisProcess." << endl;
-                cout << "------------------------------------------" << endl;
-                cout << endl;
-                cout << " Volume " << volName2 << " is not an active volume" << endl;
-                cout << endl;
-                cout << "List of active volumes : " << endl;
-                cout << "------------------------ " << endl;
-
-                for (unsigned int n = 0; n < fG4Metadata->GetNumberOfActiveVolumes(); n++)
-                    cout << "Volume " << n << " : " << fG4Metadata->GetActiveVolumeName(n) << endl;
-                cout << "??????????????????????????????????????????????????" << endl;
-                cout << endl;
+                PrintNotActiveVolumeWarning(volName2);
             }
 
             if ((dirId != "X") && (dirId != "Y") && (dirId != "Z")) {
@@ -365,25 +570,67 @@ void TRestGeant4AnalysisProcess::InitProcess() {
                 cout << endl;
             }
         }
-        if (fObservables[i].find("Process") != string::npos) {
-            Int_t ls = 0;
-            if (fObservables[i].find("RadiactiveDecay") != string::npos) ls = 15;
-            if (fObservables[i].find("Photoelectric") != string::npos) ls = 13;
-            if (fObservables[i].find("PhotonNuclear") != string::npos) ls = 13;
-            if (fObservables[i].find("Bremstralung") != string::npos) ls = 12;
-            if (fObservables[i].find("NInelastic") != string::npos) ls = 10;
-            if (fObservables[i].find("HadElastic") != string::npos) ls = 10;
-            if (fObservables[i].find("NCapture") != string::npos) ls = 8;
-            if (fObservables[i].find("Compton") != string::npos) ls = 7;
-            if (fObservables[i].find("Neutron") != string::npos) ls = 7;
-            if (fObservables[i].find("Alpha") != string::npos) ls = 5;
-            if (fObservables[i].find("Argon") != string::npos) ls = 5;
-            if (fObservables[i].find("Xenon") != string::npos) ls = 5;
-            if (fObservables[i].find("Neon") != string::npos) ls = 4;
 
-            TString processName = fObservables[i].substr(fObservables[i].length() - (ls + 7), ls).c_str();
-            TString volName3 = fObservables[i].substr(0, fObservables[i].length() - (ls + 7)).c_str();
-            if (aliasObsToVol.find(fObservables[i]) != aliasObsToVol.end()) {
+        if (StartsWith(fObservables[i], "containsProcess")) {
+            const string processSuffix = fObservables[i].substr(string("containsProcess").length());
+            if (std::find(fContainsProcessObservables.begin(), fContainsProcessObservables.end(),
+                          fObservables[i]) != fContainsProcessObservables.end()) {
+                continue;
+            }
+            const string geant4Name = GetGeant4ProcessName(processSuffix);
+            if (geant4Name.empty()) {
+                RESTWarning << "TRestGeant4AnalysisProcess: unknown process '" << processSuffix
+                            << "' in observable '" << fObservables[i] << "'. It will not be filled."
+                            << RESTendl;
+                continue;
+            }
+            if (availableProcesses.count(geant4Name) == 0) {
+                RESTWarning << "TRestGeant4AnalysisProcess: Geant4 process '" << geant4Name
+                            << "' (observable '" << fObservables[i]
+                            << "') is not registered in the physics info of this simulation. "
+                            << "Its value will always be 0 (processes sharing type and subtype, e.g. "
+                            << "eIoni and ionIoni, are registered only once)" << RESTendl;
+            }
+            fContainsProcessObservables.push_back(fObservables[i]);
+            fContainsProcessG4Name.push_back(geant4Name);
+            continue;
+        }
+
+        // <volume><Process>Process observables. Other observables ending in "Process" are excluded.
+        if (EndsWith(fObservables[i], "Process") && !StartsWith(fObservables[i], "firstTrackInSensitive")) {
+            const string nameWithoutSuffix =
+                fObservables[i].substr(0, fObservables[i].length() - string("Process").length());
+            const bool hasAlias = aliasObsToVol.find(fObservables[i]) != aliasObsToVol.end();
+
+            // find the longest trailing substring which is a known process name
+            string processName;
+            string geant4Name;
+            for (size_t length = 1; length <= nameWithoutSuffix.length(); length++) {
+                // the volume name may only be empty if it is given through the `volume` attribute
+                if (length == nameWithoutSuffix.length() && !hasAlias) {
+                    break;
+                }
+                const string candidate = nameWithoutSuffix.substr(nameWithoutSuffix.length() - length);
+                const string candidateGeant4Name = GetGeant4ProcessName(candidate);
+                if (!candidateGeant4Name.empty()) {
+                    processName = candidate;
+                    geant4Name = candidateGeant4Name;
+                }
+            }
+
+            if (geant4Name.empty()) {
+                RESTWarning << "TRestGeant4AnalysisProcess: no known process name found in observable '"
+                            << fObservables[i] << "'. It will not be filled." << RESTendl;
+                RESTWarning << "Valid process names are:";
+                for (const auto& [restName, g4Name] : GetRestToGeant4ProcessNameMap()) {
+                    RESTWarning << " " << restName;
+                }
+                RESTWarning << " (or a Geant4 process name with the first letter capitalized)" << RESTendl;
+                continue;
+            }
+
+            TString volName3 = nameWithoutSuffix.substr(0, nameWithoutSuffix.length() - processName.length());
+            if (hasAlias) {
                 volName3 = aliasObsToVol[fObservables[i]].c_str();
             }
             Int_t volId3 = fG4Metadata->GetActiveVolumeID(volName3);
@@ -391,9 +638,21 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             if (volId3 >= 0) {
                 fProcessObservables.push_back(fObservables[i]);
                 fVolumeID3.push_back(volId3);
-                fProcessName.emplace_back(processName.Data());
+                fProcessVolumeName.emplace_back(volName3.Data());
+                fProcessName.push_back(geant4Name);
+                if (availableProcesses.count(geant4Name) == 0) {
+                    RESTWarning << "TRestGeant4AnalysisProcess: Geant4 process '" << geant4Name
+                                << "' (observable '" << fObservables[i]
+                                << "') is not registered in the physics info of this simulation. "
+                                << "It will be 0 unless energy is deposited under this process name "
+                                << "(processes sharing type and subtype, e.g. eIoni and ionIoni, are "
+                                << "registered only once)" << RESTendl;
+                }
+            } else {
+                PrintNotActiveVolumeWarning(volName3);
             }
         }
+
         if (fObservables[i].find("TracksCounter") != string::npos) {
             TString particleName = fObservables[i].substr(0, fObservables[i].length() - 13).c_str();
             fTrackCounterObservables.push_back(fObservables[i]);
@@ -552,19 +811,58 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     Double_t size = fOutputG4Event->GetBoundingBoxSize();
     SetObservableValue("boundingSize", size);
 
-    // process names as named by Geant4
-    // processes present here will be added to the list of observables which can be used to see if the event
-    // contains the process of interest.
-    vector<string> processNames = {"phot", "compt"};
-    for (auto& processName : processNames) {
+    // containsProcessXxx observables: 1 if the event contains the Geant4 process, 0 otherwise
+    const auto& physicsInfo = fG4Metadata->GetGeant4PhysicsInfo();
+    for (unsigned int n = 0; n < fContainsProcessObservables.size(); n++) {
+        const auto& processName = fContainsProcessG4Name[n];
+        const Int_t processID = physicsInfo.GetProcessID(processName);
+        // GetProcessID returns a default id (0) for unknown processes, which may be a valid id
+        const bool processIsRegistered = physicsInfo.GetProcessName(processID) == processName;
         Int_t containsProcess = 0;
-        if (fOutputG4Event->ContainsProcess(fG4Metadata->GetGeant4PhysicsInfo().GetProcessID(processName))) {
+        if (processIsRegistered && fOutputG4Event->ContainsProcess(processID)) {
             containsProcess = 1;
         }
+        SetObservableValue(fContainsProcessObservables[n], containsProcess);
+    }
 
-        if (!processName.empty()) {
-            processName[0] = toupper(processName[0]);
-            SetObservableValue("containsProcess" + processName, containsProcess);
+    if (!fProcessObservables.empty()) {
+        const auto energyInVolumePerProcess = fOutputG4Event->GetEnergyInVolumePerProcessMap();
+        for (unsigned int n = 0; n < fProcessObservables.size(); n++) {
+            Double_t energy = 0;
+            const auto volume = energyInVolumePerProcess.find(fProcessVolumeName[n]);
+            if (volume != energyInVolumePerProcess.end()) {
+                const auto process = volume->second.find(fProcessName[n]);
+                if (process != volume->second.end()) {
+                    energy = process->second;
+                }
+            }
+            SetObservableValue(fProcessObservables[n], energy);
+        }
+    }
+
+    if (!fPerProcessObservables.empty()) {
+        const auto energyInVolumePerParticlePerProcess =
+            fOutputG4Event->GetEnergyInVolumePerParticlePerProcessMap();
+        const auto sensitiveVolume = energyInVolumePerParticlePerProcess.find(sensitiveVolumeName.Data());
+        for (unsigned int n = 0; n < fPerProcessObservables.size(); n++) {
+            Double_t energy = 0;
+            if (sensitiveVolume != energyInVolumePerParticlePerProcess.end()) {
+                for (const auto& [particle, energyPerProcess] : sensitiveVolume->second) {
+                    if (!fPerProcessParticle[n].empty() && particle != fPerProcessParticle[n]) {
+                        continue;
+                    }
+                    for (const auto& processName : fPerProcessG4Names[n]) {
+                        const auto process = energyPerProcess.find(processName);
+                        if (process != energyPerProcess.end()) {
+                            energy += process->second;
+                        }
+                    }
+                }
+            }
+            if (fPerProcessSensitiveEnergyNorm) {
+                energy = sensitiveVolumeEnergy > 0 ? energy / sensitiveVolumeEnergy : 0;
+            }
+            SetObservableValue(fPerProcessObservables[n], energy);
         }
     }
 
