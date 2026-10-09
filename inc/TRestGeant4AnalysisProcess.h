@@ -58,14 +58,32 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// `xxxMeanPosX,Y,Z`.
     std::vector<std::string> fDirID;  //!
 
-    /// A std::vector storing the name of observables  related to processes in a particular active volume.
+    /// A std::vector storing the name of observables `xxxYyyProcess` related to process `Yyy` in volume `xxx`.
     std::vector<std::string> fProcessObservables;  //!
 
     /// A std::vector storing the active volume ids corresponding process observable .
     std::vector<Int_t> fVolumeID3;  //!
 
-    /// A std::vector storing the name of processes.
+    /// A std::vector storing the volume name corresponding to each process observable.
+    std::vector<std::string> fProcessVolumeName;  //!
+
+    /// A std::vector storing the Geant4 name of the process corresponding to each process observable.
     std::vector<std::string> fProcessName;  //!
+
+    /// A std::vector storing the observable names `containsProcessXxx`.
+    std::vector<std::string> fContainsProcessObservables;  //!
+
+    /// A std::vector storing the Geant4 process name corresponding to each `containsProcessXxx` observable.
+    std::vector<std::string> fContainsProcessG4Name;  //!
+
+    /// A std::vector storing the observable names `PerProcessXxx` (only if fPerProcessSensitiveEnergy).
+    std::vector<std::string> fPerProcessObservables;  //!
+
+    /// The Geant4 process names contributing to each `PerProcessXxx` observable.
+    std::vector<std::vector<std::string>> fPerProcessG4Names;  //!
+
+    /// The particle restriction of each `PerProcessXxx` observable (empty means any particle).
+    std::vector<std::string> fPerProcessParticle;  //!
 
     /// A std::vector storing the observable name `xxxTracksCounter` for a given `xxx` particle.
     std::vector<std::string> fTrackCounterObservables;  //!
@@ -79,17 +97,25 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// A std::vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
     std::vector<std::string> fParticleTrackEdep;  //!
 
+    /// If true, `PerProcessXxx` observables with the energy deposited in the sensitive volume per process
+    /// are added to the analysis tree.
     Bool_t fPerProcessSensitiveEnergy = false;
+    /// If true, `PerProcessXxx` observables are normalized to the total energy in the sensitive volume.
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
     void Initialize() override;
 
     void LoadDefaultConfig();
 
+    void PrintNotActiveVolumeWarning(const TString& volumeName);
+
    protected:
     std::map<std::string, std::string> GetAliasObservableNameToVolume();
 
    public:
+    static const std::map<std::string, std::string>& GetRestToGeant4ProcessNameMap();
+    std::string GetGeant4ProcessName(const std::string& name) const;
+
     RESTValue GetInputEvent() const override { return fInputG4Event; }
     RESTValue GetOutputEvent() const override { return fOutputG4Event; }
 
