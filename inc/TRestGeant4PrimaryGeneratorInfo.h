@@ -73,11 +73,23 @@ enum class AngularDistributionTypes {
 std::string AngularDistributionTypesToString(const AngularDistributionTypes&);
 AngularDistributionTypes StringToAngularDistributionTypes(const std::string&);
 
-enum class AngularDistributionFormulas { COS2, COS3, SIN_COS2, SIN_2THETA };
+/// \brief Predefined zenith angle distributions.
+/// \note Two conventions coexist here for historical reasons: COS2 and COS3 are plain cos^n(theta),
+/// while SIN_COS2, SIN_2THETA and the LSC_MUONS entries include the sin(theta) jacobian of
+/// dOmega = sin(theta) dtheta dphi. Since the formula is sampled with TF1::GetRandom on theta, only the
+/// latter reproduce an intensity I(theta) ~ cos^n(theta) per unit solid angle. COS2 and COS3 are kept
+/// unchanged to preserve the results of existing simulations.
+enum class AngularDistributionFormulas { COS2, COS3, SIN_COS2, SIN_2THETA, LSC_MUONS, LSC_MUONS_WALL };
 
 std::string AngularDistributionFormulasToString(const AngularDistributionFormulas&);
 AngularDistributionFormulas StringToAngularDistributionFormulas(const std::string&);
 TF1 AngularDistributionFormulasToRootFormula(const AngularDistributionFormulas&);
+
+/// \brief Muon flux through a horizontal plane at the Canfranc Underground Laboratory (LSC), 2450 m.w.e.,
+/// in counts per cm2 per second. Reference: Trzaska et al., Eur. Phys. J. C 79, 721 (2019).
+/// It is used to convert the number of generated primaries into live time, see
+/// TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond.
+constexpr double LSC_MUONS_HORIZONTAL_FLUX_PER_CM2_PER_SECOND = 5.0E-7;
 
 enum class EnergyAndAngularDistributionFormulas {
     COSMIC_MUONS,

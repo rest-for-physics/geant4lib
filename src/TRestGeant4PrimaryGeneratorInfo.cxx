@@ -338,6 +338,10 @@ string TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString(
             return "SinCos2";
         case AngularDistributionFormulas::SIN_2THETA:
             return "Sin2theta";
+        case AngularDistributionFormulas::LSC_MUONS:
+            return "LscMuons";
+        case AngularDistributionFormulas::LSC_MUONS_WALL:
+            return "LscMuonsWall";
     }
     cout << "TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToString - Error - Unknown angular "
             "distribution formula"
@@ -361,6 +365,14 @@ AngularDistributionFormulas TRestGeant4PrimaryGeneratorTypes::StringToAngularDis
                    AngularDistributionFormulasToString(AngularDistributionFormulas::SIN_2THETA),
                    TString::ECaseCompare::kIgnoreCase)) {
         return AngularDistributionFormulas::SIN_2THETA;
+    } else if (TString(type).EqualTo(
+                   AngularDistributionFormulasToString(AngularDistributionFormulas::LSC_MUONS),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionFormulas::LSC_MUONS;
+    } else if (TString(type).EqualTo(
+                   AngularDistributionFormulasToString(AngularDistributionFormulas::LSC_MUONS_WALL),
+                   TString::ECaseCompare::kIgnoreCase)) {
+        return AngularDistributionFormulas::LSC_MUONS_WALL;
     } else {
         cout << "TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionFormulas - Error - Unknown "
                 "AngularDistributionFormulas: "
@@ -417,6 +429,42 @@ TF1 TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
             };
             const char* title = "AngularDistribution: Sin2theta";
             auto f = TF1(title, sin2theta, 0.0, TMath::Pi());
+            f.SetTitle(title);
+            return f;
+        }
+        case AngularDistributionFormulas::LSC_MUONS: {
+            // Cosmic muons at the Canfranc Underground Laboratory (LSC), 2450 m.w.e.
+            // The slant rock overburden grows as h0/cos(theta), so the surviving intensity per unit solid
+            // angle is much steeper than at sea level: I(theta) ~ cos^6(theta) instead of cos^2(theta).
+            // Reference: Trzaska et al., Eur. Phys. J. C 79, 721 (2019).
+            // The sin(theta) factor is the jacobian of dOmega = sin(theta) dtheta dphi, needed because this
+            // TF1 is sampled on theta. This is the convention of SIN_COS2, not the one of COS2 / COS3.
+            // Valid for generators whose sampling surface has a direction independent projected area, i.e.
+            // the 'cosmic' spatial generator. For a horizontal plane use LSC_MUONS_WALL instead.
+            auto lscMuons = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+                    return TMath::Sin(xs[0]) * TMath::Power(TMath::Cos(xs[0]), 6);
+                }
+                return 0.0;
+            };
+            const char* title = "AngularDistribution: LscMuons";
+            auto f = TF1(title, lscMuons, 0.0, TMath::Pi());
+            f.SetTitle(title);
+            return f;
+        }
+        case AngularDistributionFormulas::LSC_MUONS_WALL: {
+            // Same LSC muon flux as LSC_MUONS, but to be launched from a horizontal plane (a 'wall' or
+            // 'circle' surface generator with vertical normal). Position and direction are sampled
+            // independently in that case, so the cos(theta) projection of the sampling plane does not appear
+            // by itself and has to be included in the distribution: sin(theta) * cos^(6+1)(theta).
+            auto lscMuonsWall = [](double* xs, double* ps) {
+                if (xs[0] >= 0 && xs[0] <= TMath::Pi() / 2) {
+                    return TMath::Sin(xs[0]) * TMath::Power(TMath::Cos(xs[0]), 7);
+                }
+                return 0.0;
+            };
+            const char* title = "AngularDistribution: LscMuonsWall";
+            auto f = TF1(title, lscMuonsWall, 0.0, TMath::Pi());
             f.SetTitle(title);
             return f;
         }
