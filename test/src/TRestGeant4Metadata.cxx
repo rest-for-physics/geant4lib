@@ -1,5 +1,6 @@
 
 #include <TRestGeant4Metadata.h>
+#include <TRestGeant4PhysicsInfo.h>
 #include <gtest/gtest.h>
 
 #include <filesystem>
@@ -29,6 +30,64 @@ TEST(TRestGeant4Metadata, Default) {
     restGeant4Metadata.PrintMetadata();
 
     EXPECT_TRUE(restGeant4Metadata.GetSeed() == 0);
+}
+
+TEST(TRestGeant4Metadata, CopyPreservesParticleSources) {
+    TRestGeant4Metadata original;
+    auto source = new TRestGeant4ParticleSource();
+    source->SetName("Fe55 source");
+    source->SetParticleName("Fe55");
+    source->SetEnergy(5.9);
+    source->SetEnergyDistributionRange(TVector2(5.8, 6.0));
+    original.AddParticleSource(source);
+
+    TRestGeant4Metadata copy(original);
+    ASSERT_EQ(copy.GetNumberOfSources(), 1);
+    EXPECT_NE(copy.GetParticleSource(), original.GetParticleSource());
+    EXPECT_EQ(copy.GetParticleSource()->GetParticleName(), "Fe55");
+    EXPECT_DOUBLE_EQ(copy.GetParticleSource()->GetEnergy(), 5.9);
+    EXPECT_DOUBLE_EQ(copy.GetParticleSource()->GetEnergyDistributionRangeMin(), 5.8);
+
+    TRestGeant4Metadata assigned;
+    assigned = original;
+    ASSERT_EQ(assigned.GetNumberOfSources(), 1);
+    EXPECT_NE(assigned.GetParticleSource(), original.GetParticleSource());
+    EXPECT_EQ(assigned.GetParticleSource()->GetParticleName(), "Fe55");
+
+    original.GetParticleSource()->SetEnergy(6.5);
+    EXPECT_DOUBLE_EQ(copy.GetParticleSource()->GetEnergy(), 5.9);
+    EXPECT_DOUBLE_EQ(assigned.GetParticleSource()->GetEnergy(), 5.9);
+}
+
+TEST(TRestGeant4PhysicsInfo, MergeKeepsLookupEntries) {
+    TRestGeant4PhysicsInfo first;
+    first.InsertProcessName(1, "Transportation", "transportation");
+    first.InsertParticleName(22, "gamma");
+
+    TRestGeant4PhysicsInfo second;
+    second.InsertProcessName(2, "phot", "electromagnetic");
+    second.InsertParticleName(11, "e-");
+
+    string conflict;
+    EXPECT_TRUE(first.Merge(second, &conflict));
+    EXPECT_TRUE(conflict.empty());
+    EXPECT_EQ(first.GetProcessName(1), "Transportation");
+    EXPECT_EQ(first.GetProcessName(2), "phot");
+    EXPECT_EQ(first.GetParticleName(22), "gamma");
+    EXPECT_EQ(first.GetParticleName(11), "e-");
+}
+
+TEST(TRestGeant4PhysicsInfo, MergeRejectsConflictingLookupEntries) {
+    TRestGeant4PhysicsInfo first;
+    first.InsertProcessName(1, "Transportation", "transportation");
+
+    TRestGeant4PhysicsInfo second;
+    second.InsertProcessName(1, "phot", "electromagnetic");
+
+    string conflict;
+    EXPECT_FALSE(first.Merge(second, &conflict));
+    EXPECT_FALSE(conflict.empty());
+    EXPECT_EQ(first.GetProcessName(1), "Transportation");
 }
 
 TEST(TRestGeant4Metadata, FromRml) {
