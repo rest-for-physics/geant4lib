@@ -71,6 +71,12 @@ class TRestGeant4Hits : public TRestHits {
 
     inline Double_t GetKineticEnergy(size_t n) const { return fKineticEnergy[n]; }
 
+    /// True when the saved process, volume, and post-step kinetic-energy arrays cover every hit.
+    inline bool HasCompleteStepInfo() const {
+        const auto size = GetNumberOfHits();
+        return fProcessID.size() == size && fVolumeID.size() == size && fKineticEnergy.size() == size;
+    }
+
     Double_t GetEnergyInVolume(Int_t volumeID) const;
 
     TVector3 GetMeanPositionInVolume(Int_t volumeID) const;
