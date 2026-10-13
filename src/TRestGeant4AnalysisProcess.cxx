@@ -163,7 +163,7 @@
 ///
 /// * **PerProcess<Name>**: If the parameter `perProcessSensitiveEnergy` is
 /// set to `true`, the following observables with the energy deposited in the
-/// sensitive volume by a given process are added automatically:
+/// sensitive volumes by a given process are added automatically:
 /// `PerProcessPhotoelectric` (phot), `PerProcessCompton` (compt),
 /// `PerProcessElectronicIoni` (eIoni), `PerProcessAlphaIoni` (ionIoni and
 /// alphaIoni of alpha particles), `PerProcessIonIoni` (ionIoni),
@@ -171,17 +171,20 @@
 /// `PerProcessMsc` (msc), `PerProcessHadronElastic` (hadElastic) and
 /// `PerProcessNeutronElastic` (hadElastic of neutrons). These categories may
 /// overlap. If `perProcessSensitiveEnergyNorm` is `true` they are normalized
-/// to the total energy deposited in the sensitive volume.
+/// to `sensitiveVolumeEnergy`.
 ///
 /// ### Sensitive volume observables
 ///
-/// * **sensitiveVolumeEnergy**: The energy deposited in the sensitive volume.
+/// All the sensitive volumes defined in TRestGeant4Metadata are taken into
+/// account. Energies are summed over all of them.
+///
+/// * **sensitiveVolumeEnergy**: The energy deposited in the sensitive volumes.
 /// * **sensitiveVolumeFirstHitTime**: The time of the first hit with an energy
-/// deposit in the sensitive volume (infinity if there is none).
+/// deposit in any sensitive volume (infinity if there is none).
 ///
 /// The following observables describe the first track outside the sensitive
-/// volume which is the ancestor of the tracks depositing energy in the
-/// sensitive volume. They are only filled when such a track exists.
+/// volumes which is the ancestor of the tracks depositing energy in the
+/// sensitive volumes. They are only filled when such a track exists.
 ///
 /// * **firstTrackInSensitiveOk**: 1 if there is exactly one such ancestor
 /// track, 0 otherwise.
@@ -517,7 +520,7 @@ void TRestGeant4AnalysisProcess::InitProcess() {
             fPerProcessG4Names.push_back(processes);
             if (fAnalysisTree != nullptr) {
                 fAnalysisTree->AddObservable((string)GetName() + "_" + obsName, "double",
-                                             "Energy deposited in the sensitive volume by a given process");
+                                             "Energy deposited in the sensitive volumes by a given process");
             }
         }
     }
@@ -673,11 +676,27 @@ void TRestGeant4AnalysisProcess::InitProcess() {
 TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
+    // The event read by the process runner has no track/hit references, required to access the
+    // volume names of the hits or the parent tracks
+    fOutputG4Event->InitializeReferences(GetRunInfo());
 
-    const auto sensitiveVolumeName = fG4Metadata->GetSensitiveVolume();
+    // All the sensitive volumes are considered. Energies are summed over them.
+    const auto& sensitiveVolumes = fG4Metadata->GetSensitiveVolumes();
+    auto isSensitiveVolume = [&sensitiveVolumes](const TString& volumeName) {
+        return std::find(sensitiveVolumes.begin(), sensitiveVolumes.end(), volumeName) !=
+               sensitiveVolumes.end();
+    };
 
-    Double_t sensitiveVolumeEnergy = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName.Data());
-    // Get time of the first hit in the sensitive volume
+    Double_t sensitiveVolumeEnergy = 0;
+    const auto energyInVolume = fOutputG4Event->GetEnergyInVolumeMap();
+    for (const auto& sensitiveVolume : sensitiveVolumes) {
+        const auto volume = energyInVolume.find(sensitiveVolume.Data());
+        if (volume != energyInVolume.end()) {
+            sensitiveVolumeEnergy += volume->second;
+        }
+    }
+
+    // Get time of the first hit in any sensitive volume
     double hitTime = std::numeric_limits<double>::infinity();
     std::set<int> trackIdsInSensitiveVolume;
 
@@ -685,7 +704,7 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         const auto& hits = track.GetHits();
         for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
             const auto volumeName = hits.GetVolumeName(hitIndex);
-            if (volumeName != sensitiveVolumeName) {
+            if (!isSensitiveVolume(volumeName)) {
                 continue;
             }
             const double energy = hits.GetEnergy(hitIndex);
@@ -712,10 +731,10 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         while (parent != nullptr && !found) {
             // iterate over hits
             const auto& hits = parent->GetHits();
-            if (hits.GetVolumeName(0) != sensitiveVolumeName) {
+            if (hits.GetNumberOfHits() > 0 && !isSensitiveVolume(hits.GetVolumeName(0))) {
                 for (size_t hitIndex = 0; hitIndex < hits.GetNumberOfHits(); hitIndex++) {
                     const auto volumeName = hits.GetVolumeName(hitIndex);
-                    if (volumeName != sensitiveVolumeName) {
+                    if (!isSensitiveVolume(volumeName)) {
                         found = true;
                         trackParentsOfInterest.insert(parent->GetTrackID());
                         break;
@@ -843,10 +862,14 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
     if (!fPerProcessObservables.empty()) {
         const auto energyInVolumePerParticlePerProcess =
             fOutputG4Event->GetEnergyInVolumePerParticlePerProcessMap();
-        const auto sensitiveVolume = energyInVolumePerParticlePerProcess.find(sensitiveVolumeName.Data());
         for (unsigned int n = 0; n < fPerProcessObservables.size(); n++) {
             Double_t energy = 0;
-            if (sensitiveVolume != energyInVolumePerParticlePerProcess.end()) {
+            for (const auto& sensitiveVolumeName : sensitiveVolumes) {
+                const auto sensitiveVolume =
+                    energyInVolumePerParticlePerProcess.find(sensitiveVolumeName.Data());
+                if (sensitiveVolume == energyInVolumePerParticlePerProcess.end()) {
+                    continue;
+                }
                 for (const auto& [particle, energyPerProcess] : sensitiveVolume->second) {
                     if (!fPerProcessParticle[n].empty() && particle != fPerProcessParticle[n]) {
                         continue;

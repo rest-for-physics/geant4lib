@@ -98,10 +98,10 @@ class TRestGeant4AnalysisProcess : public TRestEventProcess {
     /// A std::vector storing the `xxx` particle name extracted from `xxxTracksEDep`.
     std::vector<std::string> fParticleTrackEdep;  //!
 
-    /// If true, `PerProcessXxx` observables with the energy deposited in the sensitive volume per process
+    /// If true, `PerProcessXxx` observables with the energy deposited in the sensitive volumes per process
     /// are added to the analysis tree.
     Bool_t fPerProcessSensitiveEnergy = false;
-    /// If true, `PerProcessXxx` observables are normalized to the total energy in the sensitive volume.
+    /// If true, `PerProcessXxx` observables are normalized to the total energy in the sensitive volumes.
     Bool_t fPerProcessSensitiveEnergyNorm = false;
 
     void Initialize() override;
