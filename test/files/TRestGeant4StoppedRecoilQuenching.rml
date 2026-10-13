@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+    <!-- Synthetic histories in the unit tests do not load or transport this geometry. -->
+    <TRestGeant4Metadata name="completeHistory">
+        <parameter name="gdmlFile" value="synthetic-history.gdml"/>
+        <parameter name="seed" value="17021981"/>
+        <parameter name="storeTracks" value="true"/>
+        <parameter name="registerEmptyTracks" value="true"/>
+        <generator type="point" position="(0,0,0)">
+            <source particle="geantino">
+                <energy type="mono" energy="1keV"/>
+                <angular type="isotropic"/>
+            </source>
+        </generator>
+    </TRestGeant4Metadata>
+    <TRestGeant4QuenchingProcess name="stoppedRecoil">
+        <parameter name="applyToHitEnergies" value="true"/>
+        <volume name="gasVolume" model="lindhard-stopped-recoil"/>
+    </TRestGeant4QuenchingProcess>
+    <TRestGeant4QuenchingProcess name="historical">
+        <parameter name="applyToHitEnergies" value="true"/>
+        <volume name="gasVolume" model="lindhard"/>
+    </TRestGeant4QuenchingProcess>
+    <TRestGeant4QuenchingProcess name="accountingOnly">
+        <parameter name="applyToHitEnergies" value="false"/>
+        <volume name="gasVolume" model="lindhard-stopped-recoil"/>
+    </TRestGeant4QuenchingProcess>
+</test>

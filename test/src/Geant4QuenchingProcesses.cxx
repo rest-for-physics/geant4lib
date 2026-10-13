@@ -2,7 +2,9 @@
 #include <TRestGeant4QuenchingProcess.h>
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <filesystem>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -60,4 +62,241 @@ TEST(TRestGeant4QuenchingProcess, Simulation) {
     process.PrintMetadata();
 
     EXPECT_TRUE(process.GetUserVolumeExpressions().size() == 2);
+}
+
+namespace {
+// Only synthetic input construction uses protected fields. Tests exercise ProcessEvent itself.
+class QuenchingTestHits : public TRestGeant4Hits {
+   public:
+    void AddStep(double deposit, double remainingEnergy, int volume = 0, int process = 1) {
+        AddHit(TVector3(0, 0, GetNumberOfHits()), deposit);
+        fKineticEnergy.push_back(remainingEnergy);
+        fVolumeID.push_back(volume);
+        fProcessID.push_back(process);
+    }
+    void AddHadronicTarget(const string& name, int A, int Z) {
+        fHadronicTargetIsotopeName.assign(GetNumberOfHits(), name);
+        fHadronicTargetIsotopeA.assign(GetNumberOfHits(), A);
+        fHadronicTargetIsotopeZ.assign(GetNumberOfHits(), Z);
+    }
+    void RemoveKineticEnergies() { fKineticEnergy.clear(); }
+};
+
+class QuenchingTestTrack : public TRestGeant4Track {
+   public:
+    QuenchingTestTrack(const string& name, double initialEnergy, const TRestGeant4Hits& hits, int trackId = 1,
+                       int parentId = 0) {
+        fParticleName = name;
+        fInitialKineticEnergy = initialEnergy;
+        fTrackID = trackId;
+        fParentID = parentId;
+        SetHits(hits);
+    }
+};
+
+class QuenchingTestEvent : public TRestGeant4Event {
+   public:
+    void AddTrack(const TRestGeant4Track& track) { fTracks.push_back(track); }
+};
+
+double ReferenceLindhard(double energy, int A, int Z) {
+    const double epsilon = 11.5 * energy * pow(Z, -7.0 / 3.0);
+    const double g = 3 * pow(epsilon, 0.15) + 0.7 * pow(epsilon, 0.6) + epsilon;
+    const double k = 0.133 * pow(Z, 2.0 / 3.0) / sqrt(A);
+    return k * g / (1 + k * g);
+}
+
+QuenchingTestHits StoppedHits(double initialEnergy, int partitions) {
+    QuenchingTestHits hits;
+    hits.AddStep(0, initialEnergy, 0, 0);  // Saved track Init.
+    for (int i = 0; i < partitions; ++i) {
+        hits.AddStep(initialEnergy / partitions, initialEnergy * (partitions - i - 1) / partitions);
+    }
+    return hits;
+}
+
+class StoppedRecoilQuenchingTest : public testing::Test {
+   protected:
+    TRestRun run;
+    TRestGeant4Metadata metadata;
+    TRestGeant4QuenchingProcess process;
+    QuenchingTestEvent event;
+
+    void SetUp() override {
+        const auto rml = filesPath / "TRestGeant4StoppedRecoilQuenching.rml";
+        ASSERT_EQ(metadata.LoadConfigFromFile(rml.string(), "completeHistory"), 0);
+        auto& geometry = const_cast<TRestGeant4GeometryInfo&>(metadata.GetGeant4GeometryInfo());
+        geometry.fPhysicalToLogicalVolumeMap["gasVolume"] = "gasLogical";
+        geometry.fPhysicalToLogicalVolumeMap["outsideVolume"] = "outsideLogical";
+        geometry.InsertVolumeName(0, "gasVolume");
+        geometry.InsertVolumeName(1, "outsideVolume");
+        auto& physics = const_cast<TRestGeant4PhysicsInfo&>(metadata.GetGeant4PhysicsInfo());
+        physics.InsertParticleName(1000180400, "Ar40");
+        physics.InsertParticleName(1000060120, "C12");
+        physics.InsertParticleName(2212, "proton");
+        physics.InsertParticleName(22, "gamma");
+        physics.InsertParticleName(11, "e-");
+        physics.InsertParticleName(2112, "neutron");
+        physics.InsertProcessName(0, "Init", "Init");
+        physics.InsertProcessName(1, "ionIoni", "Electromagnetic");
+        metadata.InsertSensitiveVolume("gasVolume");
+        metadata.SetActiveVolume("gasVolume", 1);
+        metadata.SetActiveVolume("outsideVolume", 1);
+        run.AddMetadata(&metadata);
+        process.SetRunInfo(&run);
+        Configure("stoppedRecoil");
+        event.ClearVolumes();
+        event.AddActiveVolume("gasVolume");
+        event.AddActiveVolume("outsideVolume");
+        event.InitializeReferences(&run);
+    }
+
+    void Configure(const string& section) {
+        process.LoadConfig((filesPath / "TRestGeant4StoppedRecoilQuenching.rml").string(), section);
+        process.InitProcess();
+    }
+
+    TRestGeant4Event* Process(const TRestGeant4Track& track) {
+        event.ClearTracks();
+        event.AddTrack(track);
+        event.InitializeReferences(&run);
+        return dynamic_cast<TRestGeant4Event*>(process.ProcessEvent(&event));
+    }
+};
+}  // namespace
+
+TEST_F(StoppedRecoilQuenchingTest, PartitionInvariantAndEnergyAccounting) {
+    const double expected = 10 * ReferenceLindhard(10, 40, 18);
+    for (const int partitions : {1, 10, 100}) {
+        auto output = Process(QuenchingTestTrack("Ar40", 10, StoppedHits(10, partitions)));
+        ASSERT_NE(output, nullptr);
+        EXPECT_NEAR(output->GetTrack(0).GetTotalEnergy(), expected, 2e-6);
+        EXPECT_NEAR(output->GetEnergyInVolume("gasVolume"), expected, 2e-6);
+        EXPECT_NEAR(output->GetTotalDepositedEnergy(), expected, 2e-6);
+        EXPECT_NEAR(output->GetSensitiveVolumeEnergy(), expected, 2e-6);
+        EXPECT_NEAR(event.GetTrack(0).GetTotalEnergy(), 10, 2e-6);  // Input stays unchanged.
+        const auto& hits = output->GetTrack(0).GetHits();
+        for (size_t i = 1; i < hits.GetNumberOfHits(); ++i) {
+            EXPECT_NEAR(hits.GetEnergy(i), expected / partitions, 2e-7);
+            EXPECT_DOUBLE_EQ(hits.GetTime(i), event.GetTrack(0).GetHits().GetTime(i));
+            EXPECT_EQ(hits.GetPosition(i), event.GetTrack(0).GetHits().GetPosition(i));
+        }
+    }
+}
+
+TEST_F(StoppedRecoilQuenchingTest, UsesRecoilIdentityNotHadronicTarget) {
+    auto hits = StoppedHits(10, 1);
+    hits.AddHadronicTarget("C12", 12, 6);
+    auto output = Process(QuenchingTestTrack("Ar40", 10, hits));
+    EXPECT_NEAR(output->GetTotalDepositedEnergy(), 10 * ReferenceLindhard(10, 40, 18), 1e-6);
+    output = Process(QuenchingTestTrack("C12", 10, StoppedHits(10, 1)));
+    EXPECT_NEAR(output->GetTotalDepositedEnergy(), 10 * ReferenceLindhard(10, 12, 6), 1e-6);
+    output = Process(QuenchingTestTrack("proton", 10, StoppedHits(10, 1)));
+    EXPECT_NEAR(output->GetTotalDepositedEnergy(), 10 * ReferenceLindhard(10, 1, 1), 1e-6);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, ElectromagneticAndNeutronHitsAreUnchanged) {
+    for (const auto& name : {"gamma", "e-", "neutron"}) {
+        auto hits = StoppedHits(10, 2);
+        hits.AddHadronicTarget("Ar40", 40, 18);
+        const auto output = Process(QuenchingTestTrack(name, 10, hits));
+        EXPECT_DOUBLE_EQ(output->GetTotalDepositedEnergy(), 10);
+        EXPECT_DOUBLE_EQ(output->GetTrack(0).GetTotalEnergy(), 10);
+    }
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsPartialOrNonlocalHistory) {
+    QuenchingTestHits partial;
+    partial.AddStep(0, 10, 0, 0);
+    partial.AddStep(5, 5);
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, partial)), runtime_error);
+    QuenchingTestHits nonlocal;
+    nonlocal.AddStep(0, 10, 0, 0);
+    nonlocal.AddStep(5, 0);
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, nonlocal)), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsMissingInitAndMissingStepMetadata) {
+    QuenchingTestHits missingInit;
+    missingInit.AddStep(5, 5);
+    missingInit.AddStep(5, 0);
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, missingInit)), runtime_error);
+    auto missingKE = StoppedHits(10, 1);
+    missingKE.RemoveKineticEnergies();
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, missingKE)), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsVolumeCrossing) {
+    QuenchingTestHits hits;
+    hits.AddStep(0, 10, 1, 0);
+    hits.AddStep(10, 0);
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, hits)), runtime_error);
+    hits = StoppedHits(10, 1);
+    hits.AddStep(0, 0, 1);
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40", 10, hits)), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsExplicitAndUnlistedChildren) {
+    QuenchingTestTrack track("Ar40", 10, StoppedHits(10, 1));
+    track.AddSecondaryTrackID(2);
+    EXPECT_THROW(Process(track), runtime_error);
+    event.ClearTracks();
+    event.AddTrack(QuenchingTestTrack("Ar40", 10, StoppedHits(10, 1)));
+    event.AddTrack(QuenchingTestTrack("e-", 1, StoppedHits(1, 1), 2, 1));
+    event.InitializeReferences(&run);
+    EXPECT_THROW(process.ProcessEvent(&event), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsMissingOrExcitedRecoilIdentity) {
+    EXPECT_THROW(Process(QuenchingTestTrack("unknownIon", 10, StoppedHits(10, 1))), runtime_error);
+    auto& physics = const_cast<TRestGeant4PhysicsInfo&>(metadata.GetGeant4PhysicsInfo());
+    physics.InsertParticleName(1000180401, "Ar40[excited]");
+    EXPECT_THROW(Process(QuenchingTestTrack("Ar40[excited]", 10, StoppedHits(10, 1))), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsApplyingTwice) {
+    const auto first = Process(QuenchingTestTrack("Ar40", 10, StoppedHits(10, 1)));
+    TRestGeant4Event alreadyVisible = *first;
+    alreadyVisible.InitializeReferences(&run);
+    EXPECT_THROW(process.ProcessEvent(&alreadyVisible), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, AccountingOnlyKeepsPhysicalHitEnergies) {
+    Configure("accountingOnly");
+    const auto output = Process(QuenchingTestTrack("Ar40", 10, StoppedHits(10, 10)));
+    EXPECT_NEAR(output->GetTrack(0).GetTotalEnergy(), 10, 1e-6);
+    EXPECT_NEAR(output->GetTotalDepositedEnergy(), 10 * ReferenceLindhard(10, 40, 18), 1e-6);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, HistoricalLindhardRemainsHitBased) {
+    Configure("historical");
+    auto hits = StoppedHits(10, 10);
+    hits.AddHadronicTarget("Ar40", 40, 18);
+    const auto output = Process(QuenchingTestTrack("Ar40", 10, hits));
+    EXPECT_NEAR(output->GetTotalDepositedEnergy(), 10 * ReferenceLindhard(1, 40, 18), 1e-6);
+    EXPECT_NEAR(output->GetTrack(0).GetTotalEnergy(), 10 * ReferenceLindhard(1, 40, 18), 1e-6);
+    EXPECT_DOUBLE_EQ(Process(QuenchingTestTrack("Ar40", 10, StoppedHits(10, 10)))->GetTotalDepositedEnergy(),
+                     10);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, DefaultWithoutConfiguredVolumesIsUnchanged) {
+    TRestGeant4QuenchingProcess defaultProcess;
+    defaultProcess.SetRunInfo(&run);
+    defaultProcess.InitProcess();
+    event.AddTrack(QuenchingTestTrack("Ar40", 10, StoppedHits(10, 1)));
+    event.InitializeReferences(&run);
+    const auto output = dynamic_cast<TRestGeant4Event*>(defaultProcess.ProcessEvent(&event));
+    ASSERT_NE(output, nullptr);
+    EXPECT_DOUBLE_EQ(output->GetTrack(0).GetTotalEnergy(), 10);
+    EXPECT_DOUBLE_EQ(output->GetTotalDepositedEnergy(), 10);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsIncompleteVolumeStorage) {
+    metadata.SetActiveVolume("gasVolume", 0.5);
+    EXPECT_THROW(process.InitProcess(), runtime_error);
+}
+
+TEST_F(StoppedRecoilQuenchingTest, RejectsUnrecordedOutsideVolume) {
+    metadata.SetActiveVolume("outsideVolume", 0);
+    EXPECT_THROW(process.InitProcess(), runtime_error);
 }
