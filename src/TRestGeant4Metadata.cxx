@@ -499,7 +499,13 @@
 ///
 ///
 /// * **Formula**: It will use one of the predefined formulas to generate the primaries.
-/// The available formulas are: "Cos2", "Cos3", "SinCos2", "Sin2theta".
+/// The available formulas are: "Cos2", "Cos3", "SinCos2", "Sin2theta", "LscMuons", "LscMuonsWall".
+/// Note that "Cos2" and "Cos3" are plain cos^n(theta), while the rest include the sin(theta) jacobian of
+/// dOmega = sin(theta) dtheta dphi, which is what reproduces an intensity I(theta) ~ cos^n(theta) per unit
+/// solid angle. "LscMuons" (sin*cos^6) describes the cosmic muons surviving the 2450 m.w.e. of the Canfranc
+/// Underground Laboratory and is meant for the `cosmic` generator, whose projected sampling area does not
+/// depend on the direction. "LscMuonsWall" (sin*cos^7) is the same flux launched from a horizontal `wall`
+/// or `circle` surface generator, where the cos(theta) projection of the plane must be included explicitly.
 /// A range parameter can be specified to limit the zenith angular range of the generated primaries.
 /// It will not go over or under the predefined range for the formula `range=(10,45)deg`.
 /// A parameter `nPoints` can be defined to set the random sampling of the formula.
@@ -995,8 +1001,39 @@ Double_t TRestGeant4Metadata::GetCosmicFluxInCountsPerCm2PerSecond() const {
         delete file;
     }
 
+    else if (TRestGeant4PrimaryGeneratorTypes::StringToAngularDistributionTypes(
+                 source->GetAngularDistributionType().Data()) ==
+                 TRestGeant4PrimaryGeneratorTypes::AngularDistributionTypes::FORMULA &&
+             source->GetAngularDistributionFunction() != nullptr) {
+        // The LSC muon formulas have no absolute normalization (Geant4 does not provide a rate), so the
+        // reference measured flux is used instead. J = Integral(I(theta) dOmega), which is the quantity the
+        // other branches return, relates to the flux through a horizontal plane
+        // Phi_horiz = Integral(I(theta) cos(theta) dOmega) as J = Phi_horiz * (n + 2) / (n + 1).
+        // For the horizontal plane version the cos(theta) projection is already inside the sampled
+        // distribution, so the surface term of the generator is the plane area and J = Phi_horiz.
+        const TString functionName = source->GetAngularDistributionFunction()->GetName();
+        if (functionName == TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
+                                TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulas::LSC_MUONS)
+                                .GetName()) {
+            constexpr double n = 6;
+            countsPerSecondPerCm2 =
+                TRestGeant4PrimaryGeneratorTypes::LSC_MUONS_HORIZONTAL_FLUX_PER_CM2_PER_SECOND * (n + 2) /
+                (n + 1);
+        } else if (functionName ==
+                   TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulasToRootFormula(
+                       TRestGeant4PrimaryGeneratorTypes::AngularDistributionFormulas::LSC_MUONS_WALL)
+                       .GetName()) {
+            countsPerSecondPerCm2 =
+                TRestGeant4PrimaryGeneratorTypes::LSC_MUONS_HORIZONTAL_FLUX_PER_CM2_PER_SECOND;
+        } else {
+            throw std::runtime_error(
+                "Cosmic flux calculation is only supported for TFormula2, TH2D and LSC muon sources");
+        }
+    }
+
     else {
-        throw std::runtime_error("Cosmic flux calculation is only supported for TFormula2 or TH2D sources");
+        throw std::runtime_error(
+            "Cosmic flux calculation is only supported for TFormula2, TH2D and LSC muon sources");
     }
 
     return countsPerSecondPerCm2;
