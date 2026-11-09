@@ -32,7 +32,7 @@
 #include "TRestGeant4Event.h"
 #include "TRestGeant4Metadata.h"
 
-//! Recomputes visible hit energies using simple Lindhard and Birks quenching models
+//! Recomputes visible hit energies using hit/contained-recoil Lindhard and Birks quenching models
 class TRestGeant4QuenchingProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestGeant4Event input
