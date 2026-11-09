@@ -51,6 +51,31 @@
 /// phase; this is a stopped-recoil approximation inferred from the saved history in user-selected gas.
 /// Apply it once, before replacing deposited hit energies with another visible-energy estimate.
 ///
+/// The gas model model="lindhard-recoil" uses the same recoil-track Lindhard factor, but it does not require
+/// the recoil to be contained, stopped or childless, and it never raises an error for an event:
+///
+/// * Hits of a recoil track (proton or nucleus, A/Z from the PDG map of the recoil itself) use the
+///   step-wise factor [nu(K_before) - nu(K_after)] / (K_before - K_after), with nu(E) = E q(E,A,Z) and
+///   K the saved kinetic energies before and after the step. For a contained, stopped and childless
+///   recoil the sum is exactly E0 q(E0), the lindhard-stopped-recoil result. A recoil entering or leaving
+///   the volume only contributes the part of the nu(E) curve travelled inside it.
+/// * Descendants of a recoil (delta electrons and their own cascade, i.e. tracks created by ionization,
+///   bremsstrahlung, msc, Coulomb or elastic scattering of a charged parent) use q(E0) of their nearest
+///   recoil ancestor. Other e+/e-/gamma deposits are not quenched.
+/// * Local deposits of neutrons (recoils below the Geant4 secondary production threshold) use
+///   q(E_dep) of the hadronic target isotope, which requires storeHadronicTargetInfo=true in restG4.
+///   Otherwise the nucleus defined by the parameters `unknownTargetA` and `unknownTargetZ` is assumed
+///   (e.g. 20 and 10 for Ne20). If they are not defined these deposits are left unquenched.
+///
+/// This model requires storeTracks=true. Steps without kinetic-energy information fall back to q(E0).
+/// Removed tracks (removeUnwantedTracks, kill volumes, storage chance below 1) break the parent chain of
+/// some descendants, which are then left unquenched.
+///
+/// The observables `sensitiveVolumeEnergyBefore` and `sensitiveVolumeEnergyAfter` are the energy summed
+/// over all the sensitive volumes defined in TRestGeant4Metadata, before and after quenching, and
+/// `sensitiveQuenched` is 1 if they differ by more than 0.01 keV. The sensitive volume energy of the
+/// output event is also the sum over all the sensitive volumes, as written by restG4.
+///
 
 #include "TRestGeant4QuenchingProcess.h"
 
@@ -60,7 +85,10 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
+#include <map>
+#include <set>
 #include <stdexcept>
+#include <vector>
 
 using namespace std;
 
@@ -76,7 +104,7 @@ string ToLower(string value) {
 string NormalizeQuenchingModel(const string& model) {
     const auto normalized = ToLower(model);
     if (normalized == "auto" || normalized == "lindhard" || normalized == "birks" ||
-        normalized == "lindhard-stopped-recoil") {
+        normalized == "lindhard-stopped-recoil" || normalized == "lindhard-recoil") {
         return normalized;
     }
 
@@ -192,6 +220,97 @@ double StoppedRecoilQuenchingFactor(const TRestGeant4Track& track, const TRestGe
     return LindhardQuenchingFactor(initialEnergy, A, Z);
 }
 
+double LindhardVisibleEnergy(double recoilEnergy, int A, int Z) {
+    if (recoilEnergy <= 0) {
+        return 0;
+    }
+    return recoilEnergy * LindhardQuenchingFactor(recoilEnergy, A, Z);
+}
+
+// Recoil identity for lindhard-recoil. Same as GetRecoilIsotope, but it never throws: excited nuclear
+// states use their ground-state A/Z, and unknown particles are reported as not identified.
+enum class RecoilIdentity { kNotRecoil, kRecoil, kUnknown };
+
+RecoilIdentity GetRecoilIsotopeLenient(const TRestGeant4Track& track,
+                                       const TRestGeant4PhysicsInfo& physicsInfo, int& A, int& Z) {
+    const string name = track.GetParticleName().Data();
+    auto pdg = physicsInfo.GetParticleID(track.GetParticleName());
+    const auto excitation = name.find('[');
+    if (pdg == 0 && excitation != string::npos && excitation > 0) {
+        // Excited ions (e.g. "Ne20[1633.674]") may be missing from the map: use the ground state
+        pdg = physicsInfo.GetParticleID(name.substr(0, excitation).c_str());
+    }
+    if (pdg == 2212 || (pdg == 0 && name == "proton")) {
+        A = Z = 1;
+        return RecoilIdentity::kRecoil;
+    }
+    if (pdg >= 1000000000) {
+        // Geant4 nuclear code 10LZZZAAAI. The excitation level I is ignored, hypernuclei are not quenched
+        Z = (pdg / 10000) % 1000;
+        A = (pdg / 10) % 1000;
+        if (pdg / 100000000 != 10 || (pdg / 10000000) % 10 != 0 || Z <= 0 || A < Z) {
+            return RecoilIdentity::kUnknown;
+        }
+        return RecoilIdentity::kRecoil;
+    }
+    if (pdg != 0) {
+        return RecoilIdentity::kNotRecoil;
+    }
+    // Old files without the particle-name/PDG map
+    static const map<string, pair<int, int>> lightIons = {
+        {"deuteron", {2, 1}}, {"triton", {3, 1}}, {"he3", {3, 2}}, {"alpha", {4, 2}}};
+    const auto lowerName = ToLower(name);
+    const auto lightIon = lightIons.find(lowerName);
+    if (lightIon != lightIons.end()) {
+        A = lightIon->second.first;
+        Z = lightIon->second.second;
+        return RecoilIdentity::kRecoil;
+    }
+    if (lowerName == "e-" || lowerName == "e+" || lowerName == "gamma" || lowerName == "opticalphoton" ||
+        lowerName == "neutron" || lowerName == "mu-" || lowerName == "mu+" || lowerName == "geantino" ||
+        lowerName == "chargedgeantino" || lowerName.find("neutrino") != string::npos ||
+        lowerName.find("nu_") != string::npos) {
+        return RecoilIdentity::kNotRecoil;
+    }
+    return RecoilIdentity::kUnknown;
+}
+
+// Step-wise Lindhard factor of a hit of a recoil track: [nu(K_before) - nu(K_after)] / (K_before - K_after)
+double RecoilStepQuenchingFactor(const TRestGeant4Hits& hits, size_t hitIndex, double initialEnergy, int A,
+                                 int Z) {
+    const double initialFactor = LindhardQuenchingFactor(initialEnergy, A, Z);
+    if (!hits.HasCompleteStepInfo()) {
+        return initialFactor;
+    }
+    const double energyAfter = hits.GetKineticEnergy(hitIndex);
+    const double energyBefore = hitIndex > 0 ? hits.GetKineticEnergy(hitIndex - 1) : initialEnergy;
+    if (!isfinite(energyAfter) || !isfinite(energyBefore) || energyAfter < 0 || energyBefore < energyAfter) {
+        return initialFactor;
+    }
+    const double kineticLoss = energyBefore - energyAfter;
+    if (kineticLoss <= 1e-9 * max(1.0, energyBefore)) {
+        return LindhardQuenchingFactor(energyBefore, A, Z);
+    }
+    return Clamp01((LindhardVisibleEnergy(energyBefore, A, Z) - LindhardVisibleEnergy(energyAfter, A, Z)) /
+                   kineticLoss);
+}
+
+bool IsNeutralParticle(const string& particleName) {
+    static const set<string> neutrals = {
+        "gamma",     "neutron", "anti_neutron", "opticalphoton", "geantino",    "pi0",
+        "kaon0",     "kaon0L",  "kaon0S",       "lambda",        "anti_lambda", "nu_e",
+        "anti_nu_e", "nu_mu",   "anti_nu_mu",   "nu_tau",        "anti_nu_tau"};
+    return neutrals.count(particleName) > 0;
+}
+
+// Creator processes of tracks that belong to the energy-loss cascade of their charged parent
+bool IsCascadeProcess(const string& processName) {
+    static const set<string> cascade = {"eIoni",      "hIoni",       "ionIoni",         "muIoni",
+                                        "msc",        "CoulombScat", "nuclearStopping", "hadElastic",
+                                        "ionElastic", "eBrem",       "hBrems",          "muBrems"};
+    return cascade.count(processName) > 0;
+}
+
 bool IsNeutralParticleWithoutBirksQuenching(const string& particleName) {
     const auto name = ToLower(particleName);
     return name == "gamma" || name == "opticalphoton" || name == "geantino" || name == "chargedgeantino" ||
@@ -281,6 +400,8 @@ void TRestGeant4QuenchingProcess::Initialize() {
     fBirksConstant = 0.000126;       // 0.126 mm/MeV in REST units, mm/keV
     fBirksFallbackStepLength = 0.5;  // mm
     fApplyToHitEnergies = true;
+    fUnknownTargetA = 0;
+    fUnknownTargetZ = 0;
 }
 
 ///////////////////////////////////////////////
@@ -310,6 +431,8 @@ void TRestGeant4QuenchingProcess::InitFromConfigFile() {
     fApplyToHitEnergies = StringToBool(GetParameter("applyToHitEnergies", fApplyToHitEnergies));
     fBirksConstant = GetDblParameterWithUnits("birksConstant", fBirksConstant);
     fBirksFallbackStepLength = GetDblParameterWithUnits("birksFallbackStepLength", fBirksFallbackStepLength);
+    fUnknownTargetA = StringToInteger(GetParameter("unknownTargetA", to_string(fUnknownTargetA)));
+    fUnknownTargetZ = StringToInteger(GetParameter("unknownTargetZ", to_string(fUnknownTargetZ)));
 
     TiXmlElement* volumeElement = GetElement("volume");
     while (volumeElement) {
@@ -383,6 +506,31 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
     }
 
+    fMissingTargetWarningPrinted = false;
+    fMissingRecoilIdentityWarningPrinted = false;
+    bool recoilModelChecked = false;
+    for (const auto& volume : fVolumes) {
+        if (fVolumeModels[volume] != "lindhard-recoil" || recoilModelChecked) {
+            continue;
+        }
+        recoilModelChecked = true;
+        if (!fGeant4Metadata->GetStoreTracks()) {
+            throw runtime_error(
+                "TRestGeant4QuenchingProcess: lindhard-recoil requires storeTracks=true (used for " + volume +
+                ")");
+        }
+        if (fGeant4Metadata->GetRemoveUnwantedTracks() || !fGeant4Metadata->GetKillVolumes().empty()) {
+            RESTWarning << "TRestGeant4QuenchingProcess: lindhard-recoil with removeUnwantedTracks or kill "
+                           "volumes. Descendants of removed recoil tracks will not be quenched."
+                        << RESTendl;
+        }
+        if ((fUnknownTargetA > 0) != (fUnknownTargetZ > 0) ||
+            (fUnknownTargetA > 0 && fUnknownTargetA < fUnknownTargetZ)) {
+            throw runtime_error("TRestGeant4QuenchingProcess: invalid unknownTargetA=" +
+                                to_string(fUnknownTargetA) + " unknownTargetZ=" + to_string(fUnknownTargetZ));
+        }
+    }
+
     for (const auto& volume : fVolumes) {
         if (fVolumeModels[volume] != "lindhard-stopped-recoil") {
             continue;
@@ -426,8 +574,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     fInputG4Event = (TRestGeant4Event*)inputEvent;
     *fOutputG4Event = *((TRestGeant4Event*)inputEvent);
 
-    const string sensitiveVolumeName = fGeant4Metadata->GetSensitiveVolume().Data();
-    const double sensitiveVolumeEnergyBefore = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName);
+    const double sensitiveVolumeEnergyBefore = GetSensitiveVolumesEnergy(*fOutputG4Event);
 
     fOutputG4Event->InitializeReferences(GetRunInfo());
 
@@ -471,6 +618,73 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
             break;
         }
     }
+
+    // lindhard-recoil: recoil identity of every track and q(E0) inherited by the descendants of recoils,
+    // computed from the original saved history before modifying any energy.
+    const auto nTracks = fOutputG4Event->GetNumberOfTracks();
+    vector<int> recoilA, recoilZ;      // A = 0: the track is not a recoil
+    vector<double> descendantFactors;  // negative: not computed yet
+    const bool hasRecoilModel = any_of(fVolumeModels.begin(), fVolumeModels.end(),
+                                       [](const auto& model) { return model.second == "lindhard-recoil"; });
+    if (hasRecoilModel) {
+        recoilA.assign(nTracks, 0);
+        recoilZ.assign(nTracks, 0);
+        descendantFactors.assign(nTracks, -1);
+        map<int, size_t> trackIndexByID;
+        for (size_t trackIndex = 0; trackIndex < nTracks; ++trackIndex) {
+            const auto& track = fOutputG4Event->GetTrack(trackIndex);
+            trackIndexByID[track.GetTrackID()] = trackIndex;
+            int A = 0, Z = 0;
+            const auto identity =
+                GetRecoilIsotopeLenient(track, fGeant4Metadata->GetGeant4PhysicsInfo(), A, Z);
+            if (identity == RecoilIdentity::kRecoil) {
+                recoilA[trackIndex] = A;
+                recoilZ[trackIndex] = Z;
+            } else if (identity == RecoilIdentity::kUnknown && !fMissingRecoilIdentityWarningPrinted) {
+                RESTWarning << "TRestGeant4QuenchingProcess: lindhard-recoil cannot identify the nucleus of '"
+                            << track.GetParticleName() << "' (event " << fOutputG4Event->GetID()
+                            << "). Such tracks are not quenched. This warning is printed only once."
+                            << RESTendl;
+                fMissingRecoilIdentityWarningPrinted = true;
+            }
+        }
+        // Walk up the charged energy-loss cascade (delta electrons...) to the nearest recoil ancestor
+        for (size_t trackIndex = 0; trackIndex < nTracks; ++trackIndex) {
+            if (recoilA[trackIndex] > 0 || descendantFactors[trackIndex] >= 0) {
+                continue;
+            }
+            vector<size_t> chain;
+            size_t current = trackIndex;
+            double factor = 1;
+            while (chain.size() <= nTracks) {
+                if (descendantFactors[current] >= 0) {
+                    factor = descendantFactors[current];
+                    break;
+                }
+                chain.push_back(current);
+                const auto& track = fOutputG4Event->GetTrack(current);
+                const auto parent = trackIndexByID.find(track.GetParentID());
+                if (parent == trackIndexByID.end() || parent->second == current ||
+                    !IsCascadeProcess(track.GetCreatorProcess().Data())) {
+                    break;
+                }
+                const auto& parentTrack = fOutputG4Event->GetTrack(parent->second);
+                if (IsNeutralParticle(parentTrack.GetParticleName().Data())) {
+                    break;
+                }
+                if (recoilA[parent->second] > 0) {
+                    factor = LindhardQuenchingFactor(parentTrack.GetInitialKineticEnergy(),
+                                                     recoilA[parent->second], recoilZ[parent->second]);
+                    break;
+                }
+                current = parent->second;
+            }
+            for (const auto index : chain) {
+                descendantFactors[index] = factor;
+            }
+        }
+    }
+
     fOutputG4Event->fEnergyInVolumePerParticlePerProcess.clear();
     fOutputG4Event->fTotalDepositedEnergy = 0;
     fOutputG4Event->SetSensitiveVolumeEnergy(0);
@@ -504,6 +718,33 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
                 } else if (model == "lindhard-stopped-recoil") {
                     if (stoppedRecoilFactors.count(trackIndex)) {
                         quenchingFactor = stoppedRecoilFactors.at(trackIndex);
+                    }
+                } else if (model == "lindhard-recoil") {
+                    if (recoilA[trackIndex] > 0) {
+                        quenchingFactor =
+                            RecoilStepQuenchingFactor(*hits, hitIndex, track->GetInitialKineticEnergy(),
+                                                      recoilA[trackIndex], recoilZ[trackIndex]);
+                    } else if (particleName == "neutron") {
+                        // Recoil below the production threshold, deposited locally by the neutron
+                        int A = fUnknownTargetA, Z = fUnknownTargetZ;
+                        if (hits->GetHadronicOk() && !hits->GetHadronicTargetIsotopeName(hitIndex).empty() &&
+                            hits->GetHadronicTargetIsotopeZ(hitIndex) > 0) {
+                            A = hits->GetHadronicTargetIsotopeA(hitIndex);
+                            Z = hits->GetHadronicTargetIsotopeZ(hitIndex);
+                        } else if ((A <= 0 || Z <= 0) && !fMissingTargetWarningPrinted) {
+                            RESTWarning << "TRestGeant4QuenchingProcess: lindhard-recoil found a local "
+                                           "neutron deposit without hadronic target information. Enable "
+                                           "storeHadronicTargetInfo in restG4 or define unknownTargetA and "
+                                           "unknownTargetZ. These deposits are not quenched. This warning is "
+                                           "printed only once."
+                                        << RESTendl;
+                            fMissingTargetWarningPrinted = true;
+                        }
+                        if (A > 0 && Z > 0) {
+                            quenchingFactor = LindhardQuenchingFactor(depositedEnergy, A, Z);
+                        }
+                    } else {
+                        quenchingFactor = descendantFactors[trackIndex];
                     }
                 } else if (model == "lindhard") {
                     if (hits->GetHadronicOk()) {
@@ -543,7 +784,7 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
     }
 
-    const double sensitiveVolumeEnergyAfter = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName);
+    const double sensitiveVolumeEnergyAfter = GetSensitiveVolumesEnergy(*fOutputG4Event);
     fOutputG4Event->SetSensitiveVolumeEnergy(sensitiveVolumeEnergyAfter);
 
     bool sensitiveQuenched = TMath::Abs(sensitiveVolumeEnergyAfter - sensitiveVolumeEnergyBefore) > 1e-2;
@@ -554,6 +795,21 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     return fOutputG4Event;
 }
 
+///////////////////////////////////////////////
+/// \brief Energy deposited in all the sensitive volumes defined in TRestGeant4Metadata
+///
+double TRestGeant4QuenchingProcess::GetSensitiveVolumesEnergy(const TRestGeant4Event& event) const {
+    const auto energyInVolume = event.GetEnergyInVolumeMap();
+    double energy = 0;
+    for (const auto& sensitiveVolume : fGeant4Metadata->GetSensitiveVolumes()) {
+        const auto volume = energyInVolume.find(sensitiveVolume.Data());
+        if (volume != energyInVolume.end()) {
+            energy += volume->second;
+        }
+    }
+    return energy;
+}
+
 void TRestGeant4QuenchingProcess::EndProcess() {}
 
 void TRestGeant4QuenchingProcess::PrintMetadata() {
@@ -561,6 +817,10 @@ void TRestGeant4QuenchingProcess::PrintMetadata() {
     RESTMetadata << "Apply to hit energies: " << (fApplyToHitEnergies ? "true" : "false") << RESTendl;
     RESTMetadata << "Default Birks constant: " << fBirksConstant << " mm/keV" << RESTendl;
     RESTMetadata << "Default Birks fallback step length: " << fBirksFallbackStepLength << " mm" << RESTendl;
+    if (fUnknownTargetA > 0 && fUnknownTargetZ > 0) {
+        RESTMetadata << "Unknown hadronic target (lindhard-recoil): A=" << fUnknownTargetA
+                     << " Z=" << fUnknownTargetZ << RESTendl;
+    }
     for (auto const& volume : fVolumes) {
         RESTMetadata << "Volume: " << volume << " model=" << fVolumeModels[volume] << RESTendl;
     }
