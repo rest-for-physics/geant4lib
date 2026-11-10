@@ -38,6 +38,19 @@
 ///    </TRestGeant4QuenchingProcess>
 /// \endcode
 ///
+/// An opt-in gas model, model="lindhard-stopped-recoil", applies q(E0,A,Z) once per recoil track,
+/// where E0 is its initial kinetic energy and A/Z identify the recoil itself using the stored PDG map.
+/// It requires a saved Init hit, a track contained in one selected physical volume, zero final kinetic
+/// energy, no explicit secondary tracks, and local deposited-energy/kinetic-loss closure at every hit.
+/// Energies and kinetic energies are stored as floats; closure is checked at their numerical precision.
+/// Full track storage, registerEmptyTracks="true", removeUnwantedTracks="false", unit storage probability
+/// in all geometry volumes, and no kill volumes are required. Unsupported recoil histories raise
+/// std::runtime_error;
+/// they do not silently use the historical model or an unquenched recoil. Electromagnetic particles and
+/// neutrons are not quenched by this option. REST does not store NIEL, terminal track status, or material
+/// phase; this is a stopped-recoil approximation inferred from the saved history in user-selected gas.
+/// Apply it once, before replacing deposited hit energies with another visible-energy estimate.
+///
 
 #include "TRestGeant4QuenchingProcess.h"
 
@@ -47,6 +60,7 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 using namespace std;
 
@@ -61,7 +75,8 @@ string ToLower(string value) {
 
 string NormalizeQuenchingModel(const string& model) {
     const auto normalized = ToLower(model);
-    if (normalized == "auto" || normalized == "lindhard" || normalized == "birks") {
+    if (normalized == "auto" || normalized == "lindhard" || normalized == "birks" ||
+        normalized == "lindhard-stopped-recoil") {
         return normalized;
     }
 
@@ -102,6 +117,79 @@ double LindhardQuenchingFactor(double recoilEnergy, int A, int Z) {
     const double g = 3 * TMath::Power(gamma, 0.15) + 0.7 * TMath::Power(gamma, 0.6) + gamma;
     const double k = 0.133 * TMath::Power(Z, 2.0 / 3.0) * TMath::Power(A, -1.0 / 2.0);
     return Clamp01(k * g / (1 + k * g));
+}
+
+// Unlike historical Lindhard, A and Z describe the recoil track, never the hadronic target.
+bool GetRecoilIsotope(const TRestGeant4Track& track, const TRestGeant4PhysicsInfo& physicsInfo, int& A,
+                      int& Z) {
+    const string name = track.GetParticleName().Data();
+    const auto pdg = physicsInfo.GetParticleID(track.GetParticleName());
+    if (pdg == 2212 || (pdg == 0 && name == "proton")) {
+        A = Z = 1;
+        return true;
+    }
+    if (pdg >= 1000000000) {
+        // Geant4 ground-state nuclear code 10LZZZAAAI. Excited/hypernuclear tracks are unsupported.
+        Z = (pdg / 10000) % 1000;
+        A = (pdg / 10) % 1000;
+        if (pdg / 100000000 != 10 || (pdg / 10000000) % 10 != 0 || pdg % 10 != 0 || Z <= 0 || A < Z) {
+            throw runtime_error("unsupported nuclear PDG code " + to_string(pdg));
+        }
+        return true;
+    }
+    if (pdg != 0) {
+        return false;
+    }
+    // Common non-recoil names remain unquenched even in old files lacking their PDG mapping.
+    const auto lowerName = ToLower(name);
+    if (lowerName == "e-" || lowerName == "e+" || lowerName == "gamma" || lowerName == "opticalphoton" ||
+        lowerName == "neutron" || lowerName == "mu-" || lowerName == "mu+" || lowerName == "geantino" ||
+        lowerName == "chargedgeantino" || lowerName.find("neutrino") != string::npos) {
+        return false;
+    }
+    throw runtime_error("missing recoil identity in the particle-name/PDG map for '" + name + "'");
+}
+
+double StoppedRecoilQuenchingFactor(const TRestGeant4Track& track, const TRestGeant4Event& event,
+                                    int volumeId, int A, int Z) {
+    const auto& hits = track.GetHits();
+    const double initialEnergy = track.GetInitialKineticEnergy();
+    if (!isfinite(initialEnergy) || initialEnergy <= 0 || hits.GetNumberOfHits() < 2) {
+        throw runtime_error("missing positive initial kinetic energy or complete Init/step history");
+    }
+    const double tolerance = 8 * numeric_limits<float>::epsilon() * initialEnergy;
+    if (hits.GetProcessId(0) != 0 || hits.GetEnergy(0) != 0 || !isfinite(hits.GetKineticEnergy(0)) ||
+        abs(hits.GetKineticEnergy(0) - initialEnergy) > tolerance) {
+        throw runtime_error("first saved hit is not the unmodified track Init state");
+    }
+    if (!track.GetSecondaryTrackIDs().empty()) {
+        throw runtime_error("explicit secondary track IDs are present");
+    }
+    for (const auto& other : event.GetTracks()) {
+        if (other.GetParentID() == track.GetTrackID()) {
+            throw runtime_error("an explicit child track is present in the event");
+        }
+    }
+    double previousEnergy = initialEnergy;
+    double totalDeposit = 0;
+    for (size_t hit = 0; hit < hits.GetNumberOfHits(); ++hit) {
+        if (hits.GetVolumeId(hit) != volumeId) {
+            throw runtime_error("recoil is born outside, leaves, or spans the selected physical volume");
+        }
+        const double deposit = hits.GetEnergy(hit);
+        const double remainingEnergy = hits.GetKineticEnergy(hit);
+        if (!isfinite(deposit) || deposit < 0 || !isfinite(remainingEnergy) || remainingEnergy < 0 ||
+            remainingEnergy > previousEnergy + tolerance ||
+            abs(previousEnergy - remainingEnergy - deposit) > tolerance) {
+            throw runtime_error("saved kinetic-energy loss does not close with the local deposited energy");
+        }
+        totalDeposit += deposit;
+        previousEnergy = remainingEnergy;
+    }
+    if (previousEnergy != 0 || abs(totalDeposit - initialEnergy) > tolerance) {
+        throw runtime_error("recoil is not stopped with its initial kinetic energy deposited locally");
+    }
+    return LindhardQuenchingFactor(initialEnergy, A, Z);
 }
 
 bool IsNeutralParticleWithoutBirksQuenching(const string& particleName) {
@@ -274,6 +362,10 @@ void TRestGeant4QuenchingProcess::InitProcess() {
         }
 
         if (physicalVolumes.empty()) {
+            if (fUserVolumeModels[userVolume] == "lindhard-stopped-recoil") {
+                throw runtime_error("TRestGeant4QuenchingProcess: No volume matches stopped-recoil " +
+                                    userVolume);
+            }
             RESTWarning << "TRestGeant4QuenchingProcess: No volume found matching expression: " << userVolume
                         << RESTendl;
             continue;
@@ -288,6 +380,36 @@ void TRestGeant4QuenchingProcess::InitProcess() {
             fVolumeBirksConstants[volumeNameString] = fUserVolumeBirksConstants[userVolume];
             fVolumeBirksFallbackStepLengths[volumeNameString] =
                 fUserVolumeBirksFallbackStepLengths[userVolume];
+        }
+    }
+
+    for (const auto& volume : fVolumes) {
+        if (fVolumeModels[volume] != "lindhard-stopped-recoil") {
+            continue;
+        }
+        if (!fGeant4Metadata->GetStoreTracks() || !fGeant4Metadata->RegisterEmptyTracks() ||
+            fGeant4Metadata->GetRemoveUnwantedTracks() || !fGeant4Metadata->GetKillVolumes().empty() ||
+            fGeant4Metadata->GetStorageChance(volume) != 1.0) {
+            throw runtime_error(
+                "TRestGeant4QuenchingProcess: lindhard-stopped-recoil requires storeTracks=true, "
+                "registerEmptyTracks=true, removeUnwantedTracks=false, no kill volumes, and "
+                "storage chance=1 for " +
+                volume);
+        }
+        // Otherwise a lossless exit/re-entry through an unrecorded volume can look contained.
+        for (const auto& physical : geometryInfo.GetAllPhysicalVolumes()) {
+            auto names = geometryInfo.GetAlternativeNamesFromGeant4PhysicalName(physical);
+            if (names.empty()) {
+                names.insert(physical);
+            }
+            for (const auto& stored : names) {
+                if (fGeant4Metadata->GetStorageChance(stored) != 1.0) {
+                    throw runtime_error(
+                        "TRestGeant4QuenchingProcess: lindhard-stopped-recoil requires "
+                        "complete geometry-volume storage; incomplete volume " +
+                        string(stored.Data()));
+                }
+            }
         }
     }
 
@@ -308,6 +430,47 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
     const double sensitiveVolumeEnergyBefore = fOutputG4Event->GetEnergyInVolume(sensitiveVolumeName);
 
     fOutputG4Event->InitializeReferences(GetRunInfo());
+
+    // Validate the original saved history before modifying any energies. This also rejects applying
+    // this option a second time: visible deposits no longer close with the original kinetic losses.
+    map<int, double> stoppedRecoilFactors;
+    const bool hasStoppedRecoilModel =
+        any_of(fVolumeModels.begin(), fVolumeModels.end(),
+               [](const auto& model) { return model.second == "lindhard-stopped-recoil"; });
+    for (size_t trackIndex = 0; trackIndex < fOutputG4Event->GetNumberOfTracks(); ++trackIndex) {
+        if (!hasStoppedRecoilModel) {
+            break;
+        }
+        const auto& track = fOutputG4Event->GetTrack(trackIndex);
+        const auto& hits = track.GetHits();
+        if (!hits.HasCompleteStepInfo()) {
+            throw runtime_error(
+                "TRestGeant4QuenchingProcess: lindhard-stopped-recoil missing step "
+                "metadata event=" +
+                to_string(fOutputG4Event->GetID()) + " track=" + to_string(track.GetTrackID()));
+        }
+        for (size_t hit = 0; hit < hits.GetNumberOfHits(); ++hit) {
+            const string volume = hits.GetVolumeName(hit).Data();
+            if (hits.GetEnergy(hit) <= 0 || fVolumeModels.count(volume) == 0 ||
+                fVolumeModels.at(volume) != "lindhard-stopped-recoil") {
+                continue;
+            }
+            try {
+                int A = 0, Z = 0;
+                if (GetRecoilIsotope(track, fGeant4Metadata->GetGeant4PhysicsInfo(), A, Z)) {
+                    stoppedRecoilFactors[trackIndex] =
+                        StoppedRecoilQuenchingFactor(track, *fOutputG4Event, hits.GetVolumeId(hit), A, Z);
+                }
+            } catch (const runtime_error& error) {
+                throw runtime_error(
+                    "TRestGeant4QuenchingProcess: lindhard-stopped-recoil unsupported "
+                    "event=" +
+                    to_string(fOutputG4Event->GetID()) + " track=" + to_string(track.GetTrackID()) +
+                    " volume=" + volume + ": " + error.what());
+            }
+            break;
+        }
+    }
     fOutputG4Event->fEnergyInVolumePerParticlePerProcess.clear();
     fOutputG4Event->fTotalDepositedEnergy = 0;
     fOutputG4Event->SetSensitiveVolumeEnergy(0);
@@ -337,6 +500,10 @@ TRestEvent* TRestGeant4QuenchingProcess::ProcessEvent(TRestEvent* inputEvent) {
                             EstimateStepLength(*hits, hitIndex, fVolumeBirksFallbackStepLengths[volumeName]);
                         quenchingFactor = BirksQuenchingFactor(depositedEnergy, stepLength,
                                                                fVolumeBirksConstants[volumeName]);
+                    }
+                } else if (model == "lindhard-stopped-recoil") {
+                    if (stoppedRecoilFactors.count(trackIndex)) {
+                        quenchingFactor = stoppedRecoilFactors.at(trackIndex);
                     }
                 } else if (model == "lindhard") {
                     if (hits->GetHadronicOk()) {
