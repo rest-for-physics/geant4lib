@@ -58,6 +58,16 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     Double_t fBirksFallbackStepLength = 0.5;  // mm
     Bool_t fApplyToHitEnergies = true;
 
+    /// Recoil nucleus assumed by lindhard-recoil for local neutron deposits without stored hadronic target
+    /// information (storeHadronicTargetInfo=false). A or Z <= 0 leaves those deposits unquenched.
+    Int_t fUnknownTargetA = 0;
+    Int_t fUnknownTargetZ = 0;
+
+    bool fMissingTargetWarningPrinted = false;          //!
+    bool fMissingRecoilIdentityWarningPrinted = false;  //!
+
+    double GetSensitiveVolumesEnergy(const TRestGeant4Event& event) const;
+
     void Initialize() override;
     void InitFromConfigFile() override;
     void LoadDefaultConfig();
@@ -87,6 +97,6 @@ class TRestGeant4QuenchingProcess : public TRestEventProcess {
     explicit TRestGeant4QuenchingProcess(const char* configFilename);
     ~TRestGeant4QuenchingProcess() override;
 
-    ClassDefOverride(TRestGeant4QuenchingProcess, 3);
+    ClassDefOverride(TRestGeant4QuenchingProcess, 4);
 };
 #endif
