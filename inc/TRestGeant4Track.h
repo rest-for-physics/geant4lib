@@ -126,8 +126,8 @@ class TRestGeant4Track {
 
     TString GetLastProcessName() const;
 
-    /// Prints the track information. N number of hits to print, 0 = all
-    void PrintTrack(size_t maxHits = 0) const;
+    /// Prints the track information. N number of hits to print, -1 = all
+    void PrintTrack(size_t maxHits = -1) const;
     void PrintTrackFilterVolumes(const std::set<std::string>& filterVolumes) const;
 
     inline void RemoveHits() { fHits.RemoveHits(); }
