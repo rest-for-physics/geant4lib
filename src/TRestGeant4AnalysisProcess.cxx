@@ -184,7 +184,8 @@
 ///
 /// The following observables describe the first track outside the sensitive
 /// volumes which is the ancestor of the tracks depositing energy in the
-/// sensitive volumes. They are only filled when such a track exists.
+/// sensitive volumes. They are filled for every event; when no such track exists,
+/// the position and energy are NaN and the string observables are empty.
 ///
 /// * **firstTrackInSensitiveOk**: 1 if there is exactly one such ancestor
 /// track, 0 otherwise.
@@ -746,33 +747,36 @@ TRestEvent* TRestGeant4AnalysisProcess::ProcessEvent(TRestEvent* inputEvent) {
         }
     }
 
+    const double missingValue = std::numeric_limits<double>::quiet_NaN();
+    TVector3 position(missingValue, missingValue, missingValue);
+    double energy = missingValue;
+    string particleName;
+    string parentParticleName;
+    string creatorProcess;
+    string volumeName;
+
     if (!trackParentsOfInterest.empty()) {
         const auto track = fOutputG4Event->GetTrackByID(*trackParentsOfInterest.begin());
 
-        const auto position = track->GetInitialPosition();
-        SetObservableValue("firstTrackInSensitivePositionX", position.X());
-        SetObservableValue("firstTrackInSensitivePositionY", position.Y());
-        SetObservableValue("firstTrackInSensitivePositionZ", position.Z());
+        position = track->GetInitialPosition();
+        energy = track->GetInitialKineticEnergy();
+        particleName = track->GetParticleName().Data();
 
-        const auto energy = track->GetInitialKineticEnergy();
-        SetObservableValue("firstTrackInSensitiveEnergy", energy);
-
-        const string particleName = track->GetParticleName().Data();
-        SetObservableValue("firstTrackInSensitiveParticle", particleName);
-
-        string parentParticleName;
         if (track->GetParentTrack() != nullptr) {
             parentParticleName = track->GetParentTrack()->GetParticleName().Data();
         }
-        SetObservableValue("firstTrackInSensitiveParentParticle", parentParticleName);
-
-        const string creatorProcess = track->GetCreatorProcess().Data();
-        SetObservableValue("firstTrackInSensitiveCreatorProcess", creatorProcess);
-
-        const string volumeName = track->GetHits().GetVolumeName(0).Data();
-        SetObservableValue("firstTrackInSensitiveVolumeName", volumeName);
+        creatorProcess = track->GetCreatorProcess().Data();
+        volumeName = track->GetHits().GetVolumeName(0).Data();
     }
 
+    SetObservableValue("firstTrackInSensitivePositionX", position.X());
+    SetObservableValue("firstTrackInSensitivePositionY", position.Y());
+    SetObservableValue("firstTrackInSensitivePositionZ", position.Z());
+    SetObservableValue("firstTrackInSensitiveEnergy", energy);
+    SetObservableValue("firstTrackInSensitiveParticle", particleName);
+    SetObservableValue("firstTrackInSensitiveParentParticle", parentParticleName);
+    SetObservableValue("firstTrackInSensitiveCreatorProcess", creatorProcess);
+    SetObservableValue("firstTrackInSensitiveVolumeName", volumeName);
     SetObservableValue("firstTrackInSensitiveOk", trackParentsOfInterest.size() == 1);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
