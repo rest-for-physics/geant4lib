@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+    <TRestGeant4Metadata name="ancestryMetadata">
+        <parameter name="gdmlFile" value="synthetic-ancestry.gdml"/>
+        <parameter name="seed" value="17021981"/>
+        <generator type="point" position="(0,0,0)">
+            <source particle="gamma">
+                <energy type="mono" energy="20keV"/>
+                <angular type="isotropic"/>
+            </source>
+        </generator>
+    </TRestGeant4Metadata>
+    <TRestGeant4AnalysisProcess name="g4Ana"/>
+</test>
